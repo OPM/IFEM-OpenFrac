@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simulation>
+  <!-- General - geometry definitions !-->
+  <geometry Lx="0.1" Ly="0.04">
+    <refine type="uniform" patch="1" u="63" v="63"/>
+    <topologysets>
+      <set name="Loaded" type="edge">
+        <item patch="1">3 4</item>
+      </set>
+      <set name="Noload" type="edge">
+        <item patch="1">1 2</item>
+      </set>
+    </topologysets>
+  </geometry>
+
+  <cahnhilliard>
+    <material Gc="3"/>
+    <smearing>5.2e-4</smearing>
+    <initial_crack type="expression">if(below(x,0.05),abs(y-0.02),sqrt(pow(x-0.05,2)+pow(y-0.02,2)))</initial_crack>
+  </cahnhilliard>
+</simulation>
