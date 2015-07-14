@@ -25,10 +25,10 @@
 #include "SIMFractureDynamics.h"
 
 
-template<class Dim>
-int runSimulator(char* infile)
+template<class Dim, class Integrand>
+int runSimulator2(char* infile)
 {
-  SIMCH<Dim> ch;
+  SIMCH<Dim,Integrand> ch;
   SIMElasticityWrap<Dim> sm;
 
   int res = ConfigureSIM(ch, infile, false);
@@ -38,12 +38,14 @@ int runSimulator(char* infile)
   if (res)
     return res;
 
-  SIMFractureDynamics<SIMElasticityWrap<Dim>, SIMCH<Dim>> frac(sm, ch);
+  SIMFractureDynamics<SIMElasticityWrap<Dim>,
+                      SIMCH<Dim,Integrand>> frac(sm, ch);
 
   // HDF5 output
   DataExporter* exporter=NULL;
 
-  SIMSolver<SIMFractureDynamics<SIMElasticityWrap<Dim>, SIMCH<Dim>>> solver(frac);
+  SIMSolver<SIMFractureDynamics<SIMElasticityWrap<Dim>,
+            SIMCH<Dim,Integrand>>> solver(frac);
   if (ch.opt.dumpHDF5(infile))
     exporter = SIM::handleDataOutput(frac, solver, ch.opt.hdf5,
                                      false, 1, 1);
@@ -57,6 +59,15 @@ int runSimulator(char* infile)
 }
 
 
+template<class Dim>
+int runSimulator1(char* infile, bool fourth)
+{
+  if (fourth)
+    return runSimulator2<Dim,CahnHilliard4>(infile);
+
+  return runSimulator2<Dim,CahnHilliard>(infile);
+}
+
 int main(int argc, char** argv)
 {
   Profiler prof(argv[0]);
@@ -65,6 +76,7 @@ int main(int argc, char** argv)
   int  i;
   char ndim = 3;
   char* infile = 0;
+  bool fourth = false;
 
   IFEM::Init(argc,argv);
 
@@ -75,6 +87,8 @@ int main(int argc, char** argv)
       ndim = 2;
     else if (!strcmp(argv[i],"-1D"))
       ndim = 1;
+    else if (!strcmp(argv[i],"-fourth"))
+      fourth = true;
     else if (!infile)
       infile = argv[i];
     else
@@ -101,9 +115,9 @@ int main(int argc, char** argv)
   IFEM::cout << std::endl;
 
   if (ndim == 3)
-    return runSimulator<SIM3D>(infile);
+    return runSimulator1<SIM3D>(infile,fourth);
   else if (ndim == 2)
-    return runSimulator<SIM2D>(infile);
+    return runSimulator1<SIM2D>(infile,fourth);
   // SIMFiniteDefEl cannot be instanced in 1D
 //  else
 //    return runSimulator<SIM1D>(infile);

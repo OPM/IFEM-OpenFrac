@@ -23,10 +23,10 @@
 #include "TimeStep.h"
 
 
-template<class Dim>
-int runSimulator(char* infile)
+template<class Dim, class Integrand>
+int runSimulator2(char* infile)
 {
-  SIMCH<Dim> ch;
+  SIMCH<Dim,Integrand> ch;
 
   int res = ConfigureSIM(ch, infile, false);
 
@@ -36,7 +36,7 @@ int runSimulator(char* infile)
   // HDF5 output
   DataExporter* exporter=NULL;
 
-  SIMSolver<SIMCH<Dim>> solver(ch);
+  SIMSolver<SIMCH<Dim,Integrand>> solver(ch);
   if (ch.opt.dumpHDF5(infile))
     exporter = SIM::handleDataOutput(ch, solver, ch.opt.hdf5,
                                      false, 1, 1);
@@ -44,6 +44,15 @@ int runSimulator(char* infile)
 
   delete exporter;
   return res;
+}
+
+template<class Dim>
+int runSimulator1(char* infile, bool fourth)
+{
+  if (fourth)
+    return runSimulator2<Dim,CahnHilliard4>(infile);
+
+  return runSimulator2<Dim,CahnHilliard>(infile);
 }
 
 
@@ -55,6 +64,7 @@ int main(int argc, char** argv)
   int  i;
   char ndim = 3;
   char* infile = 0;
+  bool fourth = false;
 
   IFEM::Init(argc,argv);
 
@@ -65,6 +75,8 @@ int main(int argc, char** argv)
       ndim = 2;
     else if (!strcmp(argv[i],"-1D"))
       ndim = 1;
+    else if (!strcmp(argv[i],"-fourth"))
+      fourth = true;
     else if (!infile)
       infile = argv[i];
     else
@@ -91,11 +103,11 @@ int main(int argc, char** argv)
   IFEM::cout << std::endl;
 
   if (ndim == 3)
-    return runSimulator<SIM3D>(infile);
+    return runSimulator1<SIM3D>(infile,fourth);
   else if (ndim == 2)
-    return runSimulator<SIM2D>(infile);
+    return runSimulator1<SIM2D>(infile,fourth);
   else
-    return runSimulator<SIM1D>(infile);
+    return runSimulator1<SIM1D>(infile,fourth);
 
   return 1;
 }

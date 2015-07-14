@@ -25,7 +25,8 @@
 
 CahnHilliard::CahnHilliard(unsigned short int n) :
   nsd(n), smearFactor(1.0), maxCrack(1e-3), stabk(0.0),
-  initial_crack(nullptr), mat(nullptr), tensile(nullptr)
+  initial_crack(nullptr), mat(nullptr), tensile(nullptr),
+  second_scale(4.0)
 {
   npv = 1; // One primary unknown per node (scalar equation)
 
@@ -70,7 +71,7 @@ bool CahnHilliard::evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
       double grad=0.0;
       for (size_t k=1;k<=nsd;++k)
         grad += fe.dNdX(i,k)*fe.dNdX(j,k);
-      elMat.A[0](i,j) += 4.0*smearFactor*smearFactor*grad*fe.detJxW;
+      elMat.A[0](i,j) += second_scale*smearFactor*smearFactor*grad*fe.detJxW;
     }
   }
 
@@ -114,6 +115,35 @@ bool CahnHilliard::evalSol(Vector& s, const FiniteElement& fe,
     s(1) = 0.0;
   if (s(1) > 1.0)
     s(1) = 1.0;
+
+  return true;
+}
+
+
+CahnHilliard4::CahnHilliard4(unsigned short int n) :
+  CahnHilliard(n)
+{
+  second_scale = 2.0;
+}
+
+
+bool CahnHilliard4::evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
+                            const Vec3& X) const
+{
+  if (!CahnHilliard::evalInt(elmInt,fe,X))
+    return false;
+
+  ElmMats& elMat = static_cast<ElmMats&>(elmInt);
+
+  for (size_t i=1;i<=fe.N.size();++i) {
+    for (size_t j=1;j<=fe.N.size();++j) {
+      double grad2 = 0.0;
+      for (size_t k=1;k<=nsd;++k)
+        grad2 += fe.d2NdX2(i,k,k)*fe.d2NdX2(j,k,k);
+
+      elMat.A[0](i,j) += pow(smearFactor,4)*grad2*fe.detJxW;
+    }
+  }
 
   return true;
 }

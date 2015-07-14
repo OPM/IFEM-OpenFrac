@@ -233,10 +233,10 @@ private:
 
 
 //! \brief Partial specialization for configurator
-template<class Dim>
-struct SolverConfigurator< SIMCH<Dim> > {
-  int setup(SIMCH<Dim>& ch,
-            const typename SIMCH<Dim>::SetupProps& props, char* infile)
+template<class Dim, class Integrand>
+struct SolverConfigurator< SIMCH<Dim,Integrand> > {
+  int setup(SIMCH<Dim,Integrand>& ch,
+            const typename SIMCH<Dim,Integrand>::SetupProps& props, char* infile)
   {
     utl::profiler->start("Model input");
 

@@ -2,6 +2,7 @@
 <simulation>
   <!-- General - geometry definitions !-->
   <geometry Lx="0.1" Ly="0.04">
+    <raiseorder patch="1" u="1" v="1"/>
     <refine type="uniform" patch="1" u="63" v="63"/>
     <topologysets>
       <set name="Loaded" type="edge">

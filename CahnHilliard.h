@@ -20,7 +20,7 @@
 
 
 /*!
-  \brief Class representing the integrand of the Cahn Hilliard problem.
+  \brief Class representing the integrand of the 2. order Cahn Hilliard problem.
 */
 
 class CahnHilliard : public IntegrandBase
@@ -98,6 +98,34 @@ protected:
 
   mutable Vector historyField;   //!< History field for tensile energy.
   const Vector* tensile; //!< Tensile energy from elasticity solver.
+
+  double second_scale; //!< Scaling factor in front of second order term
+};
+
+
+/*!
+  \brief Class representing the integrand of the 4. order Cahn Hilliard problem.
+*/
+
+class CahnHilliard4 : public CahnHilliard
+{
+public:
+  //! \brief Default constructor.
+  //! \param[in] n Number of spatial dimensions
+  CahnHilliard4(unsigned short int n = 3);
+
+  //! \brief Empty destructor.
+  virtual ~CahnHilliard4() {}
+
+  //! \brief Returns integrand traits.
+  virtual int getIntegrandType() const { return SECOND_DERIVATIVES; }
+
+  //! \brief Evaluates the integrand at an interior point.
+  //! \param elmInt The local integral object to receive the contributions
+  //! \param[in] fe Finite element data of current integration point
+  //! \param[in] X Cartesian coordinates of current integration point
+  virtual bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
+                       const Vec3& X) const;
 };
 
 #endif
