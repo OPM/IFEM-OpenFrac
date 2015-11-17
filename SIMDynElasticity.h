@@ -83,7 +83,7 @@ public:
     if (Dim::opt.format < 0) return true;
 
     nBlock = 0;
-    return this->writeGlvG(geoBlk,fileName);
+    return dSim.saveModel(geoBlk,nBlock,fileName);
   }
 
   //! \brief Saves the converged results of a given time step to VTF file.
@@ -99,10 +99,7 @@ public:
     if (tp.step%Dim::opt.saveInc > 0 || Dim::opt.format < 0 || !ok)
       return ok;
 
-    int iDump = 1 + tp.step/Dim::opt.saveInc;
-    ok = this->writeGlvS(dSim.getSolution(),iDump,nBlock,tp.time.t);
-
-    return ok && this->writeGlvStep(iDump,tp.time.t);
+    return dSim.saveStep(tp.step/Dim::opt.saveInc,nBlock,tp.time.t);
   }
 
   //! \brief Advances the time step one step forward.

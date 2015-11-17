@@ -94,7 +94,7 @@ public:
     if (tp.step%Dim::opt.saveInc > 0 || Dim::opt.format < 0)
       return true;
 
-    int iDump = 1 + tp.step/Dim::opt.saveInc;
+    int iDump = tp.step/Dim::opt.saveInc;
     if (this->writeGlvS1(phasefield,iDump,nBlock,tp.time.t,"phasefield",9) < 0)
       return false;
 

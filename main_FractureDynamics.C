@@ -18,30 +18,31 @@
 #include "SIMPhaseField.h"
 #include "SIMCoupled.h"
 #include "SIMSolver.h"
+#include "NonLinSIM.h"
 #include "ASMstruct.h"
 #include "AppCommon.h"
 
 
 /*!
-  \brief Newmark simulation driver.
+  \brief Dynamic simulation driver.
 
   \details Only the parse method is reimplemented here to handle that the
-  time stepping parameters may be located within the <newmarksolver> tag.
+  time stepping parameters may be located within the specified context.
 */
 
-template<class T> class SIMNewmarkSolver : public SIMSolver<T>
+template<class T> class SIMDriver : public SIMSolver<T>
 {
 public:
   //! \brief The constructor initializes the reference to the actual solver.
-  SIMNewmarkSolver(T& s) : SIMSolver<T>(s) {}
+  SIMDriver(T& s, const char* c = NULL) : SIMSolver<T>(s), context(c) {}
   //! \brief Empty destructor.
-  virtual ~SIMNewmarkSolver() {}
+  virtual ~SIMDriver() {}
 
 protected:
   //! \brief Parses a data section from an XML element.
   virtual bool parse(const TiXmlElement* elem)
   {
-    if (!strcasecmp(elem->Value(),"newmarksolver"))
+    if (!strcasecmp(elem->Value(),context))
     {
       const TiXmlElement* child = elem->FirstChildElement();
       for (; child; child = child->NextSiblingElement())
@@ -50,6 +51,9 @@ protected:
 
     return this->SIMSolver<T>::parse(elem);
   }
+
+private:
+  const char* context; //!< XML-tag to search for time-stepping input within
 };
 
 
@@ -76,8 +80,8 @@ template<class Dim, class Integrand> int runSimulator2 (char* infile)
 
   phaseSim.opt.print(IFEM::cout) << std::endl;
 
-  SIMFractureDynamics                   frac(elastoSim,phaseSim);
-  SIMNewmarkSolver<SIMFractureDynamics> solver(frac);
+  SIMFractureDynamics            frac(elastoSim,phaseSim);
+  SIMDriver<SIMFractureDynamics> solver(frac,"newmarksolver");
   if (!solver.read(infile))
     return 1;
 
@@ -107,16 +111,18 @@ template<class Dim, class Integrand> int runSimulator2 (char* infile)
   // Use an explicit call instead of normal couplings for this.
   phaseSim.setTensileEnergy(elastoSim.getTensileEnergy());
 
-  int res = solver.solveProblem(infile,exporter,"100. Starting the simulation");
+  int res = solver.solveProblem(infile,exporter,
+                                "100. Starting the simulation",false);
 
   delete exporter;
   return res;
 }
 
 
-template<class Dim> int runSimulator2 (char* infile)
+template<class Dim, class Integrator=NewmarkSIM>
+int runSimulator3 (char* infile, const char* context = "newmarksolver")
 {
-  typedef SIMDynElasticity<Dim> SIMElastoDynamics;
+  typedef SIMDynElasticity<Dim,Integrator> SIMElastoDynamics;
 
   utl::profiler->start("Model input");
   IFEM::cout <<"\n\n0. Parsing input file(s)."
@@ -128,7 +134,7 @@ template<class Dim> int runSimulator2 (char* infile)
 
   elastoSim.opt.print(IFEM::cout) << std::endl;
 
-  SIMNewmarkSolver<SIMElastoDynamics> solver(elastoSim);
+  SIMDriver<SIMElastoDynamics> solver(elastoSim,context);
   if (!solver.read(infile))
     return 1;
 
@@ -158,15 +164,29 @@ template<class Dim> int runSimulator2 (char* infile)
   return res;
 }
 
+/*!
+  \brief Linear quasi-static solution driver.
+*/
+
+class LinSIM : public NonLinSIM
+{
+public:
+  //! \brief The constructor forwards to the parent class constructor.
+  LinSIM(SIMbase& sim) : NonLinSIM(sim,NonLinSIM::NONE) { fromIni = false; }
+  //! \brief Empty destructor.
+  virtual ~LinSIM() {}
+};
+
 
 template<class Dim> int runSimulator1 (char* infile, char phaseFieldOrder)
 {
   switch (phaseFieldOrder) {
   case 4: return runSimulator2<Dim,CahnHilliard4>(infile);
   case 2: return runSimulator2<Dim,CahnHilliard>(infile);
+  case 1: return runSimulator3<Dim,LinSIM>(infile,"staticsolver");
   }
 
-  return runSimulator2<Dim>(infile); // No phase field coupling
+  return runSimulator3<Dim>(infile); // No phase field coupling
 }
 
 
@@ -186,9 +206,11 @@ int main (int argc, char** argv)
     if (SIMoptions::ignoreOldOptions(argc,argv,i))
       ; // ignore the obsolete option
     else if (!strcmp(argv[i],"-2D"))
-      twoD = true;
+      twoD = SIMElasticity<SIM2D>::planeStrain = true;
     else if (!strcmp(argv[i],"-fourth"))
       pfOrder = 4;
+    else if (!strcmp(argv[i],"-static"))
+      pfOrder = 1;
     else if (!strcmp(argv[i],"-nocrack"))
       pfOrder = 0;
     else if (!strcmp(argv[i],"-principal"))
