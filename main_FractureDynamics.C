@@ -34,7 +34,7 @@ template<class T> class SIMDriver : public SIMSolver<T>
 {
 public:
   //! \brief The constructor initializes the reference to the actual solver.
-  SIMDriver(T& s, const char* c = NULL) : SIMSolver<T>(s), context(c) {}
+  SIMDriver(T& s, const char* c = nullptr) : SIMSolver<T>(s), context(c) {}
   //! \brief Empty destructor.
   virtual ~SIMDriver() {}
 
@@ -57,10 +57,11 @@ private:
 };
 
 
-template<class Dim, class Integrand> int runSimulator2 (char* infile)
+template<class Dim>
+int runSimulator2 (char* infile, char pfOrder)
 {
   typedef SIMDynElasticity<Dim>                       SIMElastoDynamics;
-  typedef SIMPhaseField<Dim,Integrand>                SIMCrackField;
+  typedef SIMPhaseField<Dim>                          SIMCrackField;
   typedef SIMCoupled<SIMElastoDynamics,SIMCrackField> SIMFractureDynamics;
 
   utl::profiler->start("Model input");
@@ -74,7 +75,7 @@ template<class Dim, class Integrand> int runSimulator2 (char* infile)
 
   elastoSim.opt.print(IFEM::cout) << std::endl;
 
-  SIMCrackField phaseSim;
+  SIMCrackField phaseSim(pfOrder);
   if (!phaseSim.read(infile))
     return 1;
 
@@ -101,7 +102,7 @@ template<class Dim, class Integrand> int runSimulator2 (char* infile)
   // Time-step loop
   frac.init(TimeStep());
 
-  DataExporter* exporter = NULL;
+  DataExporter* exporter = nullptr;
   if (elastoSim.opt.dumpHDF5(infile))
     exporter = SIM::handleDataOutput(frac,solver,elastoSim.opt.hdf5,false,1,1);
 
@@ -153,7 +154,7 @@ int runSimulator3 (char* infile, const char* context = "newmarksolver")
   // Time-step loop
   elastoSim.init(TimeStep());
 
-  DataExporter* exporter = NULL;
+  DataExporter* exporter = nullptr;
   if (elastoSim.opt.dumpHDF5(infile))
     exporter = SIM::handleDataOutput(elastoSim,solver,elastoSim.opt.hdf5,
                                      false,1,1);
@@ -180,11 +181,10 @@ public:
 
 template<class Dim> int runSimulator1 (char* infile, char phaseFieldOrder)
 {
-  switch (phaseFieldOrder) {
-  case 4: return runSimulator2<Dim,CahnHilliard4>(infile);
-  case 2: return runSimulator2<Dim,CahnHilliard>(infile);
-  case 1: return runSimulator3<Dim,LinSIM>(infile,"staticsolver");
-  }
+  if (phaseFieldOrder == 2 || phaseFieldOrder == 4)
+    return runSimulator2<Dim>(infile,phaseFieldOrder);
+  else if (phaseFieldOrder == 1)
+    return runSimulator3<Dim,LinSIM>(infile,"staticsolver");
 
   return runSimulator3<Dim>(infile); // No phase field coupling
 }
@@ -193,7 +193,6 @@ template<class Dim> int runSimulator1 (char* infile, char phaseFieldOrder)
 int main (int argc, char** argv)
 {
   Profiler prof(argv[0]);
-  utl::profiler->start("Initialization");
 
   int  i;
   char* infile = 0;

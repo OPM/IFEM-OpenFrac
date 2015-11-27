@@ -27,22 +27,21 @@
   \brief Driver class for an Cahn-Hilliard phase-field simulator.
 */
 
-template<class Dim, class Integrand> class SIMPhaseField : public Dim
+template<class Dim> class SIMPhaseField : public Dim
 {
 public:
   //! \brief Default constructor.
-  SIMPhaseField() : Dim(1), cahnhill(Dim::dimension)
+  SIMPhaseField(char order = 2) : Dim(1)
   {
     Dim::myHeading = "Cahn-Hilliard solver";
-    Dim::myProblem = &cahnhill;
+    if (order == 4)
+      Dim::myProblem = new CahnHilliard4(Dim::dimension);
+    else
+      Dim::myProblem = new CahnHilliard(Dim::dimension);
   }
 
-  //! \brief The destructor nullifies the integrand pointers.
-  virtual ~SIMPhaseField()
-  {
-    Dim::myProblem = nullptr;
-    Dim::myInts.clear();
-  }
+  //! \brief Empty destructor.
+  virtual ~SIMPhaseField() {}
 
   //! \brief Returns the name of this simulator (for use in the HDF5 export).
   virtual std::string getName() const { return "CahnHilliard"; }
@@ -117,10 +116,10 @@ public:
       return false;
 
     if (!this->solveSystem(phasefield,1,
-                           Dim::msgLevel > 1 ? "phasefield  " : NULL))
+                           Dim::msgLevel > 1 ? "phasefield  " : nullptr))
       return false;
 
-    cahnhill.clearInitialCrack();
+    static_cast<CahnHilliard*>(Dim::myProblem)->clearInitialCrack();
 
     return Dim::opt.project.empty() ? true : this->postSolve(tp);
   }
@@ -140,7 +139,10 @@ public:
   void setInitialConditions() { SIM::setInitialConditions(*this); }
 
   //! \brief Sets the tensile energy vector from the elasticity problem.
-  void setTensileEnergy(const double* te) { cahnhill.setTensileEnergy(te); }
+  void setTensileEnergy(const double* te)
+  {
+    static_cast<CahnHilliard*>(Dim::myProblem)->setTensileEnergy(te);
+  }
 
 protected:
   using Dim::parse;
@@ -169,8 +171,7 @@ protected:
   }
 
 private:
-  Integrand cahnhill;   //!< Problem definition
-  Vector    phasefield; //!< Current phase field solution
+  Vector phasefield; //!< Current phase field solution
 };
 
 #endif

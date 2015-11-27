@@ -20,15 +20,15 @@
 #include "AppCommon.h"
 
 
-template<class Dim, class Integrand> int runSimulator2 (char* infile)
+template<class Dim> int runSimulator (char* infile, char order)
 {
-  typedef SIMPhaseField<Dim,Integrand> PhaseFieldDriver;
+  typedef SIMPhaseField<Dim> PhaseFieldDriver;
 
   utl::profiler->start("Model input");
   IFEM::cout <<"\n\n0. Parsing input file(s)."
              <<"\n========================="<< std::endl;
 
-  PhaseFieldDriver phaseSim;
+  PhaseFieldDriver phaseSim(order);
   if (!phaseSim.read(infile))
     return 1;
 
@@ -54,7 +54,7 @@ template<class Dim, class Integrand> int runSimulator2 (char* infile)
   phaseSim.init(TimeStep());
   phaseSim.setInitialConditions();
 
-  DataExporter* exporter = NULL;
+  DataExporter* exporter = nullptr;
   if (phaseSim.opt.dumpHDF5(infile))
     exporter = SIM::handleDataOutput(phaseSim,solver,phaseSim.opt.hdf5,
                                      false,1,1);
@@ -66,23 +66,13 @@ template<class Dim, class Integrand> int runSimulator2 (char* infile)
 }
 
 
-template<class Dim> int runSimulator1 (char* infile, bool fourth)
-{
-  if (fourth)
-    return runSimulator2<Dim,CahnHilliard4>(infile);
-
-  return runSimulator2<Dim,CahnHilliard>(infile);
-}
-
-
 int main (int argc, char** argv)
 {
   Profiler prof(argv[0]);
-  utl::profiler->start("Initialization");
 
   int i, ndim = 3;
   char* infile = 0;
-  bool fourth = false;
+  char pfOrder = 2;
 
   IFEM::Init(argc,argv);
 
@@ -94,7 +84,7 @@ int main (int argc, char** argv)
     else if (!strcmp(argv[i],"-1D"))
       ndim = 1;
     else if (!strcmp(argv[i],"-fourth"))
-      fourth = true;
+      pfOrder = 4;
     else if (!infile)
       infile = argv[i];
     else
@@ -103,9 +93,9 @@ int main (int argc, char** argv)
   if (!infile)
   {
     std::cout <<"usage: "<< argv[0]
-              <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n      "
-              <<" [-lag|-spec|-LR] [-1D|-2D] [-nGauss <n>]"
-              <<"\n       [-vtf <format> [-nviz <nviz>]"
+              <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n"
+              <<"       [-lag|-spec|-LR] [-1D|-2D] [-nGauss <n>] [-fourth]\n"
+              <<"       [-vtf <format> [-nviz <nviz>]"
               <<" [-nu <nu>] [-nv <nv>] [-nw <nw>]] [-hdf5]"<< std::endl;
     return 0;
   }
@@ -119,9 +109,9 @@ int main (int argc, char** argv)
   IFEM::cout << std::endl;
 
   if (ndim == 3)
-    return runSimulator1<SIM3D>(infile,fourth);
+    return runSimulator<SIM3D>(infile,pfOrder);
   else if (ndim == 2)
-    return runSimulator1<SIM2D>(infile,fourth);
+    return runSimulator<SIM2D>(infile,pfOrder);
   else
-    return runSimulator1<SIM1D>(infile,fourth);
+    return runSimulator<SIM1D>(infile,pfOrder);
 }
