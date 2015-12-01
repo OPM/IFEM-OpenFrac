@@ -18,6 +18,7 @@
 #include "SIMPhaseField.h"
 #include "SIMCoupled.h"
 #include "SIMSolver.h"
+#include "GenAlphaSIM.h"
 #include "NonLinSIM.h"
 #include "ASMstruct.h"
 #include "AppCommon.h"
@@ -57,10 +58,16 @@ private:
 };
 
 
-template<class Dim>
+/*!
+  \brief Creates the combined fracture simulator and launches the simulation.
+  \param[in] infile The input file to parse
+  \param[in] pfOrder Order of the crack phase field (2 or 4)
+*/
+
+template<class Dim, class Integrator=NewmarkSIM>
 int runSimulator2 (char* infile, char pfOrder)
 {
-  typedef SIMDynElasticity<Dim>                       SIMElastoDynamics;
+  typedef SIMDynElasticity<Dim,Integrator>            SIMElastoDynamics;
   typedef SIMPhaseField<Dim>                          SIMCrackField;
   typedef SIMCoupled<SIMElastoDynamics,SIMCrackField> SIMFractureDynamics;
 
@@ -120,6 +127,12 @@ int runSimulator2 (char* infile, char pfOrder)
 }
 
 
+/*!
+  \brief Creates and launches a stand-alone elasticity simulator (no coupling).
+  \param[in] infile The input file to parse
+  \param[in] context Input-file context for the time integrator
+*/
+
 template<class Dim, class Integrator=NewmarkSIM>
 int runSimulator3 (char* infile, const char* context = "newmarksolver")
 {
@@ -165,6 +178,23 @@ int runSimulator3 (char* infile, const char* context = "newmarksolver")
   return res;
 }
 
+
+/*!
+  \brief Creates the combined fracture simulator and launches the simulation.
+  \param[in] infile The input file to parse
+  \param[in] pfOrder Order of the crack phase field, 0=(no crack), 2 or 4
+*/
+
+template<class Dim, class Integrator=NewmarkSIM>
+int runSimulator1 (char* infile, char phaseFieldOrder)
+{
+  if (phaseFieldOrder > 0)
+    return runSimulator2<Dim,Integrator>(infile,phaseFieldOrder);
+  else
+    return runSimulator3<Dim,Integrator>(infile); // No phase field coupling
+}
+
+
 /*!
   \brief Linear quasi-static solution driver.
 */
@@ -179,16 +209,29 @@ public:
 };
 
 
-template<class Dim> int runSimulator1 (char* infile, char phaseFieldOrder)
-{
-  if (phaseFieldOrder == 2 || phaseFieldOrder == 4)
-    return runSimulator2<Dim>(infile,phaseFieldOrder);
-  else if (phaseFieldOrder == 1)
-    return runSimulator3<Dim,LinSIM>(infile,"staticsolver");
+/*!
+  \brief Creates the combined fracture simulator and launches the simulation.
+  \param[in] infile The input file to parse
+  \param[in] integrator The time integrator to use (0=linear quasi-static,
+             no phase-field coupling, 1=linear Newmark, 2=Generalizes alpha)
+  \param[in] pfOrder Order of the crack phase field, 0=(no crack), 2 or 4
+*/
 
-  return runSimulator3<Dim>(infile); // No phase field coupling
+template<class Dim>
+int runSimulator (char* infile, char integrator, char phaseFieldOrder)
+{
+  if (integrator == 2)
+    return runSimulator1<Dim,GenAlphaSIM>(infile,phaseFieldOrder);
+  else if (integrator > 0)
+    return runSimulator1<Dim>(infile,phaseFieldOrder);
+  else
+    return runSimulator3<Dim,LinSIM>(infile,"staticsolver");
 }
 
+
+/*!
+  \brief Main program for NURBS-based fracture elasticity solver.
+*/
 
 int main (int argc, char** argv)
 {
@@ -197,6 +240,7 @@ int main (int argc, char** argv)
   int  i;
   char* infile = 0;
   char pfOrder = 2;
+  char integrator = 1;
   bool twoD = false;
 
   IFEM::Init(argc,argv);
@@ -208,10 +252,12 @@ int main (int argc, char** argv)
       twoD = SIMElasticity<SIM2D>::planeStrain = true;
     else if (!strcmp(argv[i],"-fourth"))
       pfOrder = 4;
-    else if (!strcmp(argv[i],"-static"))
-      pfOrder = 1;
     else if (!strcmp(argv[i],"-nocrack"))
       pfOrder = 0;
+    else if (!strcmp(argv[i],"-static"))
+      integrator = 0;
+    else if (!strcmp(argv[i],"-GA"))
+      integrator = 2;
     else if (!strcmp(argv[i],"-principal"))
       Elasticity::wantPrincipalStress = true;
     else if (!infile)
@@ -222,8 +268,9 @@ int main (int argc, char** argv)
   if (!infile)
   {
     std::cout <<"usage: "<< argv[0]
-              <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n      "
-              <<" [-lag|-spec|-LR] [-2D] [-nGauss <n>] [-fourth] [-nocrack]\n"
+              <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n"
+              <<"       [-lag|-spec|-LR] [-2D] [-nGauss <n>]\n"
+              <<"       [-fourth|-nocrack] [-GA|-static]\n"
               <<"       [-vtf <format> [-nviz <nviz>]"
               <<" [-nu <nu>] [-nv <nv>] [-nw <nw>]] [-hdf5]\n"<< std::endl;
     return 0;
@@ -238,7 +285,7 @@ int main (int argc, char** argv)
   IFEM::cout << std::endl;
 
   if (twoD)
-    return runSimulator1<SIM2D>(infile,pfOrder);
+    return runSimulator<SIM2D>(infile,integrator,pfOrder);
   else
-    return runSimulator1<SIM3D>(infile,pfOrder);
+    return runSimulator<SIM3D>(infile,integrator,pfOrder);
 }
