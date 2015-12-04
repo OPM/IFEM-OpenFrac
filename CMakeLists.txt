@@ -1,4 +1,4 @@
-project(CahnHilliard)
+project(FractureDynamics)
 
 cmake_minimum_required(VERSION 2.6)
 
@@ -27,26 +27,18 @@ if(NOT WIN32)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 endif(NOT WIN32)
 
-#if (NOT IFEM_PRECONFIGURED)
-#  add_subdirectory(../Common CommonIFEM.dir)
-#endif()
+file(GLOB LinEl_SRCS ../Elasticity/*.C)
 
-file(GLOB LinEl_SRCS ../Elasticity/*.C
-                     ../Elasticity/Linear/LinearElasticity.C
-                     ../Elasticity/Linear/AnalyticSolutions.C
-                     ../Elasticity/Dynamic/SIMLinEl.C)
-
-add_library(CommonCH CahnHilliard.C ${LinEl_SRCS})
+add_library(CommonCH CahnHilliard.C FractureElasticity.C ${LinEl_SRCS})
 
 add_executable(CahnHilliard main_CahnHilliard.C)
 add_executable(FractureDynamics main_FractureDynamics.C)
 
-target_link_libraries(CahnHilliard CommonCH ${IFEM_LIBRARIES})# CommonIFEM)
-target_link_libraries(FractureDynamics CommonCH ${IFEM_LIBRARIES})# CommonIFEM)
+target_link_libraries(CahnHilliard CommonCH ${IFEM_LIBRARIES})
+target_link_libraries(FractureDynamics CommonCH ${IFEM_LIBRARIES})
 
 # Installation
-install(TARGETS CahnHilliard DESTINATION bin)
-install(TARGETS FractureDynamics DESTINATION bin)
+install(TARGETS CahnHilliard FractureDynamics DESTINATION bin)
 
 # Testing
 enable_testing()
@@ -58,19 +50,24 @@ configure_file(${PROJECT_SOURCE_DIR}/../Common/scripts/regtest.sh.in
 if(IFEM_USE_PARALLEL_PETSC)
   # Add parallel tests here
 else()
-  file(GLOB AD_TESTFILES RELATIVE ${PROJECT_SOURCE_DIR}/Test
-                         ${PROJECT_SOURCE_DIR}/Test/*.reg)
-  foreach(TESTFILE ${AD_TESTFILES})
-    ifem_add_test(${TESTFILE} CahnHilliar)
+  file(GLOB CH_TESTFILES RELATIVE ${PROJECT_SOURCE_DIR}/Test
+                         ${PROJECT_SOURCE_DIR}/Test/*_CH.reg)
+  file(GLOB FD_TESTFILES RELATIVE ${PROJECT_SOURCE_DIR}/Test
+                         ${PROJECT_SOURCE_DIR}/Test/*_FD.reg)
+  foreach(TESTFILE ${CH_TESTFILES})
+    ifem_add_test(${TESTFILE} CahnHilliard)
+  endforeach()
+  foreach(TESTFILE ${FD_TESTFILES})
+    ifem_add_test(${TESTFILE} FractureDynamics)
   endforeach()
 endif()
-list(APPEND TEST_APPS CahnHilliard)
+list(APPEND TEST_APPS CahnHilliard FractureDynamics)
 
 # Unit tests
-#IFEM_add_test_app(${PROJECT_SOURCE_DIR}/Test/*.C
-#                  ${PROJECT_SOURCE_DIR}/Test
-#                  CahnHilliard
-#                  CommonCH ${IFEM_LIBRARIES} CommonIFEM)
+IFEM_add_test_app(${PROJECT_SOURCE_DIR}/Test/*.C
+                  ${PROJECT_SOURCE_DIR}/Test
+                  FractureDynamics
+                  CommonCH ${IFEM_LIBRARIES})
 
 if(IFEM_COMMON_APP_BUILD)
   set(TEST_APPS ${TEST_APPS} PARENT_SCOPE)

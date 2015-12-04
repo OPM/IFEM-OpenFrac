@@ -14,29 +14,54 @@
 #include "IFEM.h"
 #include "SIM2D.h"
 #include "SIM3D.h"
+#include "SIMDynElasticity.h"
 #include "SIMPhaseField.h"
-#include "SIMElasticityWrap.h"
 #include "SIMCoupled.h"
 #include "SIMSolver.h"
 #include "ASMstruct.h"
 #include "AppCommon.h"
 
 
+/*!
+  \brief Newmark simulation driver.
+
+  \details Only the parse method is reimplemented here to handle that the
+  time stepping parameters may be located within the <newmarksolver> tag.
+*/
+
+template<class T> class SIMNewmarkSolver : public SIMSolver<T>
+{
+public:
+  //! \brief The constructor initializes the reference to the actual solver.
+  SIMNewmarkSolver(T& s) : SIMSolver<T>(s) {}
+  //! \brief Empty destructor.
+  virtual ~SIMNewmarkSolver() {}
+
+protected:
+  //! \brief Parses a data section from an XML element.
+  virtual bool parse(const TiXmlElement* elem)
+  {
+    if (!strcasecmp(elem->Value(),"newmarksolver"))
+    {
+      const TiXmlElement* child = elem->FirstChildElement();
+      for (; child; child = child->NextSiblingElement())
+        this->SIMSolver<T>::parse(child);
+    }
+
+    return this->SIMSolver<T>::parse(elem);
+  }
+};
+
+
 template<class Dim, class Integrand> int runSimulator2 (char* infile)
 {
+  typedef SIMDynElasticity<Dim>                       SIMElastoDynamics;
   typedef SIMPhaseField<Dim,Integrand>                SIMCrackField;
-  typedef SIMElasticityWrap<Dim>                      SIMElastoDynamics;
   typedef SIMCoupled<SIMElastoDynamics,SIMCrackField> SIMFractureDynamics;
 
   utl::profiler->start("Model input");
   IFEM::cout <<"\n\n0. Parsing input file(s)."
              <<"\n========================="<< std::endl;
-
-  SIMCrackField phaseSim;
-  if (!phaseSim.read(infile))
-    return 1;
-
-  phaseSim.opt.print(IFEM::cout) << std::endl;
 
   SIMElastoDynamics elastoSim;
   ASMstruct::resetNumbering();
@@ -45,8 +70,14 @@ template<class Dim, class Integrand> int runSimulator2 (char* infile)
 
   elastoSim.opt.print(IFEM::cout) << std::endl;
 
-  SIMFractureDynamics            frac(elastoSim,phaseSim);
-  SIMSolver<SIMFractureDynamics> solver(frac);
+  SIMCrackField phaseSim;
+  if (!phaseSim.read(infile))
+    return 1;
+
+  phaseSim.opt.print(IFEM::cout) << std::endl;
+
+  SIMFractureDynamics                   frac(elastoSim,phaseSim);
+  SIMNewmarkSolver<SIMFractureDynamics> solver(frac);
   if (!solver.read(infile))
     return 1;
 
@@ -55,27 +86,26 @@ template<class Dim, class Integrand> int runSimulator2 (char* infile)
              <<"\n==========================================="<< std::endl;
 
   // Preprocess the model and establish data structures for the algebraic system
-  if (!phaseSim.preprocess() || !elastoSim.preprocess())
+  if (!elastoSim.preprocess() || !phaseSim.preprocess())
     return 2;
 
   // Initialize the linear solvers
-  phaseSim.initSystem(phaseSim.opt.solver);
-  elastoSim.initSystem(elastoSim.opt.solver);
-  elastoSim.initSol();
+  if (!elastoSim.initSystem(elastoSim.opt.solver) ||
+      !phaseSim.initSystem(phaseSim.opt.solver,1,1,false))
+    return 2;
 
   // Time-step loop
-  phaseSim.init(TimeStep());
-  phaseSim.setInitialConditions();
+  frac.init(TimeStep());
 
   DataExporter* exporter = NULL;
-  if (phaseSim.opt.dumpHDF5(infile))
-    exporter = SIM::handleDataOutput(frac,solver,phaseSim.opt.hdf5,false,1,1);
+  if (elastoSim.opt.dumpHDF5(infile))
+    exporter = SIM::handleDataOutput(frac,solver,elastoSim.opt.hdf5,false,1,1);
 
-  phaseSim.registerDependency(&elastoSim,"tensile",1);
-  // This is defined on integration point and not on control points.
-  // It is a global vector across all patches on the process.
+  elastoSim.registerDependency(&phaseSim,"phasefield",1);
+  // The tensile energy is defined on integration points and not control points.
+  // It is a global buffer array across all patches in the model.
   // Use an explicit call instead of normal couplings for this.
-  phaseSim.setTensileEnergy(elastoSim.getTensileEnergy()->data());
+  phaseSim.setTensileEnergy(elastoSim.getTensileEnergy());
 
   int res = solver.solveProblem(infile,exporter,"100. Starting the simulation");
 
@@ -84,12 +114,59 @@ template<class Dim, class Integrand> int runSimulator2 (char* infile)
 }
 
 
-template<class Dim> int runSimulator1 (char* infile, bool fourth)
+template<class Dim> int runSimulator2 (char* infile)
 {
-  if (fourth)
-    return runSimulator2<Dim,CahnHilliard4>(infile);
-  else
-    return runSimulator2<Dim,CahnHilliard>(infile);
+  typedef SIMDynElasticity<Dim> SIMElastoDynamics;
+
+  utl::profiler->start("Model input");
+  IFEM::cout <<"\n\n0. Parsing input file(s)."
+             <<"\n========================="<< std::endl;
+
+  SIMElastoDynamics elastoSim;
+  if (!elastoSim.read(infile))
+    return 1;
+
+  elastoSim.opt.print(IFEM::cout) << std::endl;
+
+  SIMNewmarkSolver<SIMElastoDynamics> solver(elastoSim);
+  if (!solver.read(infile))
+    return 1;
+
+  utl::profiler->stop("Model input");
+  IFEM::cout <<"\n\n10. Preprocessing the finite element model:"
+             <<"\n==========================================="<< std::endl;
+
+  // Preprocess the model and establish data structures for the algebraic system
+  if (!elastoSim.preprocess())
+    return 2;
+
+  // Initialize the linear solvers
+  if (!elastoSim.initSystem(elastoSim.opt.solver))
+    return 2;
+
+  // Time-step loop
+  elastoSim.init(TimeStep());
+
+  DataExporter* exporter = NULL;
+  if (elastoSim.opt.dumpHDF5(infile))
+    exporter = SIM::handleDataOutput(elastoSim,solver,elastoSim.opt.hdf5,
+                                     false,1,1);
+
+  int res = solver.solveProblem(infile,exporter,"100. Starting the simulation");
+
+  delete exporter;
+  return res;
+}
+
+
+template<class Dim> int runSimulator1 (char* infile, char phaseFieldOrder)
+{
+  switch (phaseFieldOrder) {
+  case 4: return runSimulator2<Dim,CahnHilliard4>(infile);
+  case 2: return runSimulator2<Dim,CahnHilliard>(infile);
+  }
+
+  return runSimulator2<Dim>(infile); // No phase field coupling
 }
 
 
@@ -100,8 +177,8 @@ int main (int argc, char** argv)
 
   int  i;
   char* infile = 0;
+  char pfOrder = 2;
   bool twoD = false;
-  bool fourth = false;
 
   IFEM::Init(argc,argv);
 
@@ -111,7 +188,11 @@ int main (int argc, char** argv)
     else if (!strcmp(argv[i],"-2D"))
       twoD = true;
     else if (!strcmp(argv[i],"-fourth"))
-      fourth = true;
+      pfOrder = 4;
+    else if (!strcmp(argv[i],"-nocrack"))
+      pfOrder = 0;
+    else if (!strcmp(argv[i],"-principal"))
+      Elasticity::wantPrincipalStress = true;
     else if (!infile)
       infile = argv[i];
     else
@@ -121,8 +202,8 @@ int main (int argc, char** argv)
   {
     std::cout <<"usage: "<< argv[0]
               <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n      "
-              <<" [-lag|-spec|-LR] [-2D] [-nGauss <n>]"
-              <<"\n       [-vtf <format> [-nviz <nviz>]"
+              <<" [-lag|-spec|-LR] [-2D] [-nGauss <n>] [-fourth] [-nocrack]\n"
+              <<"       [-vtf <format> [-nviz <nviz>]"
               <<" [-nu <nu>] [-nv <nv>] [-nw <nw>]] [-hdf5]\n"<< std::endl;
     return 0;
   }
@@ -136,7 +217,7 @@ int main (int argc, char** argv)
   IFEM::cout << std::endl;
 
   if (twoD)
-    return runSimulator1<SIM2D>(infile,fourth);
+    return runSimulator1<SIM2D>(infile,pfOrder);
   else
-    return runSimulator1<SIM3D>(infile,fourth);
+    return runSimulator1<SIM3D>(infile,pfOrder);
 }
