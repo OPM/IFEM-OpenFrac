@@ -15,16 +15,11 @@
 #define _SIM_CH_H
 
 #include "CahnHilliard.h"
-#include "AnaSol.h"
-#include "ASMstruct.h"
-#include "Functions.h"
 #include "InitialConditionHandler.h"
-#include "Property.h"
-#include "SIMoutput.h"
-#include "SIMSolver.h"
 #include "IFEM.h"
 #include "TimeStep.h"
 #include "Profiler.h"
+#include "Functions.h"
 #include "Utilities.h"
 #include "DataExporter.h"
 #include "tinyxml.h"
@@ -39,8 +34,6 @@
 template<class Dim, class Integrand=CahnHilliard> class SIMCH : public Dim
 {
 public:
-  typedef bool SetupProps;
-
   //! \brief Default constructor.
   SIMCH() : Dim(1), ch(Dim::dimension), filter(false)
   {
@@ -55,26 +48,22 @@ public:
     Dim::myInts.clear();
   }
 
-  //! \brief Parses a data section from an input stream (deprecated).
-  virtual bool parse(char*, std::istream&) { return false; }
-
+  using Dim::parse;
   //! \brief Parses a data section from an XML element.
   virtual bool parse(const TiXmlElement* elem)
   {
     if (strcasecmp(elem->Value(),"cahnhilliard"))
       return this->Dim::parse(elem);
 
+    const char* value;
     const TiXmlElement* child = elem->FirstChildElement();
-    for (; child; child = child->NextSiblingElement()) {
-      if (strcmp(child->Value(),"smearing") == 0) {
-        const char* value = utl::getValue(child,"smearing");
-        if (value)
-          ch.setSmearFactor(atof(value));
-      } else if (strcmp(child->Value(),"maxcrack") == 0) {
-        const char* value = utl::getValue(child,"maxcrack");
-        if (value)
-          ch.setMaxCrack(atof(value));
-      } else if (strcmp(child->Value(),"filter_values") == 0) {
+    for (; child; child = child->NextSiblingElement())
+
+      if ((value = utl::getValue(child,"smearing")))
+        ch.setSmearFactor(atof(value));
+      else if ((value = utl::getValue(child,"maxcrack")))
+        ch.setMaxCrack(atof(value));
+      else if (!strcasecmp(child->Value(),"filter_values")) {
         const static std::map<std::string,SIMoptions::ProjectionMethod> typemap =
                 {{"global", SIMoptions::GLOBAL},
                  {"dgl2",   SIMoptions::DGL2},
@@ -90,18 +79,15 @@ public:
           it = typemap.begin();
           std::cerr << "Unknown projection method. Defaulting to global." << std::endl;
         }
-
         method = it->second;
         IFEM::cout << "\tFiltering phase field using " << it->first << " projection." << std::endl;
         filter = true;
-      } else if (strcmp(child->Value(),"initial_crack") == 0) {
+      }
+      else if ((value = utl::getValue(child,"initial_crack"))) {
         std::string type;
         utl::getAttribute(child,"type",type);
-        const char* value = utl::getValue(child,"initial_crack");
-        if (value) {
-          IFEM::cout << "\tInitial crack function";
-          initial_crack.reset(utl::parseRealFunc(value,type));
-        }
+        IFEM::cout <<"\tInitial crack function";
+        initial_crack.reset(utl::parseRealFunc(value,type));
       } else if (!strcasecmp(child->Value(),"material")) {
         int code = this->parseMaterialSet(child,mVec.size());
         std::cout <<"\tMaterial code "<< code <<":" << std::endl;
@@ -111,7 +97,6 @@ public:
         ch.setMaterial(mVec.back().get()); // in order to inject common material/for single patch models
       } else
         this->Dim::parse(child);
-    }
 
     return true;
   }
@@ -163,11 +148,11 @@ public:
 
     ch.setInitialCrackFunction(nullptr);
 
-    return !filter || postSolve(tp,true);
+    return filter ? this->postSolve(tp) : true;
   }
 
   //! \brief Make sure phase field value is between 0 and 1.
-  bool postSolve(const TimeStep& tp,bool)
+  bool postSolve(const TimeStep& tp, bool = false)
   {
     Matrix tmp;
     if (!this->project(tmp,phasefield,SIMoptions::DGL2))
@@ -221,6 +206,7 @@ public:
 
   //! \brief Set tensile energy vector from structure problem.
   void setTensileEnergy(const Vector* tens) { ch.setTensileEnergy(tens); }
+
 private:
   Integrand ch; //!< Problem definition.
   std::unique_ptr<RealFunc> initial_crack; //!< Function describing an initial crack.
@@ -229,39 +215,6 @@ private:
   Vector phasefield; //!< Current phase field solution.
   bool filter; //!< Whether or not to filter results.
   SIMoptions::ProjectionMethod method; //!< Projection method used for filter.
-};
-
-
-//! \brief Partial specialization for configurator
-template<class Dim, class Integrand>
-struct SolverConfigurator< SIMCH<Dim,Integrand> > {
-  int setup(SIMCH<Dim,Integrand>& ch,
-            const typename SIMCH<Dim,Integrand>::SetupProps& props, char* infile)
-  {
-    utl::profiler->start("Model input");
-
-    // Reset the global element and node numbers
-    ASMstruct::resetNumbering();
-    if (!ch.read(infile))
-      return 2;
-
-    utl::profiler->stop("Model input");
-
-    // Preprocess the model and establish data structures for the algebraic system
-    if (!ch.preprocess())
-      return 3;
-
-    // Initialize the linear solvers
-    ch.setMode(SIM::DYNAMIC);
-    ch.initSystem(ch.opt.solver,1,1,false);
-    ch.setQuadratureRule(ch.opt.nGauss[0],true);
-
-    // Time-step loop
-    ch.init(TimeStep());
-    ch.setInitialConditions();
-
-    return 0;
-  }
 };
 
 #endif

@@ -12,70 +12,97 @@
 //==============================================================================
 
 #include "IFEM.h"
-#include "SIM1D.h"
 #include "SIM2D.h"
 #include "SIM3D.h"
 #include "SIMCH.h"
-#include "Utilities.h"
-#include "HDF5Writer.h"
-#include "XMLWriter.h"
-#include "AppCommon.h"
-#include "TimeStep.h"
 #include "SIMElasticityWrap.h"
-#include "SIMFractureDynamics.h"
+#include "SIMCoupled.h"
+#include "SIMSolver.h"
+#include "ASMstruct.h"
+#include "AppCommon.h"
 
 
-template<class Dim, class Integrand>
-int runSimulator2(char* infile)
+template<class Dim, class Integrand> int runSimulator2 (char* infile)
 {
-  SIMCH<Dim,Integrand> ch;
-  SIMElasticityWrap<Dim> sm;
+  typedef SIMCH<Dim,Integrand>                        SIMPhaseField;
+  typedef SIMElasticityWrap<Dim>                      SIMElastoDynamics;
+  typedef SIMCoupled<SIMElastoDynamics,SIMPhaseField> SIMFractureDynamics;
 
-  int res = ConfigureSIM(ch, infile, false);
-  if (res)
-    return res;
-  res = ConfigureSIM(sm, infile, false);
-  if (res)
-    return res;
+  utl::profiler->start("Model input");
+  IFEM::cout <<"\n\n0. Parsing input file(s)."
+             <<"\n========================="<< std::endl;
 
-  SIMFractureDynamics<SIMElasticityWrap<Dim>,
-                      SIMCH<Dim,Integrand>> frac(sm, ch);
+  SIMPhaseField phaseSim;
+  if (!phaseSim.read(infile))
+    return 1;
 
-  // HDF5 output
-  DataExporter* exporter=NULL;
+  phaseSim.opt.print(IFEM::cout) << std::endl;
 
-  SIMSolver<SIMFractureDynamics<SIMElasticityWrap<Dim>,
-            SIMCH<Dim,Integrand>>> solver(frac);
-  if (ch.opt.dumpHDF5(infile))
-    exporter = SIM::handleDataOutput(frac, solver, ch.opt.hdf5,
-                                     false, 1, 1);
+  SIMElastoDynamics elastoSim;
+  ASMstruct::resetNumbering();
+  if (!elastoSim.read(infile))
+    return 1;
 
-  frac.setupDependencies();
+  elastoSim.opt.print(IFEM::cout) << std::endl;
 
-  res = solver.solveProblem(infile, exporter);
+  SIMFractureDynamics            frac(elastoSim,phaseSim);
+  SIMSolver<SIMFractureDynamics> solver(frac);
+  if (!solver.read(infile))
+    return 1;
+
+  utl::profiler->stop("Model input");
+  IFEM::cout <<"\n\n10. Preprocessing the finite element model:"
+             <<"\n==========================================="<< std::endl;
+
+  // Preprocess the model and establish data structures for the algebraic system
+  if (!phaseSim.preprocess() || !elastoSim.preprocess())
+    return 2;
+
+  // Initialize the linear solvers
+  phaseSim.setMode(SIM::DYNAMIC);
+  phaseSim.initSystem(phaseSim.opt.solver);
+  elastoSim.initSystem(elastoSim.opt.solver);
+  elastoSim.initSol();
+  phaseSim.setQuadratureRule(phaseSim.opt.nGauss[0],true);
+
+  // Time-step loop
+  phaseSim.init(TimeStep());
+  phaseSim.setInitialConditions();
+
+  DataExporter* exporter = NULL;
+  if (phaseSim.opt.dumpHDF5(infile))
+    exporter = SIM::handleDataOutput(frac,solver,phaseSim.opt.hdf5,false,1,1);
+
+  phaseSim.registerDependency(&elastoSim,"tensile",1);
+  // This is defined on integration point and not on control points.
+  // It is a global vector across all patches on the process.
+  // Use an explicit call instead of normal couplings for this.
+  phaseSim.setTensileEnergy(elastoSim.getTensileEnergy());
+
+  int res = solver.solveProblem(infile,exporter,"100. Starting the simulation");
 
   delete exporter;
   return res;
 }
 
 
-template<class Dim>
-int runSimulator1(char* infile, bool fourth)
+template<class Dim> int runSimulator1 (char* infile, bool fourth)
 {
   if (fourth)
     return runSimulator2<Dim,CahnHilliard4>(infile);
-
-  return runSimulator2<Dim,CahnHilliard>(infile);
+  else
+    return runSimulator2<Dim,CahnHilliard>(infile);
 }
 
-int main(int argc, char** argv)
+
+int main (int argc, char** argv)
 {
   Profiler prof(argv[0]);
   utl::profiler->start("Initialization");
 
   int  i;
-  char ndim = 3;
   char* infile = 0;
+  bool twoD = false;
   bool fourth = false;
 
   IFEM::Init(argc,argv);
@@ -84,9 +111,7 @@ int main(int argc, char** argv)
     if (SIMoptions::ignoreOldOptions(argc,argv,i))
       ; // ignore the obsolete option
     else if (!strcmp(argv[i],"-2D"))
-      ndim = 2;
-    else if (!strcmp(argv[i],"-1D"))
-      ndim = 1;
+      twoD = true;
     else if (!strcmp(argv[i],"-fourth"))
       fourth = true;
     else if (!infile)
@@ -98,29 +123,22 @@ int main(int argc, char** argv)
   {
     std::cout <<"usage: "<< argv[0]
               <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n      "
-              <<" [-free] [-lag|-spec|-LR] [-1D|-2D] [-nGauss <n>]"
+              <<" [-lag|-spec|-LR] [-2D] [-nGauss <n>]"
               <<"\n       [-vtf <format> [-nviz <nviz>]"
-              <<" [-nu <nu>] [-nv <nv>] [-nw <nw>]] [-hdf5]\n"
-              <<"       [-eig <iop> [-nev <nev>] [-ncv <ncv] [-shift <shf>]]\n"
-              <<"       [-ignore <p1> <p2> ...] [-fixDup]" << std::endl;
+              <<" [-nu <nu>] [-nv <nv>] [-nw <nw>]] [-hdf5]\n"<< std::endl;
     return 0;
   }
 
   IFEM::cout <<"\n >>> IFEM Fracture dynamics solver <<<"
-             <<"\n ====================================\n"
+             <<"\n =====================================\n"
              <<"\n Executing command:\n";
   for (i = 0; i < argc; i++) IFEM::cout <<" "<< argv[i];
   IFEM::cout <<"\n\nInput file: "<< infile;
   IFEM::getOptions().print(IFEM::cout);
   IFEM::cout << std::endl;
 
-  if (ndim == 3)
-    return runSimulator1<SIM3D>(infile,fourth);
-  else if (ndim == 2)
+  if (twoD)
     return runSimulator1<SIM2D>(infile,fourth);
-  // SIMFiniteDefEl cannot be instanced in 1D
-//  else
-//    return runSimulator<SIM1D>(infile);
-
-  return 1;
+  else
+    return runSimulator1<SIM3D>(infile,fourth);
 }

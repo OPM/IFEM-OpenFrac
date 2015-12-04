@@ -16,38 +16,58 @@
 #include "SIM2D.h"
 #include "SIM3D.h"
 #include "SIMCH.h"
-#include "Utilities.h"
-#include "HDF5Writer.h"
-#include "XMLWriter.h"
+#include "SIMSolver.h"
 #include "AppCommon.h"
-#include "TimeStep.h"
 
 
-template<class Dim, class Integrand>
-int runSimulator2(char* infile)
+template<class Dim, class Integrand> int runSimulator2 (char* infile)
 {
-  SIMCH<Dim,Integrand> ch;
+  typedef SIMCH<Dim,Integrand> SIMPhaseField;
 
-  int res = ConfigureSIM(ch, infile, false);
+  utl::profiler->start("Model input");
+  IFEM::cout <<"\n\n0. Parsing input file(s)."
+             <<"\n========================="<< std::endl;
 
-  if (res)
-    return res;
+  SIMPhaseField phaseSim;
+  if (!phaseSim.read(infile))
+    return 1;
 
-  // HDF5 output
-  DataExporter* exporter=NULL;
+  phaseSim.opt.print(IFEM::cout) << std::endl;
 
-  SIMSolver<SIMCH<Dim,Integrand>> solver(ch);
-  if (ch.opt.dumpHDF5(infile))
-    exporter = SIM::handleDataOutput(ch, solver, ch.opt.hdf5,
-                                     false, 1, 1);
-  res = solver.solveProblem(infile, exporter);
+  SIMSolver<SIMPhaseField> solver(phaseSim);
+  if (!solver.read(infile))
+    return 1;
+
+  utl::profiler->stop("Model input");
+  IFEM::cout <<"\n\n10. Preprocessing the finite element model:"
+             <<"\n==========================================="<< std::endl;
+
+  // Preprocess the model and establish data structures for the algebraic system
+  if (!phaseSim.preprocess())
+    return 2;
+
+  // Initialize the linear solvers
+  phaseSim.setMode(SIM::DYNAMIC);
+  phaseSim.initSystem(phaseSim.opt.solver);
+  phaseSim.setQuadratureRule(phaseSim.opt.nGauss[0],true);
+
+  // Time-step loop
+  phaseSim.init(TimeStep());
+  phaseSim.setInitialConditions();
+
+  DataExporter* exporter = NULL;
+  if (phaseSim.opt.dumpHDF5(infile))
+    exporter = SIM::handleDataOutput(phaseSim,solver,phaseSim.opt.hdf5,
+                                     false,1,1);
+
+  int res = solver.solveProblem(infile,exporter,"100. Starting the simulation");
 
   delete exporter;
   return res;
 }
 
-template<class Dim>
-int runSimulator1(char* infile, bool fourth)
+
+template<class Dim> int runSimulator1 (char* infile, bool fourth)
 {
   if (fourth)
     return runSimulator2<Dim,CahnHilliard4>(infile);
@@ -56,13 +76,12 @@ int runSimulator1(char* infile, bool fourth)
 }
 
 
-int main(int argc, char** argv)
+int main (int argc, char** argv)
 {
   Profiler prof(argv[0]);
   utl::profiler->start("Initialization");
 
-  int  i;
-  char ndim = 3;
+  int i, ndim = 3;
   char* infile = 0;
   bool fourth = false;
 
@@ -86,16 +105,14 @@ int main(int argc, char** argv)
   {
     std::cout <<"usage: "<< argv[0]
               <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n      "
-              <<" [-free] [-lag|-spec|-LR] [-1D|-2D] [-nGauss <n>]"
+              <<" [-lag|-spec|-LR] [-1D|-2D] [-nGauss <n>]"
               <<"\n       [-vtf <format> [-nviz <nviz>]"
-              <<" [-nu <nu>] [-nv <nv>] [-nw <nw>]] [-hdf5]\n"
-              <<"       [-eig <iop> [-nev <nev>] [-ncv <ncv] [-shift <shf>]]\n"
-              <<"       [-ignore <p1> <p2> ...] [-fixDup]" << std::endl;
+              <<" [-nu <nu>] [-nv <nv>] [-nw <nw>]] [-hdf5]"<< std::endl;
     return 0;
   }
 
   IFEM::cout <<"\n >>> IFEM Cahn-Hilliard equation solver <<<"
-             <<"\n ====================================\n"
+             <<"\n ==========================================\n"
              <<"\n Executing command:\n";
   for (i = 0; i < argc; i++) IFEM::cout <<" "<< argv[i];
   IFEM::cout <<"\n\nInput file: "<< infile;
@@ -108,6 +125,4 @@ int main(int argc, char** argv)
     return runSimulator1<SIM2D>(infile,fourth);
   else
     return runSimulator1<SIM1D>(infile,fourth);
-
-  return 1;
 }

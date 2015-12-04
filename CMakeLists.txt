@@ -9,16 +9,14 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
 
 # Required packages
 set(IFEM_PRECONFIGURED ${IFEM_CONFIGURED})
-IF (NOT IFEM_CONFIGURED)
+if (NOT IFEM_CONFIGURED)
   find_package(IFEM REQUIRED)
-endif()
+endif(NOT IFEM_CONFIGURED)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IFEM_CXX_FLAGS}")
 
-include_directories(${IFEM_INCLUDES} ../Common
-                    ${PROJECT_SOURCE_DIR}
-                    ../Elasticity
-                    ../Elasticity/FiniteDeformation)
+include_directories(${IFEM_INCLUDES} ../Common ${PROJECT_SOURCE_DIR}
+                    ../Elasticity ../Elasticity/Linear)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
@@ -27,39 +25,24 @@ if(NOT WIN32)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
   # Enable all warnings
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-endif()
+endif(NOT WIN32)
 
-if (NOT IFEM_PRECONFIGURED)
-  add_subdirectory(../Common CommonIFEM.dir)
-endif()
+#if (NOT IFEM_PRECONFIGURED)
+#  add_subdirectory(../Common CommonIFEM.dir)
+#endif()
 
-add_library(CommonCH CahnHilliard.C
-                     CHMaterial.C
-                     ../Elasticity/Elasticity.C
-                     ../Elasticity/LocalSystems.C
-                     ../Elasticity/ElasticBase.C
-                     ../Elasticity/LinIsotropic.C
-                     ../Elasticity/SIMElasticity.C
-                     ../Elasticity/FiniteDeformation/LinearMaterial.C
-                     ../Elasticity/FiniteDeformation/MortarContact.C
-                     ../Elasticity/FiniteDeformation/NeoHookeMaterial.C
-                     ../Elasticity/FiniteDeformation/NLoptions.C
-                     ../Elasticity/FiniteDeformation/NonlinearElasticity.C
-                     ../Elasticity/FiniteDeformation/NonlinearElasticityFbar.C
-                     ../Elasticity/FiniteDeformation/NonlinearElasticityTL.C
-                     ../Elasticity/FiniteDeformation/NonlinearElasticityUL.C
-                     ../Elasticity/FiniteDeformation/NonlinearElasticityULMX.C
-                     ../Elasticity/FiniteDeformation/NonlinearElasticityULMixed.C
-                     ../Elasticity/FiniteDeformation/PlasticMaterial.C
-                     ../Elasticity/FiniteDeformation/RigidBody.C
-                     ../Elasticity/FiniteDeformation/stiff_TL.f
-                     ../Elasticity/FiniteDeformation/SIMContact.C)
+file(GLOB LinEl_SRCS ../Elasticity/*.C
+                     ../Elasticity/Linear/LinearElasticity.C
+                     ../Elasticity/Linear/AnalyticSolutions.C
+                     ../Elasticity/Dynamic/SIMLinEl.C)
+
+add_library(CommonCH CahnHilliard.C CHMaterial.C ${LinEl_SRCS})
 
 add_executable(CahnHilliard main_CahnHilliard.C)
 add_executable(FractureDynamics main_FractureDynamics.C)
 
-target_link_libraries(CahnHilliard CommonCH ${IFEM_LIBRARIES} CommonIFEM)
-target_link_libraries(FractureDynamics CommonCH ${IFEM_LIBRARIES} CommonIFEM)
+target_link_libraries(CahnHilliard CommonCH ${IFEM_LIBRARIES})# CommonIFEM)
+target_link_libraries(FractureDynamics CommonCH ${IFEM_LIBRARIES})# CommonIFEM)
 
 # Installation
 install(TARGETS CahnHilliard DESTINATION bin)
