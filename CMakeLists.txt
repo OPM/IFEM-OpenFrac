@@ -36,7 +36,7 @@ file(GLOB LinEl_SRCS ../Elasticity/*.C
                      ../Elasticity/Linear/AnalyticSolutions.C
                      ../Elasticity/Dynamic/SIMLinEl.C)
 
-add_library(CommonCH CahnHilliard.C CHMaterial.C ${LinEl_SRCS})
+add_library(CommonCH CahnHilliard.C ${LinEl_SRCS})
 
 add_executable(CahnHilliard main_CahnHilliard.C)
 add_executable(FractureDynamics main_FractureDynamics.C)

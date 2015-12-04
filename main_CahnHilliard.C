@@ -15,26 +15,26 @@
 #include "SIM1D.h"
 #include "SIM2D.h"
 #include "SIM3D.h"
-#include "SIMCH.h"
+#include "SIMPhaseField.h"
 #include "SIMSolver.h"
 #include "AppCommon.h"
 
 
 template<class Dim, class Integrand> int runSimulator2 (char* infile)
 {
-  typedef SIMCH<Dim,Integrand> SIMPhaseField;
+  typedef SIMPhaseField<Dim,Integrand> PhaseFieldDriver;
 
   utl::profiler->start("Model input");
   IFEM::cout <<"\n\n0. Parsing input file(s)."
              <<"\n========================="<< std::endl;
 
-  SIMPhaseField phaseSim;
+  PhaseFieldDriver phaseSim;
   if (!phaseSim.read(infile))
     return 1;
 
   phaseSim.opt.print(IFEM::cout) << std::endl;
 
-  SIMSolver<SIMPhaseField> solver(phaseSim);
+  SIMSolver<PhaseFieldDriver> solver(phaseSim);
   if (!solver.read(infile))
     return 1;
 
@@ -47,9 +47,8 @@ template<class Dim, class Integrand> int runSimulator2 (char* infile)
     return 2;
 
   // Initialize the linear solvers
-  phaseSim.setMode(SIM::DYNAMIC);
-  phaseSim.initSystem(phaseSim.opt.solver);
-  phaseSim.setQuadratureRule(phaseSim.opt.nGauss[0],true);
+  if (!phaseSim.initSystem(phaseSim.opt.solver,1,1,false))
+    return 2;
 
   // Time-step loop
   phaseSim.init(TimeStep());

@@ -11,12 +11,10 @@
 //!
 //==============================================================================
 
-#ifndef _CAHNHILLIARD_H
-#define _CAHNHILLIARD_H
+#ifndef _CAHN_HILLIARD_H
+#define _CAHN_HILLIARD_H
 
 #include "IntegrandBase.h"
-#include "Vec3.h"
-#include "CHMaterial.h"
 
 
 /*!
@@ -26,31 +24,24 @@
 class CahnHilliard : public IntegrandBase
 {
 public:
-  //! \brief The default constructor initializes all pointers to zero.
+  //! \brief The constructor initializes all pointers to zero.
   //! \param[in] n Number of spatial dimensions
-  CahnHilliard(unsigned short int n = 3);
-  //! \brief The destructor deletes the functions to be Galerkin-projected.
-  virtual ~CahnHilliard() {}
+  CahnHilliard(unsigned short int n);
+  //! \brief The destructor deletes the tensile energy history field.
+  virtual ~CahnHilliard() { delete[] historyField; }
 
-  //! \brief Set smearing factor.
-  void setSmearFactor(double smear) { smearFactor = smear; }
+  //! \brief Parses a data section from an XML element.
+  virtual bool parse(const TiXmlElement* elem);
 
-  //! \brief Set cap value in crack.
-  void setMaxCrack(double crack) { maxCrack = crack; }
-
-  //! \brief Returns current material.
-  const CHMaterial* getMaterial() const { return mat; }
+  //! \brief Prints out the problem definition to the log stream.
+  virtual void printLog() const;
 
   //! \brief Initializes the integrand with the number of integration points.
   //! \param[in] nGp Total number of interior integration points
-  //! \param[in] nBp Total number of boundary integration points
-  virtual void initIntegration(size_t nGp, size_t nBp);
+  virtual void initIntegration(size_t nGp, size_t);
 
-  //! \brief Returns a local integral container for the given element.
-  //! \param[in] nen Number of nodes on element
-  //! \param[in] neumann Whether or not we are assembling Neumann BC's
-  virtual LocalIntegral* getLocalIntegral(size_t nen, size_t,
-                                          bool neumann) const;
+  //! \brief Returns that this integrand has no explicit boundary contributions.
+  virtual bool hasBoundaryTerms() const { return false; }
 
   //! \brief Evaluates the integrand at an interior point.
   //! \param elmInt The local integral object to receive the contributions
@@ -68,38 +59,28 @@ public:
                        const Vec3& X, const std::vector<int>& MNPC) const;
 
   //! \brief Returns the number of primary/secondary solution field components.
-  //! \param[in] fld which field set to consider (1=primary, 2=secondary)
-  virtual size_t getNoFields(int fld = 2) const { return fld > 1 ? 1 : 1; }
+  virtual size_t getNoFields(int fld) const { return fld > 1 ? 0 : 1; }
   //! \brief Returns the name of the primary solution field.
   //! \param[in] prefix Name prefix
   virtual std::string getField1Name(size_t, const char* prefix = nullptr) const;
 
-  //! \brief Set material parameters for current patch.
-  void setMaterial(CHMaterial* material) { mat = material; }
+  //! \brief Sets the pointer to the tensile energy buffer.
+  void setTensileEnergy(const double* tens) { tensileEnergy = tens; }
 
-  //! \brief Set a function for the initial crack. Used to generate history field.
-  void setInitialCrackFunction(RealFunc* func) { initial_crack = func; }
-
-  //! \brief Set tensile energy vector.
-  void setTensileEnergy(const Vector* tens) { tensile = tens; }
-
-  //!< Print problem definition to log.
-  virtual void printLog();
+  //! \brief Clears the initial crack function (after first iteration).
+  void clearInitialCrack() { delete initial_crack; initial_crack = nullptr; }
 
 protected:
-  unsigned short int nsd; //!< Number of space dimensions (1, 2 or, 3)
-  double smearFactor; //!< Smearing factor in crack.
-  double maxCrack; //!< Maximum value in initial crack.
-  double stabk; //!< Stabilization parameter.
-  // Need to do this here as we do not have access to integration point coordinates on SIM level.
-  RealFunc*  initial_crack; //!< For generating the initial history field on first integration.
+  double Gc;       //!< Fracture energy density
+  double smearing; //!< Smearing factor in crack
+  double maxCrack; //!< Maximum value in initial crack
+  double stabk;    //!< Stabilization parameter
+  double scale2nd; //!< Scaling factor in front of second order term
 
-  CHMaterial* mat; //!< Material parameters.
-
-  mutable Vector historyField;   //!< History field for tensile energy.
-  const Vector* tensile; //!< Tensile energy from elasticity solver.
-
-  double second_scale; //!< Scaling factor in front of second order term
+private:
+  const double*  tensileEnergy; //!< Tensile energy from the elasticity solver
+  RealFunc*      initial_crack; //!< For generating the initial history field
+  double*        historyField;  //!< History field for tensile energy
 };
 
 
@@ -112,12 +93,11 @@ class CahnHilliard4 : public CahnHilliard
 public:
   //! \brief Default constructor.
   //! \param[in] n Number of spatial dimensions
-  CahnHilliard4(unsigned short int n = 3);
-
+  CahnHilliard4(unsigned short int n) : CahnHilliard(n) { scale2nd = 2.0; }
   //! \brief Empty destructor.
   virtual ~CahnHilliard4() {}
 
-  //! \brief Returns integrand traits.
+  //! \brief Defines which FE quantities are needed by the integrand.
   virtual int getIntegrandType() const { return SECOND_DERIVATIVES; }
 
   //! \brief Evaluates the integrand at an interior point.

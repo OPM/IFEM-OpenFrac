@@ -14,7 +14,7 @@
 #include "IFEM.h"
 #include "SIM2D.h"
 #include "SIM3D.h"
-#include "SIMCH.h"
+#include "SIMPhaseField.h"
 #include "SIMElasticityWrap.h"
 #include "SIMCoupled.h"
 #include "SIMSolver.h"
@@ -24,15 +24,15 @@
 
 template<class Dim, class Integrand> int runSimulator2 (char* infile)
 {
-  typedef SIMCH<Dim,Integrand>                        SIMPhaseField;
+  typedef SIMPhaseField<Dim,Integrand>                SIMCrackField;
   typedef SIMElasticityWrap<Dim>                      SIMElastoDynamics;
-  typedef SIMCoupled<SIMElastoDynamics,SIMPhaseField> SIMFractureDynamics;
+  typedef SIMCoupled<SIMElastoDynamics,SIMCrackField> SIMFractureDynamics;
 
   utl::profiler->start("Model input");
   IFEM::cout <<"\n\n0. Parsing input file(s)."
              <<"\n========================="<< std::endl;
 
-  SIMPhaseField phaseSim;
+  SIMCrackField phaseSim;
   if (!phaseSim.read(infile))
     return 1;
 
@@ -59,11 +59,9 @@ template<class Dim, class Integrand> int runSimulator2 (char* infile)
     return 2;
 
   // Initialize the linear solvers
-  phaseSim.setMode(SIM::DYNAMIC);
   phaseSim.initSystem(phaseSim.opt.solver);
   elastoSim.initSystem(elastoSim.opt.solver);
   elastoSim.initSol();
-  phaseSim.setQuadratureRule(phaseSim.opt.nGauss[0],true);
 
   // Time-step loop
   phaseSim.init(TimeStep());
@@ -77,7 +75,7 @@ template<class Dim, class Integrand> int runSimulator2 (char* infile)
   // This is defined on integration point and not on control points.
   // It is a global vector across all patches on the process.
   // Use an explicit call instead of normal couplings for this.
-  phaseSim.setTensileEnergy(elastoSim.getTensileEnergy());
+  phaseSim.setTensileEnergy(elastoSim.getTensileEnergy()->data());
 
   int res = solver.solveProblem(infile,exporter,"100. Starting the simulation");
 

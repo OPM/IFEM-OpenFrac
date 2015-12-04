@@ -13,99 +13,106 @@
 
 #include "CahnHilliard.h"
 #include "FiniteElement.h"
-#include "Utilities.h"
 #include "ElmMats.h"
-#include "ElmNorm.h"
-#include "Tensor.h"
-#include "Vec3Oper.h"
-#include "AnaSol.h"
-#include "VTF.h"
+#include "Functions.h"
+#include "Utilities.h"
 #include "IFEM.h"
+#include "tinyxml.h"
 
 
-CahnHilliard::CahnHilliard(unsigned short int n) :
-  nsd(n), smearFactor(1.0), maxCrack(1e-3), stabk(0.0),
-  initial_crack(nullptr), mat(nullptr), tensile(nullptr),
-  second_scale(4.0)
+CahnHilliard::CahnHilliard (unsigned short int n) : IntegrandBase(n),
+  Gc(1.0), smearing(1.0), maxCrack(1.0e-3), stabk(0.0), scale2nd(4.0),
+  tensileEnergy(nullptr), initial_crack(nullptr), historyField(nullptr)
 {
-  npv = 1; // One primary unknown per node (scalar equation)
-
   primsol.resize(1);
 }
 
 
-LocalIntegral* CahnHilliard::getLocalIntegral (size_t nen, size_t,
-                                          bool neumann) const
+bool CahnHilliard::parse (const TiXmlElement* elem)
 {
-  ElmMats* result = new ElmMats();
-  result->rhsOnly = neumann;
-  result->withLHS = !neumann;
-  result->resize(neumann ? 0 : 1, 1);
-
-  result->redim(nen);
-  return result;
-}
-
-
-bool CahnHilliard::evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
-                           const Vec3& X) const
-{
-  ElmMats& elMat = static_cast<ElmMats&>(elmInt);
-
-  double Gc = mat->getFractureEnergy(X);
-
-  if (initial_crack) {
-    double dist = (*initial_crack)(X);
-    if (dist < smearFactor)
-      historyField(fe.iGP+1) = Gc/(4.0*smearFactor)*(1.0/maxCrack-1.0)*(1.0-dist/smearFactor);
+  const char* value = utl::getValue(elem,"Gc");
+  if (value)
+    Gc = atof(value);
+  else if ((value = utl::getValue(elem,"smearing")))
+    smearing = atof(value);
+  else if ((value = utl::getValue(elem,"maxcrack")))
+    maxCrack = atof(value);
+  else if ((value = utl::getValue(elem,"stabilization")))
+    stabk = atof(value);
+  else if ((value = utl::getValue(elem,"initial_crack")))
+  {
+    std::string type;
+    utl::getAttribute(elem,"type",type);
+    IFEM::cout <<"\tInitial crack function";
+    initial_crack = utl::parseRealFunc(value,type);
   }
-
-  // update history field
-  historyField(fe.iGP+1) = std::max(historyField(fe.iGP+1), tensile?(*tensile)(fe.iGP+1):0.0);
-
-  double scale = 4.0*smearFactor*(1.0-stabk)*historyField(fe.iGP+1)/Gc;
-
-  for (size_t i=1;i<=fe.N.size();++i) {
-    for (size_t j=1;j<=fe.N.size();++j) {
-      elMat.A[0](i,j) += (scale+1.0)*fe.N(i)*fe.N(j)*fe.detJxW;
-      double grad=0.0;
-      for (size_t k=1;k<=nsd;++k)
-        grad += fe.dNdX(i,k)*fe.dNdX(j,k);
-      elMat.A[0](i,j) += second_scale*smearFactor*smearFactor*grad*fe.detJxW;
-    }
-  }
-
-  elMat.b[0].add(fe.N,fe.detJxW);
 
   return true;
 }
 
 
-void CahnHilliard::initIntegration (size_t nIp, size_t nBp)
+void CahnHilliard::printLog () const
 {
-  historyField.resize(nIp);
+  IFEM::cout <<"Cahn-Hilliard: "<< nsd <<"D"
+             <<"\n\tCritical fracture energy density: "<< Gc
+             <<"\n\tSmearing factor: "<< smearing
+             <<"\n\tMax value in crack: "<< maxCrack;
+  if (stabk != 0.0)
+    IFEM::cout <<"\n\tStabilization parameter: "<< stabk;
+  if (initial_crack)
+    IFEM::cout <<"\n\tInitial crack specified as a function.";
+  if (scale2nd == 2.0)
+    IFEM::cout <<"\n\tUsing fourth-order phase field.";
+  IFEM::cout << std::endl;
 }
 
 
-std::string CahnHilliard::getField1Name(size_t, const char* prefix) const
+void CahnHilliard::initIntegration (size_t nIp, size_t)
 {
-  if (!prefix) return "c";
-
-  return std::string(prefix) + " c";
+  delete[] historyField;
+  historyField = new double[nIp];
+  memset(historyField,0,nIp*sizeof(double));
 }
 
 
-void CahnHilliard::printLog()
+bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
+                            const Vec3& X) const
 {
-  IFEM::cout << "Smearing factor: " << smearFactor << std::endl;
-  IFEM::cout << "Max value in crack: " << maxCrack << std::endl;
+  double& H = historyField[fe.iGP];
+
+  if (initial_crack) {
+    double dist = (*initial_crack)(X);
+    if (dist < smearing)
+      H = (0.25*Gc/smearing) * (1.0/maxCrack-1.0) * (1.0-dist/smearing);
+  }
+
+  // Update history field
+  if (tensileEnergy)
+    H = std::max(H,tensileEnergy[fe.iGP]);
+
+  double scale = 1.0 + 4.0*smearing*(1.0-stabk)*H/Gc;
+
+  Matrix& A = static_cast<ElmMats&>(elmInt).A.front();
+  for (size_t i = 1; i <= fe.N.size(); i++)
+    for (size_t j = 1; j <= fe.N.size(); j++) {
+      A(i,j) += scale*fe.N(i)*fe.N(j)*fe.detJxW;
+      double grad = 0.0;
+      for (size_t k = 1; k <= nsd; k++)
+        grad += fe.dNdX(i,k)*fe.dNdX(j,k);
+      A(i,j) += scale2nd*smearing*smearing*grad*fe.detJxW;
+    }
+
+  static_cast<ElmMats&>(elmInt).b.front().add(fe.N,fe.detJxW);
+
+  return true;
 }
 
 
-bool CahnHilliard::evalSol(Vector& s, const FiniteElement& fe,
-                           const Vec3& X, const std::vector<int>& MNPC) const
+bool CahnHilliard::evalSol (Vector& s, const FiniteElement& fe,
+                            const Vec3& X, const std::vector<int>& MNPC) const
 {
   s.resize(1);
+
   Vector tmp;
   if (utl::gather(MNPC,1,primsol.front(),tmp))
     return false;
@@ -113,37 +120,36 @@ bool CahnHilliard::evalSol(Vector& s, const FiniteElement& fe,
   s(1) = fe.N.dot(tmp);
   if (s(1) < maxCrack)
     s(1) = 0.0;
-  if (s(1) > 1.0)
+  else if (s(1) > 1.0)
     s(1) = 1.0;
 
   return true;
 }
 
 
-CahnHilliard4::CahnHilliard4(unsigned short int n) :
-  CahnHilliard(n)
+std::string CahnHilliard::getField1Name (size_t, const char* prefix) const
 {
-  second_scale = 2.0;
+  if (!prefix) return "c";
+
+  return std::string(prefix) + " c";
 }
 
 
-bool CahnHilliard4::evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
-                            const Vec3& X) const
+bool CahnHilliard4::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
+                             const Vec3& X) const
 {
-  if (!CahnHilliard::evalInt(elmInt,fe,X))
+  if (!this->CahnHilliard::evalInt(elmInt,fe,X))
     return false;
 
-  ElmMats& elMat = static_cast<ElmMats&>(elmInt);
+  Matrix& A = static_cast<ElmMats&>(elmInt).A.front();
 
-  for (size_t i=1;i<=fe.N.size();++i) {
-    for (size_t j=1;j<=fe.N.size();++j) {
+  for (size_t i = 1; i <= fe.N.size(); i++)
+    for (size_t j = 1; j <= fe.N.size(); j++) {
       double grad2 = 0.0;
-      for (size_t k=1;k<=nsd;++k)
+      for (unsigned short int k = 1; k <= nsd; k++)
         grad2 += fe.d2NdX2(i,k,k)*fe.d2NdX2(j,k,k);
-
-      elMat.A[0](i,j) += pow(smearFactor,4)*grad2*fe.detJxW;
+      A(i,j) += pow(smearing,4.0)*grad2*fe.detJxW;
     }
-  }
 
   return true;
 }
