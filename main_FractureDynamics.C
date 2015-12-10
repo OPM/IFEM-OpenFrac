@@ -62,10 +62,11 @@ private:
   \brief Creates the combined fracture simulator and launches the simulation.
   \param[in] infile The input file to parse
   \param[in] pfOrder Order of the crack phase field (2 or 4)
+  \param[in] useVoigt Assume symmtric constitutive tensor
 */
 
 template<class Dim, class Integrator=NewmarkSIM>
-int runSimulator2 (char* infile, char pfOrder)
+int runSimulator2 (char* infile, char pfOrder, bool useVoigt)
 {
   typedef SIMDynElasticity<Dim,Integrator>            SIMElastoDynamics;
   typedef SIMPhaseField<Dim>                          SIMCrackField;
@@ -75,7 +76,7 @@ int runSimulator2 (char* infile, char pfOrder)
   IFEM::cout <<"\n\n0. Parsing input file(s)."
              <<"\n========================="<< std::endl;
 
-  SIMElastoDynamics elastoSim;
+  SIMElastoDynamics elastoSim(useVoigt);
   ASMstruct::resetNumbering();
   if (!elastoSim.read(infile))
     return 1;
@@ -183,13 +184,14 @@ int runSimulator3 (char* infile, const char* context = "newmarksolver")
   \brief Creates the combined fracture simulator and launches the simulation.
   \param[in] infile The input file to parse
   \param[in] pfOrder Order of the crack phase field, 0=(no crack), 2 or 4
+  \param[in] useVoigt Assume symmetric consitutive tensor
 */
 
 template<class Dim, class Integrator=NewmarkSIM>
-int runSimulator1 (char* infile, char phaseFieldOrder)
+int runSimulator1 (char* infile, char pfOrder, bool useVoigt)
 {
-  if (phaseFieldOrder > 0)
-    return runSimulator2<Dim,Integrator>(infile,phaseFieldOrder);
+  if (pfOrder > 0)
+    return runSimulator2<Dim,Integrator>(infile,pfOrder,useVoigt);
   else
     return runSimulator3<Dim,Integrator>(infile); // No phase field coupling
 }
@@ -215,15 +217,16 @@ public:
   \param[in] integrator The time integrator to use (0=linear quasi-static,
              no phase-field coupling, 1=linear Newmark, 2=Generalizes alpha)
   \param[in] pfOrder Order of the crack phase field, 0=(no crack), 2 or 4
+  \param[in] useVoigt Assume symmetric consitutive tensor
 */
 
 template<class Dim>
-int runSimulator (char* infile, char integrator, char phaseFieldOrder)
+int runSimulator (char* infile, char integrator, char pfOrder, bool useVoigt)
 {
   if (integrator == 2)
-    return runSimulator1<Dim,GenAlphaSIM>(infile,phaseFieldOrder);
+    return runSimulator1<Dim,GenAlphaSIM>(infile,pfOrder,useVoigt);
   else if (integrator > 0)
-    return runSimulator1<Dim>(infile,phaseFieldOrder);
+    return runSimulator1<Dim>(infile,pfOrder,useVoigt);
   else
     return runSimulator3<Dim,LinSIM>(infile,"staticsolver");
 }
@@ -241,6 +244,7 @@ int main (int argc, char** argv)
   char* infile = 0;
   char pfOrder = 2;
   char integrator = 1;
+  bool useVoigt = false;
   bool twoD = false;
 
   IFEM::Init(argc,argv);
@@ -258,6 +262,8 @@ int main (int argc, char** argv)
       integrator = 0;
     else if (!strcmp(argv[i],"-GA"))
       integrator = 2;
+    else if (!strcmp(argv[i],"-Voigt"))
+      useVoigt = true;
     else if (!strcmp(argv[i],"-principal"))
       Elasticity::wantPrincipalStress = true;
     else if (!infile)
@@ -270,7 +276,7 @@ int main (int argc, char** argv)
     std::cout <<"usage: "<< argv[0]
               <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n"
               <<"       [-lag|-spec|-LR] [-2D] [-nGauss <n>]\n"
-              <<"       [-fourth|-nocrack] [-GA|-static]\n"
+              <<"       [-fourth|-nocrack] [-GA|-static] [-Voigt]\n"
               <<"       [-vtf <format> [-nviz <nviz>]"
               <<" [-nu <nu>] [-nv <nv>] [-nw <nw>]] [-hdf5]\n"<< std::endl;
     return 0;
@@ -285,7 +291,7 @@ int main (int argc, char** argv)
   IFEM::cout << std::endl;
 
   if (twoD)
-    return runSimulator<SIM2D>(infile,integrator,pfOrder);
+    return runSimulator<SIM2D>(infile,integrator,pfOrder,useVoigt);
   else
-    return runSimulator<SIM3D>(infile,integrator,pfOrder);
+    return runSimulator<SIM3D>(infile,integrator,pfOrder,useVoigt);
 }

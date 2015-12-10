@@ -17,7 +17,7 @@
 
 #include "NewmarkSIM.h"
 #include "SIMElasticity.h"
-#include "FractureElasticity.h"
+#include "FractureElasticityVoigt.h"
 #include "DataExporter.h"
 
 
@@ -30,19 +30,17 @@ class SIMDynElasticity : public SIMElasticity<Dim>
 {
 public:
   //! \brief Default constructor.
-  SIMDynElasticity() : SIMElasticity<Dim>(false),
-                       fracEl(Dim::dimension), dSim(*this)
+  SIMDynElasticity(bool voigt = false) : SIMElasticity<Dim>(false), dSim(*this)
   {
     Dim::myHeading = "Elasticity solver";
-    Dim::myProblem = &fracEl;
+    if (voigt)
+      Dim::myProblem = new FractureElasticityVoigt(Dim::dimension);
+    else
+      Dim::myProblem = new FractureElasticity(Dim::dimension);
   }
 
-  //! \brief The destructor nullifies the integrand pointers.
-  virtual ~SIMDynElasticity()
-  {
-    Dim::myProblem = nullptr;
-    Dim::myInts.clear();
-  }
+  //! \brief Empty destructor.
+  virtual ~SIMDynElasticity() {}
 
   //! \brief Prints out problem-specific data to the log stream.
   virtual void printProblem() const
@@ -114,11 +112,17 @@ public:
   }
 
   //! \brief Returns the tensile energy in gauss points.
-  const double* getTensileEnergy() const { return fracEl.getTensileEnergy(); }
+  const double* getTensileEnergy() const
+  {
+    return static_cast<FractureElasticity*>(Dim::myProblem)->getTensileEnergy();
+  }
 
 protected:
   //! \brief Returns the actual integrand.
-  virtual Elasticity* getIntegrand() { return &fracEl; }
+  virtual Elasticity* getIntegrand()
+  {
+    return static_cast<Elasticity*>(Dim::myProblem);
+  }
 
   //! \brief Parses a data section from an XML element.
   virtual bool parse(const TiXmlElement* elem)
@@ -134,8 +138,7 @@ protected:
   }
 
 private:
-  FractureElasticity fracEl; //!< Problem definition
-  DynSIM             dSim;   //!< Dynamic solution driver
+  DynSIM dSim; //!< Dynamic solution driver
 };
 
 #endif

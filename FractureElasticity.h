@@ -86,11 +86,16 @@ public:
   //! \param[in] prefix Name prefix for all components
   virtual std::string getField2Name(size_t i, const char* pfx) const;
 
-private:
+protected:
+  //! \brief Evaluates the stress tensor and tensile energy at current point.
+  virtual bool evalStress(double lambda, double mu, double Gc,
+                          const SymmTensor& epsilon,
+                          double& Phi, SymmTensor& sigma) const;
+
   //! \brief Evaluates the stress tensor and its derivative w.r.t. the strains.
   bool evalStress(double lambda, double mu, double Gc,
                   const SymmTensor& epsilon, double& Phi,
-                  SymmTensor& sigma, Tensor4* dSdE = nullptr) const;
+                  SymmTensor& sigma, Tensor4* dSdE) const;
 
 protected:
   double  alpha;  //!< Relaxation factor for the crack phase field

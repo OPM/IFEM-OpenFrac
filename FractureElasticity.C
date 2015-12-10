@@ -437,6 +437,14 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
 }
 
 
+bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
+                                     const SymmTensor& epsilon,
+                                     double& Phi, SymmTensor& sigma) const
+{
+  return this->evalStress(lambda,mu,Gc,epsilon,Phi,sigma,nullptr);
+}
+
+
 size_t FractureElasticity::getNoFields (int fld) const
 {
   return this->Elasticity::getNoFields(fld) + (fld == 2 ? 1 : 0);
