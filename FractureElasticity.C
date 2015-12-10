@@ -103,7 +103,7 @@ void FractureElasticity::getQ (const Tensor& Ma, Tensor4& Qa, double C) const
 
 bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
                                      const SymmTensor& epsilon, double& Phi,
-                                     SymmTensor& sigma, Tensor4& dSdE) const
+                                     SymmTensor& sigma, Tensor4* dSdE) const
 {
   // Define some material constants
   double trEps = epsilon.trace();
@@ -113,14 +113,15 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
   unsigned short int a, b;
 
   // Set up the stress tangent (4th order tensor)
-  dSdE = Tensor4(nsd,C0,true);
+  if (dSdE)
+    *dSdE = Tensor4(nsd,C0,true);
   if (trEps >= -epsZ && trEps <= epsZ)
   {
     // No strains, stress free configuration
     sigma = Phi = 0.0;
-    for (a = 1; a <= nsd; a++)
+    for (a = 1; dSdE && a <= nsd; a++)
       for (b = 1; b <= nsd; b++)
-        dSdE(a,b,a,b) += Cp;
+        (*dSdE)(a,b,a,b) += Cp;
     return true;
   }
 
@@ -153,12 +154,14 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
             <<"Phi = "<< Phi << std::endl;
 #endif
 
+  if (!dSdE) return true;
+
   if (eps[0] == eps[nsd-1])
   {
     // Hydrostatic pressure
     for (a = 1; a <= nsd; a++)
       for (b = 1; b <= nsd; b++)
-        dSdE(a,b,a,b) += eps.x > 0.0 ? Cp : Cm;
+        (*dSdE)(a,b,a,b) += eps.x > 0.0 ? Cp : Cm;
     return true;
   }
 
@@ -166,17 +169,17 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
   for (a = 0; a < nsd; a++)
   {
     if (eps[a] >= 0.0)
-      this->getQ(M[a],dSdE,Cp);
+      this->getQ(M[a],*dSdE,Cp);
     if (eps[a] <= 0.0)
-      this->getQ(M[a],dSdE,Cm);
+      this->getQ(M[a],*dSdE,Cm);
     for (b = 0; b < nsd; b++)
       if (a != b && eps[a] != eps[b])
       {
         double epsRel = 0.5*eps[a] / (eps[a]-eps[b]);
         if (eps[a] >= 0.0)
-          this->getG(M[a],M[b],dSdE,Cp*epsRel);
+          this->getG(M[a],M[b],*dSdE,Cp*epsRel);
         if (eps[a] <= 0.0)
-          this->getG(M[a],M[b],dSdE,Cm*epsRel);
+          this->getG(M[a],M[b],*dSdE,Cm*epsRel);
       }
   }
 
@@ -219,7 +222,7 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
 
     // Evaluate the stress state at this point
     Tensor4 dSdE(nsd);
-    if (!this->evalStress(lambda,mu,Gc,eps,myPhi[fe.iGP],sigma,dSdE))
+    if (!this->evalStress(lambda,mu,Gc,eps,myPhi[fe.iGP],sigma,&dSdE))
       return false;
 #if INT_DEBUG > 3
     std::cout <<"dSdE ="<< dSdE;
@@ -296,4 +299,121 @@ bool FractureElasticity::evalBou (LocalIntegral& elmInt,
       ES(nsd*(a-1)+i) += T[i-1]*fe.N(a)*fe.detJxW;
 
   return true;
+}
+
+
+bool FractureElasticity::evalSol (Vector& s,
+                                  const FiniteElement& fe, const Vec3& X,
+                                  const std::vector<int>& MNPC) const
+{
+  // Extract element displacements
+  Vectors eV(2);
+  int ierr = 0;
+  if (!primsol.empty() && !primsol.front().empty())
+    ierr = utl::gather(MNPC,nsd,primsol.front(),eV.front());
+
+  // Extract crack phase field vector for this element
+  if (!myCVec.empty() && ierr == 0)
+    ierr = utl::gather(MNPC,1,myCVec,eV.back());
+
+  if (ierr > 0)
+  {
+    std::cerr <<" *** FractureElasticity::evalSol: Detected "<< ierr
+              <<" node numbers out of range."<< std::endl;
+    return false;
+  }
+
+
+  return this->evalSol2(s,eV,fe,X);
+}
+
+
+bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
+                                  const FiniteElement& fe, const Vec3& X,
+                                  bool toLocal, Vec3* pdir) const
+{
+  if (eV.size() < 2)
+  {
+    std::cerr <<" *** FractureElasticity::evalSol: Missing solution vector."
+              << std::endl;
+    return false;
+  }
+  else if (!eV.front().empty() && eV.front().size() != fe.dNdX.rows()*nsd)
+  {
+    std::cerr <<" *** FractureElasticity::evalSol: Invalid displacement vector."
+              <<"\n     size(eV) = "<< eV.front().size() <<"   size(dNdX) = "
+              << fe.dNdX.rows() <<","<< fe.dNdX.cols() << std::endl;
+    return false;
+  }
+  else if (!eV[1].empty() && eV[1].size() != fe.N.size())
+  {
+    std::cerr <<" *** FractureElasticity::evalSol: Invalid phasefield vector."
+              <<"\n     size(eC) = "<< eV[1].size() <<"   size(N) = "
+              << fe.N.size() << std::endl;
+    return false;
+  }
+
+  // Evaluate the symmetric strain tensor, eps
+  Matrix Bmat;
+  SymmTensor eps(nsd);
+  if (!this->kinematics(eV.front(),fe.N,fe.dNdX,0.0,Bmat,eps,eps))
+    return false;
+
+  // Evaluate the material parameters at this point
+  double lambda, mu;
+  if (!material->evaluate(lambda,mu,fe,X))
+    return false;
+
+  // Evaluate the crack phase field function
+  double cc = eV[1].empty() ? 1.0 : fe.N.dot(eV[1]);
+  double Gc = (1.0-alpha)*cc*cc + alpha;
+
+  // Evaluate the stress state at this point
+  SymmTensor sigma(nsd); double Phi;
+  if (!this->evalStress(lambda,mu,Gc,eps,Phi,sigma))
+    return false;
+
+  Vec3 p;
+  bool havePval = false;
+  if (toLocal && wantPrincipalStress)
+  {
+    // Calculate principal stresses and associated direction vectors
+    havePval = pdir ? sigma.principal(p,pdir,2) : sigma.principal(p);
+    // Congruence transformation to local coordinate system at current point
+    if (locSys) sigma.transform(locSys->getTmat(X));
+  }
+
+  s = sigma;
+  s.insert(s.begin()+2,0.2*(sigma(1,1)+sigma(2,2)));
+
+  if (toLocal)
+    s.push_back(sigma.vonMises());
+
+  if (havePval)
+  {
+    s.push_back(p.x);
+    s.push_back(p.y);
+    if (sigma.dim() == 3)
+      s.push_back(p.z);
+  }
+
+  s.push_back(Phi);
+  return true;
+}
+
+
+size_t FractureElasticity::getNoFields (int fld) const
+{
+  return this->Elasticity::getNoFields(fld) + (fld == 2 ? 1 : 0);
+}
+
+
+std::string FractureElasticity::getField2Name (size_t i, const char* pfx) const
+{
+  if (i < this->Elasticity::getNoFields(2))
+    return this->Elasticity::getField2Name(i,pfx);
+
+  if (!pfx) return "Tensile energy";
+
+  return std::string(pfx) + " Tensile energy";
 }

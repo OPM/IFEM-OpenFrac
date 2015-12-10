@@ -56,8 +56,35 @@ public:
   virtual bool evalBou(LocalIntegral& elmInt, const FiniteElement& fe,
                        const Vec3& X, const Vec3& normal) const;
 
+  using Elasticity::evalSol;
+  //! \brief Evaluates the secondary solution at a result point.
+  //! \param[out] s Array of solution field values at current point
+  //! \param[in] fe Finite element data at current point
+  //! \param[in] X Cartesian coordinates of current point
+  //! \param[in] MNPC Nodal point correspondance for the basis function values
+  virtual bool evalSol(Vector& s, const FiniteElement& fe,
+		       const Vec3& X, const std::vector<int>& MNPC) const;
+
+  //! \brief Evaluates the finite element (FE) solution at an integration point.
+  //! \param[out] s The FE stress values at current point
+  //! \param[in] eV Element solution vectors
+  //! \param[in] fe Finite element data at current point
+  //! \param[in] X Cartesian coordinates of current point
+  //! \param[in] toLocal If \e true, transform to local coordinates (if defined)
+  //! \param[out] pdir Directions of the principal stresses
+  virtual bool evalSol(Vector& s, const Vectors& eV, const FiniteElement& fe,
+                       const Vec3& X, bool toLocal, Vec3* pdir) const;
+
   //! \brief Returns a pointer to the Gauss-point tensile energy array.
   const double* getTensileEnergy() const { return myPhi; }
+
+  //! \brief Returns the number of primary/secondary solution field components.
+  //! \param[in] fld which field set to consider (1=primary, 2=secondary)
+  virtual size_t getNoFields(int fld) const;
+  //! \brief Returns the name of a secondary solution field component.
+  //! \param[in] i Field component index
+  //! \param[in] prefix Name prefix for all components
+  virtual std::string getField2Name(size_t i, const char* pfx) const;
 
 private:
   //! \brief Helper method for computing the fourth-order tensor \a Gab.
@@ -67,7 +94,7 @@ private:
   //! \brief Evaluates the stress tensor and its derivative w.r.t. the strains.
   bool evalStress(double lambda, double mu, double Gc,
                   const SymmTensor& epsilon, double& Phi,
-                  SymmTensor& sigma, Tensor4& dSdE) const;
+                  SymmTensor& sigma, Tensor4* dSdE = nullptr) const;
 
 protected:
   double  alpha;  //!< Relaxation factor for the crack phase field
