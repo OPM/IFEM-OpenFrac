@@ -13,10 +13,16 @@ if (NOT IFEM_CONFIGURED)
   find_package(IFEM REQUIRED)
 endif(NOT IFEM_CONFIGURED)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IFEM_CXX_FLAGS}")
+IF(NOT ORIG_CXX_FLAGS)
+  SET(ORIG_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+ENDIF(NOT ORIG_CXX_FLAGS)
+SET(CMAKE_CXX_FLAGS "${ORIG_CXX_FLAGS} ${IFEM_CXX_FLAGS}")
+IF(NOT IFEM_AS_SUBMODULE)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPROFILE_LEVEL=3")
+ENDIF(NOT IFEM_AS_SUBMODULE)
 
-include_directories(${IFEM_INCLUDES} ../Common ${PROJECT_SOURCE_DIR}
-                    ../Elasticity ../Elasticity/Linear)
+include_directories(${IFEM_INCLUDES} ${PROJECT_SOURCE_DIR}
+                    ../Common ../Elasticity)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
@@ -28,8 +34,9 @@ if(NOT WIN32)
 endif(NOT WIN32)
 
 file(GLOB LinEl_SRCS ../Elasticity/*.C)
+file(GLOB FracEl_SRCS [A-Z]*.C)
 
-add_library(CommonCH CahnHilliard.C FractureElasticity.C ${LinEl_SRCS})
+add_library(CommonCH ${FracEl_SRCS} ${LinEl_SRCS})
 
 add_executable(CahnHilliard main_CahnHilliard.C)
 add_executable(FractureDynamics main_FractureDynamics.C)

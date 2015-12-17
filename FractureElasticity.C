@@ -19,6 +19,7 @@
 #include "Vec3Oper.h"
 #include "Tensor4.h"
 #include "Tensor.h"
+#include "Profiler.h"
 
 #ifndef epsZ
 //! \brief Zero tolerance for strains.
@@ -77,40 +78,29 @@ bool FractureElasticity::initElement (const std::vector<int>& MNPC,
 }
 
 
-void FractureElasticity::getG (const Tensor& Ma, const Tensor& Mb,
-                               Tensor4& Gab, double eps) const
-{
-  unsigned short int i, j, k, l;
-  for (i = 1; i <= nsd; i++)
-    for (j = 1; j <= nsd; j++)
-      for (k = 1; k <= nsd; k++)
-        for (l = 1; l <= nsd; l++)
-          Gab(i,j,k,l) += eps*(Ma(i,k)*Mb(j,l) + Ma(i,l)*Mb(j,k) +
-                               Mb(i,k)*Ma(j,l) + Mb(i,l)*Ma(j,k));
-}
-
-
-void FractureElasticity::getQ (const Tensor& Ma, Tensor4& Qa, double C) const
-{
-  unsigned short int i, j, k, l;
-  for (i = 1; i <= nsd; i++)
-    for (j = 1; j <= nsd; j++)
-      for (k = 1; k <= nsd; k++)
-        for (l = 1; l <= nsd; l++)
-          Qa(i,j,k,l) += C*Ma(i,j)*Ma(k,l);
-}
-
-
 bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
                                      const SymmTensor& epsilon, double& Phi,
                                      SymmTensor& sigma, Tensor4* dSdE) const
 {
+  PROFILE3("FractureEl::evalStress");
+
+  unsigned short int a = 0, b = 0;
+
+  // Define a Lambda-function to set up the isotropic constitutive tensor
+  auto&& setIsotropic = [this,a,b](Tensor4& C, double mu) mutable
+  {
+    for (a = 1; a <= nsd; a++)
+      for (b = 1; b <= nsd; b++)
+      {
+        C(a,b,a,b) += mu;
+        C(a,b,b,a) += mu;
+      }
+  };
+
   // Define some material constants
   double trEps = epsilon.trace();
   double C0 = trEps >= -epsZ ? Gc*lambda : lambda;
-  double Cm = 2.0*mu;
-  double Cp = Gc*Cm;
-  unsigned short int a, b;
+  double Cp = Gc*mu;
 
   // Set up the stress tangent (4th order tensor)
   if (dSdE)
@@ -119,19 +109,21 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
   {
     // No strains, stress free configuration
     sigma = Phi = 0.0;
-    for (a = 1; dSdE && a <= nsd; a++)
-      for (b = 1; b <= nsd; b++)
-        (*dSdE)(a,b,a,b) += Cp;
+    if (dSdE)
+      setIsotropic(*dSdE,Cp);
     return true;
   }
 
   // Calculate principal strains and the associated directions
   Vec3 eps;
   std::vector<SymmTensor> M(nsd,SymmTensor(nsd));
-  if (!epsilon.principal(eps,M.data()))
-    return false;
+  {
+    PROFILE4("Tensor::principal");
+    if (!epsilon.principal(eps,M.data()))
+      return false;
+  }
 
-  // Split the strain tensor into positive and negative part
+  // Split the strain tensor into positive and negative parts
   SymmTensor ePos(nsd), eNeg(nsd);
   for (a = 0; a < nsd; a++)
     if (eps[a] > 0.0)
@@ -140,11 +132,11 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
       eNeg += eps[a]*M[a];
 
   // Evaluate the tensile energy
-  Phi = 0.5*(C0*trEps*trEps + Cp*(ePos*ePos).trace() + Cm*(eNeg*eNeg).trace());
+  Phi = 0.5*C0*trEps*trEps + mu*(Gc*(ePos*ePos).trace() + (eNeg*eNeg).trace());
 
   // Evaluate the stress tensor
   sigma = C0*trEps;
-  sigma += Cp*ePos + Cm*eNeg;
+  sigma += 2.0*mu*(Gc*ePos + eNeg);
 
 #if INT_DEBUG > 4
   std::cout <<"eps_p = "<< eps <<"\n";
@@ -159,28 +151,47 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
   if (eps[0] == eps[nsd-1])
   {
     // Hydrostatic pressure
-    for (a = 1; a <= nsd; a++)
-      for (b = 1; b <= nsd; b++)
-        (*dSdE)(a,b,a,b) += eps.x > 0.0 ? Cp : Cm;
+    setIsotropic(*dSdE, eps.x > 0.0 ? Cp : mu);
     return true;
   }
+
+  // Define a Lambda-function to calculate the tensor Qa
+  auto&& getQ = [this](Tensor4& Qa, const Tensor& Ma, double C)
+  {
+    if (C == 0.0) return;
+
+    unsigned short int i, j, k, l;
+    for (i = 1; i <= nsd; i++)
+      for (j = 1; j <= nsd; j++)
+        for (k = 1; k <= nsd; k++)
+          for (l = 1; l <= nsd; l++)
+            Qa(i,j,k,l) += C*Ma(i,j)*Ma(k,l);
+  };
+
+  // Define a Lambda-function to calculate the tensor Gab
+  auto&& getG = [this](Tensor4& Gab, const Tensor& Ma,
+                       const Tensor& Mb, double eps)
+  {
+    if (eps == 0.0) return;
+
+    unsigned short int i, j, k, l;
+    for (i = 1; i <= nsd; i++)
+      for (j = 1; j <= nsd; j++)
+        for (k = 1; k <= nsd; k++)
+          for (l = 1; l <= nsd; l++)
+            Gab(i,j,k,l) += eps*(Ma(i,k)*Mb(j,l) + Ma(i,l)*Mb(j,k) +
+                                 Mb(i,k)*Ma(j,l) + Mb(i,l)*Ma(j,k));
+  };
 
   // Evaluate the stress tangent (4th order tensor)
   for (a = 0; a < nsd; a++)
   {
-    if (eps[a] >= 0.0)
-      this->getQ(M[a],*dSdE,Cp);
-    if (eps[a] <= 0.0)
-      this->getQ(M[a],*dSdE,Cm);
-    for (b = 0; b < nsd; b++)
-      if (a != b && eps[a] != eps[b])
-      {
-        double epsRel = 0.5*eps[a] / (eps[a]-eps[b]);
-        if (eps[a] >= 0.0)
-          this->getG(M[a],M[b],*dSdE,Cp*epsRel);
-        if (eps[a] <= 0.0)
-          this->getG(M[a],M[b],*dSdE,Cm*epsRel);
-      }
+    double C1 = eps[a] >= 0.0 ? Cp : mu;
+    getQ(*dSdE, M[a], 2.0*C1);
+    if (eps[a] != 0.0)
+      for (b = 0; b < nsd; b++)
+        if (a != b && eps[a] != eps[b])
+          getG(*dSdE, M[a], M[b], C1/(1.0-eps[b]/eps[a]));
   }
 
   return true;
@@ -190,19 +201,27 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
 bool FractureElasticity::evalInt (LocalIntegral& elmInt,
                                   const FiniteElement& fe, const Vec3& X) const
 {
+  PROFILE3("FractureEl::evalInt");
+
   ElmMats& elMat = static_cast<ElmMats&>(elmInt);
 
   Matrix Bmat;
+  Tensor4 dSdE(nsd);
   SymmTensor eps(nsd), sigma(nsd);
   bool lHaveStrains = false;
 
-  if (eKm || eKg)
+  if (eKm || eKg || iS)
   {
     // Evaluate the symmetric strain tensor if displacements are available
     if (!this->kinematics(elMat.vec.front(),fe.N,fe.dNdX,0.0,Bmat,eps,eps))
       return false;
     else if (!eps.isZero(1.0e-16))
+    {
       lHaveStrains = true;
+      for (unsigned short int i = 1; i <= nsd; i++)
+        for (unsigned short int j = i+1; j <= nsd; j++)
+          eps(i,j) *= 0.5; // Using tensor formulation
+    }
 #if INT_DEBUG > 3
     std::cout <<"\nFractureElasticity::evalInt(X = "<< X <<")\nBmat ="<< Bmat;
 #endif
@@ -212,34 +231,44 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
     if (!material->evaluate(lambda,mu,fe,X))
       return false;
 
-    // Evaluate the crack phase field function
+    // Evaluate the crack phase field function, ignoring negative values
     double cc = elmInt.vec[1].empty() ? 1.0 : fe.N.dot(elmInt.vec[1]);
-    double Gc = (1.0-alpha)*cc*cc + alpha;
+    double Gc = cc > 0.0 ? (1.0-alpha)*cc*cc + alpha : alpha;
 #if INT_DEBUG > 3
     std::cout <<"lambda = "<< lambda <<" mu = "<< mu <<" G(c) = "<< Gc <<"\n";
     if (lHaveStrains) std::cout <<"eps =\n"<< eps;
 #endif
 
     // Evaluate the stress state at this point
-    Tensor4 dSdE(nsd);
-    if (!this->evalStress(lambda,mu,Gc,eps,myPhi[fe.iGP],sigma,&dSdE))
+    if (!this->evalStress(lambda,mu,Gc,eps,myPhi[fe.iGP],sigma,
+                          eKm ? &dSdE : nullptr))
       return false;
+  }
+
+  // Define a Lambda-function to extract a symmetric tensor from the B-matrix
+  auto&& getDepsDu = [this,&Bmat](SymmTensor& dEpsDu, size_t a)
+  {
+    const double* Ba = Bmat.ptr(a-1);
+    dEpsDu = RealArray(Ba,Ba+Bmat.rows());
+    for (unsigned short int i = 1; i <= nsd; i++)
+      for (unsigned short int j = i+1; j <= nsd; j++)
+        dEpsDu(i,j) *= 0.5;
+  };
+
+  if (eKm)
+  {
 #if INT_DEBUG > 3
     std::cout <<"dSdE ="<< dSdE;
 #endif
 
     // Integrate the material stiffness matrix
+    SymmTensor dEpsAi(nsd), dEpsBj(nsd);
     Matrix& Km = elMat.A[eKm-1];
-    size_t a, b, nstrc = Bmat.rows();
+    size_t a, b;
     unsigned short int i, j, k, l;
     for (b = 1; b <= Km.cols(); b++)
     {
-      const double* Bb = Bmat.ptr(b-1);
-      SymmTensor dEpsBj(RealArray(Bb,Bb+nstrc));
-      for (i = 1; i <= nsd; i++)
-        for (j = i+1; j <= nsd; j++)
-          dEpsBj(i,j) *= 0.5;
-
+      getDepsDu(dEpsBj,b);
       Matrix Ctmp(nsd,nsd);
       for (i = 1; i <= nsd; i++)
         for (j = 1; j <= nsd; j++)
@@ -249,11 +278,7 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
 
       for (a = 1; a <= Km.rows(); a++)
       {
-        const double* Ba = Bmat.ptr(a-1);
-        SymmTensor dEpsAi(RealArray(Ba,Ba+nstrc));
-        for (i = 1; i <= nsd; i++)
-          for (j = i+1; j <= nsd; j++)
-            dEpsAi(i,j) *= 0.5;
+        getDepsDu(dEpsAi,a);
         for (i = 1; i <= nsd; i++)
           for (j = 1; j <= nsd; j++)
             Km(a,b) += dEpsAi(i,j)*Ctmp(i,j)*fe.detJxW;
@@ -266,6 +291,14 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
 
   if (eM) // Integrate the mass matrix
     this->formMassMatrix(elMat.A[eM-1],fe.N,X,fe.detJxW);
+
+  if (iS && lHaveStrains)
+  {
+    // Integrate the internal forces
+    sigma *= -fe.detJxW;
+    if (!Bmat.multiply(sigma,elMat.b[iS-1],true,true)) // ES -= B^T*sigma
+      return false;
+  }
 
   if (eS) // Integrate the load vector due to gravitation and other body forces
     this->formBodyForce(elMat.b[eS-1],fe.N,X,fe.detJxW);
@@ -332,6 +365,8 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
                                   const FiniteElement& fe, const Vec3& X,
                                   bool toLocal, Vec3* pdir) const
 {
+  PROFILE3("FractureEl::evalSol");
+
   if (eV.size() < 2)
   {
     std::cerr <<" *** FractureElasticity::evalSol: Missing solution vector."
@@ -364,9 +399,9 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
   if (!material->evaluate(lambda,mu,fe,X))
     return false;
 
-  // Evaluate the crack phase field function
+  // Evaluate the crack phase field function, ignoring negative values
   double cc = eV[1].empty() ? 1.0 : fe.N.dot(eV[1]);
-  double Gc = (1.0-alpha)*cc*cc + alpha;
+  double Gc = cc > 0.0 ? (1.0-alpha)*cc*cc + alpha : alpha;
 
   // Evaluate the stress state at this point
   SymmTensor sigma(nsd); double Phi;

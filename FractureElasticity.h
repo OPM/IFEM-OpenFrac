@@ -87,10 +87,6 @@ public:
   virtual std::string getField2Name(size_t i, const char* pfx) const;
 
 private:
-  //! \brief Helper method for computing the fourth-order tensor \a Gab.
-  void getG(const Tensor& Ma, const Tensor& Mb, Tensor4& Gab, double eps) const;
-  //! \brief Helper method for computing the fourth-order tensor \a Qa.
-  void getQ(const Tensor& Ma, Tensor4& Qa, double C) const;
   //! \brief Evaluates the stress tensor and its derivative w.r.t. the strains.
   bool evalStress(double lambda, double mu, double Gc,
                   const SymmTensor& epsilon, double& Phi,
