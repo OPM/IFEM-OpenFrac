@@ -30,7 +30,6 @@
 FractureElasticity::FractureElasticity (unsigned short int n) : Elasticity(n)
 {
   alpha = 0.0;
-  myPhi = nullptr;
   this->registerVector("phasefield",&myCVec);
 }
 
@@ -38,9 +37,7 @@ FractureElasticity::FractureElasticity (unsigned short int n) : Elasticity(n)
 void FractureElasticity::initIntegration (size_t nGp, size_t)
 {
   // Initialize internal tensile energy buffer
-  delete[] myPhi;
-  myPhi = new double[nGp];
-  memset(myPhi,0,nGp*sizeof(double));
+  myPhi.resize(nGp);
 }
 
 

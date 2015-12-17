@@ -27,8 +27,8 @@ public:
   //! \brief The constructor initializes all pointers to zero.
   //! \param[in] n Number of spatial dimensions
   CahnHilliard(unsigned short int n);
-  //! \brief The destructor deletes the tensile energy history field.
-  virtual ~CahnHilliard() { delete[] historyField; }
+  //! \brief Empty destructor.
+  virtual ~CahnHilliard() {}
 
   //! \brief Parses a data section from an XML element.
   virtual bool parse(const TiXmlElement* elem);
@@ -59,13 +59,16 @@ public:
                        const Vec3& X, const std::vector<int>& MNPC) const;
 
   //! \brief Returns the number of primary/secondary solution field components.
-  virtual size_t getNoFields(int fld) const { return fld > 1 ? 0 : 1; }
+  virtual size_t getNoFields(int fld) const { return fld > 1 ? 2 : 1; }
   //! \brief Returns the name of the primary solution field.
   //! \param[in] prefix Name prefix
-  virtual std::string getField1Name(size_t, const char* prefix = nullptr) const;
+  virtual std::string getField1Name(size_t, const char* prefix) const;
+  //! \brief Returns the name of the secondary solution field.
+  //! \param[in] prefix Name prefix
+  virtual std::string getField2Name(size_t, const char* prefix) const;
 
   //! \brief Sets the pointer to the tensile energy buffer.
-  void setTensileEnergy(const double* tens) { tensileEnergy = tens; }
+  void setTensileEnergy(const RealArray* tens) { tensileEnergy = tens; }
 
   //! \brief Clears the initial crack function (after first iteration).
   void clearInitialCrack() { delete initial_crack; initial_crack = nullptr; }
@@ -78,9 +81,9 @@ protected:
   double scale2nd; //!< Scaling factor in front of second order term
 
 private:
-  const double*  tensileEnergy; //!< Tensile energy from the elasticity solver
-  RealFunc*      initial_crack; //!< For generating the initial history field
-  double*        historyField;  //!< History field for tensile energy
+  RealFunc*         initial_crack; //!< For generating initial history field
+  const RealArray*  tensileEnergy; //!< Tensile energy from elasticity solver
+  mutable RealArray historyField;  //!< History field for tensile energy
 };
 
 

@@ -22,7 +22,7 @@
 
 CahnHilliard::CahnHilliard (unsigned short int n) : IntegrandBase(n),
   Gc(1.0), smearing(1.0), maxCrack(1.0e-3), stabk(0.0), scale2nd(4.0),
-  tensileEnergy(nullptr), initial_crack(nullptr), historyField(nullptr)
+  initial_crack(nullptr), tensileEnergy(nullptr)
 {
   primsol.resize(1);
 }
@@ -69,9 +69,7 @@ void CahnHilliard::printLog () const
 
 void CahnHilliard::initIntegration (size_t nIp, size_t)
 {
-  delete[] historyField;
-  historyField = new double[nIp];
-  memset(historyField,0,nIp*sizeof(double));
+  historyField.resize(nIp,0.0);
 }
 
 
@@ -88,18 +86,19 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
 
   // Update history field
   if (tensileEnergy)
-    H = std::max(H,tensileEnergy[fe.iGP]);
+    H = std::max(H,(*tensileEnergy)[fe.iGP]);
 
   double scale = 1.0 + 4.0*smearing*(1.0-stabk)*H/Gc;
+  double s1JxW = scale*fe.detJxW;
+  double s2JxW = scale2nd*smearing*smearing*fe.detJxW;
 
   Matrix& A = static_cast<ElmMats&>(elmInt).A.front();
   for (size_t i = 1; i <= fe.N.size(); i++)
     for (size_t j = 1; j <= fe.N.size(); j++) {
-      A(i,j) += scale*fe.N(i)*fe.N(j)*fe.detJxW;
       double grad = 0.0;
       for (size_t k = 1; k <= nsd; k++)
         grad += fe.dNdX(i,k)*fe.dNdX(j,k);
-      A(i,j) += scale2nd*smearing*smearing*grad*fe.detJxW;
+      A(i,j) += fe.N(i)*fe.N(j)*s1JxW + grad*s2JxW;
     }
 
   static_cast<ElmMats&>(elmInt).b.front().add(fe.N,fe.detJxW);
@@ -111,27 +110,35 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
 bool CahnHilliard::evalSol (Vector& s, const FiniteElement& fe,
                             const Vec3& X, const std::vector<int>& MNPC) const
 {
-  s.resize(1);
+  s.resize(2);
 
   Vector tmp;
   if (utl::gather(MNPC,1,primsol.front(),tmp))
     return false;
 
-  s(1) = fe.N.dot(tmp);
-  if (s(1) < maxCrack)
+  double c = fe.N.dot(tmp);
+  if (c < maxCrack)
     s(1) = 0.0;
-  else if (s(1) > 1.0)
+  else if (c > 1.0)
     s(1) = 1.0;
+  else
+    s(1) = c;
 
+  s(2) = historyField[fe.iGP];
   return true;
 }
 
 
 std::string CahnHilliard::getField1Name (size_t, const char* prefix) const
 {
-  if (!prefix) return "c";
+  return prefix ? prefix + std::string(" phase") : std::string("phase");
+}
 
-  return std::string(prefix) + " c";
+
+std::string CahnHilliard::getField2Name (size_t idx, const char* prefix) const
+{
+  std::string name(idx == 0 ? "phase" : "Max tensile energy");
+  return prefix ? std::string(prefix) + " " + name : name;
 }
 
 
@@ -142,13 +149,14 @@ bool CahnHilliard4::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
     return false;
 
   Matrix& A = static_cast<ElmMats&>(elmInt).A.front();
+  double s4JxW = pow(smearing,4.0)*fe.detJxW;
 
   for (size_t i = 1; i <= fe.N.size(); i++)
     for (size_t j = 1; j <= fe.N.size(); j++) {
-      double grad2 = 0.0;
+      double grad = 0.0;
       for (unsigned short int k = 1; k <= nsd; k++)
-        grad2 += fe.d2NdX2(i,k,k)*fe.d2NdX2(j,k,k);
-      A(i,j) += pow(smearing,4.0)*grad2*fe.detJxW;
+        grad += fe.d2NdX2(i,k,k)*fe.d2NdX2(j,k,k);
+      A(i,j) += grad*s4JxW;
     }
 
   return true;

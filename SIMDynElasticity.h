@@ -112,7 +112,7 @@ public:
   }
 
   //! \brief Returns the tensile energy in gauss points.
-  const double* getTensileEnergy() const
+  const RealArray* getTensileEnergy() const
   {
     return static_cast<FractureElasticity*>(Dim::myProblem)->getTensileEnergy();
   }

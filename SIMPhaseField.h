@@ -139,7 +139,7 @@ public:
   void setInitialConditions() { SIM::setInitialConditions(*this); }
 
   //! \brief Sets the tensile energy vector from the elasticity problem.
-  void setTensileEnergy(const double* te)
+  void setTensileEnergy(const RealArray* te)
   {
     static_cast<CahnHilliard*>(Dim::myProblem)->setTensileEnergy(te);
   }

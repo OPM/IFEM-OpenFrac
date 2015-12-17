@@ -29,8 +29,8 @@ public:
   //! \brief The constructor invokes the parent class constructor only.
   //! \param[in] n Number of spatial dimensions
   FractureElasticity(unsigned short int n);
-  //! \brief The destructor deletes the internal tensile energy buffer.
-  virtual ~FractureElasticity() { delete[] myPhi; }
+  //! \brief Empty destructor.
+  virtual ~FractureElasticity() {}
 
   //! \brief Initializes the integrand with the number of integration points.
   //! \param[in] nGp Total number of interior integration points
@@ -76,7 +76,7 @@ public:
                        const Vec3& X, bool toLocal, Vec3* pdir) const;
 
   //! \brief Returns a pointer to the Gauss-point tensile energy array.
-  const double* getTensileEnergy() const { return myPhi; }
+  const RealArray* getTensileEnergy() const { return &myPhi; }
 
   //! \brief Returns the number of primary/secondary solution field components.
   //! \param[in] fld which field set to consider (1=primary, 2=secondary)
@@ -98,9 +98,10 @@ protected:
                   SymmTensor& sigma, Tensor4* dSdE) const;
 
 protected:
-  double  alpha;  //!< Relaxation factor for the crack phase field
-  Vector  myCVec; //!< Crack phase field values at nodal points
-  double* myPhi;  //!< Tensile energy density at integration points
+  double alpha;  //!< Relaxation factor for the crack phase field
+  Vector myCVec; //!< Crack phase field values at nodal points
+
+  mutable RealArray myPhi; //!< Tensile energy density at integration points
 };
 
 #endif
