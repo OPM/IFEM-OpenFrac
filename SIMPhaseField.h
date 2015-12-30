@@ -65,7 +65,7 @@ public:
   //! \brief Initializes the problem.
   bool init(const TimeStep&)
   {
-    this->setMode(SIM::STATIC);
+    this->setMode(SIM::INIT);
     this->setQuadratureRule(Dim::opt.nGauss[0],true);
     this->registerField("phasefield",phasefield);
     return true;
@@ -90,14 +90,26 @@ public:
   {
     PROFILE1("SIMPhaseField::saveStep");
 
-    if (tp.step%Dim::opt.saveInc > 0 || Dim::opt.format < 0)
-      return true;
+    if (tp.step%Dim::opt.saveInc == 0 && Dim::opt.format >= 0)
+    {
+      int iBlck = 6;
+      int iDump = tp.step/Dim::opt.saveInc;
+      iBlck = this->writeGlvS1(phasefield,iDump,nBlock,tp.time.t,"phase",iBlck);
+      if (iBlck < 0) return false;
 
-    int iDump = tp.step/Dim::opt.saveInc;
-    if (this->writeGlvS1(phasefield,iDump,nBlock,tp.time.t,"phasefield",9) < 0)
-      return false;
+      if (!Dim::opt.project.empty())
+        if (!this->writeGlvP(projSol,iDump,nBlock,iBlck,
+                             Dim::opt.project.begin()->second.c_str()))
+          return false;
 
-    return this->writeGlvStep(iDump,tp.time.t);
+      if (!this->writeGlvStep(iDump,tp.time.t))
+        return false;
+    }
+
+    if (!projSol.empty()) // Replace the phase field solution by its projection
+      phasefield = projSol.getRow(1);
+
+    return true;
   }
 
   //! \brief Dummy method.
@@ -112,6 +124,7 @@ public:
       IFEM::cout <<"\n  Solving crack phase field at step="<< tp.step
                  <<" time="<< tp.time.t << std::endl;
 
+    this->setMode(SIM::STATIC);
     if (!this->assembleSystem())
       return false;
 
@@ -121,18 +134,12 @@ public:
 
     static_cast<CahnHilliard*>(Dim::myProblem)->clearInitialCrack();
 
-    return Dim::opt.project.empty() ? true : this->postSolve(tp);
-  }
+    if (Dim::opt.project.empty())
+      return true;
 
-  //! \brief Projects the phase field onto the geometry basis of this simulator.
-  bool postSolve(const TimeStep&, bool = false)
-  {
-    Matrix tmp;
-    if (!this->project(tmp,phasefield,Dim::opt.project.begin()->first))
-      return false;
-
-    phasefield = tmp.getRow(1);
-    return true;
+    // Project the phase field onto the geometry basis
+    this->setMode(SIM::RECOVERY);
+    return this->project(projSol,phasefield,Dim::opt.project.begin()->first);
   }
 
   //! \brief Sets initial conditions.
@@ -172,6 +179,7 @@ protected:
 
 private:
   Vector phasefield; //!< Current phase field solution
+  Matrix projSol;    //!< Projected solution fields
 };
 
 #endif

@@ -97,7 +97,15 @@ public:
     if (tp.step%Dim::opt.saveInc > 0 || Dim::opt.format < 0 || !ok)
       return ok;
 
-    return dSim.saveStep(tp.step/Dim::opt.saveInc,nBlock,tp.time.t);
+    int iDump = tp.step/Dim::opt.saveInc;
+    if (!dSim.saveStep(iDump,nBlock,tp.time.t))
+      return false;
+    else if (Dim::opt.project.empty())
+      return true;
+
+    // Write projected solution fields to VTF-file
+    return this->writeGlvP(projSol,iDump,nBlock,110,
+                           Dim::opt.project.begin()->second.c_str());
   }
 
   //! \brief Advances the time step one step forward.
@@ -108,7 +116,17 @@ public:
   {
     if (Dim::msgLevel >= 1)
       IFEM::cout <<"\n  Solving the elasto-dynamics problem...";
-    return dSim.solveStep(tp) == SIM::CONVERGED;
+
+    if (dSim.solveStep(tp) != SIM::CONVERGED)
+      return false;
+
+    if (Dim::opt.project.empty())
+      return true;
+
+    // Project the secondary solution field onto the geometry basis
+    this->setMode(SIM::RECOVERY);
+    return this->project(projSol,dSim.getSolution(),
+                         Dim::opt.project.begin()->first);
   }
 
   //! \brief Returns the tensile energy in gauss points.
@@ -138,7 +156,8 @@ protected:
   }
 
 private:
-  DynSIM dSim; //!< Dynamic solution driver
+  DynSIM dSim;    //!< Dynamic solution driver
+  Matrix projSol; //!< Projected secondary solution fields
 };
 
 #endif
