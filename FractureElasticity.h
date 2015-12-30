@@ -97,6 +97,9 @@ protected:
                   const SymmTensor& epsilon, double& Phi,
                   SymmTensor& sigma, Tensor4* dSdE) const;
 
+  //! \brief Evaluates the stress degradation function \a g(c) at current point.
+  double getStressDegradation(const Vector& N, const Vector& eC) const;
+
 protected:
   double alpha;  //!< Relaxation factor for the crack phase field
   Vector myCVec; //!< Crack phase field values at nodal points

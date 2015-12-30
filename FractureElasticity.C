@@ -195,6 +195,16 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
 }
 
 
+double FractureElasticity::getStressDegradation (const Vector& N,
+                                                 const Vector& eC) const
+{
+  // Evaluate the crack phase field function, c(X)
+  double c = eC.empty() ? 1.0 : N.dot(eC);
+  // Evaluate the stress degradation function, g(c), ignoring negative values
+  return c > 0.0 ? (1.0-alpha)*c*c + alpha : alpha;
+}
+
+
 bool FractureElasticity::evalInt (LocalIntegral& elmInt,
                                   const FiniteElement& fe, const Vec3& X) const
 {
@@ -228,9 +238,8 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
     if (!material->evaluate(lambda,mu,fe,X))
       return false;
 
-    // Evaluate the crack phase field function, ignoring negative values
-    double cc = elmInt.vec[1].empty() ? 1.0 : fe.N.dot(elmInt.vec[1]);
-    double Gc = cc > 0.0 ? (1.0-alpha)*cc*cc + alpha : alpha;
+    // Evaluate the stress degradation function
+    double Gc = this->getStressDegradation(fe.N,elmInt.vec[1]);
 #if INT_DEBUG > 3
     std::cout <<"lambda = "<< lambda <<" mu = "<< mu <<" G(c) = "<< Gc <<"\n";
     if (lHaveStrains) std::cout <<"eps =\n"<< eps;
@@ -379,7 +388,7 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
   }
   else if (!eV[1].empty() && eV[1].size() != fe.N.size())
   {
-    std::cerr <<" *** FractureElasticity::evalSol: Invalid phasefield vector."
+    std::cerr <<" *** FractureElasticity::evalSol: Invalid phase field vector."
               <<"\n     size(eC) = "<< eV[1].size() <<"   size(N) = "
               << fe.N.size() << std::endl;
     return false;
@@ -396,12 +405,9 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
   if (!material->evaluate(lambda,mu,fe,X))
     return false;
 
-  // Evaluate the crack phase field function, ignoring negative values
-  double cc = eV[1].empty() ? 1.0 : fe.N.dot(eV[1]);
-  double Gc = cc > 0.0 ? (1.0-alpha)*cc*cc + alpha : alpha;
-
   // Evaluate the stress state at this point
-  SymmTensor sigma(nsd); double Phi;
+  SymmTensor sigma(nsd);
+  double Phi, Gc = this->getStressDegradation(fe.N,eV[1]);
   if (!this->evalStress(lambda,mu,Gc,eps,Phi,sigma))
     return false;
 
@@ -429,7 +435,12 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
       s.push_back(p.z);
   }
 
-  s.push_back(Phi);
+  if (toLocal)
+  {
+    s.push_back(Phi);
+    s.push_back(Gc);
+  }
+
   return true;
 }
 
@@ -444,7 +455,7 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
 
 size_t FractureElasticity::getNoFields (int fld) const
 {
-  return this->Elasticity::getNoFields(fld) + (fld == 2 ? 1 : 0);
+  return this->Elasticity::getNoFields(fld) + (fld == 2 ? 2 : 0);
 }
 
 
@@ -453,7 +464,12 @@ std::string FractureElasticity::getField2Name (size_t i, const char* pfx) const
   if (i < this->Elasticity::getNoFields(2))
     return this->Elasticity::getField2Name(i,pfx);
 
-  if (!pfx) return "Tensile energy";
+  std::string name;
+  if (i == this->Elasticity::getNoFields(2))
+    name = "Tensile energy, Phi";
+  else
+    name = "Stress degradation, g(c)";
 
-  return std::string(pfx) + " Tensile energy";
+  if (pfx) name = std::string(pfx) + " " + name;
+  return name;
 }

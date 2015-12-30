@@ -233,9 +233,8 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
     if (!material->evaluate(lambda,mu,fe,X))
       return false;
 
-    // Evaluate the crack phase field function, ignoring negative values
-    double cc = elmInt.vec[1].empty() ? 1.0 : fe.N.dot(elmInt.vec[1]);
-    double Gc = cc > 0.0 ? (1.0-alpha)*cc*cc + alpha : alpha;
+    // Evaluate the stress degradation function
+    double Gc = this->getStressDegradation(fe.N,elmInt.vec[1]);
 #if INT_DEBUG > 3
     std::cout <<"lambda = "<< lambda <<" mu = "<< mu <<" G(c) = "<< Gc <<"\n";
     if (lHaveStrains) std::cout <<"eps =\n"<< eps;
