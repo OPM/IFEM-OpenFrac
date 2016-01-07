@@ -120,11 +120,15 @@ public:
     if (dSim.solveStep(tp) != SIM::CONVERGED)
       return false;
 
+    // Update strain energy density for the converged solution
+    this->setMode(SIM::RECOVERY);
+    if (!this->assembleSystem(tp.time,dSim.getSolutions()))
+      return false;
+
     if (Dim::opt.project.empty())
       return true;
 
     // Project the secondary solution field onto the geometry basis
-    this->setMode(SIM::RECOVERY);
     return this->project(projSol,dSim.getSolution(),
                          Dim::opt.project.begin()->first);
   }

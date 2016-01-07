@@ -217,7 +217,7 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
   SymmTensor eps(nsd), sigma(nsd);
   bool lHaveStrains = false;
 
-  if (eKm || eKg || iS)
+  if (eKm || eKg || iS || m_mode == SIM::RECOVERY)
   {
     // Evaluate the symmetric strain tensor if displacements are available
     if (!this->kinematics(elMat.vec.front(),fe.N,fe.dNdX,0.0,Bmat,eps,eps))
@@ -324,6 +324,7 @@ bool FractureElasticity::evalBou (LocalIntegral& elmInt,
   }
   else if (!eS)
   {
+    if (m_mode == SIM::RECOVERY) return true;
     std::cerr <<" *** FractureElasticity::evalBou: No load vector."<< std::endl;
     return false;
   }
