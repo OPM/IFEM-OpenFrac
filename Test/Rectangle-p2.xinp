@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<simulation>
+
+  <geometry Lx="0.1" Ly="0.04">
+    <raiseorder patch="1" u="1" v="1"/>
+    <refine type="uniform" patch="1" u="94" v="37"/>
+    <topologysets>
+      <set name="Loaded" type="edge">
+        <item patch="1">3 4</item>
+      </set>
+    </topologysets>
+  </geometry>
+
+  <cahnhilliard>
+    <Gc>3.0</Gc>
+    <smearing>5.2e-4</smearing>
+    <initial_crack type="expression"> dX=x-0.05; dY=y-0.02;
+      if(below(dX,0.0),abs(dY),sqrt(dX*dX+dY*dY))
+    </initial_crack>
+  </cahnhilliard>
+
+  <elasticity>
+    <isotropic E="3.2e10" nu="0.2" rho="2450.0"/>
+    <boundaryconditions>
+      <neumann set="Loaded" direction="0">1.0e6</neumann>
+    </boundaryconditions>
+  </elasticity>
+
+  <discretization>
+    <nGauss>3</nGauss>
+  </discretization>
+
+  <newmarksolver rho_inf="0.5">
+    <timestepping>
+      <step start="0.0" end="1.2e-4">4.95e-7</step>
+    </timestepping>
+  </newmarksolver>
+
+  <postprocessing>
+    <vtfformat>binary</vtfformat>
+    <projection>cgl2</projection>
+  </postprocessing>
+
+</simulation>

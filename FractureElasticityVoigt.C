@@ -79,7 +79,8 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
       eNeg += eps[a]*M[a];
 
   // Evaluate the tensile energy
-  Phi = 0.5*C0*trEps*trEps + mu*(Gc*(ePos*ePos).trace() + (eNeg*eNeg).trace());
+  Phi = mu*(ePos*ePos).trace();
+  if (trEps > 0.0) Phi += 0.5*lambda*trEps*trEps;
 
   // Evaluate the stress tensor
   sigma = C0*trEps;

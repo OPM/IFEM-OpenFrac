@@ -2,9 +2,8 @@
 
 <simulation>
 
-  <geometry Lx="0.1" Ly="0.04">
-    <raiseorder patch="1" u="1" v="1"/>
-    <refine type="uniform" patch="1" u="63" v="63"/>
+  <geometry X0="-0.01 -0.02" Lx="0.02" Ly="0.04">
+    <refine type="uniform" patch="1" u="9" v="19"/>
     <topologysets>
       <set name="Loaded" type="edge">
         <item patch="1">3 4</item>
@@ -14,9 +13,9 @@
 
   <cahnhilliard>
     <Gc>3.0</Gc>
-    <smearing>5.2e-4</smearing>
-    <initial_crack type="expression"> dX=x-0.05; dY=y-0.02;
-      if(below(dX,0.0),abs(dY),sqrt(dX*dX+dY*dY))
+    <smearing>0.001</smearing>
+    <initial_crack type="expression">
+      if(below(x,0.0),abs(y),sqrt(x*x+y*y))
     </initial_crack>
   </cahnhilliard>
 
@@ -28,12 +27,12 @@
   </elasticity>
 
   <discretization>
-    <nGauss>3</nGauss>
+    <nGauss>2</nGauss>
   </discretization>
 
-  <newmarksolver>
+  <newmarksolver rho_inf="0.5">
     <timestepping>
-      <step start="0.0" end="1.2e-4">5.0e-7</step>
+      <step start="0.0" end="5.0e-5">1.0e-6</step>
     </timestepping>
   </newmarksolver>
 

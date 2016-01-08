@@ -1,0 +1,781 @@
+Short10x20-p1.xinp -2D -GA -Voigt 
+
+Input file: Short10x20-p1.xinp
+Equation solver: 2
+Number of Gauss points: 4
+0. Parsing input file(s).
+1. Elasticity solver
+Parsing input file Short10x20-p1.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Using default linear geometry basis on unit domain \[0,1]^2
+  Corner: -0.01 -0.02 0
+  Length in X: 0.02
+  Length in Y: 0.04
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Loaded (1,3,1D) (1,4,1D)
+  Parsing <refine>
+	Refining P1 9 19
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+Parsing <elasticity>
+	Material code 0: 3.2e+10 0.2 2450
+  Parsing <neumann>
+	Neumann code 1000000 direction 0: 1e+06
+Parsing <newmarksolver>
+Parsing input file succeeded.
+Equation solver: 2
+Number of Gauss points: 2
+2. Cahn-Hilliard solver
+Parsing input file Short10x20-p1.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Using default linear geometry basis on unit domain \[0,1]^2
+  Corner: -0.01 -0.02 0
+  Length in X: 0.02
+  Length in Y: 0.04
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Loaded (1,3,1D) (1,4,1D)
+  Parsing <refine>
+	Refining P1 9 19
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+	Initial crack function: if(below(x,0.0),abs(y),sqrt(x\*x+y\*y))
+Parsing <elasticity>
+Parsing <newmarksolver>
+Parsing input file succeeded.
+Equation solver: 2
+Number of Gauss points: 2
+3. Time integration driver
+Parsing input file Short10x20-p1.xinp
+Parsing <geometry>
+Parsing <cahnhilliard>
+Parsing <elasticity>
+Parsing <discretization>
+Parsing <newmarksolver>
+Parsing input file succeeded.
+10. Preprocessing the finite element model:
+11. Elasticity solver
+Problem definition:
+Elasticity: 2D, gravity = 0 0
+LinIsotropic: E = 3.2e+10, nu = 0.2, rho = 2450, alpha = 1.2e-07
+Newmark predictor/multicorrector: beta = 0.444444 gamma = 0.833333
+ using zero acceleration predictor
+Resolving Dirichlet boundary conditions
+ >>> SAM model summary <<<
+Number of elements    200
+Number of nodes       231
+Number of dofs        462
+Number of unknowns    462
+12. Cahn-Hilliard solver
+Problem definition:
+Cahn-Hilliard: 2D
+	Critical fracture energy density: 3
+	Smearing factor: 0.001
+	Max value in crack: 0.001
+	Initial crack specified as a function.
+Resolving Dirichlet boundary conditions
+ >>> SAM model summary <<<
+Number of elements    200
+Number of nodes       231
+Number of dofs        231
+Number of unknowns    231
+100. Starting the simulation
+  Solving the elasto-dynamics problem...
+  step=1  time=1e-06
+  Displacement L2-norm            : 1.9993e-08
+  Velocity L2-norm                : 0.037487
+               Max X-velocity     : 0.0272023
+               Max Y-velocity     : 0.164267
+  Acceleration L2-norm            : 44984.3
+               Max X-acceleration : 32642.8
+               Max Y-acceleration : 197120
+  Solving crack phase field at step=1 time=1e-06
+  Primary solution summary: L2-norm         : 0.940816
+                            Max value       : 0.999068
+  Solving the elasto-dynamics problem...
+  step=2  time=2e-06
+  Displacement L2-norm            : 5.64399e-08
+               Max Y-displacement : 2.13697e-07
+  Velocity L2-norm                : 0.0454281
+               Max X-velocity     : 0.0317571
+               Max Y-velocity     : 0.153672
+  Acceleration L2-norm            : 38560.3
+               Max X-acceleration : 22670.4
+               Max Y-acceleration : 115042
+  Solving crack phase field at step=2 time=2e-06
+  Primary solution summary: L2-norm         : 0.936106
+                            Max value       : 0.997728
+  Solving the elasto-dynamics problem...
+  step=3  time=3e-06
+  Displacement L2-norm            : 1.02609e-07
+               Max Y-displacement : 3.26822e-07
+  Velocity L2-norm                : 0.0565934
+               Max X-velocity     : 0.0328114
+               Max Y-velocity     : 0.148965
+  Acceleration L2-norm            : 29543.2
+               Max X-acceleration : 19125.8
+               Max Y-acceleration : 75710.5
+  Solving crack phase field at step=3 time=3e-06
+  Primary solution summary: L2-norm         : 0.931711
+                            Max value       : 0.995272
+  Solving the elasto-dynamics problem...
+  step=4  time=4e-06
+  Displacement L2-norm            : 1.58245e-07
+               Max Y-displacement : 4.46271e-07
+  Velocity L2-norm                : 0.0665312
+               Max X-velocity     : 0.0350776
+               Max Y-velocity     : 0.14376
+  Acceleration L2-norm            : 25177.6
+               Max X-acceleration : 16346
+               Max Y-acceleration : 65900.5
+  Solving crack phase field at step=4 time=4e-06
+  Primary solution summary: L2-norm         : 0.927454
+                            Max value       : 0.991632
+  Solving the elasto-dynamics problem...
+  step=5  time=5e-06
+  Displacement L2-norm            : 2.21497e-07
+               Max X-displacement : 1.13492e-07
+               Max Y-displacement : 5.64556e-07
+  Velocity L2-norm                : 0.0744478
+               Max X-velocity     : 0.0352176
+               Max Y-velocity     : 0.14952
+  Acceleration L2-norm            : 24650
+               Max X-acceleration : 15524.1
+               Max Y-acceleration : 64388.5
+  Solving crack phase field at step=5 time=5e-06
+  Primary solution summary: L2-norm         : 0.923384
+                            Max value       : 0.986297
+  Solving the elasto-dynamics problem...
+  step=6  time=6e-06
+  Displacement L2-norm            : 2.91959e-07
+               Max X-displacement : 1.29683e-07
+               Max Y-displacement : 6.81902e-07
+  Velocity L2-norm                : 0.0828524
+               Max X-velocity     : 0.0338326
+               Max Y-velocity     : 0.163516
+  Acceleration L2-norm            : 23107.7
+               Max X-acceleration : 17582.7
+               Max Y-acceleration : 74687.1
+  Solving crack phase field at step=6 time=6e-06
+  Primary solution summary: L2-norm         : 0.91956
+                            Max value       : 0.973165
+  Solving the elasto-dynamics problem...
+  step=7  time=7e-06
+  Displacement L2-norm            : 3.69314e-07
+               Max X-displacement : 1.36262e-07
+               Max Y-displacement : 8.02383e-07
+  Velocity L2-norm                : 0.0889436
+               Max X-velocity     : 0.0471457
+               Max Y-velocity     : 0.201709
+  Acceleration L2-norm            : 19186.7
+               Max X-acceleration : 21166.4
+               Max Y-acceleration : 83243.1
+  Solving crack phase field at step=7 time=7e-06
+  Primary solution summary: L2-norm         : 0.91496
+                            Max value       : 0.973119
+  Solving the elasto-dynamics problem...
+  step=8  time=8e-06
+  Displacement L2-norm            : 4.51847e-07
+               Max X-displacement : 1.29474e-07
+               Max Y-displacement : 9.23377e-07
+  Velocity L2-norm                : 0.0917535
+               Max X-velocity     : 0.0595902
+               Max Y-velocity     : 0.235153
+  Acceleration L2-norm            : 16886
+               Max X-acceleration : 23474.8
+               Max Y-acceleration : 68382.1
+  Solving crack phase field at step=8 time=8e-06
+  Primary solution summary: L2-norm         : 0.909601
+                            Max value       : 0.973097
+  Solving the elasto-dynamics problem...
+  step=9  time=9e-06
+  Displacement L2-norm            : 5.37457e-07
+               Max X-displacement : 1.7836e-07
+               Max Y-displacement : 1.04999e-06
+  Velocity L2-norm                : 0.0925266
+               Max X-velocity     : 0.0651937
+               Max Y-velocity     : 0.204469
+  Acceleration L2-norm            : 17392.4
+               Max X-acceleration : 26771.9
+               Max Y-acceleration : 57787.5
+  Solving crack phase field at step=9 time=9e-06
+  Primary solution summary: L2-norm         : 0.903615
+                            Max value       : 0.97305
+  Solving the elasto-dynamics problem...
+  step=10  time=1e-05
+  Displacement L2-norm            : 6.24325e-07
+               Max X-displacement : 2.37655e-07
+               Max Y-displacement : 1.18858e-06
+  Velocity L2-norm                : 0.0925495
+               Max X-velocity     : 0.0728194
+               Max Y-velocity     : 0.186928
+  Acceleration L2-norm            : 15136.6
+               Max X-acceleration : 26297
+               Max Y-acceleration : 77707.2
+  Solving crack phase field at step=10 time=1e-05
+  Primary solution summary: L2-norm         : 0.896794
+                            Max value       : 0.97296
+  Solving the elasto-dynamics problem...
+  step=11  time=1.1e-05
+  Displacement L2-norm            : 7.115e-07
+               Max X-displacement : 2.94894e-07
+               Max Y-displacement : 1.34849e-06
+  Velocity L2-norm                : 0.0922775
+               Max X-velocity     : 0.0709747
+               Max Y-velocity     : 0.18813
+  Acceleration L2-norm            : 14531.7
+               Max X-acceleration : 31113.4
+               Max Y-acceleration : 38403.8
+  Solving crack phase field at step=11 time=1.1e-05
+  Primary solution summary: L2-norm         : 0.889654
+                            Max value       : 0.972809
+  Solving the elasto-dynamics problem...
+  step=12  time=1.2e-05
+  Displacement L2-norm            : 7.9852e-07
+               Max X-displacement : 3.53305e-07
+               Max Y-displacement : 1.53958e-06
+  Velocity L2-norm                : 0.0927251
+               Max X-velocity     : 0.0719915
+               Max Y-velocity     : 0.208468
+  Acceleration L2-norm            : 17300.7
+               Max X-acceleration : 56397
+               Max Y-acceleration : 52711
+  Solving crack phase field at step=12 time=1.2e-05
+  Primary solution summary: L2-norm         : 0.88312
+                            Max value       : 0.972708
+  Solving the elasto-dynamics problem...
+  step=13  time=1.3e-05
+  Displacement L2-norm            : 8.85069e-07
+               Max X-displacement : 4.15721e-07
+               Max Y-displacement : 1.7606e-06
+  Velocity L2-norm                : 0.0947708
+               Max X-velocity     : 0.12461
+               Max Y-velocity     : 0.234247
+  Acceleration L2-norm            : 17761.6
+               Max X-acceleration : 55435.4
+               Max Y-acceleration : 65431.8
+  Solving crack phase field at step=13 time=1.3e-05
+  Primary solution summary: L2-norm         : 0.877742
+                            Max value       : 0.972572
+  Solving the elasto-dynamics problem...
+  step=14  time=1.4e-05
+  Displacement L2-norm            : 9.71277e-07
+               Max X-displacement : 4.81709e-07
+               Max Y-displacement : 1.99748e-06
+  Velocity L2-norm                : 0.0984542
+               Max X-velocity     : 0.155409
+               Max Y-velocity     : 0.240676
+  Acceleration L2-norm            : 17800.5
+               Max X-acceleration : 65110
+               Max Y-acceleration : 43163.4
+  Solving crack phase field at step=14 time=1.4e-05
+  Primary solution summary: L2-norm         : 0.873329
+                            Max value       : 0.972463
+  Solving the elasto-dynamics problem...
+  step=15  time=1.5e-05
+  Displacement L2-norm            : 1.05795e-06
+               Max X-displacement : 5.53118e-07
+               Max Y-displacement : 2.23138e-06
+  Velocity L2-norm                : 0.103467
+               Max X-velocity     : 0.186123
+               Max Y-velocity     : 0.250125
+  Acceleration L2-norm            : 16224.6
+               Max X-acceleration : 58563.7
+               Max Y-acceleration : 33723.8
+  Solving crack phase field at step=15 time=1.5e-05
+  Primary solution summary: L2-norm         : 0.869301
+                            Max value       : 0.97233
+  Solving the elasto-dynamics problem...
+  step=16  time=1.6e-05
+  Displacement L2-norm            : 1.1466e-06
+               Max X-displacement : 6.35207e-07
+               Max Y-displacement : 2.45402e-06
+  Velocity L2-norm                : 0.108909
+               Max X-velocity     : 0.222867
+               Max Y-velocity     : 0.263511
+  Acceleration L2-norm            : 13697
+               Max X-acceleration : 32543.5
+               Max Y-acceleration : 32390.6
+  Solving crack phase field at step=16 time=1.6e-05
+  Primary solution summary: L2-norm         : 0.865983
+                            Max value       : 0.972327
+  Solving the elasto-dynamics problem...
+  step=17  time=1.7e-05
+  Displacement L2-norm            : 1.23908e-06
+               Max X-displacement : 7.91387e-07
+               Max Y-displacement : 2.67619e-06
+  Velocity L2-norm                : 0.114084
+               Max X-velocity     : 0.230599
+               Max Y-velocity     : 0.275278
+  Acceleration L2-norm            : 12709.8
+               Max X-acceleration : 29579
+               Max Y-acceleration : 26913.7
+  Solving crack phase field at step=17 time=1.7e-05
+  Primary solution summary: L2-norm         : 0.863292
+                            Max value       : 0.972323
+  Solving the elasto-dynamics problem...
+  step=18  time=1.8e-05
+  Displacement L2-norm            : 1.33699e-06
+               Max X-displacement : 1.01151e-06
+               Max Y-displacement : 2.91624e-06
+  Velocity L2-norm                : 0.119381
+               Max X-velocity     : 0.211134
+               Max Y-velocity     : 0.284042
+  Acceleration L2-norm            : 14859.4
+               Max X-acceleration : 34774.5
+               Max Y-acceleration : 32095.7
+  Solving crack phase field at step=18 time=1.8e-05
+  Primary solution summary: L2-norm         : 0.861196
+                            Max value       : 0.972321
+  Solving the elasto-dynamics problem...
+  step=19  time=1.9e-05
+  Displacement L2-norm            : 1.44143e-06
+               Max X-displacement : 1.20275e-06
+               Max Y-displacement : 3.18147e-06
+  Velocity L2-norm                : 0.125812
+               Max X-velocity     : 0.172341
+               Max Y-velocity     : 0.294434
+  Acceleration L2-norm            : 16223.3
+               Max X-acceleration : 41768.3
+               Max Y-acceleration : 39139.9
+  Solving crack phase field at step=19 time=1.9e-05
+  Primary solution summary: L2-norm         : 0.859641
+                            Max value       : 0.972318
+  Solving the elasto-dynamics problem...
+  step=20  time=2e-05
+  Displacement L2-norm            : 1.55327e-06
+               Max X-displacement : 1.35485e-06
+               Max Y-displacement : 3.46209e-06
+  Velocity L2-norm                : 0.133489
+               Max X-velocity     : 0.186723
+               Max Y-velocity     : 0.306752
+  Acceleration L2-norm            : 15179.5
+               Max X-acceleration : 40322
+               Max Y-acceleration : 40598
+  Solving crack phase field at step=20 time=2e-05
+  Primary solution summary: L2-norm         : 0.858485
+                            Max value       : 0.972316
+  Solving the elasto-dynamics problem...
+  step=21  time=2.1e-05
+  Displacement L2-norm            : 1.67334e-06
+               Max X-displacement : 1.47797e-06
+               Max Y-displacement : 3.7437e-06
+  Velocity L2-norm                : 0.141561
+               Max X-velocity     : 0.216338
+               Max Y-velocity     : 0.317662
+  Acceleration L2-norm            : 12093.9
+               Max X-acceleration : 27589
+               Max Y-acceleration : 27911.2
+  Solving crack phase field at step=21 time=2.1e-05
+  Primary solution summary: L2-norm         : 0.857657
+                            Max value       : 0.972314
+  Solving the elasto-dynamics problem...
+  step=22  time=2.2e-05
+  Displacement L2-norm            : 1.80253e-06
+               Max X-displacement : 1.60077e-06
+               Max Y-displacement : 4.02595e-06
+  Velocity L2-norm                : 0.149289
+               Max X-velocity     : 0.222268
+               Max Y-velocity     : 0.326902
+  Acceleration L2-norm            : 11676.9
+               Max X-acceleration : 40657.7
+               Max Y-acceleration : 34295.9
+  Solving crack phase field at step=22 time=2.2e-05
+  Primary solution summary: L2-norm         : 0.857026
+                            Max value       : 0.972312
+  Solving the elasto-dynamics problem...
+  step=23  time=2.3e-05
+  Displacement L2-norm            : 1.94165e-06
+               Max X-displacement : 1.7846e-06
+               Max Y-displacement : 4.32741e-06
+  Velocity L2-norm                : 0.157276
+               Max X-velocity     : 0.234722
+               Max Y-velocity     : 0.347505
+  Acceleration L2-norm            : 15826.1
+               Max X-acceleration : 54768.4
+               Max Y-acceleration : 47756.4
+  Solving crack phase field at step=23 time=2.3e-05
+  Primary solution summary: L2-norm         : 0.856488
+                            Max value       : 0.972311
+  Solving the elasto-dynamics problem...
+  step=24  time=2.4e-05
+  Displacement L2-norm            : 2.09127e-06
+               Max X-displacement : 1.99949e-06
+               Max Y-displacement : 4.66878e-06
+  Velocity L2-norm                : 0.166243
+               Max X-velocity     : 0.262049
+               Max Y-velocity     : 0.367536
+  Acceleration L2-norm            : 17176.5
+               Max X-acceleration : 53895.8
+               Max Y-acceleration : 50582.9
+  Solving crack phase field at step=24 time=2.4e-05
+  Primary solution summary: L2-norm         : 0.855939
+                            Max value       : 0.972309
+  Solving the elasto-dynamics problem...
+  step=25  time=2.5e-05
+  Displacement L2-norm            : 2.25158e-06
+               Max X-displacement : 2.23491e-06
+               Max Y-displacement : 5.05124e-06
+  Velocity L2-norm                : 0.175522
+               Max X-velocity     : 0.285493
+               Max Y-velocity     : 0.400747
+  Acceleration L2-norm            : 15325.3
+               Max X-acceleration : 42952.4
+               Max Y-acceleration : 32931.8
+  Solving crack phase field at step=25 time=2.5e-05
+  Primary solution summary: L2-norm         : 0.855331
+                            Max value       : 0.972308
+  Solving the elasto-dynamics problem...
+  step=26  time=2.6e-05
+  Displacement L2-norm            : 2.42238e-06
+               Max X-displacement : 2.49509e-06
+               Max Y-displacement : 5.45693e-06
+  Velocity L2-norm                : 0.184145
+               Max X-velocity     : 0.294965
+               Max Y-velocity     : 0.412697
+  Acceleration L2-norm            : 13850.8
+               Max X-acceleration : 39911
+               Max Y-acceleration : 37766.1
+  Solving crack phase field at step=26 time=2.6e-05
+  Primary solution summary: L2-norm         : 0.854651
+                            Max value       : 0.972307
+  Solving the elasto-dynamics problem...
+  step=27  time=2.7e-05
+  Displacement L2-norm            : 2.60324e-06
+               Max X-displacement : 2.78662e-06
+               Max Y-displacement : 5.87187e-06
+  Velocity L2-norm                : 0.191906
+               Max X-velocity     : 0.300939
+               Max Y-velocity     : 0.428097
+  Acceleration L2-norm            : 13436.7
+               Max X-acceleration : 25275.7
+               Max Y-acceleration : 47560.7
+  Solving crack phase field at step=27 time=2.7e-05
+  Primary solution summary: L2-norm         : 0.853948
+                            Max value       : 0.972306
+  Solving the elasto-dynamics problem...
+  step=28  time=2.8e-05
+  Displacement L2-norm            : 2.79372e-06
+               Max X-displacement : 3.08776e-06
+               Max Y-displacement : 6.30075e-06
+  Velocity L2-norm                : 0.199221
+               Max X-velocity     : 0.302117
+               Max Y-velocity     : 0.447839
+  Acceleration L2-norm            : 16244
+               Max X-acceleration : 80655.3
+               Max Y-acceleration : 50504.4
+  Solving crack phase field at step=28 time=2.8e-05
+  Primary solution summary: L2-norm         : 0.853317
+                            Max value       : 0.972306
+  Solving the elasto-dynamics problem...
+  step=29  time=2.9e-05
+  Displacement L2-norm            : 2.99366e-06
+               Max X-displacement : 3.38744e-06
+               Max Y-displacement : 6.75635e-06
+  Velocity L2-norm                : 0.207182
+               Max X-velocity     : 0.297588
+               Max Y-velocity     : 0.471784
+  Acceleration L2-norm            : 17072.5
+               Max X-acceleration : 76403.6
+               Max Y-acceleration : 39452.6
+  Solving crack phase field at step=29 time=2.9e-05
+  Primary solution summary: L2-norm         : 0.852731
+                            Max value       : 0.972305
+  Solving the elasto-dynamics problem...
+  step=30  time=3e-05
+  Displacement L2-norm            : 3.20302e-06
+               Max X-displacement : 3.6802e-06
+               Max Y-displacement : 7.24282e-06
+  Velocity L2-norm                : 0.215812
+               Max X-velocity     : 0.288202
+               Max Y-velocity     : 0.50149
+  Acceleration L2-norm            : 16563.7
+               Max X-acceleration : 41099
+               Max Y-acceleration : 71301
+  Solving crack phase field at step=30 time=3e-05
+  Primary solution summary: L2-norm         : 0.85214
+                            Max value       : 0.972304
+  Solving the elasto-dynamics problem...
+  step=31  time=3.1e-05
+  Displacement L2-norm            : 3.42176e-06
+               Max X-displacement : 3.96254e-06
+               Max Y-displacement : 7.75301e-06
+  Velocity L2-norm                : 0.224848
+               Max X-velocity     : 0.281564
+               Max Y-velocity     : 0.519594
+  Acceleration L2-norm            : 15195.9
+               Max X-acceleration : 30758.1
+               Max Y-acceleration : 77152.2
+  Solving crack phase field at step=31 time=3.1e-05
+  Primary solution summary: L2-norm         : 0.851515
+                            Max value       : 0.972304
+  Solving the elasto-dynamics problem...
+  step=32  time=3.2e-05
+  Displacement L2-norm            : 3.64991e-06
+               Max X-displacement : 4.2326e-06
+               Max Y-displacement : 8.27517e-06
+  Velocity L2-norm                : 0.234048
+               Max X-velocity     : 0.278783
+               Max Y-velocity     : 0.579822
+  Acceleration L2-norm            : 14180
+               Max X-acceleration : 35537.5
+               Max Y-acceleration : 58576.2
+  Solving crack phase field at step=32 time=3.2e-05
+  Primary solution summary: L2-norm         : 0.850831
+                            Max value       : 0.972303
+  Solving the elasto-dynamics problem...
+  step=33  time=3.3e-05
+  Displacement L2-norm            : 3.88748e-06
+               Max X-displacement : 4.48925e-06
+               Max Y-displacement : 8.79789e-06
+  Velocity L2-norm                : 0.243245
+               Max X-velocity     : 0.293866
+               Max Y-velocity     : 0.606241
+  Acceleration L2-norm            : 15138.5
+               Max X-acceleration : 26663.9
+               Max Y-acceleration : 63252.4
+  Solving crack phase field at step=33 time=3.3e-05
+  Primary solution summary: L2-norm         : 0.850038
+                            Max value       : 0.972303
+  Solving the elasto-dynamics problem...
+  step=34  time=3.4e-05
+  Displacement L2-norm            : 4.1344e-06
+               Max X-displacement : 4.73439e-06
+               Max Y-displacement : 9.31372e-06
+  Velocity L2-norm                : 0.252547
+               Max X-velocity     : 0.30774
+               Max Y-velocity     : 0.608513
+  Acceleration L2-norm            : 16183.5
+               Max X-acceleration : 78580.8
+               Max Y-acceleration : 71294.3
+  Solving crack phase field at step=34 time=3.4e-05
+  Primary solution summary: L2-norm         : 0.849208
+                            Max value       : 0.972302
+  Solving the elasto-dynamics problem...
+  step=35  time=3.5e-05
+  Displacement L2-norm            : 4.39072e-06
+               Max X-displacement : 4.97785e-06
+               Max Y-displacement : 9.82521e-06
+  Velocity L2-norm                : 0.262161
+               Max X-velocity     : 0.309416
+               Max Y-velocity     : 0.611768
+  Acceleration L2-norm            : 15213
+               Max X-acceleration : 43088.5
+               Max Y-acceleration : 55754.5
+  Solving crack phase field at step=35 time=3.5e-05
+  Primary solution summary: L2-norm         : 0.848349
+                            Max value       : 0.972302
+  Solving the elasto-dynamics problem...
+  step=36  time=3.6e-05
+  Displacement L2-norm            : 4.65677e-06
+               Max X-displacement : 5.23659e-06
+               Max Y-displacement : 1.03494e-05
+  Velocity L2-norm                : 0.272278
+               Max X-velocity     : 0.307583
+               Max Y-velocity     : 0.617926
+  Acceleration L2-norm            : 16894.7
+               Max X-acceleration : 119825
+               Max Y-acceleration : 32277.5
+  Solving crack phase field at step=36 time=3.6e-05
+  Primary solution summary: L2-norm         : 0.847446
+                            Max value       : 0.972301
+  Solving the elasto-dynamics problem...
+  step=37  time=3.7e-05
+  Displacement L2-norm            : 4.93311e-06
+               Max X-displacement : 5.52295e-06
+               Max Y-displacement : 1.09113e-05
+  Velocity L2-norm                : 0.283015
+               Max X-velocity     : 0.321559
+               Max Y-velocity     : 0.628735
+  Acceleration L2-norm            : 18195.9
+               Max X-acceleration : 75707.9
+               Max Y-acceleration : 66121.8
+  Solving crack phase field at step=37 time=3.7e-05
+  Primary solution summary: L2-norm         : 0.846434
+                            Max value       : 0.972301
+  Solving the elasto-dynamics problem...
+  step=38  time=3.8e-05
+  Displacement L2-norm            : 5.22015e-06
+               Max X-displacement : 5.8322e-06
+               Max Y-displacement : 1.1526e-05
+  Velocity L2-norm                : 0.294195
+               Max X-velocity     : 0.317668
+               Max Y-velocity     : 0.642821
+  Acceleration L2-norm            : 18008.9
+               Max X-acceleration : 70873.1
+               Max Y-acceleration : 56546
+  Solving crack phase field at step=38 time=3.8e-05
+  Primary solution summary: L2-norm         : 0.845323
+                            Max value       : 0.972301
+  Solving the elasto-dynamics problem...
+  step=39  time=3.9e-05
+  Displacement L2-norm            : 5.51802e-06
+               Max X-displacement : 6.14644e-06
+               Max Y-displacement : 1.21884e-05
+  Velocity L2-norm                : 0.305469
+               Max X-velocity     : 0.31204
+               Max Y-velocity     : 0.683017
+  Acceleration L2-norm            : 17542.8
+               Max X-acceleration : 34956.6
+               Max Y-acceleration : 47759.3
+  Solving crack phase field at step=39 time=3.9e-05
+  Primary solution summary: L2-norm         : 0.844205
+                            Max value       : 0.9723
+  Solving the elasto-dynamics problem...
+  step=40  time=4e-05
+  Displacement L2-norm            : 5.82669e-06
+               Max X-displacement : 6.45417e-06
+               Max Y-displacement : 1.28843e-05
+  Velocity L2-norm                : 0.31687
+               Max X-velocity     : 0.309571
+               Max Y-velocity     : 0.71348
+  Acceleration L2-norm            : 18296.8
+               Max X-acceleration : 92997.7
+               Max Y-acceleration : 54287.9
+  Solving crack phase field at step=40 time=4e-05
+  Primary solution summary: L2-norm         : 0.843203
+                            Max value       : 0.9723
+  Solving the elasto-dynamics problem...
+  step=41  time=4.1e-05
+  Displacement L2-norm            : 6.14632e-06
+               Max X-displacement : 6.76079e-06
+               Max Y-displacement : 1.36086e-05
+  Velocity L2-norm                : 0.328572
+               Max X-velocity     : 0.315542
+               Max Y-velocity     : 0.740334
+  Acceleration L2-norm            : 16391.2
+               Max X-acceleration : 72706.6
+               Max Y-acceleration : 44382.2
+  Solving crack phase field at step=41 time=4.1e-05
+  Primary solution summary: L2-norm         : 0.842348
+                            Max value       : 0.9723
+  Solving the elasto-dynamics problem...
+  step=42  time=4.2e-05
+  Displacement L2-norm            : 6.47713e-06
+               Max X-displacement : 7.0763e-06
+               Max Y-displacement : 1.43628e-05
+  Velocity L2-norm                : 0.340252
+               Max X-velocity     : 0.329304
+               Max Y-velocity     : 0.769596
+  Acceleration L2-norm            : 17033.6
+               Max X-acceleration : 98663.5
+               Max Y-acceleration : 46341.1
+  Solving crack phase field at step=42 time=4.2e-05
+  Primary solution summary: L2-norm         : 0.841616
+                            Max value       : 0.9723
+  Solving the elasto-dynamics problem...
+  step=43  time=4.3e-05
+  Displacement L2-norm            : 6.81908e-06
+               Max X-displacement : 7.39871e-06
+               Max Y-displacement : 1.51368e-05
+  Velocity L2-norm                : 0.351545
+               Max X-velocity     : 0.352437
+               Max Y-velocity     : 0.779639
+  Acceleration L2-norm            : 21484.8
+               Max X-acceleration : 168790
+               Max Y-acceleration : 63527.5
+  Solving crack phase field at step=43 time=4.3e-05
+  Primary solution summary: L2-norm         : 0.840886
+                            Max value       : 0.9723
+  Solving the elasto-dynamics problem...
+  step=44  time=4.4e-05
+  Displacement L2-norm            : 7.17208e-06
+               Max X-displacement : 7.7156e-06
+               Max Y-displacement : 1.59061e-05
+  Velocity L2-norm                : 0.363255
+               Max X-velocity     : 0.439254
+               Max Y-velocity     : 0.765881
+  Acceleration L2-norm            : 20325.1
+               Max X-acceleration : 116305
+               Max Y-acceleration : 85958.5
+  Solving crack phase field at step=44 time=4.4e-05
+  Primary solution summary: L2-norm         : 0.840024
+                            Max value       : 0.971941
+  Solving the elasto-dynamics problem...
+  step=45  time=4.5e-05
+  Displacement L2-norm            : 7.53625e-06
+               Max X-displacement : 8.01852e-06
+               Max Y-displacement : 1.66536e-05
+  Velocity L2-norm                : 0.375335
+               Max X-velocity     : 0.424374
+               Max Y-velocity     : 0.829114
+  Acceleration L2-norm            : 21243.3
+               Max X-acceleration : 150084
+               Max Y-acceleration : 122830
+  Solving crack phase field at step=45 time=4.5e-05
+  Primary solution summary: L2-norm         : 0.839249
+                            Max value       : 0.97194
+  Solving the elasto-dynamics problem...
+  step=46  time=4.6e-05
+  Displacement L2-norm            : 7.91188e-06
+               Max X-displacement : 8.31162e-06
+               Max Y-displacement : 1.73849e-05
+  Velocity L2-norm                : 0.387776
+               Max X-velocity     : 0.41021
+               Max Y-velocity     : 0.93135
+  Acceleration L2-norm            : 19914.4
+               Max X-acceleration : 147053
+               Max Y-acceleration : 98117.3
+  Solving crack phase field at step=46 time=4.6e-05
+  Primary solution summary: L2-norm         : 0.838515
+                            Max value       : 0.97194
+  Solving the elasto-dynamics problem...
+  step=47  time=4.7e-05
+  Displacement L2-norm            : 8.29944e-06
+               Max X-displacement : 8.60742e-06
+               Max Y-displacement : 1.81237e-05
+  Velocity L2-norm                : 0.40065
+               Max X-velocity     : 0.449728
+               Max Y-velocity     : 0.977441
+  Acceleration L2-norm            : 17628.6
+               Max X-acceleration : 77678
+               Max Y-acceleration : 58800.7
+  Solving crack phase field at step=47 time=4.7e-05
+  Primary solution summary: L2-norm         : 0.837845
+                            Max value       : 0.97194
+  Solving the elasto-dynamics problem...
+  step=48  time=4.8e-05
+  Displacement L2-norm            : 8.69937e-06
+               Max X-displacement : 8.91621e-06
+               Max Y-displacement : 1.88969e-05
+  Velocity L2-norm                : 0.413558
+               Max X-velocity     : 0.433111
+               Max Y-velocity     : 0.935119
+  Acceleration L2-norm            : 24795.2
+               Max X-acceleration : 269433
+               Max Y-acceleration : 57923.8
+  Solving crack phase field at step=48 time=4.8e-05
+  Primary solution summary: L2-norm         : 0.837295
+                            Max value       : 0.97194
+  Solving the elasto-dynamics problem...
+  step=49  time=4.9e-05
+  Displacement L2-norm            : 9.11188e-06
+               Max X-displacement : 9.23941e-06
+               Max Y-displacement : 1.97241e-05
+  Velocity L2-norm                : 0.426538
+               Max X-velocity     : 0.399307
+               Max Y-velocity     : 0.903384
+  Acceleration L2-norm            : 24289.1
+               Max X-acceleration : 171355
+               Max Y-acceleration : 97785.2
+  Solving crack phase field at step=49 time=4.9e-05
+  Primary solution summary: L2-norm         : 0.836875
+                            Max value       : 0.97194
+  Solving the elasto-dynamics problem...
+  step=50  time=5e-05
+  Displacement L2-norm            : 9.53718e-06
+               Max X-displacement : 9.57222e-06
+               Max Y-displacement : 2.06094e-05
+  Velocity L2-norm                : 0.440059
+               Max X-velocity     : 0.537511
+               Max Y-velocity     : 0.913739
+  Acceleration L2-norm            : 23762.6
+               Max X-acceleration : 226117
+               Max Y-acceleration : 72159.4
+  Solving crack phase field at step=50 time=5e-05
+  Primary solution summary: L2-norm         : 0.836569
+                            Max value       : 0.97194
+  Time integration completed.

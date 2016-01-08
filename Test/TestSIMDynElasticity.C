@@ -17,6 +17,6 @@
 TEST(TestSIMDynElasticity, Parse)
 {
   SIMDynElasticity<SIM2D> sim;
-  EXPECT_TRUE(sim.read("RectangleCrack.xinp"));
+  EXPECT_TRUE(sim.read("Rectangle-p2.xinp"));
   EXPECT_TRUE(sim.preprocess());
 }
