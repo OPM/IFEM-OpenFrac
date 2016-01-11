@@ -73,6 +73,17 @@ public:
   //! \brief Clears the initial crack function (after first iteration).
   void clearInitialCrack() { delete initial_crack; initial_crack = nullptr; }
 
+  //! \brief Returns a pointer to an Integrand for solution norm evaluation.
+  //! \note The Integrand object is allocated dynamically and has to be deleted
+  //! manually when leaving the scope of the pointer variable receiving the
+  //! returned pointer value.
+  virtual NormBase* getNormIntegrand(AnaSol*) const;
+
+  //! \brief Returns the critical fracture energy.
+  double getCriticalFracEnergy() const { return Gc; }
+  //! \brief Returns the smearing factor.
+  double getSmearingFactor() const { return smearing; }
+
 protected:
   double Gc;       //!< Fracture energy density
   double smearing; //!< Smearing factor in crack
@@ -94,8 +105,7 @@ private:
 class CahnHilliard4 : public CahnHilliard
 {
 public:
-  //! \brief Default constructor.
-  //! \param[in] n Number of spatial dimensions
+  //! \brief The constructor forwards to the parent class constructor.
   CahnHilliard4(unsigned short int n) : CahnHilliard(n) { scale2nd = 2.0; }
   //! \brief Empty destructor.
   virtual ~CahnHilliard4() {}
@@ -109,6 +119,30 @@ public:
   //! \param[in] X Cartesian coordinates of current integration point
   virtual bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
                        const Vec3& X) const;
+};
+
+
+/*!
+  \brief Class representing the norms for a Cahn Hilliard problem.
+*/
+
+class CahnHilliardNorm : public NormBase
+{
+public:
+  //! \brief The constructor forwards to the parent class constructor.
+  CahnHilliardNorm(CahnHilliard& p) : NormBase(p) { finalOp = ASM::NONE; }
+  //! \brief Empty destructor.
+  virtual ~CahnHilliardNorm() {}
+
+  //! \brief Evaluates the integrand at an interior point.
+  //! \param elmInt The local integral object to receive the contributions
+  //! \param[in] fe Finite element data of current integration point
+  //! \param[in] X Cartesian coordinates of current integration point
+  virtual bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
+                       const Vec3& X) const;
+
+  //! \brief Returns the number of norm groups or size of a specified group.
+  virtual size_t getNoFields(int group) const;
 };
 
 #endif

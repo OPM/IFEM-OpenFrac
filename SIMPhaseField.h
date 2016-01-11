@@ -133,13 +133,29 @@ public:
       return false;
 
     static_cast<CahnHilliard*>(Dim::myProblem)->clearInitialCrack();
-
-    if (Dim::opt.project.empty())
-      return true;
+    this->setMode(SIM::RECOVERY);
 
     // Project the phase field onto the geometry basis
-    this->setMode(SIM::RECOVERY);
-    return this->project(projSol,phasefield,Dim::opt.project.begin()->first);
+    if (!Dim::opt.project.empty())
+      if (!this->project(projSol,phasefield,Dim::opt.project.begin()->first))
+        return false;
+
+    Vectors gNorm;
+    this->setQuadratureRule(Dim::opt.nGauss[1]);
+    if (!this->solutionNorms(tp.time,Vectors(1,phasefield),gNorm))
+      return false;
+    else if (!gNorm.empty())
+    {
+      const Vector& norm = gNorm.front();
+      if (norm.size() > 0 && utl::trunc(norm(1)) != 0.0)
+        IFEM::cout <<"  L2-norm: |c^h| = (c^h,c^h)^0.5 : "
+                   << sqrt(norm(1)) << std::endl;
+      if (norm.size() > 1 && utl::trunc(norm(2)) != 0.0)
+        IFEM::cout <<"  Dissipated energy:       eps_d : "
+                   << norm(2) << std::endl;
+    }
+
+    return true;
   }
 
   //! \brief Sets initial conditions.
