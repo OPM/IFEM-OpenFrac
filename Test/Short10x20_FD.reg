@@ -1,4 +1,4 @@
-Short10x20-p1.xinp -2D -GA -Voigt 
+Short10x20-p1.xinp -2D -GA -Voigt
 
 Input file: Short10x20-p1.xinp
 Equation solver: 2
@@ -92,9 +92,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 44984.3
                Max X-acceleration : 32642.8
                Max Y-acceleration : 197120
+  Elastic strain energy:           eps_e : 0.00117166
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.0582174
   Solving crack phase field at step=1 time=1e-06
   Primary solution summary: L2-norm         : 0.940816
                             Max value       : 0.999068
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0264184
+  Dissipated energy:       eps_d : 0.0502463
   Solving the elasto-dynamics problem...
   step=2  time=2e-06
   Displacement L2-norm            : 5.64399e-08
@@ -105,9 +109,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 38560.3
                Max X-acceleration : 22670.4
                Max Y-acceleration : 115042
+  Elastic strain energy:           eps_e : 0.00367121
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.0902768
   Solving crack phase field at step=2 time=2e-06
   Primary solution summary: L2-norm         : 0.936106
                             Max value       : 0.997728
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0262959
+  Dissipated energy:       eps_d : 0.050303
   Solving the elasto-dynamics problem...
   step=3  time=3e-06
   Displacement L2-norm            : 1.02609e-07
@@ -118,9 +126,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 29543.2
                Max X-acceleration : 19125.8
                Max Y-acceleration : 75710.5
+  Elastic strain energy:           eps_e : 0.00558031
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.111527
   Solving crack phase field at step=3 time=3e-06
   Primary solution summary: L2-norm         : 0.931711
                             Max value       : 0.995272
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0261691
+  Dissipated energy:       eps_d : 0.050369
   Solving the elasto-dynamics problem...
   step=4  time=4e-06
   Displacement L2-norm            : 1.58245e-07
@@ -131,9 +143,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 25177.6
                Max X-acceleration : 16346
                Max Y-acceleration : 65900.5
+  Elastic strain energy:           eps_e : 0.00778871
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.130802
   Solving crack phase field at step=4 time=4e-06
   Primary solution summary: L2-norm         : 0.927454
                             Max value       : 0.991632
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0260437
+  Dissipated energy:       eps_d : 0.0504371
   Solving the elasto-dynamics problem...
   step=5  time=5e-06
   Displacement L2-norm            : 2.21497e-07
@@ -145,9 +161,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 24650
                Max X-acceleration : 15524.1
                Max Y-acceleration : 64388.5
+  Elastic strain energy:           eps_e : 0.00982474
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.147458
   Solving crack phase field at step=5 time=5e-06
   Primary solution summary: L2-norm         : 0.923384
                             Max value       : 0.986297
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0259245
+  Dissipated energy:       eps_d : 0.0505165
   Solving the elasto-dynamics problem...
   step=6  time=6e-06
   Displacement L2-norm            : 2.91959e-07
@@ -159,9 +179,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 23107.7
                Max X-acceleration : 17582.7
                Max Y-acceleration : 74687.1
+  Elastic strain energy:           eps_e : 0.0118312
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.162379
   Solving crack phase field at step=6 time=6e-06
   Primary solution summary: L2-norm         : 0.91956
                             Max value       : 0.973165
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0258148
+  Dissipated energy:       eps_d : 0.0506483
   Solving the elasto-dynamics problem...
   step=7  time=7e-06
   Displacement L2-norm            : 3.69314e-07
@@ -173,9 +197,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 19186.7
                Max X-acceleration : 21166.4
                Max Y-acceleration : 83243.1
+  Elastic strain energy:           eps_e : 0.0146269
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.176561
   Solving crack phase field at step=7 time=7e-06
   Primary solution summary: L2-norm         : 0.91496
                             Max value       : 0.973119
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0256839
+  Dissipated energy:       eps_d : 0.0510087
   Solving the elasto-dynamics problem...
   step=8  time=8e-06
   Displacement L2-norm            : 4.51847e-07
@@ -187,9 +215,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 16886
                Max X-acceleration : 23474.8
                Max Y-acceleration : 68382.1
+  Elastic strain energy:           eps_e : 0.018494
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.18975
   Solving crack phase field at step=8 time=8e-06
   Primary solution summary: L2-norm         : 0.909601
                             Max value       : 0.973097
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0255306
+  Dissipated energy:       eps_d : 0.0518053
   Solving the elasto-dynamics problem...
   step=9  time=9e-06
   Displacement L2-norm            : 5.37457e-07
@@ -201,9 +233,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 17392.4
                Max X-acceleration : 26771.9
                Max Y-acceleration : 57787.5
+  Elastic strain energy:           eps_e : 0.0231107
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.202497
   Solving crack phase field at step=9 time=9e-06
   Primary solution summary: L2-norm         : 0.903615
                             Max value       : 0.97305
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0253581
+  Dissipated energy:       eps_d : 0.0529958
   Solving the elasto-dynamics problem...
   step=10  time=1e-05
   Displacement L2-norm            : 6.24325e-07
@@ -215,9 +251,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 15136.6
                Max X-acceleration : 26297
                Max Y-acceleration : 77707.2
+  Elastic strain energy:           eps_e : 0.0282553
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.215011
   Solving crack phase field at step=10 time=1e-05
   Primary solution summary: L2-norm         : 0.896794
                             Max value       : 0.97296
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.02516
+  Dissipated energy:       eps_d : 0.0543901
   Solving the elasto-dynamics problem...
   step=11  time=1.1e-05
   Displacement L2-norm            : 7.115e-07
@@ -229,9 +269,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 14531.7
                Max X-acceleration : 31113.4
                Max Y-acceleration : 38403.8
+  Elastic strain energy:           eps_e : 0.0340898
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.227266
   Solving crack phase field at step=11 time=1.1e-05
   Primary solution summary: L2-norm         : 0.889654
                             Max value       : 0.972809
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0249502
+  Dissipated energy:       eps_d : 0.0559726
   Solving the elasto-dynamics problem...
   step=12  time=1.2e-05
   Displacement L2-norm            : 7.9852e-07
@@ -243,9 +287,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 17300.7
                Max X-acceleration : 56397
                Max Y-acceleration : 52711
+  Elastic strain energy:           eps_e : 0.0397329
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.239186
   Solving crack phase field at step=12 time=1.2e-05
   Primary solution summary: L2-norm         : 0.88312
                             Max value       : 0.972708
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0247564
+  Dissipated energy:       eps_d : 0.0578438
   Solving the elasto-dynamics problem...
   step=13  time=1.3e-05
   Displacement L2-norm            : 8.85069e-07
@@ -257,9 +305,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 17761.6
                Max X-acceleration : 55435.4
                Max Y-acceleration : 65431.8
+  Elastic strain energy:           eps_e : 0.0438196
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.2503
   Solving crack phase field at step=13 time=1.3e-05
   Primary solution summary: L2-norm         : 0.877742
                             Max value       : 0.972572
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0245946
+  Dissipated energy:       eps_d : 0.0600761
   Solving the elasto-dynamics problem...
   step=14  time=1.4e-05
   Displacement L2-norm            : 9.71277e-07
@@ -271,9 +323,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 17800.5
                Max X-acceleration : 65110
                Max Y-acceleration : 43163.4
+  Elastic strain energy:           eps_e : 0.0453657
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.260104
   Solving crack phase field at step=14 time=1.4e-05
   Primary solution summary: L2-norm         : 0.873329
                             Max value       : 0.972463
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0244622
+  Dissipated energy:       eps_d : 0.0626123
   Solving the elasto-dynamics problem...
   step=15  time=1.5e-05
   Displacement L2-norm            : 1.05795e-06
@@ -285,9 +341,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 16224.6
                Max X-acceleration : 58563.7
                Max Y-acceleration : 33723.8
+  Elastic strain energy:           eps_e : 0.0443285
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.268291
   Solving crack phase field at step=15 time=1.5e-05
   Primary solution summary: L2-norm         : 0.869301
                             Max value       : 0.97233
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0243426
+  Dissipated energy:       eps_d : 0.0652849
   Solving the elasto-dynamics problem...
   step=16  time=1.6e-05
   Displacement L2-norm            : 1.1466e-06
@@ -299,9 +359,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 13697
                Max X-acceleration : 32543.5
                Max Y-acceleration : 32390.6
+  Elastic strain energy:           eps_e : 0.0419023
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.274945
   Solving crack phase field at step=16 time=1.6e-05
   Primary solution summary: L2-norm         : 0.865983
                             Max value       : 0.972327
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0242434
+  Dissipated energy:       eps_d : 0.0679976
   Solving the elasto-dynamics problem...
   step=17  time=1.7e-05
   Displacement L2-norm            : 1.23908e-06
@@ -313,9 +377,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 12709.8
                Max X-acceleration : 29579
                Max Y-acceleration : 26913.7
+  Elastic strain energy:           eps_e : 0.0392947
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.280694
   Solving crack phase field at step=17 time=1.7e-05
   Primary solution summary: L2-norm         : 0.863292
                             Max value       : 0.972323
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0241617
+  Dissipated energy:       eps_d : 0.0707425
   Solving the elasto-dynamics problem...
   step=18  time=1.8e-05
   Displacement L2-norm            : 1.33699e-06
@@ -327,9 +395,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 14859.4
                Max X-acceleration : 34774.5
                Max Y-acceleration : 32095.7
+  Elastic strain energy:           eps_e : 0.0367012
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.286372
   Solving crack phase field at step=18 time=1.8e-05
   Primary solution summary: L2-norm         : 0.861196
                             Max value       : 0.972321
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0240961
+  Dissipated energy:       eps_d : 0.073406
   Solving the elasto-dynamics problem...
   step=19  time=1.9e-05
   Displacement L2-norm            : 1.44143e-06
@@ -341,9 +413,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 16223.3
                Max X-acceleration : 41768.3
                Max Y-acceleration : 39139.9
+  Elastic strain energy:           eps_e : 0.0339571
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.292492
   Solving crack phase field at step=19 time=1.9e-05
   Primary solution summary: L2-norm         : 0.859641
                             Max value       : 0.972318
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0240458
+  Dissipated energy:       eps_d : 0.075849
   Solving the elasto-dynamics problem...
   step=20  time=2e-05
   Displacement L2-norm            : 1.55327e-06
@@ -355,9 +431,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 15179.5
                Max X-acceleration : 40322
                Max Y-acceleration : 40598
+  Elastic strain energy:           eps_e : 0.0312446
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.29899
   Solving crack phase field at step=20 time=2e-05
   Primary solution summary: L2-norm         : 0.858485
                             Max value       : 0.972316
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0240077
+  Dissipated energy:       eps_d : 0.0779809
   Solving the elasto-dynamics problem...
   step=21  time=2.1e-05
   Displacement L2-norm            : 1.67334e-06
@@ -369,9 +449,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 12093.9
                Max X-acceleration : 27589
                Max Y-acceleration : 27911.2
+  Elastic strain energy:           eps_e : 0.0290153
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.305499
   Solving crack phase field at step=21 time=2.1e-05
   Primary solution summary: L2-norm         : 0.857657
                             Max value       : 0.972314
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0239798
+  Dissipated energy:       eps_d : 0.0797448
   Solving the elasto-dynamics problem...
   step=22  time=2.2e-05
   Displacement L2-norm            : 1.80253e-06
@@ -383,9 +467,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 11676.9
                Max X-acceleration : 40657.7
                Max Y-acceleration : 34295.9
+  Elastic strain energy:           eps_e : 0.0277477
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.311889
   Solving crack phase field at step=22 time=2.2e-05
   Primary solution summary: L2-norm         : 0.857026
                             Max value       : 0.972312
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0239584
+  Dissipated energy:       eps_d : 0.0812104
   Solving the elasto-dynamics problem...
   step=23  time=2.3e-05
   Displacement L2-norm            : 1.94165e-06
@@ -397,9 +485,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 15826.1
                Max X-acceleration : 54768.4
                Max Y-acceleration : 47756.4
+  Elastic strain energy:           eps_e : 0.0271493
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.318441
   Solving crack phase field at step=23 time=2.3e-05
   Primary solution summary: L2-norm         : 0.856488
                             Max value       : 0.972311
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.02394
+  Dissipated energy:       eps_d : 0.0825091
   Solving the elasto-dynamics problem...
   step=24  time=2.4e-05
   Displacement L2-norm            : 2.09127e-06
@@ -411,9 +503,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 17176.5
                Max X-acceleration : 53895.8
                Max Y-acceleration : 50582.9
+  Elastic strain energy:           eps_e : 0.0263596
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.325527
   Solving crack phase field at step=24 time=2.4e-05
   Primary solution summary: L2-norm         : 0.855939
                             Max value       : 0.972309
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0239212
+  Dissipated energy:       eps_d : 0.0838116
   Solving the elasto-dynamics problem...
   step=25  time=2.5e-05
   Displacement L2-norm            : 2.25158e-06
@@ -425,9 +521,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 15325.3
                Max X-acceleration : 42952.4
                Max Y-acceleration : 32931.8
+  Elastic strain energy:           eps_e : 0.0251087
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.333276
   Solving crack phase field at step=25 time=2.5e-05
   Primary solution summary: L2-norm         : 0.855331
                             Max value       : 0.972308
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0239004
+  Dissipated energy:       eps_d : 0.0852081
   Solving the elasto-dynamics problem...
   step=26  time=2.6e-05
   Displacement L2-norm            : 2.42238e-06
@@ -439,9 +539,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 13850.8
                Max X-acceleration : 39911
                Max Y-acceleration : 37766.1
+  Elastic strain energy:           eps_e : 0.0237028
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.341623
   Solving crack phase field at step=26 time=2.6e-05
   Primary solution summary: L2-norm         : 0.854651
                             Max value       : 0.972307
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0238773
+  Dissipated energy:       eps_d : 0.0867103
   Solving the elasto-dynamics problem...
   step=27  time=2.7e-05
   Displacement L2-norm            : 2.60324e-06
@@ -453,9 +557,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 13436.7
                Max X-acceleration : 25275.7
                Max Y-acceleration : 47560.7
+  Elastic strain energy:           eps_e : 0.0226318
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.350568
   Solving crack phase field at step=27 time=2.7e-05
   Primary solution summary: L2-norm         : 0.853948
                             Max value       : 0.972306
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0238536
+  Dissipated energy:       eps_d : 0.0882269
   Solving the elasto-dynamics problem...
   step=28  time=2.8e-05
   Displacement L2-norm            : 2.79372e-06
@@ -467,9 +575,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 16244
                Max X-acceleration : 80655.3
                Max Y-acceleration : 50504.4
+  Elastic strain energy:           eps_e : 0.0224136
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.360217
   Solving crack phase field at step=28 time=2.8e-05
   Primary solution summary: L2-norm         : 0.853317
                             Max value       : 0.972306
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0238322
+  Dissipated energy:       eps_d : 0.0896266
   Solving the elasto-dynamics problem...
   step=29  time=2.9e-05
   Displacement L2-norm            : 2.99366e-06
@@ -481,9 +593,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 17072.5
                Max X-acceleration : 76403.6
                Max Y-acceleration : 39452.6
+  Elastic strain energy:           eps_e : 0.022746
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.370576
   Solving crack phase field at step=29 time=2.9e-05
   Primary solution summary: L2-norm         : 0.852731
                             Max value       : 0.972305
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0238124
+  Dissipated energy:       eps_d : 0.0909189
   Solving the elasto-dynamics problem...
   step=30  time=3e-05
   Displacement L2-norm            : 3.20302e-06
@@ -495,9 +611,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 16563.7
                Max X-acceleration : 41099
                Max Y-acceleration : 71301
+  Elastic strain energy:           eps_e : 0.0229797
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.381488
   Solving crack phase field at step=30 time=3e-05
   Primary solution summary: L2-norm         : 0.85214
                             Max value       : 0.972304
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0237926
+  Dissipated energy:       eps_d : 0.0921777
   Solving the elasto-dynamics problem...
   step=31  time=3.1e-05
   Displacement L2-norm            : 3.42176e-06
@@ -509,9 +629,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 15195.9
                Max X-acceleration : 30758.1
                Max Y-acceleration : 77152.2
+  Elastic strain energy:           eps_e : 0.0228521
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.392752
   Solving crack phase field at step=31 time=3.1e-05
   Primary solution summary: L2-norm         : 0.851515
                             Max value       : 0.972304
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0237718
+  Dissipated energy:       eps_d : 0.0934854
   Solving the elasto-dynamics problem...
   step=32  time=3.2e-05
   Displacement L2-norm            : 3.64991e-06
@@ -523,9 +647,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 14180
                Max X-acceleration : 35537.5
                Max Y-acceleration : 58576.2
+  Elastic strain energy:           eps_e : 0.022751
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.404231
   Solving crack phase field at step=32 time=3.2e-05
   Primary solution summary: L2-norm         : 0.850831
                             Max value       : 0.972303
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0237492
+  Dissipated energy:       eps_d : 0.0948991
   Solving the elasto-dynamics problem...
   step=33  time=3.3e-05
   Displacement L2-norm            : 3.88748e-06
@@ -537,9 +665,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 15138.5
                Max X-acceleration : 26663.9
                Max Y-acceleration : 63252.4
+  Elastic strain energy:           eps_e : 0.0226473
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.415854
   Solving crack phase field at step=33 time=3.3e-05
   Primary solution summary: L2-norm         : 0.850038
                             Max value       : 0.972303
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0237235
+  Dissipated energy:       eps_d : 0.0964496
   Solving the elasto-dynamics problem...
   step=34  time=3.4e-05
   Displacement L2-norm            : 4.1344e-06
@@ -551,9 +683,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 16183.5
                Max X-acceleration : 78580.8
                Max Y-acceleration : 71294.3
+  Elastic strain energy:           eps_e : 0.0220424
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.427602
   Solving crack phase field at step=34 time=3.4e-05
   Primary solution summary: L2-norm         : 0.849208
                             Max value       : 0.972302
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.023697
+  Dissipated energy:       eps_d : 0.0980598
   Solving the elasto-dynamics problem...
   step=35  time=3.5e-05
   Displacement L2-norm            : 4.39072e-06
@@ -565,9 +701,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 15213
                Max X-acceleration : 43088.5
                Max Y-acceleration : 55754.5
+  Elastic strain energy:           eps_e : 0.021035
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.439512
   Solving crack phase field at step=35 time=3.5e-05
   Primary solution summary: L2-norm         : 0.848349
                             Max value       : 0.972302
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0236699
+  Dissipated energy:       eps_d : 0.0996851
   Solving the elasto-dynamics problem...
   step=36  time=3.6e-05
   Displacement L2-norm            : 4.65677e-06
@@ -579,9 +719,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 16894.7
                Max X-acceleration : 119825
                Max Y-acceleration : 32277.5
+  Elastic strain energy:           eps_e : 0.0199238
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.451709
   Solving crack phase field at step=36 time=3.6e-05
   Primary solution summary: L2-norm         : 0.847446
                             Max value       : 0.972301
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0236419
+  Dissipated energy:       eps_d : 0.10131
   Solving the elasto-dynamics problem...
   step=37  time=3.7e-05
   Displacement L2-norm            : 4.93311e-06
@@ -593,9 +737,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 18195.9
                Max X-acceleration : 75707.9
                Max Y-acceleration : 66121.8
+  Elastic strain energy:           eps_e : 0.0186973
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.464418
   Solving crack phase field at step=37 time=3.7e-05
   Primary solution summary: L2-norm         : 0.846434
                             Max value       : 0.972301
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0236117
+  Dissipated energy:       eps_d : 0.102965
   Solving the elasto-dynamics problem...
   step=38  time=3.8e-05
   Displacement L2-norm            : 5.22015e-06
@@ -607,9 +755,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 18008.9
                Max X-acceleration : 70873.1
                Max Y-acceleration : 56546
+  Elastic strain energy:           eps_e : 0.017702
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.477889
   Solving crack phase field at step=38 time=3.8e-05
   Primary solution summary: L2-norm         : 0.845323
                             Max value       : 0.972301
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0235799
+  Dissipated energy:       eps_d : 0.104652
   Solving the elasto-dynamics problem...
   step=39  time=3.9e-05
   Displacement L2-norm            : 5.51802e-06
@@ -621,9 +773,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 17542.8
                Max X-acceleration : 34956.6
                Max Y-acceleration : 47759.3
+  Elastic strain energy:           eps_e : 0.0174751
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.492244
   Solving crack phase field at step=39 time=3.9e-05
   Primary solution summary: L2-norm         : 0.844205
                             Max value       : 0.9723
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0235483
+  Dissipated energy:       eps_d : 0.106327
   Solving the elasto-dynamics problem...
   step=40  time=4e-05
   Displacement L2-norm            : 5.82669e-06
@@ -635,9 +791,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 18296.8
                Max X-acceleration : 92997.7
                Max Y-acceleration : 54287.9
+  Elastic strain energy:           eps_e : 0.0177627
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.507409
   Solving crack phase field at step=40 time=4e-05
   Primary solution summary: L2-norm         : 0.843203
                             Max value       : 0.9723
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0235204
+  Dissipated energy:       eps_d : 0.107903
   Solving the elasto-dynamics problem...
   step=41  time=4.1e-05
   Displacement L2-norm            : 6.14632e-06
@@ -649,9 +809,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 16391.2
                Max X-acceleration : 72706.6
                Max Y-acceleration : 44382.2
+  Elastic strain energy:           eps_e : 0.0183551
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.523164
   Solving crack phase field at step=41 time=4.1e-05
   Primary solution summary: L2-norm         : 0.842348
                             Max value       : 0.9723
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0234967
+  Dissipated energy:       eps_d : 0.109337
   Solving the elasto-dynamics problem...
   step=42  time=4.2e-05
   Displacement L2-norm            : 6.47713e-06
@@ -663,9 +827,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 17033.6
                Max X-acceleration : 98663.5
                Max Y-acceleration : 46341.1
+  Elastic strain energy:           eps_e : 0.0191839
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.539198
   Solving crack phase field at step=42 time=4.2e-05
   Primary solution summary: L2-norm         : 0.841616
                             Max value       : 0.9723
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0234766
+  Dissipated energy:       eps_d : 0.110629
   Solving the elasto-dynamics problem...
   step=43  time=4.3e-05
   Displacement L2-norm            : 6.81908e-06
@@ -677,9 +845,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 21484.8
                Max X-acceleration : 168790
                Max Y-acceleration : 63527.5
+  Elastic strain energy:           eps_e : 0.019643
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.555175
   Solving crack phase field at step=43 time=4.3e-05
   Primary solution summary: L2-norm         : 0.840886
                             Max value       : 0.9723
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0234574
+  Dissipated energy:       eps_d : 0.111859
   Solving the elasto-dynamics problem...
   step=44  time=4.4e-05
   Displacement L2-norm            : 7.17208e-06
@@ -691,9 +863,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 20325.1
                Max X-acceleration : 116305
                Max Y-acceleration : 85958.5
+  Elastic strain energy:           eps_e : 0.0188759
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.570865
   Solving crack phase field at step=44 time=4.4e-05
   Primary solution summary: L2-norm         : 0.840024
                             Max value       : 0.971941
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0234359
+  Dissipated energy:       eps_d : 0.113111
   Solving the elasto-dynamics problem...
   step=45  time=4.5e-05
   Displacement L2-norm            : 7.53625e-06
@@ -705,9 +881,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 21243.3
                Max X-acceleration : 150084
                Max Y-acceleration : 122830
+  Elastic strain energy:           eps_e : 0.0170572
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.586263
   Solving crack phase field at step=45 time=4.5e-05
   Primary solution summary: L2-norm         : 0.839249
                             Max value       : 0.97194
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0234169
+  Dissipated energy:       eps_d : 0.114409
   Solving the elasto-dynamics problem...
   step=46  time=4.6e-05
   Displacement L2-norm            : 7.91188e-06
@@ -719,9 +899,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 19914.4
                Max X-acceleration : 147053
                Max Y-acceleration : 98117.3
+  Elastic strain energy:           eps_e : 0.0146415
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.60157
   Solving crack phase field at step=46 time=4.6e-05
   Primary solution summary: L2-norm         : 0.838515
                             Max value       : 0.97194
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0233993
+  Dissipated energy:       eps_d : 0.115747
   Solving the elasto-dynamics problem...
   step=47  time=4.7e-05
   Displacement L2-norm            : 8.29944e-06
@@ -733,9 +917,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 17628.6
                Max X-acceleration : 77678
                Max Y-acceleration : 58800.7
+  Elastic strain energy:           eps_e : 0.0121046
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.617032
   Solving crack phase field at step=47 time=4.7e-05
   Primary solution summary: L2-norm         : 0.837845
                             Max value       : 0.97194
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0233832
+  Dissipated energy:       eps_d : 0.117056
   Solving the elasto-dynamics problem...
   step=48  time=4.8e-05
   Displacement L2-norm            : 8.69937e-06
@@ -747,9 +935,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 24795.2
                Max X-acceleration : 269433
                Max Y-acceleration : 57923.8
+  Elastic strain energy:           eps_e : 0.01
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.632825
   Solving crack phase field at step=48 time=4.8e-05
   Primary solution summary: L2-norm         : 0.837295
                             Max value       : 0.97194
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0233699
+  Dissipated energy:       eps_d : 0.11824
   Solving the elasto-dynamics problem...
   step=49  time=4.9e-05
   Displacement L2-norm            : 9.11188e-06
@@ -761,9 +953,13 @@ Number of unknowns    231
   Acceleration L2-norm            : 24289.1
                Max X-acceleration : 171355
                Max Y-acceleration : 97785.2
+  Elastic strain energy:           eps_e : 0.00845824
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.64905
   Solving crack phase field at step=49 time=4.9e-05
   Primary solution summary: L2-norm         : 0.836875
                             Max value       : 0.97194
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0233595
+  Dissipated energy:       eps_d : 0.119244
   Solving the elasto-dynamics problem...
   step=50  time=5e-05
   Displacement L2-norm            : 9.53718e-06
@@ -775,7 +971,11 @@ Number of unknowns    231
   Acceleration L2-norm            : 23762.6
                Max X-acceleration : 226117
                Max Y-acceleration : 72159.4
+  Elastic strain energy:           eps_e : 0.00729578
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.665737
   Solving crack phase field at step=50 time=5e-05
   Primary solution summary: L2-norm         : 0.836569
                             Max value       : 0.97194
+  L2-norm: |c^h| = (c^h,c^h)^0.5 : 0.0233516
+  Dissipated energy:       eps_d : 0.120054
   Time integration completed.

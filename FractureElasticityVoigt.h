@@ -40,6 +40,12 @@ public:
   virtual bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
                        const Vec3& X) const;
 
+  //! \brief Returns a pointer to an Integrand for solution norm evaluation.
+  //! \note The Integrand object is allocated dynamically and has to be deleted
+  //! manually when leaving the scope of the pointer variable receiving the
+  //! returned pointer value.
+  virtual NormBase* getNormIntegrand(AnaSol*) const;
+
 protected:
   //! \brief Evaluates the stress tensor and tensile energy at current point.
   virtual bool evalStress(double lambda, double mu, double Gc,
@@ -49,7 +55,36 @@ protected:
   //! \brief Evaluates the stress tensor and its derivative w.r.t. the strains.
   bool evalStress(double lambda, double mu, double Gc,
                   const SymmTensor& epsilon, double& Phi,
-                  SymmTensor& sigma, Matrix* dSdE) const;
+                  SymmTensor* sigma, Matrix* dSdE) const;
+
+  friend class FractureElasticNorm;
+};
+
+
+/*!
+  \brief Class representing the integrand of elasticity norms with fracture.
+*/
+
+class FractureElasticNorm : public ElasticityNorm
+{
+public:
+  //! \brief The constructor invokes the parent class constructor only.
+  //! \param[in] p The elasticity problem to evaluate norms for
+  FractureElasticNorm(FractureElasticityVoigt& p);
+  //! \brief Empty destructor.
+  virtual ~FractureElasticNorm() {}
+
+  //! \brief Evaluates the integrand at an interior point.
+  //! \param elmInt The local integral object to receive the contributions
+  //! \param[in] fe Finite element data of current integration point
+  //! \param[in] X Cartesian coordinates of current integration point
+  virtual bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
+                       const Vec3& X) const;
+
+  //! \brief Returns the number of norm quantities.
+  virtual size_t getNoFields(int group) const;
+  //! \brief Returns the name of a norm quantity.
+  virtual std::string getName(size_t, size_t j, const char*) const;
 };
 
 #endif

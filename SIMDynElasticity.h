@@ -100,12 +100,15 @@ public:
     int iDump = tp.step/Dim::opt.saveInc;
     if (!dSim.saveStep(iDump,nBlock,tp.time.t))
       return false;
-    else if (Dim::opt.project.empty())
-      return true;
 
     // Write projected solution fields to VTF-file
-    return this->writeGlvP(projSol,iDump,nBlock,110,
-                           Dim::opt.project.begin()->second.c_str());
+    if (!Dim::opt.project.empty())
+      if (!this->writeGlvP(projSol,iDump,nBlock,110,
+                           Dim::opt.project.begin()->second.c_str()))
+        return false;
+
+    // Write element norms to VTF-file
+    return this->writeGlvN(eNorm,iDump,nBlock);
   }
 
   //! \brief Advances the time step one step forward.
@@ -125,12 +128,28 @@ public:
     if (!this->assembleSystem(tp.time,dSim.getSolutions()))
       return false;
 
-    if (Dim::opt.project.empty())
-      return true;
-
     // Project the secondary solution field onto the geometry basis
-    return this->project(projSol,dSim.getSolution(),
-                         Dim::opt.project.begin()->first);
+    if (!Dim::opt.project.empty())
+      if (!this->project(projSol,dSim.getSolution(),
+                         Dim::opt.project.begin()->first))
+        return false;
+
+    Vectors gNorms;
+    this->setQuadratureRule(Dim::opt.nGauss[1]);
+    if (!this->solutionNorms(tp.time,dSim.getSolutions(),gNorms,&eNorm))
+      return false;
+    else if (!gNorms.empty())
+    {
+      const Vector& gNorm = gNorms.front();
+      if (gNorm.size() > 0 && utl::trunc(gNorm(1)) != 0.0)
+        IFEM::cout <<"  Elastic strain energy:           eps_e : "
+                   << gNorm(1) << std::endl;
+      if (gNorm.size() > 1 && utl::trunc(gNorm(2)) != 0.0)
+        IFEM::cout <<"  External energy: ((f,u^h)+(t,u^h))^0.5 : "
+                   << sqrt(gNorm(2)) << std::endl;
+    }
+
+    return true;
   }
 
   //! \brief Returns the tensile energy in gauss points.
@@ -162,6 +181,7 @@ protected:
 private:
   DynSIM dSim;    //!< Dynamic solution driver
   Matrix projSol; //!< Projected secondary solution fields
+  Matrix eNorm;   //!< Element norm values
 };
 
 #endif

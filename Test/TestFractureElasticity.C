@@ -29,7 +29,7 @@ public:
   virtual ~FracEl() {}
   bool calcStress(double lambda, double mu, double Gc, const SymmTensor& eps,
                   double& Phi, SymmTensor& sigma, Matrix& dSdE) const
-  { return evalStress(lambda,mu,Gc,eps,Phi,sigma,&dSdE); }
+  { return evalStress(lambda,mu,Gc,eps,Phi,&sigma,&dSdE); }
   bool calcStress(double lambda, double mu, double Gc, const SymmTensor& eps,
                   double& Phi, SymmTensor& sigma, Tensor4& dSdE) const
   { return FractureElasticity::evalStress(lambda,mu,Gc,eps,Phi,sigma,&dSdE); }

@@ -15,6 +15,7 @@
 #include "FiniteElement.h"
 #include "MaterialBase.h"
 #include "ElmMats.h"
+#include "ElmNorm.h"
 #include "Tensor.h"
 #include "Vec3Oper.h"
 #include "Profiler.h"
@@ -27,7 +28,7 @@
 
 bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
                                           const SymmTensor& epsil, double& Phi,
-                                          SymmTensor& sigma, Matrix* dSdE) const
+                                          SymmTensor* sigma, Matrix* dSdE) const
 {
   PROFILE3("FractureEl::evalStress");
 
@@ -55,7 +56,9 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
   if (trEps >= -epsZ && trEps <= epsZ)
   {
     // No strains, stress free configuration
-    sigma = Phi = 0.0;
+    Phi = 0.0;
+    if (sigma)
+      *sigma = 0.0;
     if (dSdE)
       setIsotropic(*dSdE,C0,Cp);
     return true;
@@ -82,16 +85,28 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
   Phi = mu*(ePos*ePos).trace();
   if (trEps > 0.0) Phi += 0.5*lambda*trEps*trEps;
 
-  // Evaluate the stress tensor
-  sigma = C0*trEps;
-  sigma += 2.0*mu*(Gc*ePos + eNeg);
+  if (sigma)
+  {
+    // Evaluate the stress tensor
+    *sigma = C0*trEps;
+    *sigma += 2.0*mu*(Gc*ePos + eNeg);
+  }
+  else
+  {
+    // Scale down the tensile energy
+    Phi *= Gc;
+    // Add the compressive energy
+    Phi += mu*(eNeg*eNeg).trace();
+    if (trEps < 0.0) Phi += 0.5*lambda*trEps*trEps;
+  }
 
 #if INT_DEBUG > 4
   std::cout <<"eps_p = "<< eps <<"\n";
   for (a = 0; a < nsd; a++)
     std::cout <<"M("<< 1+a <<") =\n"<< M[a];
-  std::cout <<"ePos =\n"<< ePos <<"eNeg =\n"<< eNeg <<"sigma =\n"<< sigma
-            <<"Phi = "<< Phi << std::endl;
+  std::cout <<"ePos =\n"<< ePos <<"eNeg =\n"<< eNeg;
+  if (sigma) std::cout <<"sigma =\n"<< sigma;
+  std::cout <<"Phi = "<< Phi << std::endl;
 #endif
 
   if (!dSdE)
@@ -242,7 +257,7 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
 #endif
 
     // Evaluate the stress state at this point
-    if (!this->evalStress(lambda,mu,Gc,eps,myPhi[fe.iGP],sigma,
+    if (!this->evalStress(lambda,mu,Gc,eps,myPhi[fe.iGP],&sigma,
                           eKm ? &dSdE : nullptr))
       return false;
   }
@@ -283,5 +298,75 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
                                           const SymmTensor& epsilon,
                                           double& Phi, SymmTensor& sigma) const
 {
-  return this->evalStress(lambda,mu,Gc,epsilon,Phi,sigma,nullptr);
+  return this->evalStress(lambda,mu,Gc,epsilon,Phi,&sigma,nullptr);
+}
+
+
+NormBase* FractureElasticityVoigt::getNormIntegrand (AnaSol*) const
+{
+  return new FractureElasticNorm(*const_cast<FractureElasticityVoigt*>(this));
+}
+
+
+FractureElasticNorm::FractureElasticNorm (FractureElasticityVoigt& p)
+  : ElasticityNorm(p)
+{
+  finalOp = ASM::NONE;
+}
+
+
+size_t FractureElasticNorm::getNoFields (int group) const
+{
+  return group < 1 ? 1 : 2;
+}
+
+
+std::string FractureElasticNorm::getName (size_t, size_t j, const char*) const
+{
+  if (j == 1)
+    return "Elastic strain energy";
+  else if (j == 2)
+    return "External energy";
+  else
+    return this->NormBase::getName(1,j);
+}
+
+
+bool FractureElasticNorm::evalInt (LocalIntegral& elmInt,
+                                   const FiniteElement& fe,
+                                   const Vec3& X) const
+{
+  FractureElasticityVoigt& p = static_cast<FractureElasticityVoigt&>(myProblem);
+  ElmNorm&             pnorm = static_cast<ElmNorm&>(elmInt);
+
+  // Evaluate the symmetric strain tensor, eps
+  Matrix Bmat;
+  SymmTensor eps(p.getNoSpaceDim());
+  if (!p.kinematics(elmInt.vec.front(),fe.N,fe.dNdX,0.0,Bmat,eps,eps))
+    return false;
+
+  // Evaluate the material parameters at this point
+  double lambda, mu;
+  if (!p.material->evaluate(lambda,mu,fe,X))
+    return false;
+
+  // Evaluate the strain energy at this point
+  double Phi, Gc = p.getStressDegradation(fe.N,elmInt.vec[1]);
+  if (!p.evalStress(lambda,mu,Gc,eps,Phi,nullptr,nullptr))
+    return false;
+
+  // Integrate the energy norm a(u^h,u^h) = Int_Omega Phi dV
+  pnorm[0] += Phi*fe.detJxW;
+
+  if (p.haveLoads())
+  {
+    // Evaluate the body load
+    Vec3 f = p.getBodyforce(X);
+    // Evaluate the displacement field
+    Vec3 u = p.evalSol(pnorm.vec.front(),fe.N);
+    // Integrate the external energy (f,u^h)
+    pnorm[1] += f*u*fe.detJxW;
+  }
+
+  return true;
 }
