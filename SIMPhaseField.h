@@ -146,7 +146,7 @@ public:
       return false;
     else if (!gNorm.empty())
     {
-      const Vector& norm = gNorm.front();
+      norm = gNorm.front();
       if (norm.size() > 0 && utl::trunc(norm(1)) != 0.0)
         IFEM::cout <<"  L2-norm: |c^h| = (c^h,c^h)^0.5 : "
                    << sqrt(norm(1)) << std::endl;
@@ -166,6 +166,9 @@ public:
   {
     static_cast<CahnHilliard*>(Dim::myProblem)->setTensileEnergy(te);
   }
+
+  //! \brief Returns a const reference to the global norms.
+  const Vector& getGlobalNorms() const { return norm; }
 
 protected:
   using Dim::parse;
@@ -196,6 +199,7 @@ protected:
 private:
   Vector phasefield; //!< Current phase field solution
   Matrix projSol;    //!< Projected solution fields
+  Vector norm;       //!< Global norm values
 };
 
 #endif

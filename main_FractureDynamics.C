@@ -16,12 +16,13 @@
 #include "SIM3D.h"
 #include "SIMDynElasticity.h"
 #include "SIMPhaseField.h"
-#include "SIMCoupled.h"
+#include "SIMFractureDynamics.h"
 #include "SIMSolver.h"
 #include "GenAlphaSIM.h"
 #include "NonLinSIM.h"
 #include "ASMstruct.h"
 #include "AppCommon.h"
+#include "Utilities.h"
 
 
 /*!
@@ -49,6 +50,12 @@ protected:
       for (; child; child = child->NextSiblingElement())
         this->SIMSolver<T>::parse(child);
     }
+    else if (!strcasecmp(elem->Value(),"postprocessing"))
+    {
+      const TiXmlElement* child = elem->FirstChildElement("energyfile");
+      if (child && child->FirstChild())
+        this->S1.setEnergyFile(child->FirstChild()->Value());
+    }
 
     return this->SIMSolver<T>::parse(elem);
   }
@@ -68,9 +75,9 @@ private:
 template<class Dim, class Integrator=NewmarkSIM>
 int runSimulator2 (char* infile, char pfOrder, bool useVoigt)
 {
-  typedef SIMDynElasticity<Dim,Integrator>            SIMElastoDynamics;
-  typedef SIMPhaseField<Dim>                          SIMCrackField;
-  typedef SIMCoupled<SIMElastoDynamics,SIMCrackField> SIMFractureDynamics;
+  typedef SIMDynElasticity<Dim,Integrator>             SIMElastoDynamics;
+  typedef SIMPhaseField<Dim>                           SIMCrackField;
+  typedef SIMFracture<SIMElastoDynamics,SIMCrackField> SIMFractureDynamics;
 
   utl::profiler->start("Model input");
   IFEM::cout <<"\n\n0. Parsing input file(s)."
@@ -99,7 +106,7 @@ int runSimulator2 (char* infile, char pfOrder, bool useVoigt)
              <<"\n==========================================="<< std::endl;
 
   // Preprocess the model and establish data structures for the algebraic system
-  if (!elastoSim.preprocess() || !phaseSim.preprocess())
+  if (!frac.preprocess())
     return 2;
 
   // Initialize the linear solvers
@@ -114,11 +121,7 @@ int runSimulator2 (char* infile, char pfOrder, bool useVoigt)
   if (elastoSim.opt.dumpHDF5(infile))
     exporter = SIM::handleDataOutput(frac,solver,elastoSim.opt.hdf5,false,1,1);
 
-  elastoSim.registerDependency(&phaseSim,"phasefield",1);
-  // The tensile energy is defined on integration points and not control points.
-  // It is a global buffer array across all patches in the model.
-  // Use an explicit call instead of normal couplings for this.
-  phaseSim.setTensileEnergy(elastoSim.getTensileEnergy());
+  frac.setupDependencies();
 
   int res = solver.solveProblem(infile,exporter,
                                 "100. Starting the simulation",false);

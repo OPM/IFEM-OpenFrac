@@ -56,8 +56,10 @@ public:
   //! \brief Registers fields for data output.
   void registerFields(DataExporter& exporter)
   {
-    exporter.registerField("u","solid displacement",DataExporter::SIM,
-                           DataExporter::PRIMARY | DataExporter::SECONDARY);
+    int flag = DataExporter::PRIMARY;
+    if (!Dim::opt.pSolOnly)
+      flag |= DataExporter::SECONDARY;
+    exporter.registerField("u","solid displacement",DataExporter::SIM,flag);
     exporter.setFieldValue("u",this,&dSim.getSolution());
   }
 
@@ -140,10 +142,15 @@ public:
       return false;
     else if (!gNorms.empty())
     {
-      const Vector& gNorm = gNorms.front();
+      gNorm = gNorms.front();
       if (gNorm.size() > 0 && utl::trunc(gNorm(1)) != 0.0)
         IFEM::cout <<"  Elastic strain energy:           eps_e : "
                    << gNorm(1) << std::endl;
+      if (gNorm.size() > 4 && utl::trunc(gNorm(5)) != 0.0)
+        IFEM::cout <<"  Bulk energy:                     eps_b : "
+                   << gNorm(5)
+                   <<"\n  Tensile & compressive energies         : "
+                   << gNorm(3) <<" "<< gNorm(4) << std::endl;
       if (gNorm.size() > 1 && utl::trunc(gNorm(2)) != 0.0)
         IFEM::cout <<"  External energy: ((f,u^h)+(t,u^h))^0.5 : "
                    << sqrt(gNorm(2)) << std::endl;
@@ -157,6 +164,12 @@ public:
   {
     return static_cast<FractureElasticity*>(Dim::myProblem)->getTensileEnergy();
   }
+
+  //! \brief Returns a const reference to the global norms.
+  const Vector& getGlobalNorms() const { return gNorm; }
+
+  //! \brief Dummy method.
+  void setEnergyFile(const std::string&) {}
 
 protected:
   //! \brief Returns the actual integrand.
@@ -182,6 +195,7 @@ private:
   DynSIM dSim;    //!< Dynamic solution driver
   Matrix projSol; //!< Projected secondary solution fields
   Matrix eNorm;   //!< Element norm values
+  Vector gNorm;   //!< Global norm values
 };
 
 #endif

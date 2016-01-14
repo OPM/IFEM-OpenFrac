@@ -40,6 +40,7 @@
   <postprocessing>
     <vtfformat>binary</vtfformat>
     <projection>cgl2</projection>
+    <energyfile>Rectangle-p2.dat</energyfile>
   </postprocessing>
 
 </simulation>
