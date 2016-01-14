@@ -31,7 +31,7 @@ template<class Dim> class SIMPhaseField : public Dim
 {
 public:
   //! \brief Default constructor.
-  SIMPhaseField(char order = 2) : Dim(1)
+  SIMPhaseField(char order = 2) : Dim(1), eps_d0(0.0)
   {
     Dim::myHeading = "Cahn-Hilliard solver";
     if (order == 4)
@@ -147,12 +147,16 @@ public:
     else if (!gNorm.empty())
     {
       norm = gNorm.front();
+      norm.push_back(norm(2));
+      if (tp.step == 1)
+        eps_d0 = norm(2);
+      norm(2) -= eps_d0;
       if (norm.size() > 0 && utl::trunc(norm(1)) != 0.0)
         IFEM::cout <<"  L2-norm: |c^h| = (c^h,c^h)^0.5 : "
                    << sqrt(norm(1)) << std::endl;
-      if (norm.size() > 1 && utl::trunc(norm(2)) != 0.0)
+      if (norm.size() > 2 && utl::trunc(norm(3)) != 0.0)
         IFEM::cout <<"  Dissipated energy:       eps_d : "
-                   << norm(2) << std::endl;
+                   << norm(3) << std::endl;
     }
 
     return true;
@@ -200,6 +204,7 @@ private:
   Vector phasefield; //!< Current phase field solution
   Matrix projSol;    //!< Projected solution fields
   Vector norm;       //!< Global norm values
+  double eps_d0;     //!< Initial eps_d value, subtracted from following values
 };
 
 #endif

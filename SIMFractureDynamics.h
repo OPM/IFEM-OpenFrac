@@ -53,7 +53,8 @@ public:
       std::ofstream os(energFile, tp.step == 1 ? std::ios::out : std::ios::app);
 
       if (tp.step == 1)
-        os <<"#t eps_e external_energy eps+ eps- eps_b |c| eps_d"<< std::endl;
+        os <<"#t eps_e external_energy eps+ eps- eps_b |c|"
+           <<" eps_d-eps_d(0) eps_d"<< std::endl;
 
       const Vector& n1 = this->S1.getGlobalNorms();
       const Vector& n2 = this->S2.getGlobalNorms();
