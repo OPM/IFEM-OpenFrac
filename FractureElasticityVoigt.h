@@ -50,12 +50,13 @@ protected:
   //! \brief Evaluates the stress tensor and tensile energy at current point.
   virtual bool evalStress(double lambda, double mu, double Gc,
                           const SymmTensor& epsilon,
-                          double& Phi, SymmTensor& sigma) const;
+                          double* Phi, SymmTensor& sigma) const;
 
   //! \brief Evaluates the stress tensor and its derivative w.r.t. the strains.
   bool evalStress(double lambda, double mu, double Gc,
-                  const SymmTensor& epsilon, double& Phi,
-                  SymmTensor* sigma, Matrix* dSdE) const;
+                  const SymmTensor& epsilon, double* Phi,
+                  SymmTensor* sigma, Matrix* dSdE,
+                  bool postProc = false) const;
 
   friend class FractureElasticNorm;
 };

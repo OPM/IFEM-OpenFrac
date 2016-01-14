@@ -27,8 +27,9 @@
 
 
 bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
-                                          const SymmTensor& epsil, double& Phi,
-                                          SymmTensor* sigma, Matrix* dSdE) const
+                                          const SymmTensor& epsil, double* Phi,
+                                          SymmTensor* sigma, Matrix* dSdE,
+                                          bool postProc) const
 {
   PROFILE3("FractureEl::evalStress");
 
@@ -56,7 +57,9 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
   if (trEps >= -epsZ && trEps <= epsZ)
   {
     // No strains, stress free configuration
-    Phi = 0.0;
+    Phi[0] = 0.0;
+    if (postProc)
+      Phi[1] = Phi[2] = Phi[3] = 0.0;
     if (sigma)
       *sigma = 0.0;
     if (dSdE)
@@ -81,23 +84,25 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
     else if (eps[a] < 0.0)
       eNeg += eps[a]*M[a];
 
-  // Evaluate the tensile energy
-  Phi = mu*(ePos*ePos).trace();
-  if (trEps > 0.0) Phi += 0.5*lambda*trEps*trEps;
-
   if (sigma)
   {
     // Evaluate the stress tensor
     *sigma = C0*trEps;
     *sigma += 2.0*mu*(Gc*ePos + eNeg);
   }
-  else
+
+  // Evaluate the tensile energy
+  Phi[0] = mu*(ePos*ePos).trace();
+  if (trEps > 0.0) Phi[0] += 0.5*lambda*trEps*trEps;
+  if (postProc)
   {
-    // Scale down the tensile energy
-    Phi *= Gc;
-    // Add the compressive energy
-    Phi += mu*(eNeg*eNeg).trace();
-    if (trEps < 0.0) Phi += 0.5*lambda*trEps*trEps;
+    // Evaluate the compressive energy
+    Phi[1] = mu*(eNeg*eNeg).trace();
+    if (trEps < 0.0) Phi[1] += 0.5*lambda*trEps*trEps;
+    // Evaluate the total strain energy
+    Phi[2] = Gc*Phi[0] + Phi[1];
+    // Evaluate the bulk energy
+    Phi[3] = Gc*(Phi[0] + Phi[1]);
   }
 
 #if INT_DEBUG > 4
@@ -106,7 +111,9 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
     std::cout <<"M("<< 1+a <<") =\n"<< M[a];
   std::cout <<"ePos =\n"<< ePos <<"eNeg =\n"<< eNeg;
   if (sigma) std::cout <<"sigma =\n"<< sigma;
-  std::cout <<"Phi = "<< Phi << std::endl;
+  std::cout <<"Phi = "<< Phi[0];
+  if (postProc) std::cout <<" "<< Phi[1] <<" "<< Phi[2] <<" "<< Phi[3];
+  std::cout << std::endl;
 #endif
 
   if (!dSdE)
@@ -257,7 +264,7 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
 #endif
 
     // Evaluate the stress state at this point
-    if (!this->evalStress(lambda,mu,Gc,eps,myPhi[fe.iGP],&sigma,
+    if (!this->evalStress(lambda,mu,Gc,eps,&myPhi[fe.iGP],&sigma,
                           eKm ? &dSdE : nullptr))
       return false;
   }
@@ -296,9 +303,9 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
 
 bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
                                           const SymmTensor& epsilon,
-                                          double& Phi, SymmTensor& sigma) const
+                                          double* Phi, SymmTensor& sigma) const
 {
-  return this->evalStress(lambda,mu,Gc,epsilon,Phi,&sigma,nullptr);
+  return this->evalStress(lambda,mu,Gc,epsilon,Phi,&sigma,nullptr,true);
 }
 
 
@@ -317,7 +324,7 @@ FractureElasticNorm::FractureElasticNorm (FractureElasticityVoigt& p)
 
 size_t FractureElasticNorm::getNoFields (int group) const
 {
-  return group < 1 ? 1 : 2;
+  return group < 1 ? 1 : 5;
 }
 
 
@@ -327,6 +334,12 @@ std::string FractureElasticNorm::getName (size_t, size_t j, const char*) const
     return "Elastic strain energy";
   else if (j == 2)
     return "External energy";
+  else if (j == 3)
+    return "Tensile energy";
+  else if (j == 4)
+    return "Compressive energy";
+  else if (j == 5)
+    return "Bulk energy";
   else
     return this->NormBase::getName(1,j);
 }
@@ -351,12 +364,13 @@ bool FractureElasticNorm::evalInt (LocalIntegral& elmInt,
     return false;
 
   // Evaluate the strain energy at this point
-  double Phi, Gc = p.getStressDegradation(fe.N,elmInt.vec[1]);
-  if (!p.evalStress(lambda,mu,Gc,eps,Phi,nullptr,nullptr))
+  double Phi[4];
+  double Gc = p.getStressDegradation(fe.N,elmInt.vec[1]);
+  if (!p.evalStress(lambda,mu,Gc,eps,Phi,nullptr,nullptr,true))
     return false;
 
-  // Integrate the energy norm a(u^h,u^h) = Int_Omega Phi dV
-  pnorm[0] += Phi*fe.detJxW;
+  // Integrate the total elastic energy
+  pnorm[0] += Phi[2]*fe.detJxW;
 
   if (p.haveLoads())
   {
@@ -367,6 +381,12 @@ bool FractureElasticNorm::evalInt (LocalIntegral& elmInt,
     // Integrate the external energy (f,u^h)
     pnorm[1] += f*u*fe.detJxW;
   }
+
+  // Integrate the tensile and compressive energies
+  pnorm[2] += Phi[0]*fe.detJxW;
+  pnorm[3] += Phi[1]*fe.detJxW;
+  // Integrate the bulk energy
+  pnorm[4] += Phi[3]*fe.detJxW;
 
   return true;
 }

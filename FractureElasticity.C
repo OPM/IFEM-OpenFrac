@@ -76,8 +76,9 @@ bool FractureElasticity::initElement (const std::vector<int>& MNPC,
 
 
 bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
-                                     const SymmTensor& epsilon, double& Phi,
-                                     SymmTensor& sigma, Tensor4* dSdE) const
+                                     const SymmTensor& epsilon, double* Phi,
+                                     SymmTensor& sigma, Tensor4* dSdE,
+                                     bool postProc) const
 {
   PROFILE3("FractureEl::evalStress");
 
@@ -105,7 +106,9 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
   if (trEps >= -epsZ && trEps <= epsZ)
   {
     // No strains, stress free configuration
-    sigma = Phi = 0.0;
+    sigma = Phi[0] = 0.0;
+    if (postProc)
+      Phi[1] = Phi[2] = 0.0;
     if (dSdE)
       setIsotropic(*dSdE,Cp);
     return true;
@@ -128,20 +131,31 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
     else if (eps[a] < 0.0)
       eNeg += eps[a]*M[a];
 
-  // Evaluate the tensile energy
-  Phi = mu*(ePos*ePos).trace();
-  if (trEps > 0.0) Phi += 0.5*lambda*trEps*trEps;
-
   // Evaluate the stress tensor
   sigma = C0*trEps;
   sigma += 2.0*mu*(Gc*ePos + eNeg);
+
+  // Evaluate the tensile energy
+  Phi[0] = mu*(ePos*ePos).trace();
+  if (trEps > 0.0) Phi[0] += 0.5*lambda*trEps*trEps;
+
+  if (postProc)
+  {
+    // Evaluate the compressive energy
+    Phi[1] = mu*(eNeg*eNeg).trace();
+    if (trEps < 0.0) Phi[1] += 0.5*lambda*trEps*trEps;
+    // Evaluate the total strain energy
+    Phi[2] = Gc*Phi[0] + Phi[1];
+  }
 
 #if INT_DEBUG > 4
   std::cout <<"eps_p = "<< eps <<"\n";
   for (a = 0; a < nsd; a++)
     std::cout <<"M("<< 1+a <<") =\n"<< M[a];
   std::cout <<"ePos =\n"<< ePos <<"eNeg =\n"<< eNeg <<"sigma =\n"<< sigma
-            <<"Phi = "<< Phi << std::endl;
+            <<"Phi = "<< Phi[0];
+  if (postProc) std::cout <<" "<< Phi[1] <<" "<< Phi[2];
+  std::cout << std::endl;
 #endif
 
   if (!dSdE) return true;
@@ -247,7 +261,7 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
 #endif
 
     // Evaluate the stress state at this point
-    if (!this->evalStress(lambda,mu,Gc,eps,myPhi[fe.iGP],sigma,
+    if (!this->evalStress(lambda,mu,Gc,eps,&myPhi[fe.iGP],sigma,
                           eKm ? &dSdE : nullptr))
       return false;
   }
@@ -409,7 +423,8 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
 
   // Evaluate the stress state at this point
   SymmTensor sigma(nsd);
-  double Phi, Gc = this->getStressDegradation(fe.N,eV[1]);
+  double Phi[3];
+  double Gc = this->getStressDegradation(fe.N,eV[1]);
   if (!this->evalStress(lambda,mu,Gc,eps,Phi,sigma))
     return false;
 
@@ -439,7 +454,7 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
 
   if (toLocal)
   {
-    s.push_back(Phi);
+    s.insert(s.end(),Phi,Phi+3);
     s.push_back(Gc);
   }
 
@@ -449,26 +464,31 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
 
 bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
                                      const SymmTensor& epsilon,
-                                     double& Phi, SymmTensor& sigma) const
+                                     double* Phi, SymmTensor& sigma) const
 {
-  return this->evalStress(lambda,mu,Gc,epsilon,Phi,sigma,nullptr);
+  return this->evalStress(lambda,mu,Gc,epsilon,Phi,sigma,nullptr,true);
 }
 
 
 size_t FractureElasticity::getNoFields (int fld) const
 {
-  return this->Elasticity::getNoFields(fld) + (fld == 2 ? 2 : 0);
+  return this->Elasticity::getNoFields(fld) + (fld == 2 ? 4 : 0);
 }
 
 
 std::string FractureElasticity::getField2Name (size_t i, const char* pfx) const
 {
-  if (i < this->Elasticity::getNoFields(2))
+  size_t nf = this->Elasticity::getNoFields(2);
+  if (i < nf)
     return this->Elasticity::getField2Name(i,pfx);
 
   std::string name;
-  if (i == this->Elasticity::getNoFields(2))
-    name = "Tensile energy";
+  if (i == nf)
+    name = "Tensile energy density";
+  else if (i == nf+1)
+    name = "Compressive energy density";
+  else if (i == nf+2)
+    name = "Strain energy density";
   else
     name = "Stress degradation, g(c)";
 
