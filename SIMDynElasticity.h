@@ -125,6 +125,12 @@ public:
     if (dSim.solveStep(tp) != SIM::CONVERGED)
       return false;
 
+    return this->postSolve(tp);
+  }
+
+  //! \brief Computes solution norms, etc. on the converged solution.
+  bool postSolve(TimeStep& tp)
+  {
     // Update strain energy density for the converged solution
     this->setMode(SIM::RECOVERY);
     if (!this->assembleSystem(tp.time,dSim.getSolutions()))
@@ -170,6 +176,19 @@ public:
 
   //! \brief Dummy method.
   void setEnergyFile(const std::string&) {}
+
+  //! \brief Returns a const reference to current solution vector.
+  const Vector& getSolution(int idx = 0) const { return dSim.getSolution(idx); }
+
+  //! \brief Solves the linearized system of current iteration.
+  //! \param[in] tp Time stepping parameters
+  SIM::ConvStatus solveIteration(TimeStep& tp)
+  {
+    return dSim.solveIteration(tp);
+  }
+
+  //! \brief Returns the maximum number of iterations.
+  int getMaxit() const { return dSim.getMaxit(); }
 
 protected:
   //! \brief Returns the actual integrand.

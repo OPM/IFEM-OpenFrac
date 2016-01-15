@@ -24,13 +24,14 @@
   a dynamic elasticity solver and a phase field solver.
 */
 
-template<class SolidSolver, class PhaseSolver>
-class SIMFracture : public SIMCoupled<SolidSolver,PhaseSolver>
+template<class SolidSolver, class PhaseSolver,
+         template<class S1, class S2> class Coupling=SIMCoupled>
+class SIMFracture : public Coupling<SolidSolver,PhaseSolver>
 {
 public:
   //! \brief The constructor initializes the references to the two solvers.
   SIMFracture(SolidSolver& s1, PhaseSolver& s2)
-    : SIMCoupled<SolidSolver,PhaseSolver>(s1,s2) {}
+    : Coupling<SolidSolver,PhaseSolver>(s1,s2) {}
   //! \brief Empty destructor.
   virtual ~SIMFracture() {}
 

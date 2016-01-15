@@ -116,11 +116,11 @@ public:
   bool advanceStep(TimeStep&) { return true; }
 
   //! \brief Computes the solution for the current time step.
-  bool solveStep(TimeStep& tp)
+  bool solveStep(TimeStep& tp, bool standalone = true)
   {
     PROFILE1("SIMPhaseField::solveStep");
 
-    if (Dim::msgLevel == 1)
+    if (Dim::msgLevel == 1 && standalone)
       IFEM::cout <<"\n  Solving crack phase field at step="<< tp.step
                  <<" time="<< tp.time.t << std::endl;
 
@@ -128,11 +128,19 @@ public:
     if (!this->assembleSystem())
       return false;
 
-    if (!this->solveSystem(phasefield,1,
-                           Dim::msgLevel > 1 ? "phasefield  " : nullptr))
+    if (!this->solveSystem(phasefield,0))
       return false;
 
     static_cast<CahnHilliard*>(Dim::myProblem)->clearInitialCrack();
+
+    return standalone ? this->postSolve(tp) : true;
+  }
+
+  //! \brief Computes solution norms, etc. on the converged solution.
+  bool postSolve(TimeStep& tp)
+  {
+    this->printSolutionSummary(phasefield,1,
+                               Dim::msgLevel > 1 ? "phasefield  " : nullptr);
     this->setMode(SIM::RECOVERY);
 
     // Project the phase field onto the geometry basis
@@ -173,6 +181,21 @@ public:
 
   //! \brief Returns a const reference to the global norms.
   const Vector& getGlobalNorms() const { return norm; }
+
+  //! \brief Returns a const reference to the current solution.
+  const Vector& getSolution(int = 0) { return phasefield; }
+
+  //! \brief Returns the maximum number of iterations (unlimited).
+  int getMaxit() const { return 9999; }
+
+  //! \brief Solves the linearized system of current iteration.
+  //! \param[in] tp Time stepping parameters
+  //!
+  //! \details Since this solver is linear, this is just a normal solve.
+  SIM::ConvStatus solveIteration(TimeStep& tp)
+  {
+    return this->solveStep(tp,false) ? SIM::CONVERGED : SIM::DIVERGED;
+  }
 
 protected:
   using Dim::parse;
