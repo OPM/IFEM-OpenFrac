@@ -415,6 +415,10 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
   SymmTensor eps(nsd);
   if (!this->kinematics(eV.front(),fe.N,fe.dNdX,0.0,Bmat,eps,eps))
     return false;
+  else if (!eps.isZero(1.0e-16))
+    for (unsigned short int i = 1; i <= nsd; i++)
+      for (unsigned short int j = i+1; j <= nsd; j++)
+        eps(i,j) *= 0.5; // Using tensor formulation
 
   // Evaluate the material parameters at this point
   double lambda, mu;

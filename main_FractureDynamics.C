@@ -269,6 +269,8 @@ int main (int argc, char** argv)
       useVoigt = true;
     else if (!strcmp(argv[i],"-principal"))
       Elasticity::wantPrincipalStress = true;
+    else if (!strcmp(argv[i],"-dbgElm") && i < argc-1)
+      FractureElasticNorm::dbgElm = atoi(argv[++i]);
     else if (!infile)
       infile = argv[i];
     else

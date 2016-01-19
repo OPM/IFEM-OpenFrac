@@ -29,7 +29,7 @@
 bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
                                           const SymmTensor& epsil, double* Phi,
                                           SymmTensor* sigma, Matrix* dSdE,
-                                          bool postProc) const
+                                          bool postProc, bool printElm) const
 {
   PROFILE3("FractureEl::evalStress");
 
@@ -110,10 +110,21 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
   for (a = 0; a < nsd; a++)
     std::cout <<"M("<< 1+a <<") =\n"<< M[a];
   std::cout <<"ePos =\n"<< ePos <<"eNeg =\n"<< eNeg;
-  if (sigma) std::cout <<"sigma =\n"<< sigma;
+  if (sigma) std::cout <<"sigma =\n"<< *sigma;
   std::cout <<"Phi = "<< Phi[0];
   if (postProc) std::cout <<" "<< Phi[1] <<" "<< Phi[2] <<" "<< Phi[3];
   std::cout << std::endl;
+#else
+  if (printElm)
+  {
+    std::cout <<"g(c) = "<< Gc
+              <<"\nepsilon =\n"<< epsil <<"eps_p = "<< eps
+              <<"\nePos =\n"<< ePos <<"eNeg =\n"<< eNeg;
+    if (sigma) std::cout <<"sigma =\n"<< *sigma;
+    std::cout <<"Phi = "<< Phi[0];
+    if (postProc) std::cout <<" "<< Phi[1] <<" "<< Phi[2] <<" "<< Phi[3];
+    std::cout << std::endl;
+  }
 #endif
 
   if (!dSdE)
@@ -242,7 +253,7 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
       lHaveStrains = true;
       // Scale the shear strain components by 0.5 to convert from engineering
       // strains gamma_ij = eps_ij + eps_ji to the tensor components eps_ij
-      // which are needed for conistent calculation of principal directions
+      // which are needed for consistent calculation of principal directions
       for (unsigned short int i = 1; i <= nsd; i++)
         for (unsigned short int j = i+1; j <= nsd; j++)
           eps(i,j) *= 0.5;
@@ -315,6 +326,9 @@ NormBase* FractureElasticityVoigt::getNormIntegrand (AnaSol*) const
 }
 
 
+int FractureElasticNorm::dbgElm = 0;
+
+
 FractureElasticNorm::FractureElasticNorm (FractureElasticityVoigt& p)
   : ElasticityNorm(p)
 {
@@ -357,16 +371,28 @@ bool FractureElasticNorm::evalInt (LocalIntegral& elmInt,
   SymmTensor eps(p.getNoSpaceDim());
   if (!p.kinematics(elmInt.vec.front(),fe.N,fe.dNdX,0.0,Bmat,eps,eps))
     return false;
+  else if (!eps.isZero(1.0e-16))
+    // Scale the shear strain components by 0.5 to convert from engineering
+    // strains gamma_ij = eps_ij + eps_ji to the tensor components eps_ij
+    // which are needed for consistent calculation of principal directions
+    for (unsigned short int i = 1; i <= eps.dim(); i++)
+      for (unsigned short int j = i+1; j <= eps.dim(); j++)
+        eps(i,j) *= 0.5;
 
   // Evaluate the material parameters at this point
   double lambda, mu;
   if (!p.material->evaluate(lambda,mu,fe,X))
     return false;
 
+  bool printElm = fe.iel == dbgElm;
+  if (printElm)
+    std::cout <<"\nFractureElasticNorm::evalInt: iel,ip,X = "
+              << fe.iel <<" "<< fe.iGP <<" "<< X << std::endl;
+
   // Evaluate the strain energy at this point
   double Phi[4];
   double Gc = p.getStressDegradation(fe.N,elmInt.vec[1]);
-  if (!p.evalStress(lambda,mu,Gc,eps,Phi,nullptr,nullptr,true))
+  if (!p.evalStress(lambda,mu,Gc,eps,Phi,nullptr,nullptr,true,printElm))
     return false;
 
   // Integrate the total elastic energy

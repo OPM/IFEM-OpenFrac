@@ -56,7 +56,7 @@ protected:
   bool evalStress(double lambda, double mu, double Gc,
                   const SymmTensor& epsilon, double* Phi,
                   SymmTensor* sigma, Matrix* dSdE,
-                  bool postProc = false) const;
+                  bool postProc = false, bool printElm = false) const;
 
   friend class FractureElasticNorm;
 };
@@ -86,6 +86,8 @@ public:
   virtual size_t getNoFields(int group) const;
   //! \brief Returns the name of a norm quantity.
   virtual std::string getName(size_t, size_t j, const char*) const;
+
+  static int dbgElm; //!< Element index for debug output
 };
 
 #endif
