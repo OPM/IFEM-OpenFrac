@@ -8,21 +8,17 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
                       $ENV{HOME}/cmake/Modules)
 
 # Required packages
-set(IFEM_PRECONFIGURED ${IFEM_CONFIGURED})
 if (NOT IFEM_CONFIGURED)
   find_package(IFEM REQUIRED)
+  include_directories(${IFEM_INCLUDE_DIRS})
+  add_definitions(${IFEM_DEFINITIONS})
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IFEM_CXX_FLAGS}")
 endif(NOT IFEM_CONFIGURED)
 
-IF(NOT ORIG_CXX_FLAGS)
-  SET(ORIG_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-ENDIF(NOT ORIG_CXX_FLAGS)
-SET(CMAKE_CXX_FLAGS "${ORIG_CXX_FLAGS} ${IFEM_CXX_FLAGS}")
-IF(NOT IFEM_AS_SUBMODULE)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPROFILE_LEVEL=3")
-ENDIF(NOT IFEM_AS_SUBMODULE)
-
-include_directories(${IFEM_INCLUDES} ${PROJECT_SOURCE_DIR}
-                    ../Common ../Elasticity)
+include_directories(${IFEM_INCLUDES}
+                    ${PROJECT_SOURCE_DIR}
+                    ../Common
+                    ../Elasticity)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
@@ -33,26 +29,29 @@ if(NOT WIN32)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 endif(NOT WIN32)
 
-file(GLOB LinEl_SRCS ../Elasticity/*.C)
+if(NOT TARGET Elasticity)
+  add_subdirectory(../Elasticity Elasticity)
+endif()
+
 file(GLOB FracEl_SRCS [A-Z]*.C)
 
-add_library(CommonCH ${FracEl_SRCS} ${LinEl_SRCS})
+add_library(CommonFrac STATIC ${FracEl_SRCS})
 
 add_executable(CahnHilliard main_CahnHilliard.C)
 add_executable(FractureDynamics main_FractureDynamics.C)
 
-target_link_libraries(CahnHilliard CommonCH ${IFEM_LIBRARIES})
-target_link_libraries(FractureDynamics CommonCH ${IFEM_LIBRARIES})
+target_link_libraries(CahnHilliard CommonFrac Elasticity ${IFEM_LIBRARIES})
+target_link_libraries(FractureDynamics CommonFrac Elasticity ${IFEM_LIBRARIES})
 
 # Installation
 install(TARGETS CahnHilliard FractureDynamics DESTINATION bin)
 
 # Testing
 enable_testing()
+include(IFEMTesting)
 
 # Generate regtest script with correct paths
-configure_file(${PROJECT_SOURCE_DIR}/../Common/scripts/regtest.sh.in
-               regtest.sh)
+configure_file(${IFEM_REGTEST_SCRIPT} regtest.sh)
 
 if(IFEM_USE_PARALLEL_PETSC)
   # Add parallel tests here
@@ -74,7 +73,7 @@ list(APPEND TEST_APPS CahnHilliard FractureDynamics)
 IFEM_add_test_app(${PROJECT_SOURCE_DIR}/Test/*.C
                   ${PROJECT_SOURCE_DIR}/Test
                   FractureDynamics
-                  CommonCH ${IFEM_LIBRARIES})
+                  CommonFrac Elasticity ${IFEM_LIBRARIES})
 
 if(IFEM_COMMON_APP_BUILD)
   set(TEST_APPS ${TEST_APPS} PARENT_SCOPE)
