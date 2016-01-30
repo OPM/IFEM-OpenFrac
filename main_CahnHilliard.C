@@ -20,7 +20,7 @@
 #include "AppCommon.h"
 
 
-template<class Dim> int runSimulator (char* infile, char order)
+template<class Dim> int runSimulator (char* infile)
 {
   typedef SIMPhaseField<Dim> PhaseFieldDriver;
 
@@ -28,7 +28,7 @@ template<class Dim> int runSimulator (char* infile, char order)
   IFEM::cout <<"\n\n0. Parsing input file(s)."
              <<"\n========================="<< std::endl;
 
-  PhaseFieldDriver phaseSim(order);
+  PhaseFieldDriver phaseSim;
   if (!phaseSim.read(infile))
     return 1;
 
@@ -72,7 +72,6 @@ int main (int argc, char** argv)
 
   int i, ndim = 3;
   char* infile = 0;
-  char pfOrder = 2;
 
   IFEM::Init(argc,argv);
 
@@ -83,8 +82,6 @@ int main (int argc, char** argv)
       ndim = 2;
     else if (!strcmp(argv[i],"-1D"))
       ndim = 1;
-    else if (!strcmp(argv[i],"-fourth"))
-      pfOrder = 4;
     else if (!infile)
       infile = argv[i];
     else
@@ -109,9 +106,9 @@ int main (int argc, char** argv)
   IFEM::cout << std::endl;
 
   if (ndim == 3)
-    return runSimulator<SIM3D>(infile,pfOrder);
+    return runSimulator<SIM3D>(infile);
   else if (ndim == 2)
-    return runSimulator<SIM2D>(infile,pfOrder);
+    return runSimulator<SIM2D>(infile);
   else
-    return runSimulator<SIM1D>(infile,pfOrder);
+    return runSimulator<SIM1D>(infile);
 }

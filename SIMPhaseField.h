@@ -18,6 +18,7 @@
 #include "CahnHilliard.h"
 #include "TimeStep.h"
 #include "Profiler.h"
+#include "Utilities.h"
 #include "DataExporter.h"
 #include "IFEM.h"
 #include "tinyxml.h"
@@ -31,13 +32,9 @@ template<class Dim> class SIMPhaseField : public Dim
 {
 public:
   //! \brief Default constructor.
-  SIMPhaseField(char order = 2) : Dim(1), eps_d0(0.0)
+  SIMPhaseField() : Dim(1), eps_d0(0.0)
   {
     Dim::myHeading = "Cahn-Hilliard solver";
-    if (order == 4)
-      Dim::myProblem = new CahnHilliard4(Dim::dimension);
-    else
-      Dim::myProblem = new CahnHilliard(Dim::dimension);
   }
 
   //! \brief Empty destructor.
@@ -49,6 +46,9 @@ public:
   //! \brief Preprocessing performed before the FEM model generation.
   virtual void preprocessA()
   {
+    if (!Dim::myProblem)
+      Dim::myProblem = new CahnHilliard(Dim::dimension);
+
     this->printProblem();
     if (this->hasIC("phasefield"))
       IFEM::cout <<"Initial phase field specified."<< std::endl;
@@ -204,6 +204,16 @@ protected:
   {
     if (strcasecmp(elem->Value(),"cahnhilliard"))
       return this->Dim::parse(elem);
+
+    if (!Dim::myProblem)
+    {
+      int order = 2;
+      utl::getAttribute(elem,"order",order);
+      if (order == 4)
+        Dim::myProblem = new CahnHilliard4(Dim::dimension);
+      else
+        Dim::myProblem = new CahnHilliard(Dim::dimension);
+    }
 
     const TiXmlElement* child = elem->FirstChildElement();
     for (; child; child = child->NextSiblingElement())

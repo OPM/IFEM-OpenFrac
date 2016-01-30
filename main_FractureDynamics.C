@@ -68,29 +68,28 @@ private:
 /*!
   \brief Creates the combined fracture simulator and launches the simulation.
   \param[in] infile The input file to parse
-  \param[in] pfOrder Order of the crack phase field (2 or 4)
-  \param[in] useVoigt Assume symmtric constitutive tensor
 */
 
-template<class Dim, class Integrator=NewmarkSIM, template<class T1, class T2> class Coupling=SIMCoupled>
-int runSimulator2 (char* infile, char pfOrder, bool useVoigt)
+template<class Dim, class Integrator, template<class T1, class T2> class Cpl>
+int runSimulator2 (char* infile)
 {
-  typedef SIMDynElasticity<Dim,Integrator>             SIMElastoDynamics;
-  typedef SIMPhaseField<Dim>                           SIMCrackField;
-  typedef SIMFracture<SIMElastoDynamics,SIMCrackField, Coupling> SIMFractureDynamics;
+  typedef SIMDynElasticity<Dim,Integrator> SIMElastoDynamics;
+  typedef SIMPhaseField<Dim>               SIMCrackField;
+
+  typedef SIMFracture<SIMElastoDynamics,SIMCrackField,Cpl> SIMFractureDynamics;
 
   utl::profiler->start("Model input");
   IFEM::cout <<"\n\n0. Parsing input file(s)."
              <<"\n========================="<< std::endl;
 
-  SIMElastoDynamics elastoSim(useVoigt);
+  SIMElastoDynamics elastoSim;
   ASMstruct::resetNumbering();
   if (!elastoSim.read(infile))
     return 1;
 
   elastoSim.opt.print(IFEM::cout) << std::endl;
 
-  SIMCrackField phaseSim(pfOrder);
+  SIMCrackField phaseSim;
   if (!phaseSim.read(infile))
     return 1;
 
@@ -186,34 +185,16 @@ int runSimulator3 (char* infile, const char* context = "newmarksolver")
 /*!
   \brief Creates the combined fracture simulator and launches the simulation.
   \param[in] infile The input file to parse
-  \param[in] pfOrder Order of the crack phase field, 0=(no crack), 2 or 4
-  \param[in] useVoigt Assume symmetric consitutive tensor
-  \param[in] semiimplicit Use semi-implicit coupling
-*/
-
-template<class Dim, class Integrator>
-int runCoupling(char* infile, char pfOrder, bool useVoigt, bool semiImplicit)
-{
-  if (semiImplicit)
-    return runSimulator2<Dim,Integrator,SIMCoupledSI>(infile, pfOrder, useVoigt);
-
-  return runSimulator2<Dim,Integrator>(infile, pfOrder, useVoigt);
-}
-
-
-/*!
-  \brief Creates the combined fracture simulator and launches the simulation.
-  \param[in] infile The input file to parse
-  \param[in] pfOrder Order of the crack phase field, 0=(no crack), 2 or 4
-  \param[in] useVoigt Assume symmetric consitutive tensor
-  \param[in] semiimplicit Use semi-implicit coupling
+  \param[in] coupling Coupling flag (0: none, 1: staggered, 2: semi-implicit)
 */
 
 template<class Dim, class Integrator=NewmarkSIM>
-int runSimulator1 (char* infile, char pfOrder, bool useVoigt, bool semiimplicit)
+int runSimulator1 (char* infile, char coupling)
 {
-  if (pfOrder > 0)
-    return runCoupling<Dim,Integrator>(infile,pfOrder,useVoigt,semiimplicit);
+  if (coupling == 1)
+    return runSimulator2<Dim,Integrator,SIMCoupled>(infile);
+  else if (coupling == 2)
+    return runSimulator2<Dim,Integrator,SIMCoupledSI>(infile);
   else
     return runSimulator3<Dim,Integrator>(infile); // No phase field coupling
 }
@@ -237,19 +218,17 @@ public:
   \brief Creates the combined fracture simulator and launches the simulation.
   \param[in] infile The input file to parse
   \param[in] integrator The time integrator to use (0=linear quasi-static,
-             no phase-field coupling, 1=linear Newmark, 2=Generalizes alpha)
-  \param[in] pfOrder Order of the crack phase field, 0=(no crack), 2 or 4
-  \param[in] useVoigt Assume symmetric consitutive tensor
-  \param[in] semiimplicit Use semi-implicit coupling
+             no phase-field coupling, 1=linear Newmark, 2=Generalized alpha)
+  \param[in] coupling Coupling flag (0: none, 1: staggered, 2: semi-implicit)
 */
 
 template<class Dim>
-int runSimulator (char* infile, char integrator, char pfOrder, bool useVoigt, bool semiimplicit)
+int runSimulator (char* infile, char integrator, char coupling)
 {
   if (integrator == 2)
-    return runSimulator1<Dim,GenAlphaSIM>(infile,pfOrder,useVoigt,semiimplicit);
+    return runSimulator1<Dim,GenAlphaSIM>(infile,coupling);
   else if (integrator > 0)
-    return runSimulator1<Dim>(infile,pfOrder,useVoigt,semiimplicit);
+    return runSimulator1<Dim>(infile,coupling);
   else
     return runSimulator3<Dim,LinSIM>(infile,"staticsolver");
 }
@@ -265,11 +244,9 @@ int main (int argc, char** argv)
 
   int  i;
   char* infile = 0;
-  char pfOrder = 2;
+  char coupling = 1;
   char integrator = 1;
-  bool useVoigt = false;
   bool twoD = false;
-  bool semiimplicit = false;
 
   IFEM::Init(argc,argv);
 
@@ -278,22 +255,18 @@ int main (int argc, char** argv)
       ; // ignore the obsolete option
     else if (!strcmp(argv[i],"-2D"))
       twoD = SIMElasticity<SIM2D>::planeStrain = true;
-    else if (!strcmp(argv[i],"-fourth"))
-      pfOrder = 4;
     else if (!strcmp(argv[i],"-nocrack"))
-      pfOrder = 0;
+      coupling = 0;
+    else if (!strcmp(argv[i],"-semiimplicit"))
+      coupling = 2;
     else if (!strcmp(argv[i],"-static"))
       integrator = 0;
     else if (!strcmp(argv[i],"-GA"))
       integrator = 2;
-    else if (!strcmp(argv[i],"-Voigt"))
-      useVoigt = true;
     else if (!strcmp(argv[i],"-principal"))
       Elasticity::wantPrincipalStress = true;
     else if (!strcmp(argv[i],"-dbgElm") && i < argc-1)
       FractureElasticNorm::dbgElm = atoi(argv[++i]);
-    else if (!strcmp(argv[i],"-semiimplicit"))
-      semiimplicit = true;
     else if (!infile)
       infile = argv[i];
     else
@@ -304,9 +277,9 @@ int main (int argc, char** argv)
     std::cout <<"usage: "<< argv[0]
               <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n"
               <<"       [-lag|-spec|-LR] [-2D] [-nGauss <n>]\n"
-              <<"       [-fourth|-nocrack] [-GA|-static] [-Voigt]\n"
-              <<"       [-vtf <format> [-nviz <nviz>]"
-              <<" [-nu <nu>] [-nv <nv>] [-nw <nw>]] [-hdf5]\n"<< std::endl;
+              <<"       [-nocrack|-semiimplicit] [-static|-GA]\n"
+              <<"       [-vtf <format> [-nviz <nviz>] [-nu <nu>] [-nv <nv]"
+              <<" [-nw <nw>]] [-hdf5] [-principal]\n"<< std::endl;
     return 0;
   }
 
@@ -319,7 +292,7 @@ int main (int argc, char** argv)
   IFEM::cout << std::endl;
 
   if (twoD)
-    return runSimulator<SIM2D>(infile,integrator,pfOrder,useVoigt,semiimplicit);
+    return runSimulator<SIM2D>(infile,integrator,coupling);
   else
-    return runSimulator<SIM3D>(infile,integrator,pfOrder,useVoigt,semiimplicit);
+    return runSimulator<SIM3D>(infile,integrator,coupling);
 }

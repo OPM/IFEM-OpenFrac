@@ -30,13 +30,9 @@ class SIMDynElasticity : public SIMElasticity<Dim>
 {
 public:
   //! \brief Default constructor.
-  SIMDynElasticity(bool voigt = false) : SIMElasticity<Dim>(false), dSim(*this)
+  SIMDynElasticity() : SIMElasticity<Dim>(false), dSim(*this)
   {
     Dim::myHeading = "Elasticity solver";
-    if (voigt)
-      Dim::myProblem = new FractureElasticityVoigt(Dim::dimension);
-    else
-      Dim::myProblem = new FractureElasticity(Dim::dimension);
   }
 
   //! \brief Empty destructor.
@@ -194,6 +190,8 @@ protected:
   //! \brief Returns the actual integrand.
   virtual Elasticity* getIntegrand()
   {
+    if (!Dim::myProblem) // Using the Voigt formulation by default
+      Dim::myProblem = new FractureElasticityVoigt(Dim::dimension);
     return static_cast<Elasticity*>(Dim::myProblem);
   }
 
@@ -204,6 +202,13 @@ protected:
     static short int ncall = 0;
     if (++ncall == 1) // Avoiding infinite recursive calls
       result = dSim.parse(elem);
+    else if (!strcasecmp(elem->Value(),"elasticity") && !Dim::myProblem)
+    {
+      std::string form("voigt");
+      if (utl::getAttribute(elem,"formulation",form,true) && form != "voigt")
+        Dim::myProblem = new FractureElasticity(Dim::dimension);
+      result = this->SIMElasticity<Dim>::parse(elem);
+    }
     else
       result = this->SIMElasticity<Dim>::parse(elem);
     --ncall;
