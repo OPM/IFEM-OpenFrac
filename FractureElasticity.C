@@ -443,7 +443,12 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
   }
 
   s = sigma;
-  s.insert(s.begin()+2,0.2*(sigma(1,1)+sigma(2,2)));
+  if (nsd == 2)
+  {
+    // Insert the sigma_zz component for 2D plane strain
+    double nu = 0.5*lambda/(lambda+mu);
+    s.insert(s.begin()+2,nu*(sigma(1,1)+sigma(2,2)));
+  }
 
   if (toLocal)
     s.push_back(sigma.vonMises());

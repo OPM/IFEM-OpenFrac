@@ -86,6 +86,10 @@ public:
   //! \param[in] prefix Name prefix for all components
   virtual std::string getField2Name(size_t i, const char* pfx) const;
 
+  //! \brief Returns a pointer to an Integrand for solution norm evaluation.
+  //! \note Not implemented for the tensor-based formulation.
+  virtual NormBase* getNormIntegrand(AnaSol*) const { return nullptr; }
+
 protected:
   //! \brief Evaluates the stress tensor and tensile energy at current point.
   virtual bool evalStress(double lambda, double mu, double Gc,
