@@ -36,6 +36,10 @@ public:
   //! \brief Prints out the problem definition to the log stream.
   virtual void printLog() const;
 
+  //! \brief Defines the solution mode before the element assembly is started.
+  //! \param[in] mode The solution mode to use
+  virtual void setMode(SIM::SolutionMode mode);
+
   //! \brief Initializes the integrand with the number of integration points.
   //! \param[in] nGp Total number of interior integration points
   virtual void initIntegration(size_t nGp, size_t);
@@ -94,6 +98,8 @@ protected:
 private:
   RealFunc*         initial_crack; //!< For generating initial history field
   const RealArray*  tensileEnergy; //!< Tensile energy from elasticity solver
+
+public:
   mutable RealArray historyField;  //!< History field for tensile energy
 };
 

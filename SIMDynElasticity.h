@@ -30,7 +30,7 @@ class SIMDynElasticity : public SIMElasticity<Dim>
 {
 public:
   //! \brief Default constructor.
-  SIMDynElasticity() : SIMElasticity<Dim>(false), dSim(*this)
+  SIMDynElasticity() : SIMElasticity<Dim>(false), dSim(*this), vtfStep(0)
   {
     Dim::myHeading = "Elasticity solver";
   }
@@ -72,41 +72,45 @@ public:
 
   //! \brief Opens a new VTF-file and writes the model geometry to it.
   //! \param[in] fileName File name used to construct the VTF-file name from
-  //! \param[out] geoBlk Running geometry block counter
-  //! \param[out] nBlock Running result block counter
+  //! \param geoBlk Running geometry block counter
+  //! \param nBlock Running result block counter
   bool saveModel(char* fileName, int& geoBlk, int& nBlock)
   {
     if (Dim::opt.format < 0) return true;
 
-    nBlock = 0;
     return dSim.saveModel(geoBlk,nBlock,fileName);
   }
 
   //! \brief Saves the converged results of a given time step to VTF file.
   //! \param[in] tp Time stepping parameters
-  //! \param[in] nBlock Running VTF block counter
+  //! \param nBlock Running result block counter
   bool saveStep(const TimeStep& tp, int& nBlock)
   {
-    double old = utl::zero_print_tol;
-    utl::zero_print_tol = 1e-16;
-    bool ok = this->savePoints(dSim.getSolution(),tp.time.t,tp.step);
-    utl::zero_print_tol = old;
+    bool ok = true;
+    if (tp.step > 0)
+    {
+      double old = utl::zero_print_tol;
+      utl::zero_print_tol = 1e-16;
+      ok = this->savePoints(dSim.getSolution(),tp.time.t,tp.step);
+      utl::zero_print_tol = old;
+    }
 
     if (tp.step%Dim::opt.saveInc > 0 || Dim::opt.format < 0 || !ok)
       return ok;
 
-    int iDump = tp.step/Dim::opt.saveInc;
-    if (!dSim.saveStep(iDump,nBlock,tp.time.t))
+    if (!dSim.saveStep(++vtfStep,nBlock,tp.time.t))
       return false;
+    else if (tp.step < 1)
+      return true;
 
     // Write projected solution fields to VTF-file
     if (!Dim::opt.project.empty())
-      if (!this->writeGlvP(projSol,iDump,nBlock,110,
+      if (!this->writeGlvP(projSol,vtfStep,nBlock,110,
                            Dim::opt.project.begin()->second.c_str()))
         return false;
 
     // Write element norms to VTF-file
-    return this->writeGlvN(eNorm,iDump,nBlock);
+    return this->writeGlvN(eNorm,vtfStep,nBlock);
   }
 
   //! \brief Advances the time step one step forward.
@@ -175,6 +179,16 @@ public:
 
   //! \brief Returns a const reference to current solution vector.
   const Vector& getSolution(int idx = 0) const { return dSim.getSolution(idx); }
+  //! \brief Returns a const reference to the solution vectors.
+  const Vectors& getSolutions() const { return dSim.getSolutions(); }
+
+  //! \brief Updates the solution vectors.
+  void setSolutions(const Vectors& dvec)
+  {
+    size_t nSol = dSim.getSolutions().size();
+    for (size_t i = 0; i < nSol && i < dvec.size(); i++)
+      dSim.setSolution(dvec[i],i);
+  }
 
   //! \brief Solves the linearized system of current iteration.
   //! \param[in] tp Time stepping parameters
@@ -220,6 +234,7 @@ private:
   Matrix projSol; //!< Projected secondary solution fields
   Matrix eNorm;   //!< Element norm values
   Vector gNorm;   //!< Global norm values
+  int    vtfStep; //!< VTF file step counter
 };
 
 #endif

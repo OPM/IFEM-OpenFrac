@@ -37,9 +37,15 @@
   </newmarksolver>
 
   <postprocessing>
-    <vtfformat>binary</vtfformat>
-    <projection>cgl2</projection>
     <energyfile>Rectangle-p1.dat</energyfile>
+    <primarySolOnly/>
   </postprocessing>
+
+  <adaptive>
+    <forward_steps>10</forward_steps>
+    <predict_steps>20</predict_steps>
+    <nrefinements>2</nrefinements>
+    <min_frac>0.3</min_frac>
+  </adaptive>
 
 </simulation>

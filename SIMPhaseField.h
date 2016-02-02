@@ -16,6 +16,9 @@
 
 #include "InitialConditionHandler.h"
 #include "CahnHilliard.h"
+#ifdef HAS_LRSPLINE
+#include "ASMu2D.h"
+#endif
 #include "TimeStep.h"
 #include "Profiler.h"
 #include "Utilities.h"
@@ -32,7 +35,7 @@ template<class Dim> class SIMPhaseField : public Dim
 {
 public:
   //! \brief Default constructor.
-  SIMPhaseField() : Dim(1), eps_d0(0.0)
+  SIMPhaseField() : Dim(1), eps_d0(0.0), vtfStep(0)
   {
     Dim::myHeading = "Cahn-Hilliard solver";
   }
@@ -93,16 +96,16 @@ public:
     if (tp.step%Dim::opt.saveInc == 0 && Dim::opt.format >= 0)
     {
       int iBlck = 6;
-      int iDump = tp.step/Dim::opt.saveInc;
-      iBlck = this->writeGlvS1(phasefield,iDump,nBlock,tp.time.t,"phase",iBlck);
+      iBlck = this->writeGlvS1(phasefield,++vtfStep,nBlock,
+                               tp.time.t,"phase",iBlck);
       if (iBlck < 0) return false;
 
       if (!Dim::opt.project.empty())
-        if (!this->writeGlvP(projSol,iDump,nBlock,iBlck,
+        if (!this->writeGlvP(projSol,vtfStep,nBlock,iBlck,
                              Dim::opt.project.begin()->second.c_str()))
           return false;
 
-      if (!this->writeGlvStep(iDump,tp.time.t))
+      if (!this->writeGlvStep(vtfStep,tp.time.t))
         return false;
     }
 
@@ -131,7 +134,8 @@ public:
     if (!this->solveSystem(phasefield,0))
       return false;
 
-    static_cast<CahnHilliard*>(Dim::myProblem)->clearInitialCrack();
+    if (tp.step == 1)
+      static_cast<CahnHilliard*>(Dim::myProblem)->clearInitialCrack();
 
     return standalone ? this->postSolve(tp) : true;
   }
@@ -150,7 +154,7 @@ public:
 
     Vectors gNorm;
     this->setQuadratureRule(Dim::opt.nGauss[1]);
-    if (!this->solutionNorms(tp.time,Vectors(1,phasefield),gNorm))
+    if (!this->solutionNorms(tp.time,Vectors(1,phasefield),gNorm,&eNorm))
       return false;
     else if (!gNorm.empty())
     {
@@ -179,11 +183,36 @@ public:
     static_cast<CahnHilliard*>(Dim::myProblem)->setTensileEnergy(te);
   }
 
+  //! \brief Returns a list of element norm values.
+  double getNorm(Vector& values, size_t idx = 1) const
+  {
+    if (idx > 1 && idx <= eNorm.rows())
+    {
+      values = eNorm.getRow(idx);
+      return norm(idx);
+    }
+    else if (idx != 1 || eNorm.rows() < 1)
+    {
+      values.clear();
+      return 0.0;
+    }
+
+    // Apply sqrt() on the element values of norm 1 (L2-norm)
+    values.resize(eNorm.cols());
+    for (size_t i = 1; i <= values.size(); i++)
+      values(i) = sqrt(eNorm(idx,i));
+
+    return sqrt(norm(idx));
+  }
+
   //! \brief Returns a const reference to the global norms.
   const Vector& getGlobalNorms() const { return norm; }
 
   //! \brief Returns a const reference to the current solution.
   const Vector& getSolution(int = 0) { return phasefield; }
+
+  //! \brief Updates the solution vector.
+  void setSolution(const Vector& vec) { phasefield = vec; }
 
   //! \brief Returns the maximum number of iterations (unlimited).
   int getMaxit() const { return 9999; }
@@ -196,6 +225,36 @@ public:
   {
     return this->solveStep(tp,false) ? SIM::CONVERGED : SIM::DIVERGED;
   }
+
+  //! \brief Returns the current history field.
+  //! \details If projection has been done, the resulting control point values
+  //! are returned, otherwise the Gauss point values are returned.
+  Vector getHistoryField() const
+  {
+    if (projSol.rows() > 1)
+      return projSol.getRow(2);
+
+    Vector v;
+    v = static_cast<const CahnHilliard*>(Dim::myProblem)->historyField;
+    return v;
+  }
+
+#ifdef HAS_LRSPLINE
+  //! \brief Transfers history variables at Gauss/control points to new mesh.
+  //! \param[in] oldH History variables associated with Gauss- or control points
+  //! \param[in] oldBasis The LR-spline basis \a oldH is referring to
+  bool transferHistory2D(const RealArray& oldH, LR::LRSplineSurface* oldBasis)
+  {
+    const ASMu2D* pch = dynamic_cast<ASMu2D*>(this->getPatch(1));
+    if (!pch) return false;
+
+    RealArray& newH = static_cast<CahnHilliard*>(Dim::myProblem)->historyField;
+    if (projSol.empty())
+      return pch->transferGaussPtVars(oldBasis,oldH,newH,Dim::opt.nGauss[0]);
+    else
+      return pch->transferCntrlPtVars(oldBasis,oldH,newH,Dim::opt.nGauss[0]);
+  }
+#endif
 
 protected:
   using Dim::parse;
@@ -226,8 +285,10 @@ protected:
       }
       else
       {
-        Dim::myProblem->parse(child);
         this->Dim::parse(child);
+        // Read problem parameters (including initial crack defintition)
+        if (!Dim::isRefined) // but only for the initial grid when adaptive
+          Dim::myProblem->parse(child);
       }
 
     return true;
@@ -236,8 +297,10 @@ protected:
 private:
   Vector phasefield; //!< Current phase field solution
   Matrix projSol;    //!< Projected solution fields
+  Matrix eNorm;      //!< Element norm values
   Vector norm;       //!< Global norm values
   double eps_d0;     //!< Initial eps_d value, subtracted from following values
+  int    vtfStep;    //!< VTF file step counter
 };
 
 #endif

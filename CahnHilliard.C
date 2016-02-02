@@ -69,8 +69,16 @@ void CahnHilliard::printLog () const
 }
 
 
+void CahnHilliard::setMode (SIM::SolutionMode mode)
+{
+  m_mode = mode;
+  primsol.resize(mode == SIM::RECOVERY ? 1 : 0);
+}
+
+
 void CahnHilliard::initIntegration (size_t nIp, size_t)
 {
+  historyField.clear();
   historyField.resize(nIp,0.0);
 }
 
