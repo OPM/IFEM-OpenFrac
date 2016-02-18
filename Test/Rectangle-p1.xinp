@@ -17,6 +17,7 @@
     <initial_crack type="expression"> dX=x-0.05; dY=y-0.02;
       if(below(dX,0.0),abs(dY),sqrt(dX*dX+dY*dY))
     </initial_crack>
+    <Lnorm>1</Lnorm>
   </cahnhilliard>
 
   <elasticity>
@@ -45,7 +46,8 @@
     <forward_steps>10</forward_steps>
     <predict_steps>20</predict_steps>
     <nrefinements>2</nrefinements>
-    <min_frac>0.3</min_frac>
+    <min_frac>0.2</min_frac>
+    <max_prediction>4</max_prediction>
   </adaptive>
 
 </simulation>

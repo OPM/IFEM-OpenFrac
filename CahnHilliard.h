@@ -74,7 +74,7 @@ public:
   //! \brief Sets the pointer to the tensile energy buffer.
   void setTensileEnergy(const RealArray* tens) { tensileEnergy = tens; }
 
-  //! \brief Clears the initial crack function (after first iteration).
+  //! \brief Clears the initial crack function (used after first time step).
   void clearInitialCrack() { delete initial_crack; initial_crack = nullptr; }
 
   //! \brief Returns a pointer to an Integrand for solution norm evaluation.
@@ -96,11 +96,12 @@ protected:
   double scale2nd; //!< Scaling factor in front of second order term
 
 private:
-  RealFunc*         initial_crack; //!< For generating initial history field
-  const RealArray*  tensileEnergy; //!< Tensile energy from elasticity solver
+  RealFunc*        initial_crack; //!< For generating initial history field
+  const RealArray* tensileEnergy; //!< Tensile energy from elasticity solver
+  int              Lnorm;         //!< Which L-norm to integrate
 
 public:
-  mutable RealArray historyField;  //!< History field for tensile energy
+  mutable RealArray historyField; //!< History field for tensile energy
 };
 
 
@@ -136,7 +137,7 @@ class CahnHilliardNorm : public NormBase
 {
 public:
   //! \brief The constructor forwards to the parent class constructor.
-  CahnHilliardNorm(CahnHilliard& p) : NormBase(p) { finalOp = ASM::NONE; }
+  CahnHilliardNorm(CahnHilliard& p, int Ln);
   //! \brief Empty destructor.
   virtual ~CahnHilliardNorm() {}
 
@@ -147,8 +148,20 @@ public:
   virtual bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
                        const Vec3& X) const;
 
+  using NormBase::finalizeElement;
+  //! \brief Finalizes the element norms after the numerical integration.
+  //! \param elmInt The local integral object to receive the contributions
+  //!
+  //! \details This method is used to compute volume-normalized norms.
+  virtual bool finalizeElement(LocalIntegral& elmInt);
+
   //! \brief Returns the number of norm groups or size of a specified group.
   virtual size_t getNoFields(int group) const;
+  //! \brief Returns the name of a norm quantity.
+  virtual std::string getName(size_t i, size_t j, const char* prefix) const;
+
+private:
+  int Lnorm; //!< Which L-norm to integrate (0: none, 1: L1-norm, 2: L2-norm)
 };
 
 #endif

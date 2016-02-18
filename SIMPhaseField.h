@@ -100,10 +100,18 @@ public:
                                tp.time.t,"phase",iBlck);
       if (iBlck < 0) return false;
 
+      std::vector<const char*> prefix(Dim::opt.project.size(),nullptr);
       if (!Dim::opt.project.empty())
-        if (!this->writeGlvP(projSol,vtfStep,nBlock,iBlck,
-                             Dim::opt.project.begin()->second.c_str()))
+      {
+        prefix.front() = Dim::opt.project.begin()->second.c_str();
+        if (!this->writeGlvP(projSol,vtfStep,nBlock,iBlck,prefix.front()))
           return false;
+      }
+
+      // Write element norms to VTF-file
+      const char** pfxs = prefix.empty() ? nullptr : prefix.data();
+      if (!this->writeGlvN(eNorm,vtfStep,nBlock,pfxs,210))
+        return false;
 
       if (!this->writeGlvStep(vtfStep,tp.time.t))
         return false;
@@ -159,16 +167,26 @@ public:
     else if (!gNorm.empty())
     {
       norm = gNorm.front();
-      norm.push_back(norm(2));
+      norm.push_back(norm.back());
       if (tp.step == 1)
-        eps_d0 = norm(2);
-      norm(2) -= eps_d0;
-      if (norm.size() > 0 && utl::trunc(norm(1)) != 0.0)
-        IFEM::cout <<"  L2-norm: |c^h| = (c^h,c^h)^0.5 : "
-                   << sqrt(norm(1)) << std::endl;
-      if (norm.size() > 2 && utl::trunc(norm(3)) != 0.0)
+        eps_d0 = norm.back();
+      norm(norm.size()-1) -= eps_d0;
+
+      if (norm.size() > 3 && utl::trunc(norm(2)) != 0.0)
+      {
+        if (Lnorm == 1)
+          IFEM::cout <<"  L1-norm: |c^h| = (|c^h|)       : "<< norm(2)
+                     <<"\n  Normalized L1-norm: |c^h|/V    : "
+                     << norm(2)/norm(1) << std::endl;
+        else
+          IFEM::cout <<"  L2-norm: |c^h| = (c^h,c^h)^0.5 : "
+                     << sqrt(norm(2))
+                     <<"\n  Normalized L2-norm: |c^h|/V^.5 : "
+                     << sqrt(norm(2)/norm(1)) << std::endl;
+      }
+      if (norm.size() > 1 && utl::trunc(norm.back()) != 0.0)
         IFEM::cout <<"  Dissipated energy:       eps_d : "
-                   << norm(3) << std::endl;
+                   << norm.back() << std::endl;
     }
 
     return true;
@@ -186,18 +204,18 @@ public:
   //! \brief Returns a list of element norm values.
   double getNorm(Vector& values, size_t idx = 1) const
   {
-    if (idx > 1 && idx <= eNorm.rows())
-    {
-      values = eNorm.getRow(idx);
-      return norm(idx);
-    }
-    else if (idx != 1 || eNorm.rows() < 1)
+    if (idx > eNorm.rows())
     {
       values.clear();
       return 0.0;
     }
+    else if (idx == 1 || idx > 3 || Lnorm < 2)
+    {
+      values = eNorm.getRow(idx);
+      return norm(idx);
+    }
 
-    // Apply sqrt() on the element values of norm 1 (L2-norm)
+    // Apply sqrt() on the element values of the L2-norm
     values.resize(eNorm.cols());
     for (size_t i = 1; i <= values.size(); i++)
       values(i) = sqrt(eNorm(idx,i));
@@ -288,7 +306,11 @@ protected:
         this->Dim::parse(child);
         // Read problem parameters (including initial crack defintition)
         if (!Dim::isRefined) // but only for the initial grid when adaptive
+        {
           Dim::myProblem->parse(child);
+          const char* value = utl::getValue(child,"Lnorm");
+          if (value) Lnorm = atoi(value);
+        }
       }
 
     return true;
@@ -301,6 +323,7 @@ private:
   Vector norm;       //!< Global norm values
   double eps_d0;     //!< Initial eps_d value, subtracted from following values
   int    vtfStep;    //!< VTF file step counter
+  int    Lnorm;      //!< Which L-norm to use to guide mesh refinement
 };
 
 #endif

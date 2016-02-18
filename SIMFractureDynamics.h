@@ -64,12 +64,11 @@ public:
       const Vector& n1 = this->S1.getGlobalNorms();
       const Vector& n2 = this->S2.getGlobalNorms();
 
-      size_t i;
       os << std::setprecision(11) << std::setw(6) << std::scientific
          << tp.time.t;
-      for (i = 0; i < n1.size(); i++) os <<" "<< n1[i];
-      for (i = 0; i < n2.size(); i++) os <<" "<< n2[i];
-      os << std::endl;
+      for (size_t i = 0; i < n1.size(); i++) os <<" "<< n1[i];
+      os <<" "<< (n2.size() > 2 ? n2[1] : 0.0)
+         <<" "<< n2(n2.size()-1) <<" "<< n2.back() << std::endl;
     }
 
     return this->S2.saveStep(tp,nBlock) && this->S1.saveStep(tp,nBlock);
@@ -102,7 +101,7 @@ public:
       if (!this->S2.solveStep(step0))
         return false;
       else
-        newElements = this->adaptMesh(1.0,min_frac,nrefinements);
+        newElements = this->adaptMesh(beta,min_frac,nrefinements);
 
     return newElements == 0;
   }
@@ -120,7 +119,7 @@ public:
 
     // Fetch element norms to use as refinement criteria
     Vector eNorm;
-    double gNorm = this->S2.getNorm(eNorm);
+    double gNorm = this->S2.getNorm(eNorm,3);
 
     // Sort element indices based on comparing values in eNorm
     IntVec idx(eNorm.size());
@@ -128,7 +127,7 @@ public:
     std::sort(idx.begin(),idx.end(),
               [&eNorm](size_t i1, size_t i2) { return eNorm[i1] < eNorm[i2]; });
 
-    double eMin = min_frac*gNorm/sqrt(idx.size()); // lower cap on norm value
+    double eMin = min_frac < 0.0 ? -min_frac*gNorm/sqrt(idx.size()) : min_frac;
     size_t eMax = beta < 0.0 ? idx.size() : idx.size()*beta/100.0;
     IFEM::cout <<"\n  Lowest element: "<< std::setw(8) << idx.front()
                <<"    |c| = "<< eNorm[idx.front()]
