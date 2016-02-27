@@ -8,16 +8,14 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
                       $ENV{HOME}/cmake/Modules)
 
 # Required packages
-if (NOT IFEM_CONFIGURED)
+if(NOT IFEM_CONFIGURED)
   find_package(IFEM REQUIRED)
   include_directories(${IFEM_INCLUDE_DIRS})
   add_definitions(${IFEM_DEFINITIONS})
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IFEM_CXX_FLAGS}")
-endif(NOT IFEM_CONFIGURED)
+endif()
 
-include_directories(${IFEM_INCLUDES}
-                    ${PROJECT_SOURCE_DIR}
-                    ../Common)
+include_directories(${IFEM_INCLUDES} ../Common ${PROJECT_SOURCE_DIR})
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
@@ -28,14 +26,16 @@ if(NOT WIN32)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 endif(NOT WIN32)
 
-if(NOT TARGET Elasticity)
-  if(EXISTS ${PROJECT_SOURCE_DIR}/../IFEM-Elasticity)
+if(EXISTS ${PROJECT_SOURCE_DIR}/../IFEM-Elasticity)
+  if(NOT TARGET Elasticity)
     add_subdirectory(../IFEM-Elasticity Elasticity)
-    include_directories(../IFEM-Elasticity)
-  elseif(EXISTS ${PROJECT_SOURCE_DIR}/../Elasticity)
-    add_subdirectory(../Elasticity Elasticity)
-    include_directories(../Elasticity)
   endif()
+  include_directories(../IFEM-Elasticity)
+elseif(EXISTS ${PROJECT_SOURCE_DIR}/../Elasticity)
+  if(NOT TARGET Elasticity)
+    add_subdirectory(../Elasticity Elasticity)
+  endif()
+  include_directories(../Elasticity)
 endif()
 
 file(GLOB FracEl_SRCS [A-Z]*.C)
@@ -58,6 +58,7 @@ include(IFEMTesting)
 # Generate regtest script with correct paths
 configure_file(${IFEM_REGTEST_SCRIPT} regtest.sh)
 
+# Regression tests
 if(IFEM_USE_PARALLEL_PETSC)
   # Add parallel tests here
 else()
