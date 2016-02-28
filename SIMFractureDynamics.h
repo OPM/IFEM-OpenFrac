@@ -199,9 +199,10 @@ public:
     }
 
     return elements.size();
-#endif
-
+#else
+    std::cerr <<" *** SIMFractureDynamics:adaptMesh: No LR-spline support.\n";
     return -1;
+#endif
   }
 
 private:

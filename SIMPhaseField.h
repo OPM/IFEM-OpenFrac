@@ -93,13 +93,19 @@ public:
   {
     PROFILE1("SIMPhaseField::saveStep");
 
+    double old = utl::zero_print_tol;
+    utl::zero_print_tol = 1e-16;
+    bool ok = this->savePoints(phasefield,tp.time.t,tp.step);
+    utl::zero_print_tol = old;
+    if (!ok) return false;
+
     if (tp.step%Dim::opt.saveInc == 0 && Dim::opt.format >= 0)
     {
-      int iBlck = 6;
-      iBlck = this->writeGlvS1(phasefield,++vtfStep,nBlock,
-                               tp.time.t,"phase",iBlck);
+      int iBlck = this->writeGlvS1(phasefield,++vtfStep,nBlock,
+                                   tp.time.t,"phase",6);
       if (iBlck < 0) return false;
 
+      // Write projected solution fields to VTF-file
       std::vector<const char*> prefix(Dim::opt.project.size(),nullptr);
       if (!Dim::opt.project.empty())
       {

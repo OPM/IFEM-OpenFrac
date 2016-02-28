@@ -86,14 +86,10 @@ public:
   //! \param nBlock Running result block counter
   bool saveStep(const TimeStep& tp, int& nBlock)
   {
-    bool ok = true;
-    if (tp.step > 0)
-    {
-      double old = utl::zero_print_tol;
-      utl::zero_print_tol = 1e-16;
-      ok = this->savePoints(dSim.getSolution(),tp.time.t,tp.step);
-      utl::zero_print_tol = old;
-    }
+    double old = utl::zero_print_tol;
+    utl::zero_print_tol = 1e-16;
+    bool ok = this->savePoints(dSim.getSolution(),tp.time.t,tp.step);
+    utl::zero_print_tol = old;
 
     if (tp.step%Dim::opt.saveInc > 0 || Dim::opt.format < 0 || !ok)
       return ok;
