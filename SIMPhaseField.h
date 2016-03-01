@@ -184,7 +184,7 @@ public:
           IFEM::cout <<"  L1-norm: |c^h| = (|c^h|)       : "<< norm(2)
                      <<"\n  Normalized L1-norm: |c^h|/V    : "
                      << norm(2)/norm(1) << std::endl;
-        else
+        else if (Lnorm == 2)
           IFEM::cout <<"  L2-norm: |c^h| = (c^h,c^h)^0.5 : "
                      << sqrt(norm(2))
                      <<"\n  Normalized L2-norm: |c^h|/V^.5 : "
@@ -217,6 +217,8 @@ public:
     }
     else if (idx == 1 || idx > 3 || Lnorm < 2)
     {
+      if (Lnorm < 0 && idx > 2)
+        idx--; // hack for non-present volume-specific norm
       values = eNorm.getRow(idx);
       return norm(idx);
     }

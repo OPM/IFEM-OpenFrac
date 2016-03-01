@@ -208,12 +208,17 @@ bool CahnHilliardNorm::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
       return false;
 
     if (Lnorm == 1)
-      pnorm[k++] += fabs(C)*fe.detJxW; // L1-norm, |c|
+      pnorm[k] += fabs(C)*fe.detJxW; // L1-norm, |c|
     else if (Lnorm == 2)
-      pnorm[k++] += C*C*fe.detJxW; // L2-norm, |c|
+      pnorm[k] += C*C*fe.detJxW; // L2-norm, |c|
+    else if (Lnorm == -1 && C > 0.0)
+      if (pnorm[k] == 0.0 || C < pnorm[k])
+        pnorm[k] = C; // Smallest-value norm
 
     if (Lnorm > 0)
-      k++; // Make space for the volume-specific norm |c|/V
+      k += 2; // Make space for the volume-specific norm |c|/V
+    else if (Lnorm < 0)
+      k ++;
 
     // Dissipated energy, eps_d
     pnorm[k++] += Gc*(pow(C-1.0,2.0)/(4.0*l0) + l0*gradC.dot(gradC))*fe.detJxW;
@@ -243,9 +248,11 @@ std::string CahnHilliardNorm::getName (size_t i, size_t j,
   if (i == 1 && j == 1)
     return "volume";
   else if (i == 1 && j > 1)
-    j--;
-  if (Lnorm < 1)
+    j --;
+  if (Lnorm == 0)
     j += 2;
+  else if (Lnorm < 0 && j > 1)
+    j ++;
 
   std::string name;
   if (j == 1)
@@ -268,9 +275,9 @@ size_t CahnHilliardNorm::getNoFields (int group) const
 {
   if (group < 1)
     return this->NormBase::getNoFields();
-  else if (Lnorm < 1)
+  else if (Lnorm == 0)
     return 2;
-  else if (group == 1)
+  else if (group == 1 && Lnorm > 0)
     return 4;
   else
     return 3;
