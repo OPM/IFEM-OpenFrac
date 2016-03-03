@@ -115,7 +115,10 @@ public:
       return -1;
 
     if (aMin <= 0.0) // maximum refinements per element
-      aMin = pch->getBasis()->getElement(0)->area()/(nrefinements*nrefinements);
+    {
+      double redMax = pow(2.0,nrefinements);
+      aMin = pch->getBasis()->getElement(0)->area()/(redMax*redMax);
+    }
 
     // Fetch element norms to use as refinement criteria
     Vector eNorm;
@@ -140,7 +143,7 @@ public:
     for (size_t i = 0; i < idx.size() && elements.size() < eMax; i++)
       if (eNorm[idx[i]] > eMin)
         break;
-      else if (pch->getBasis()->getElement(idx[i])->area() > aMin)
+      else if (pch->getBasis()->getElement(idx[i])->area() > aMin+1.0e-12)
         elements.push_back(idx[i]);
 
     if (elements.empty())
