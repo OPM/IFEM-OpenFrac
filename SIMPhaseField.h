@@ -35,9 +35,14 @@ template<class Dim> class SIMPhaseField : public Dim
 {
 public:
   //! \brief Default constructor.
-  SIMPhaseField() : Dim(1), eps_d0(0.0), vtfStep(0)
+  SIMPhaseField(Dim* gridOwner = nullptr) : Dim(1)
   {
     Dim::myHeading = "Cahn-Hilliard solver";
+    if (gridOwner)
+      this->clonePatches(gridOwner->getFEModel(),gridOwner->getGlob2LocMap());
+
+    eps_d0 = 0.0;
+    vtfStep = Lnorm = 0;
   }
 
   //! \brief Empty destructor.

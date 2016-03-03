@@ -87,8 +87,8 @@ public:
   //! \brief Stores current solution state in an internal buffer.
   void saveState()
   {
-    dsol = this->S1.getSolutions();
-    psol = this->S2.getSolution();
+    sols = this->S1.getSolutions();
+    sols.push_back(this->S2.getSolution());
     hsol = this->S2.getHistoryField();
   }
 
@@ -153,15 +153,14 @@ public:
                <<" (|c| = ["<< eNorm[elements.front()]
                <<","<< eNorm[elements.back()] <<"])\n"<< std::endl;
 
-    std::shared_ptr<LR::LRSplineSurface> oldBasis;
-    if (!hsol.empty())
-      oldBasis.reset(pch->getBasis()->copy());
+    LR::LRSplineSurface* oldBasis = nullptr;
+    if (!hsol.empty()) oldBasis = pch->getBasis()->copy();
 
     // Do the mesh refinement
     LR::RefineData prm;
     prm.options = { 10, 1, 2 };
     prm.elements = pch->getFunctionsForElements(elements);
-    if (!this->S1.refine(prm,dsol) || !this->S2.refine(prm,psol))
+    if (!this->S1.refine(prm,sols) || !this->S2.refine(prm))
       return -2;
 
     // Re-initialize the simulators for the new mesh
@@ -181,24 +180,22 @@ public:
       return -6;
 
     // Transfer solution variables onto the new mesh
-    if (!dsol.empty())
+    if (!sols.empty())
     {
-      IFEM::cout <<"\nTransferring "<< dsol.size() <<"x"<< dsol.front().size()
+      IFEM::cout <<"\nTransferring "<< sols.size()-1 <<"x"<< sols.front().size()
                  <<" solution variables to new mesh for "<< this->S1.getName();
-      this->S1.setSolutions(dsol);
-    }
-    if (!psol.empty())
-    {
-      IFEM::cout <<"\nTransferring "<< psol.size()
+      this->S1.setSolutions(sols);
+      IFEM::cout <<"\nTransferring "<< sols.back().size()
                  <<" solution variables to new mesh for "<< this->S2.getName();
-      this->S2.setSolution(psol);
+      this->S2.setSolution(sols.back());
     }
     if (!hsol.empty())
     {
       IFEM::cout <<"\nTransferring "<< hsol.size()
                  <<" history variables to new mesh for "<< this->S2.getName()
                  << std::endl;
-      this->S2.transferHistory2D(hsol,oldBasis.get());
+      this->S2.transferHistory2D(hsol,oldBasis);
+      delete oldBasis;
     }
 
     return elements.size();
@@ -213,8 +210,7 @@ private:
   std::string infile;    //!< Input file parsed
 
   double    aMin; //!< Minimum element area
-  Vectors   dsol; //!< Displacement state to transfer onto refined mesh
-  Vector    psol; //!< Phase-field state to transfer onto refined mesh
+  Vectors   sols; //!< Solution state to transfer onto refined mesh
   RealArray hsol; //!< History field to transfer onto refined mesh
 };
 

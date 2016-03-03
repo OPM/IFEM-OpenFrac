@@ -93,7 +93,7 @@ int runSimulator2 (char* infile)
 
   elastoSim.opt.print(IFEM::cout) << std::endl;
 
-  SIMCrackField phaseSim;
+  SIMCrackField phaseSim(&elastoSim);
   if (!phaseSim.read(infile))
     return 1;
 
