@@ -87,6 +87,8 @@ public:
   double getCriticalFracEnergy() const { return Gc; }
   //! \brief Returns the smearing factor.
   double getSmearingFactor() const { return smearing; }
+  //! \brief Scale the smearing factor, for use during initial refinement cycle.
+  double scaleSmearing(double s) { return smearing *= s; }
 
 protected:
   double Gc;       //!< Fracture energy density

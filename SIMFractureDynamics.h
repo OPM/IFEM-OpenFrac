@@ -97,7 +97,7 @@ public:
   {
     TimeStep step0;
     int newElements = 1;
-    while (newElements > 0)
+    for (step0.iter = 0; newElements > 0; step0.iter++)
       if (!this->S2.solveStep(step0))
         return false;
       else

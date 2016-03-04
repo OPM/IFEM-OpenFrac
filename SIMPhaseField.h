@@ -141,6 +141,10 @@ public:
       IFEM::cout <<"\n  Solving crack phase field at step="<< tp.step
                  <<" time="<< tp.time.t << std::endl;
 
+    if (tp.step == 0 && tp.iter > 0) // Hack: Reduce the smearing factor
+      // by a factor of 1/2 after each initial mesh refinement (at step=0)
+      static_cast<CahnHilliard*>(Dim::myProblem)->scaleSmearing(0.5);
+
     this->setMode(SIM::STATIC);
     if (!this->assembleSystem())
       return false;
