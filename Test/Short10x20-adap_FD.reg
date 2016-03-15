@@ -1,0 +1,2016 @@
+Short10x20-p1-adap.xinp -2D -GA -vtf 1 -adaptive
+
+Input file: Short10x20-p1-adap.xinp
+Equation solver: 2
+Number of Gauss points: 4
+LR-spline basis functions are used
+0. Parsing input file(s).
+1. Elasticity solver
+Parsing input file Short10x20-p1-adap.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Using default linear geometry basis on unit domain \[0,1]^2
+  Corner: -0.01 -0.02 0
+  Length in X: 0.02
+  Length in Y: 0.04
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Loaded (1,3,1D) (1,4,1D)
+  Parsing <refine>
+	Refining P1 9 19
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+Parsing <elasticity>
+	Material code 0: 3.2e+10 0.2 2450
+  Parsing <neumann>
+	Neumann code 1000000 direction 0: 1e+06
+Parsing <newmarksolver>
+Parsing <adaptive>
+Parsing input file succeeded.
+Equation solver: 2
+Number of Gauss points: 2
+LR-spline basis functions are used
+2. Cahn-Hilliard solver
+Parsing input file Short10x20-p1-adap.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Loaded (1,3,1D) (1,4,1D)
+  Parsing <refine>
+	Refining P1 9 19
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+	Initial crack function: if(below(x,0.0),abs(y),sqrt(x\*x+y\*y))
+Parsing <elasticity>
+Parsing <newmarksolver>
+Parsing <adaptive>
+Parsing input file succeeded.
+Equation solver: 2
+Number of Gauss points: 2
+LR-spline basis functions are used
+3. Time integration driver
+Parsing input file Short10x20-p1-adap.xinp
+Parsing <geometry>
+Parsing <cahnhilliard>
+Parsing <elasticity>
+Parsing <discretization>
+Parsing <newmarksolver>
+Parsing <adaptive>
+	Number of trial steps before refinement: 2
+	Number of steps between each refinement: 1
+	Max. number of trial cycles at refinement: 1
+	Max. number of refinements of an element: 1
+	Relative refinement threshold: 0.2
+Parsing input file succeeded.
+10. Preprocessing the finite element model:
+11. Elasticity solver
+Problem definition:
+Elasticity: 2D, gravity = 0 0
+LinIsotropic: E = 3.2e+10, nu = 0.2, rho = 2450, alpha = 1.2e-07
+Newmark predictor/multicorrector: beta = 0.444444 gamma = 0.833333
+ using zero acceleration predictor
+Resolving Dirichlet boundary conditions
+ >>> SAM model summary <<<
+Number of elements    200
+Number of nodes       231
+Number of dofs        462
+Number of unknowns    462
+12. Cahn-Hilliard solver
+Problem definition:
+Cahn-Hilliard: 2D
+	Critical fracture energy density: 3
+	Smearing factor: 0.001
+	Max value in crack: 0.001
+	Initial crack specified as a function.
+Resolving Dirichlet boundary conditions
+ >>> SAM model summary <<<
+Number of elements    200
+Number of nodes       231
+Number of dofs        231
+Number of unknowns    231
+  Solving crack phase field at step=0 time=0
+  Primary solution summary: L2-norm         : 0.943323
+                            Max value       : 0.999976
+  Dissipated energy:       eps_d : 0.0502357
+  Lowest element:       92    |c| = 0.00299945
+  Highest element:     ...    |c| = 0.999964
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  Elements to refine: 12 (|c| = \[0.00299945,0.0468035])
+Refined mesh: 284 elements 308 nodes.
+4. Elasticity solver
+Parsing input file Short10x20-p1-adap.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Loaded (1,3,1D) (1,4,1D)
+  Parsing <refine>
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+Parsing <elasticity>
+	Material code 0: 3.2e+10 0.2 2450
+  Parsing <neumann>
+	Neumann code 1000000 direction 0: 1e+06
+Parsing <newmarksolver>
+Parsing <adaptive>
+Parsing input file succeeded.
+5. Cahn-Hilliard solver
+Parsing input file Short10x20-p1-adap.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Loaded (1,3,1D) (1,4,1D)
+  Parsing <refine>
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+Parsing <elasticity>
+Parsing <newmarksolver>
+Parsing <adaptive>
+Parsing input file succeeded.
+13. Elasticity solver
+Problem definition:
+Elasticity: 2D, gravity = 0 0
+LinIsotropic: E = 3.2e+10, nu = 0.2, rho = 2450, alpha = 1.2e-07
+Newmark predictor/multicorrector: beta = 0.444444 gamma = 0.833333
+ using zero acceleration predictor
+Resolving Dirichlet boundary conditions
+ >>> SAM model summary <<<
+Number of elements    284
+Number of nodes       308
+Number of dofs        616
+Number of unknowns    616
+14. Cahn-Hilliard solver
+Problem definition:
+Cahn-Hilliard: 2D
+	Critical fracture energy density: 3
+	Smearing factor: 0.001
+	Max value in crack: 0.001
+	Initial crack specified as a function.
+Resolving Dirichlet boundary conditions
+ >>> SAM model summary <<<
+Number of elements    284
+Number of nodes       308
+Number of dofs        308
+Number of unknowns    308
+  Solving crack phase field at step=0 time=0
+  Primary solution summary: L2-norm         : 0.929409
+                            Max value       : 1
+  Dissipated energy:       eps_d : 0.0453609
+  Lowest element:      213    |c| = 0.00299941
+  Highest element:     ...    |c| = 1
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+100. Starting the simulation
+  Solving the elasto-dynamics problem...
+  step=1  time=5e-07
+  Displacement L2-norm            : 0
+  Velocity L2-norm                : 0.0273183
+               Max X-velocity     : 0.0173694
+               Max Y-velocity     : 0.146002
+  Acceleration L2-norm            : 65563.8
+               Max X-acceleration : 41686.5
+               Max Y-acceleration : 350405
+  Elastic strain energy:           eps_e : 0.000436405
+  Bulk energy:                     eps_b : 0.000436405
+  Tensile & compressive energies         : 0.00043578 6.24402e-07
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.0391341
+  Solving crack phase field at step=1 time=5e-07
+  Primary solution summary: L2-norm         : 0.929004
+                            Max value       : 1
+  Dissipated energy:       eps_d : 0.045362
+  Solving the elasto-dynamics problem...
+  step=2  time=1e-06
+  Displacement L2-norm            : 2.05469e-08
+               Max Y-displacement : 1.05792e-07
+  Velocity L2-norm                : 0.0315248
+               Max X-velocity     : 0.0364753
+               Max Y-velocity     : 0.133915
+  Acceleration L2-norm            : 47096.6
+               Max X-acceleration : 37516.8
+               Max Y-acceleration : 225661
+  Elastic strain energy:           eps_e : 0.00193663
+  Bulk energy:                     eps_b : 0.00193659
+  Tensile & compressive energies         : 0.00193691 8.68476e-06
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.0640054
+  Solving crack phase field at step=2 time=1e-06
+  Primary solution summary: L2-norm         : 0.927703
+                            Max value       : 0.999999
+  Dissipated energy:       eps_d : 0.0453789
+  >>> Paused for mesh refinement at time=1e-06
+  Lowest element:      213    |c| = 0.00299941
+  Highest element:     ...    |c| = 0.999997
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=3  time=1.5e-06
+  Displacement L2-norm            : 3.5196e-08
+               Max Y-displacement : 1.63257e-07
+  Velocity L2-norm                : 0.0356547
+               Max X-velocity     : 0.0304238
+               Max Y-velocity     : 0.149275
+  Acceleration L2-norm            : 35111.6
+               Max X-acceleration : 39386.9
+               Max Y-acceleration : 165043
+  Elastic strain energy:           eps_e : 0.00287058
+  Bulk energy:                     eps_b : 0.00287007
+  Tensile & compressive energies         : 0.00288079 2.93127e-05
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.0788237
+  Solving crack phase field at step=3 time=1.5e-06
+  Primary solution summary: L2-norm         : 0.926864
+                            Max value       : 0.999998
+  Dissipated energy:       eps_d : 0.0453947
+  Solving the elasto-dynamics problem...
+  step=4  time=2e-06
+  Displacement L2-norm            : 5.22221e-08
+               Max Y-displacement : 2.18141e-07
+  Velocity L2-norm                : 0.042068
+               Max X-velocity     : 0.0344502
+               Max Y-velocity     : 0.146438
+  Acceleration L2-norm            : 39777.9
+               Max X-acceleration : 37604.3
+               Max Y-acceleration : 133204
+  Elastic strain energy:           eps_e : 0.00377912
+  Bulk energy:                     eps_b : 0.00377795
+  Tensile & compressive energies         : 0.00378275 5.74129e-05
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.0908882
+  Solving crack phase field at step=4 time=2e-06
+  Primary solution summary: L2-norm         : 0.926072
+                            Max value       : 0.999998
+  Dissipated energy:       eps_d : 0.0454094
+  >>> Paused for mesh refinement at time=2e-06
+  Lowest element:      213    |c| = 0.00299941
+  Highest element:     ...    |c| = 0.999986
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=5  time=2.5e-06
+  Displacement L2-norm            : 7.20266e-08
+               Max Y-displacement : 2.79238e-07
+  Velocity L2-norm                : 0.0470449
+               Max X-velocity     : 0.0364733
+               Max Y-velocity     : 0.13936
+  Acceleration L2-norm            : 32538.8
+               Max X-acceleration : 32259.2
+               Max Y-acceleration : 116510
+  Elastic strain energy:           eps_e : 0.00498746
+  Bulk energy:                     eps_b : 0.0049854
+  Tensile & compressive energies         : 0.004982 9.43879e-05
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.103114
+  Solving crack phase field at step=5 time=2.5e-06
+  Primary solution summary: L2-norm         : 0.925189
+                            Max value       : 0.999997
+  Dissipated energy:       eps_d : 0.0454273
+  Solving the elasto-dynamics problem...
+  step=6  time=3e-06
+  Displacement L2-norm            : 9.3542e-08
+               Max Y-displacement : 3.37433e-07
+  Velocity L2-norm                : 0.050484
+               Max X-velocity     : 0.0353166
+               Max Y-velocity     : 0.137321
+  Acceleration L2-norm            : 33101.7
+               Max X-acceleration : 31449.9
+               Max Y-acceleration : 118238
+  Elastic strain energy:           eps_e : 0.00606726
+  Bulk energy:                     eps_b : 0.00606392
+  Tensile & compressive energies         : 0.006039 0.000144351
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.113537
+  Solving crack phase field at step=6 time=3e-06
+  Primary solution summary: L2-norm         : 0.924289
+                            Max value       : 0.999996
+  Dissipated energy:       eps_d : 0.0454457
+  >>> Paused for mesh refinement at time=3e-06
+  Lowest element:      213    |c| = 0.00299941
+  Highest element:     ...    |c| = 0.999974
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=7  time=3.5e-06
+  Displacement L2-norm            : 1.16685e-07
+               Max Y-displacement : 3.93284e-07
+  Velocity L2-norm                : 0.0546038
+               Max X-velocity     : 0.0373165
+               Max Y-velocity     : 0.143767
+  Acceleration L2-norm            : 31480.4
+               Max X-acceleration : 32259.1
+               Max Y-acceleration : 116731
+  Elastic strain energy:           eps_e : 0.00704187
+  Bulk energy:                     eps_b : 0.00703675
+  Tensile & compressive energies         : 0.00696986 0.00021264
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.122614
+  Solving crack phase field at step=7 time=3.5e-06
+  Primary solution summary: L2-norm         : 0.923413
+                            Max value       : 0.999995
+  Dissipated energy:       eps_d : 0.0454627
+  Solving the elasto-dynamics problem...
+  step=8  time=4e-06
+  Displacement L2-norm            : 1.41756e-07
+               Max Y-displacement : 4.5236e-07
+  Velocity L2-norm                : 0.0587682
+               Max X-velocity     : 0.0388227
+               Max Y-velocity     : 0.146603
+  Acceleration L2-norm            : 29633.9
+               Max X-acceleration : 30088.3
+               Max Y-acceleration : 113116
+  Elastic strain energy:           eps_e : 0.00817072
+  Bulk energy:                     eps_b : 0.00816308
+  Tensile & compressive energies         : 0.00803143 0.000309742
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.131662
+  Solving crack phase field at step=8 time=4e-06
+  Primary solution summary: L2-norm         : 0.922562
+                            Max value       : 0.999975
+  Dissipated energy:       eps_d : 0.0454779
+  >>> Paused for mesh refinement at time=4e-06
+  Lowest element:      213    |c| = 0.00299931
+  Highest element:     ...    |c| = 0.999899
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=9  time=4.5e-06
+  Displacement L2-norm            : 1.68441e-07
+               Max X-displacement : 1.06032e-07
+               Max Y-displacement : 5.1132e-07
+  Velocity L2-norm                : 0.0623631
+               Max X-velocity     : 0.0380698
+               Max Y-velocity     : 0.147008
+  Acceleration L2-norm            : 31956.6
+               Max X-acceleration : 28846.8
+               Max Y-acceleration : 109760
+  Elastic strain energy:           eps_e : 0.00932501
+  Bulk energy:                     eps_b : 0.00931399
+  Tensile & compressive energies         : 0.00910352 0.000440373
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.140205
+  Solving crack phase field at step=9 time=4.5e-06
+  Primary solution summary: L2-norm         : 0.921623
+                            Max value       : 0.999776
+  Dissipated energy:       eps_d : 0.0454932
+  Solving the elasto-dynamics problem...
+  step=10  time=5e-06
+  Displacement L2-norm            : 1.96667e-07
+               Max X-displacement : 1.17949e-07
+               Max Y-displacement : 5.68172e-07
+  Velocity L2-norm                : 0.0677275
+               Max X-velocity     : 0.0374846
+               Max Y-velocity     : 0.147525
+  Acceleration L2-norm            : 36400.5
+               Max X-acceleration : 26753.9
+               Max Y-acceleration : 110149
+  Elastic strain energy:           eps_e : 0.0103649
+  Bulk energy:                     eps_b : 0.0103496
+  Tensile & compressive energies         : 0.0101532 0.00060127
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.147963
+  Solving crack phase field at step=10 time=5e-06
+  Primary solution summary: L2-norm         : 0.920451
+                            Max value       : 0.998483
+  Dissipated energy:       eps_d : 0.0455111
+  >>> Paused for mesh refinement at time=5e-06
+  Lowest element:      213    |c| = 0.00299736
+  Highest element:     ...    |c| = 0.997273
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=11  time=5.5e-06
+  Displacement L2-norm            : 2.27058e-07
+               Max X-displacement : 1.27241e-07
+               Max Y-displacement : 6.26074e-07
+  Velocity L2-norm                : 0.0762391
+               Max X-velocity     : 0.0364946
+               Max Y-velocity     : 0.154265
+  Acceleration L2-norm            : 41550
+               Max X-acceleration : 30420.4
+               Max Y-acceleration : 126554
+  Elastic strain energy:           eps_e : 0.0114531
+  Bulk energy:                     eps_b : 0.0114325
+  Tensile & compressive energies         : 0.0118717 0.000784207
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.155511
+  Solving crack phase field at step=11 time=5.5e-06
+  Primary solution summary: L2-norm         : 0.919009
+                            Max value       : 0.993066
+  Dissipated energy:       eps_d : 0.045539
+  Solving the elasto-dynamics problem...
+  step=12  time=6e-06
+  Displacement L2-norm            : 2.60298e-07
+               Max X-displacement : 1.3463e-07
+               Max Y-displacement : 6.84732e-07
+  Velocity L2-norm                : 0.0852695
+               Max X-velocity     : 0.0431088
+               Max Y-velocity     : 0.182406
+  Acceleration L2-norm            : 38028.3
+               Max X-acceleration : 41573.6
+               Max Y-acceleration : 151869
+  Elastic strain energy:           eps_e : 0.0127803
+  Bulk energy:                     eps_b : 0.0127533
+  Tensile & compressive energies         : 0.0161688 0.000976605
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.162862
+  Solving crack phase field at step=12 time=6e-06
+  Primary solution summary: L2-norm         : 0.917241
+                            Max value       : 0.988749
+  Dissipated energy:       eps_d : 0.0456065
+  >>> Paused for mesh refinement at time=6e-06
+  Lowest element:      213    |c| = 0.00297706
+  Highest element:     ...    |c| = 0.988333
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=13  time=6.5e-06
+  Displacement L2-norm            : 2.96437e-07
+               Max X-displacement : 1.38186e-07
+               Max Y-displacement : 7.42044e-07
+  Velocity L2-norm                : 0.0900981
+               Max X-velocity     : 0.0597598
+               Max Y-velocity     : 0.221942
+  Acceleration L2-norm            : 28282.1
+               Max X-acceleration : 37602.2
+               Max Y-acceleration : 117501
+  Elastic strain energy:           eps_e : 0.0144995
+  Bulk energy:                     eps_b : 0.014464
+  Tensile & compressive energies         : 0.026309 0.00116319
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.169745
+  Solving crack phase field at step=13 time=6.5e-06
+  Primary solution summary: L2-norm         : 0.914908
+                            Max value       : 0.988745
+  Dissipated energy:       eps_d : 0.0457655
+  Solving the elasto-dynamics problem...
+  step=14  time=7e-06
+  Displacement L2-norm            : 3.34473e-07
+               Max X-displacement : 1.36164e-07
+               Max Y-displacement : 7.98768e-07
+  Velocity L2-norm                : 0.0887618
+               Max X-velocity     : 0.0636321
+               Max Y-velocity     : 0.225912
+  Acceleration L2-norm            : 28550.6
+               Max X-acceleration : 46033.5
+               Max Y-acceleration : 121664
+  Elastic strain energy:           eps_e : 0.0165532
+  Bulk energy:                     eps_b : 0.0165042
+  Tensile & compressive energies         : 0.0436736 0.00133019
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.17634
+  Solving crack phase field at step=14 time=7e-06
+  Primary solution summary: L2-norm         : 0.91223
+                            Max value       : 0.988739
+  Dissipated energy:       eps_d : 0.0460292
+  >>> Paused for mesh refinement at time=7e-06
+  Lowest element:      213    |c| = 0.00280995
+  Highest element:     ...    |c| = 0.988322
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=15  time=7.5e-06
+  Displacement L2-norm            : 3.72763e-07
+               Max X-displacement : 1.30929e-07
+               Max Y-displacement : 8.55098e-07
+  Velocity L2-norm                : 0.084444
+               Max X-velocity     : 0.0631002
+               Max Y-velocity     : 0.181868
+  Acceleration L2-norm            : 34140.4
+               Max X-acceleration : 60009.6
+               Max Y-acceleration : 173761
+  Elastic strain energy:           eps_e : 0.0186416
+  Bulk energy:                     eps_b : 0.0185725
+  Tensile & compressive energies         : 0.0640038 0.0014648
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.182779
+  Solving crack phase field at step=15 time=7.5e-06
+  Primary solution summary: L2-norm         : 0.909599
+                            Max value       : 0.988712
+  Dissipated energy:       eps_d : 0.0463556
+  Solving the elasto-dynamics problem...
+  step=16  time=8e-06
+  Displacement L2-norm            : 4.10216e-07
+               Max X-displacement : 1.41462e-07
+               Max Y-displacement : 9.09477e-07
+  Velocity L2-norm                : 0.081001
+               Max X-velocity     : 0.0656759
+               Max Y-velocity     : 0.183558
+  Acceleration L2-norm            : 29107.7
+               Max X-acceleration : 50882.1
+               Max Y-acceleration : 131107
+  Elastic strain energy:           eps_e : 0.0206813
+  Bulk energy:                     eps_b : 0.020585
+  Tensile & compressive energies         : 0.0818505 0.00156403
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.188943
+  Solving crack phase field at step=16 time=8e-06
+  Primary solution summary: L2-norm         : 0.906983
+                            Max value       : 0.988672
+  Dissipated energy:       eps_d : 0.0467051
+  >>> Paused for mesh refinement at time=8e-06
+  Lowest element:      213    |c| = 0.00258142
+  Highest element:     ...    |c| = 0.988284
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=17  time=8.5e-06
+  Displacement L2-norm            : 4.46702e-07
+               Max X-displacement : 1.64932e-07
+               Max Y-displacement : 9.61836e-07
+  Velocity L2-norm                : 0.0784831
+               Max X-velocity     : 0.0675103
+               Max Y-velocity     : 0.17275
+  Acceleration L2-norm            : 24487.4
+               Max X-acceleration : 44970.1
+               Max Y-acceleration : 75935
+  Elastic strain energy:           eps_e : 0.0228825
+  Bulk energy:                     eps_b : 0.0227452
+  Tensile & compressive energies         : 0.0977747 0.00164282
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.194881
+  Solving crack phase field at step=17 time=8.5e-06
+  Primary solution summary: L2-norm         : 0.904186
+                            Max value       : 0.988642
+  Dissipated energy:       eps_d : 0.0470872
+  Solving the elasto-dynamics problem...
+  step=18  time=9e-06
+  Displacement L2-norm            : 4.82433e-07
+               Max X-displacement : 1.88113e-07
+               Max Y-displacement : 1.0136e-06
+  Velocity L2-norm                : 0.0768815
+               Max X-velocity     : 0.0705657
+               Max Y-velocity     : 0.170418
+  Acceleration L2-norm            : 27488.3
+               Max X-acceleration : 63740.1
+               Max Y-acceleration : 141329
+  Elastic strain energy:           eps_e : 0.0252595
+  Bulk energy:                     eps_b : 0.0250661
+  Tensile & compressive energies         : 0.116358 0.00170374
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.200741
+  Solving crack phase field at step=18 time=9e-06
+  Primary solution summary: L2-norm         : 0.901379
+                            Max value       : 0.988574
+  Dissipated energy:       eps_d : 0.0475668
+  >>> Paused for mesh refinement at time=9e-06
+  Lowest element:      213    |c| = 0.00246352
+  Highest element:     ...    |c| = 0.988039
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=19  time=9.5e-06
+  Displacement L2-norm            : 5.17568e-07
+               Max X-displacement : 2.11634e-07
+               Max Y-displacement : 1.07283e-06
+  Velocity L2-norm                : 0.0761944
+               Max X-velocity     : 0.073896
+               Max Y-velocity     : 0.170142
+  Acceleration L2-norm            : 23287.1
+               Max X-acceleration : 57202.2
+               Max Y-acceleration : 102647
+  Elastic strain energy:           eps_e : 0.0276791
+  Bulk energy:                     eps_b : 0.0274199
+  Tensile & compressive energies         : 0.140093 0.0017421
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.206514
+  Solving crack phase field at step=19 time=9.5e-06
+  Primary solution summary: L2-norm         : 0.898638
+                            Max value       : 0.988422
+  Dissipated energy:       eps_d : 0.0481666
+  Solving the elasto-dynamics problem...
+  step=20  time=1e-05
+  Displacement L2-norm            : 5.52183e-07
+               Max X-displacement : 2.34894e-07
+               Max Y-displacement : 1.13906e-06
+  Velocity L2-norm                : 0.0753955
+               Max X-velocity     : 0.0733542
+               Max Y-velocity     : 0.165771
+  Acceleration L2-norm            : 22410.7
+               Max X-acceleration : 55949.2
+               Max Y-acceleration : 64400.2
+  Elastic strain energy:           eps_e : 0.0301058
+  Bulk energy:                     eps_b : 0.0297809
+  Tensile & compressive energies         : 0.16719 0.00176103
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.212198
+  Solving crack phase field at step=20 time=1e-05
+  Primary solution summary: L2-norm         : 0.895802
+                            Max value       : 0.988059
+  Dissipated energy:       eps_d : 0.0488606
+  >>> Paused for mesh refinement at time=1e-05
+  Lowest element:      213    |c| = 0.00228939
+  Highest element:     ...    |c| = 0.987855
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=21  time=1.05e-05
+  Displacement L2-norm            : 5.86177e-07
+               Max X-displacement : 2.58873e-07
+               Max Y-displacement : 1.21e-06
+  Velocity L2-norm                : 0.0743153
+               Max X-velocity     : 0.0676065
+               Max Y-velocity     : 0.165054
+  Acceleration L2-norm            : 23055.1
+               Max X-acceleration : 78405
+               Max Y-acceleration : 66456.5
+  Elastic strain energy:           eps_e : 0.0325123
+  Bulk energy:                     eps_b : 0.0321357
+  Tensile & compressive energies         : 0.194721 0.00176282
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.217846
+  Solving crack phase field at step=21 time=1.05e-05
+  Primary solution summary: L2-norm         : 0.893105
+                            Max value       : 0.987892
+  Dissipated energy:       eps_d : 0.0495683
+  Solving the elasto-dynamics problem...
+  step=22  time=1.1e-05
+  Displacement L2-norm            : 6.19274e-07
+               Max X-displacement : 2.85495e-07
+               Max Y-displacement : 1.28698e-06
+  Velocity L2-norm                : 0.0731205
+               Max X-velocity     : 0.0903042
+               Max Y-velocity     : 0.181055
+  Acceleration L2-norm            : 24088.7
+               Max X-acceleration : 72519.6
+               Max Y-acceleration : 57044.3
+  Elastic strain energy:           eps_e : 0.0348814
+  Bulk energy:                     eps_b : 0.0344832
+  Tensile & compressive energies         : 0.222905 0.00173912
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.223375
+  Solving crack phase field at step=22 time=1.1e-05
+  Primary solution summary: L2-norm         : 0.890523
+                            Max value       : 0.987878
+  Dissipated energy:       eps_d : 0.0503031
+  >>> Paused for mesh refinement at time=1.1e-05
+  Lowest element:      213    |c| = 0.00207839
+  Highest element:     ...    |c| = 0.987207
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=23  time=1.15e-05
+  Displacement L2-norm            : 6.51258e-07
+               Max X-displacement : 3.14344e-07
+               Max Y-displacement : 1.37563e-06
+  Velocity L2-norm                : 0.072538
+               Max X-velocity     : 0.110005
+               Max Y-velocity     : 0.200603
+  Acceleration L2-norm            : 24829.7
+               Max X-acceleration : 59800.7
+               Max Y-acceleration : 61449.1
+  Elastic strain energy:           eps_e : 0.0370177
+  Bulk energy:                     eps_b : 0.0366309
+  Tensile & compressive energies         : 0.253766 0.00167949
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.228541
+  Solving crack phase field at step=23 time=1.15e-05
+  Primary solution summary: L2-norm         : 0.888129
+                            Max value       : 0.987807
+  Dissipated energy:       eps_d : 0.0510848
+  Solving the elasto-dynamics problem...
+  step=24  time=1.2e-05
+  Displacement L2-norm            : 6.82102e-07
+               Max X-displacement : 3.42764e-07
+               Max Y-displacement : 1.47375e-06
+  Velocity L2-norm                : 0.0728094
+               Max X-velocity     : 0.111364
+               Max Y-velocity     : 0.200291
+  Acceleration L2-norm            : 24761.9
+               Max X-acceleration : 64267.9
+               Max Y-acceleration : 59082.6
+  Elastic strain energy:           eps_e : 0.0386789
+  Bulk energy:                     eps_b : 0.038329
+  Tensile & compressive energies         : 0.287833 0.00159422
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.233047
+  Solving crack phase field at step=24 time=1.2e-05
+  Primary solution summary: L2-norm         : 0.885971
+                            Max value       : 0.987776
+  Dissipated energy:       eps_d : 0.0519071
+  >>> Paused for mesh refinement at time=1.2e-05
+  Lowest element:      213    |c| = 0.00189721
+  Highest element:     ...    |c| = 0.987011
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=25  time=1.25e-05
+  Displacement L2-norm            : 7.11874e-07
+               Max X-displacement : 3.69222e-07
+               Max Y-displacement : 1.56683e-06
+  Velocity L2-norm                : 0.0737708
+               Max X-velocity     : 0.129604
+               Max Y-velocity     : 0.173586
+  Acceleration L2-norm            : 25349
+               Max X-acceleration : 75573.1
+               Max Y-acceleration : 66782.2
+  Elastic strain energy:           eps_e : 0.0396314
+  Bulk energy:                     eps_b : 0.0393285
+  Tensile & compressive energies         : 0.3242 0.00152946
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.236609
+  Solving crack phase field at step=25 time=1.25e-05
+  Primary solution summary: L2-norm         : 0.883968
+                            Max value       : 0.987767
+  Dissipated energy:       eps_d : 0.0527486
+  Solving the elasto-dynamics problem...
+  step=26  time=1.3e-05
+  Displacement L2-norm            : 7.40707e-07
+               Max X-displacement : 3.94881e-07
+               Max Y-displacement : 1.64239e-06
+  Velocity L2-norm                : 0.0755023
+               Max X-velocity     : 0.133255
+               Max Y-velocity     : 0.169538
+  Acceleration L2-norm            : 25225.6
+               Max X-acceleration : 75725.7
+               Max Y-acceleration : 93323.2
+  Elastic strain energy:           eps_e : 0.0397547
+  Bulk energy:                     eps_b : 0.0394921
+  Tensile & compressive energies         : 0.362547 0.0015219
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.239093
+  Solving crack phase field at step=26 time=1.3e-05
+  Primary solution summary: L2-norm         : 0.882199
+                            Max value       : 0.987644
+  Dissipated energy:       eps_d : 0.0535992
+  >>> Paused for mesh refinement at time=1.3e-05
+  Lowest element:      213    |c| = 0.0018
+  Highest element:     ...    |c| = 0.986778
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=27  time=1.35e-05
+  Displacement L2-norm            : 7.68928e-07
+               Max X-displacement : 4.22233e-07
+               Max Y-displacement : 1.69771e-06
+  Velocity L2-norm                : 0.078017
+               Max X-velocity     : 0.151103
+               Max Y-velocity     : 0.188208
+  Acceleration L2-norm            : 22622.8
+               Max X-acceleration : 66841.2
+               Max Y-acceleration : 76660.6
+  Elastic strain energy:           eps_e : 0.0392012
+  Bulk energy:                     eps_b : 0.0389684
+  Tensile & compressive energies         : 0.403443 0.00156676
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.240675
+  Solving crack phase field at step=27 time=1.35e-05
+  Primary solution summary: L2-norm         : 0.880562
+                            Max value       : 0.987464
+  Dissipated energy:       eps_d : 0.0544582
+  Solving the elasto-dynamics problem...
+  step=28  time=1.4e-05
+  Displacement L2-norm            : 7.97069e-07
+               Max X-displacement : 4.53082e-07
+               Max Y-displacement : 1.74159e-06
+  Velocity L2-norm                : 0.0808593
+               Max X-velocity     : 0.162678
+               Max Y-velocity     : 0.197257
+  Acceleration L2-norm            : 19860.5
+               Max X-acceleration : 56555.4
+               Max Y-acceleration : 57439.6
+  Elastic strain energy:           eps_e : 0.0383233
+  Bulk energy:                     eps_b : 0.0381098
+  Tensile & compressive energies         : 0.447357 0.0016429
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.241767
+  Solving crack phase field at step=28 time=1.4e-05
+  Primary solution summary: L2-norm         : 0.879136
+                            Max value       : 0.987398
+  Dissipated energy:       eps_d : 0.0553007
+  >>> Paused for mesh refinement at time=1.4e-05
+  Lowest element:      213    |c| = 0.00172533
+  Highest element:     ...    |c| = 0.986576
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=29  time=1.45e-05
+  Displacement L2-norm            : 8.25695e-07
+               Max X-displacement : 4.87114e-07
+               Max Y-displacement : 1.79103e-06
+  Velocity L2-norm                : 0.0839168
+               Max X-velocity     : 0.187673
+               Max Y-velocity     : 0.192978
+  Acceleration L2-norm            : 21389.9
+               Max X-acceleration : 50824
+               Max Y-acceleration : 74920.2
+  Elastic strain energy:           eps_e : 0.0373695
+  Bulk energy:                     eps_b : 0.0371655
+  Tensile & compressive energies         : 0.49461 0.00172522
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.242794
+  Solving crack phase field at step=29 time=1.45e-05
+  Primary solution summary: L2-norm         : 0.877934
+                            Max value       : 0.987395
+  Dissipated energy:       eps_d : 0.0561113
+  Solving the elasto-dynamics problem...
+  step=30  time=1.5e-05
+  Displacement L2-norm            : 8.55257e-07
+               Max X-displacement : 5.21974e-07
+               Max Y-displacement : 1.86208e-06
+  Velocity L2-norm                : 0.0875152
+               Max X-velocity     : 0.211194
+               Max Y-velocity     : 0.208956
+  Acceleration L2-norm            : 22597.5
+               Max X-acceleration : 49667.2
+               Max Y-acceleration : 121299
+  Elastic strain energy:           eps_e : 0.0363781
+  Bulk energy:                     eps_b : 0.0361788
+  Tensile & compressive energies         : 0.545974 0.00179195
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.244004
+  Solving crack phase field at step=30 time=1.5e-05
+  Primary solution summary: L2-norm         : 0.876915
+                            Max value       : 0.987392
+  Dissipated energy:       eps_d : 0.0568853
+  >>> Paused for mesh refinement at time=1.5e-05
+  Lowest element:      213    |c| = 0.00162902
+  Highest element:     ...    |c| = 0.986574
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=31  time=1.55e-05
+  Displacement L2-norm            : 8.86034e-07
+               Max X-displacement : 5.84462e-07
+               Max Y-displacement : 1.95981e-06
+  Velocity L2-norm                : 0.0914225
+               Max X-velocity     : 0.231735
+               Max Y-velocity     : 0.230699
+  Acceleration L2-norm            : 21044.4
+               Max X-acceleration : 43479.2
+               Max Y-acceleration : 99994.6
+  Elastic strain energy:           eps_e : 0.0353681
+  Bulk energy:                     eps_b : 0.0351741
+  Tensile & compressive energies         : 0.602602 0.00184236
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.245397
+  Solving crack phase field at step=31 time=1.55e-05
+  Primary solution summary: L2-norm         : 0.876044
+                            Max value       : 0.98739
+  Dissipated energy:       eps_d : 0.0576291
+  Solving the elasto-dynamics problem...
+  step=32  time=1.6e-05
+  Displacement L2-norm            : 9.18134e-07
+               Max X-displacement : 6.47525e-07
+               Max Y-displacement : 2.07513e-06
+  Velocity L2-norm                : 0.0949813
+               Max X-velocity     : 0.240372
+               Max Y-velocity     : 0.249949
+  Acceleration L2-norm            : 19186.4
+               Max X-acceleration : 43393.6
+               Max Y-acceleration : 66244.2
+  Elastic strain energy:           eps_e : 0.0343393
+  Bulk energy:                     eps_b : 0.0341502
+  Tensile & compressive energies         : 0.665449 0.00191173
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.246769
+  Solving crack phase field at step=32 time=1.6e-05
+  Primary solution summary: L2-norm         : 0.875307
+                            Max value       : 0.987388
+  Dissipated energy:       eps_d : 0.0583453
+  >>> Paused for mesh refinement at time=1.6e-05
+  Lowest element:      202    |c| = 0.00142375
+  Highest element:     ...    |c| = 0.986573
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=33  time=1.65e-05
+  Displacement L2-norm            : 9.51514e-07
+               Max X-displacement : 7.64702e-07
+               Max Y-displacement : 2.19196e-06
+  Velocity L2-norm                : 0.0978302
+               Max X-velocity     : 0.229486
+               Max Y-velocity     : 0.252765
+  Acceleration L2-norm            : 19070.9
+               Max X-acceleration : 50743.5
+               Max Y-acceleration : 51993
+  Elastic strain energy:           eps_e : 0.0332536
+  Bulk energy:                     eps_b : 0.0330632
+  Tensile & compressive energies         : 0.73495 0.00203054
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.247899
+  Solving crack phase field at step=33 time=1.65e-05
+  Primary solution summary: L2-norm         : 0.874669
+                            Max value       : 0.987386
+  Dissipated energy:       eps_d : 0.0590373
+  Solving the elasto-dynamics problem...
+  step=34  time=1.7e-05
+  Displacement L2-norm            : 9.86039e-07
+               Max X-displacement : 8.72356e-07
+               Max Y-displacement : 2.2985e-06
+  Velocity L2-norm                : 0.100144
+               Max X-velocity     : 0.202007
+               Max Y-velocity     : 0.230361
+  Acceleration L2-norm            : 22131.5
+               Max X-acceleration : 60215
+               Max Y-acceleration : 71976.7
+  Elastic strain energy:           eps_e : 0.0320675
+  Bulk energy:                     eps_b : 0.0318696
+  Tensile & compressive energies         : 0.810328 0.00216667
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.248723
+  Solving crack phase field at step=34 time=1.7e-05
+  Primary solution summary: L2-norm         : 0.874117
+                            Max value       : 0.987384
+  Dissipated energy:       eps_d : 0.0596957
+  >>> Paused for mesh refinement at time=1.7e-05
+  Lowest element:      202    |c| = 0.00123841
+  Highest element:     ...    |c| = 0.986572
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=35  time=1.75e-05
+  Displacement L2-norm            : 1.02154e-06
+               Max X-displacement : 9.65333e-07
+               Max Y-displacement : 2.39259e-06
+  Velocity L2-norm                : 0.102598
+               Max X-velocity     : 0.178531
+               Max Y-velocity     : 0.201269
+  Acceleration L2-norm            : 25886.9
+               Max X-acceleration : 64712.1
+               Max Y-acceleration : 102774
+  Elastic strain energy:           eps_e : 0.0307055
+  Bulk energy:                     eps_b : 0.0305008
+  Tensile & compressive energies         : 0.888451 0.00223395
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.24935
+  Solving crack phase field at step=35 time=1.75e-05
+  Primary solution summary: L2-norm         : 0.873664
+                            Max value       : 0.987383
+  Dissipated energy:       eps_d : 0.0602933
+  Solving the elasto-dynamics problem...
+  step=36  time=1.8e-05
+  Displacement L2-norm            : 1.05794e-06
+               Max X-displacement : 1.04432e-06
+               Max Y-displacement : 2.47811e-06
+  Velocity L2-norm                : 0.105636
+               Max X-velocity     : 0.181512
+               Max Y-velocity     : 0.19757
+  Acceleration L2-norm            : 25212.9
+               Max X-acceleration : 47375.5
+               Max Y-acceleration : 110598
+  Elastic strain energy:           eps_e : 0.0291723
+  Bulk energy:                     eps_b : 0.0289682
+  Tensile & compressive energies         : 0.963887 0.00217481
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.24992
+  Solving crack phase field at step=36 time=1.8e-05
+  Primary solution summary: L2-norm         : 0.87331
+                            Max value       : 0.987381
+  Dissipated energy:       eps_d : 0.0607995
+  >>> Paused for mesh refinement at time=1.8e-05
+  Lowest element:      202    |c| = 0.00112821
+  Highest element:     ...    |c| = 0.986571
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=37  time=1.85e-05
+  Displacement L2-norm            : 1.09533e-06
+               Max X-displacement : 1.11367e-06
+               Max Y-displacement : 2.55856e-06
+  Velocity L2-norm                : 0.108851
+               Max X-velocity     : 0.193668
+               Max Y-velocity     : 0.209022
+  Acceleration L2-norm            : 21589.5
+               Max X-acceleration : 44094.1
+               Max Y-acceleration : 98222.2
+  Elastic strain energy:           eps_e : 0.027648
+  Bulk energy:                     eps_b : 0.0274496
+  Tensile & compressive energies         : 1.03095 0.00201741
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.250477
+  Solving crack phase field at step=37 time=1.85e-05
+  Primary solution summary: L2-norm         : 0.873052
+                            Max value       : 0.98738
+  Dissipated energy:       eps_d : 0.061193
+  Solving the elasto-dynamics problem...
+  step=38  time=1.9e-05
+  Displacement L2-norm            : 1.13405e-06
+               Max X-displacement : 1.17735e-06
+               Max Y-displacement : 2.63571e-06
+  Velocity L2-norm                : 0.111802
+               Max X-velocity     : 0.192822
+               Max Y-velocity     : 0.213604
+  Acceleration L2-norm            : 20454
+               Max X-acceleration : 82037.8
+               Max Y-acceleration : 97029.2
+  Elastic strain energy:           eps_e : 0.0263093
+  Bulk energy:                     eps_b : 0.0261197
+  Tensile & compressive energies         : 1.08668 0.00181587
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.250967
+  Solving crack phase field at step=38 time=1.9e-05
+  Primary solution summary: L2-norm         : 0.872865
+                            Max value       : 0.987379
+  Dissipated energy:       eps_d : 0.0614857
+  >>> Paused for mesh refinement at time=1.9e-05
+  Lowest element:      202    |c| = 0.00106902
+  Highest element:     ...    |c| = 0.986571
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=39  time=1.95e-05
+  Displacement L2-norm            : 1.1746e-06
+               Max X-displacement : 1.23691e-06
+               Max Y-displacement : 2.7125e-06
+  Velocity L2-norm                : 0.114498
+               Max X-velocity     : 0.227398
+               Max Y-velocity     : 0.215951
+  Acceleration L2-norm            : 20009.5
+               Max X-acceleration : 77336.5
+               Max Y-acceleration : 76571.4
+  Elastic strain energy:           eps_e : 0.0252051
+  Bulk energy:                     eps_b : 0.0250299
+  Tensile & compressive energies         : 1.13462 0.00161074
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.251344
+  Solving crack phase field at step=39 time=1.95e-05
+  Primary solution summary: L2-norm         : 0.872708
+                            Max value       : 0.987378
+  Dissipated energy:       eps_d : 0.0617172
+  Solving the elasto-dynamics problem...
+  step=40  time=2e-05
+  Displacement L2-norm            : 1.21749e-06
+               Max X-displacement : 1.29339e-06
+               Max Y-displacement : 2.79418e-06
+  Velocity L2-norm                : 0.11707
+               Max X-velocity     : 0.25077
+               Max Y-velocity     : 0.221326
+  Acceleration L2-norm            : 22021.6
+               Max X-acceleration : 95045.9
+               Max Y-acceleration : 126180
+  Elastic strain energy:           eps_e : 0.0242926
+  Bulk energy:                     eps_b : 0.0241357
+  Tensile & compressive energies         : 1.18483 0.00143166
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.251637
+  Solving crack phase field at step=40 time=2e-05
+  Primary solution summary: L2-norm         : 0.872547
+                            Max value       : 0.987378
+  Dissipated energy:       eps_d : 0.061937
+  >>> Paused for mesh refinement at time=2e-05
+  Lowest element:      202    |c| = 0.00100364
+  Highest element:     ...    |c| = 0.98657
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=41  time=2.05e-05
+  Displacement L2-norm            : 1.26305e-06
+               Max X-displacement : 1.35034e-06
+               Max Y-displacement : 2.88533e-06
+  Velocity L2-norm                : 0.119725
+               Max X-velocity     : 0.250781
+               Max Y-velocity     : 0.26824
+  Acceleration L2-norm            : 24517.4
+               Max X-acceleration : 119377
+               Max Y-acceleration : 144999
+  Elastic strain energy:           eps_e : 0.0234755
+  Bulk energy:                     eps_b : 0.0233382
+  Tensile & compressive energies         : 1.24875 0.00128665
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.251911
+  Solving crack phase field at step=41 time=2.05e-05
+  Primary solution summary: L2-norm         : 0.872391
+                            Max value       : 0.987377
+  Dissipated energy:       eps_d : 0.0621848
+  Solving the elasto-dynamics problem...
+  step=42  time=2.1e-05
+  Displacement L2-norm            : 1.31125e-06
+               Max X-displacement : 1.4139e-06
+               Max Y-displacement : 2.98704e-06
+  Velocity L2-norm                : 0.122482
+               Max X-velocity     : 0.242724
+               Max Y-velocity     : 0.326135
+  Acceleration L2-norm            : 24004.1
+               Max X-acceleration : 109579
+               Max Y-acceleration : 130490
+  Elastic strain energy:           eps_e : 0.0227023
+  Bulk energy:                     eps_b : 0.022584
+  Tensile & compressive energies         : 1.33356 0.00117909
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.252194
+  Solving crack phase field at step=42 time=2.1e-05
+  Primary solution summary: L2-norm         : 0.872181
+                            Max value       : 0.987376
+  Dissipated energy:       eps_d : 0.0625147
+  >>> Paused for mesh refinement at time=2.1e-05
+  Lowest element:      202    |c| = 0.000907549
+  Highest element:     ...    |c| = 0.98657
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=43  time=2.15e-05
+  Displacement L2-norm            : 1.36185e-06
+               Max X-displacement : 1.49879e-06
+               Max Y-displacement : 3.09747e-06
+  Velocity L2-norm                : 0.124739
+               Max X-velocity     : 0.256691
+               Max Y-velocity     : 0.344202
+  Acceleration L2-norm            : 20239.6
+               Max X-acceleration : 97854.3
+               Max Y-acceleration : 86159.4
+  Elastic strain energy:           eps_e : 0.0219952
+  Bulk energy:                     eps_b : 0.0218903
+  Tensile & compressive energies         : 1.43848 0.00112805
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.252498
+  Solving crack phase field at step=43 time=2.15e-05
+  Primary solution summary: L2-norm         : 0.871855
+                            Max value       : 0.987375
+  Dissipated energy:       eps_d : 0.0629538
+  Solving the elasto-dynamics problem...
+  step=44  time=2.2e-05
+  Displacement L2-norm            : 1.41443e-06
+               Max X-displacement : 1.599e-06
+               Max Y-displacement : 3.21383e-06
+  Velocity L2-norm                : 0.125922
+               Max X-velocity     : 0.287231
+               Max Y-velocity     : 0.293066
+  Acceleration L2-norm            : 22036.1
+               Max X-acceleration : 92444.6
+               Max Y-acceleration : 157407
+  Elastic strain energy:           eps_e : 0.0213653
+  Bulk energy:                     eps_b : 0.0212531
+  Tensile & compressive energies         : 1.55354 0.00116688
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.252864
+  Solving crack phase field at step=44 time=2.2e-05
+  Primary solution summary: L2-norm         : 0.871505
+                            Max value       : 0.987374
+  Dissipated energy:       eps_d : 0.0634057
+  >>> Paused for mesh refinement at time=2.2e-05
+  Lowest element:      202    |c| = 0.000819117
+  Highest element:     ...    |c| = 0.986569
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=45  time=2.25e-05
+  Displacement L2-norm            : 1.46859e-06
+               Max X-displacement : 1.68373e-06
+               Max Y-displacement : 3.33278e-06
+  Velocity L2-norm                : 0.126553
+               Max X-velocity     : 0.302432
+               Max Y-velocity     : 0.260574
+  Acceleration L2-norm            : 27592.4
+               Max X-acceleration : 79164.3
+               Max Y-acceleration : 204018
+  Elastic strain energy:           eps_e : 0.0207728
+  Bulk energy:                     eps_b : 0.0206431
+  Tensile & compressive energies         : 1.66312 0.0012786
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.253366
+  Solving crack phase field at step=45 time=2.25e-05
+  Primary solution summary: L2-norm         : 0.871194
+                            Max value       : 0.987373
+  Dissipated energy:       eps_d : 0.0638074
+  Solving the elasto-dynamics problem...
+  step=46  time=2.3e-05
+  Displacement L2-norm            : 1.52409e-06
+               Max X-displacement : 1.79727e-06
+               Max Y-displacement : 3.45055e-06
+  Velocity L2-norm                : 0.127231
+               Max X-velocity     : 0.305156
+               Max Y-velocity     : 0.258322
+  Acceleration L2-norm            : 23694.6
+               Max X-acceleration : 81342.4
+               Max Y-acceleration : 120507
+  Elastic strain energy:           eps_e : 0.0201926
+  Bulk energy:                     eps_b : 0.0200503
+  Tensile & compressive energies         : 1.7646 0.00142818
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.254075
+  Solving crack phase field at step=46 time=2.3e-05
+  Primary solution summary: L2-norm         : 0.870919
+                            Max value       : 0.987373
+  Dissipated energy:       eps_d : 0.0641604
+  >>> Paused for mesh refinement at time=2.3e-05
+  Lowest element:      202    |c| = 0.000773884
+  Highest element:     ...    |c| = 0.986569
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=47  time=2.35e-05
+  Displacement L2-norm            : 1.5809e-06
+               Max X-displacement : 1.91742e-06
+               Max Y-displacement : 3.56425e-06
+  Velocity L2-norm                : 0.127954
+               Max X-velocity     : 0.308315
+               Max Y-velocity     : 0.243144
+  Acceleration L2-norm            : 20696.7
+               Max X-acceleration : 61046.6
+               Max Y-acceleration : 79810.3
+  Elastic strain energy:           eps_e : 0.0197622
+  Bulk energy:                     eps_b : 0.0195935
+  Tensile & compressive energies         : 1.86858 0.00166907
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.255056
+  Solving crack phase field at step=47 time=2.35e-05
+  Primary solution summary: L2-norm         : 0.870643
+                            Max value       : 0.987372
+  Dissipated energy:       eps_d : 0.064505
+  Solving the elasto-dynamics problem...
+  step=48  time=2.4e-05
+  Displacement L2-norm            : 1.63915e-06
+               Max X-displacement : 2.04091e-06
+               Max Y-displacement : 3.67369e-06
+  Velocity L2-norm                : 0.128767
+               Max X-velocity     : 0.304447
+               Max Y-velocity     : 0.243141
+  Acceleration L2-norm            : 19111.2
+               Max X-acceleration : 54616.2
+               Max Y-acceleration : 84187.1
+  Elastic strain energy:           eps_e : 0.01962
+  Bulk energy:                     eps_b : 0.0194113
+  Tensile & compressive energies         : 1.9862 0.00204587
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.25637
+  Solving crack phase field at step=48 time=2.4e-05
+  Primary solution summary: L2-norm         : 0.87034
+                            Max value       : 0.987371
+  Dissipated energy:       eps_d : 0.064879
+  >>> Paused for mesh refinement at time=2.4e-05
+  Lowest element:      202    |c| = 0.000740564
+  Highest element:     ...    |c| = 0.986568
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=49  time=2.45e-05
+  Displacement L2-norm            : 1.6989e-06
+               Max X-displacement : 2.18677e-06
+               Max Y-displacement : 3.7816e-06
+  Velocity L2-norm                : 0.129396
+               Max X-velocity     : 0.301535
+               Max Y-velocity     : 0.252303
+  Acceleration L2-norm            : 18887.7
+               Max X-acceleration : 58307.5
+               Max Y-acceleration : 64451.6
+  Elastic strain energy:           eps_e : 0.0198387
+  Bulk energy:                     eps_b : 0.0195764
+  Tensile & compressive energies         : 2.12375 0.00258149
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.25806
+  Solving crack phase field at step=49 time=2.45e-05
+  Primary solution summary: L2-norm         : 0.87002
+                            Max value       : 0.98737
+  Dissipated energy:       eps_d : 0.0652948
+  Solving the elasto-dynamics problem...
+  step=50  time=2.5e-05
+  Displacement L2-norm            : 1.76009e-06
+               Max X-displacement : 2.33583e-06
+               Max Y-displacement : 3.89263e-06
+  Velocity L2-norm                : 0.129863
+               Max X-velocity     : 0.303196
+               Max Y-velocity     : 0.260941
+  Acceleration L2-norm            : 20417.5
+               Max X-acceleration : 56712.8
+               Max Y-acceleration : 55106.6
+  Elastic strain energy:           eps_e : 0.0203594
+  Bulk energy:                     eps_b : 0.020035
+  Tensile & compressive energies         : 2.28127 0.00322809
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.260148
+  Solving crack phase field at step=50 time=2.5e-05
+  Primary solution summary: L2-norm         : 0.869688
+                            Max value       : 0.987369
+  Dissipated energy:       eps_d : 0.0657436
+  >>> Paused for mesh refinement at time=2.5e-05
+  Lowest element:      202    |c| = 0.000705314
+  Highest element:     ...    |c| = 0.986568
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=51  time=2.55e-05
+  Displacement L2-norm            : 1.82254e-06
+               Max X-displacement : 2.48499e-06
+               Max Y-displacement : 4.01207e-06
+  Velocity L2-norm                : 0.130339
+               Max X-velocity     : 0.308698
+               Max Y-velocity     : 0.268889
+  Acceleration L2-norm            : 23033.5
+               Max X-acceleration : 126073
+               Max Y-acceleration : 53333.5
+  Elastic strain energy:           eps_e : 0.021033
+  Bulk energy:                     eps_b : 0.0206474
+  Tensile & compressive energies         : 2.45398 0.00387979
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.26265
+  Solving crack phase field at step=51 time=2.55e-05
+  Primary solution summary: L2-norm         : 0.869343
+                            Max value       : 0.987368
+  Dissipated energy:       eps_d : 0.0662088
+  Solving the elasto-dynamics problem...
+  step=52  time=2.6e-05
+  Displacement L2-norm            : 1.886e-06
+               Max X-displacement : 2.64101e-06
+               Max Y-displacement : 4.14407e-06
+  Velocity L2-norm                : 0.130829
+               Max X-velocity     : 0.323067
+               Max Y-velocity     : 0.278069
+  Acceleration L2-norm            : 25636.1
+               Max X-acceleration : 185802
+               Max Y-acceleration : 67580.5
+  Elastic strain energy:           eps_e : 0.0217696
+  Bulk energy:                     eps_b : 0.0213288
+  Tensile & compressive energies         : 2.6364 0.00444783
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.265581
+  Solving crack phase field at step=52 time=2.6e-05
+  Primary solution summary: L2-norm         : 0.868954
+                            Max value       : 0.987367
+  Dissipated energy:       eps_d : 0.0666839
+  >>> Paused for mesh refinement at time=2.6e-05
+  Lowest element:      202    |c| = 0.000671908
+  Highest element:     ...    |c| = 0.986567
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=53  time=2.65e-05
+  Displacement L2-norm            : 1.9502e-06
+               Max X-displacement : 2.80304e-06
+               Max Y-displacement : 4.28937e-06
+  Velocity L2-norm                : 0.131319
+               Max X-velocity     : 0.326598
+               Max Y-velocity     : 0.303394
+  Acceleration L2-norm            : 27309.1
+               Max X-acceleration : 183709
+               Max Y-acceleration : 69260.6
+  Elastic strain energy:           eps_e : 0.0225462
+  Bulk energy:                     eps_b : 0.0220626
+  Tensile & compressive energies         : 2.82419 0.00488517
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.268949
+  Solving crack phase field at step=53 time=2.65e-05
+  Primary solution summary: L2-norm         : 0.868489
+                            Max value       : 0.987366
+  Dissipated energy:       eps_d : 0.0671779
+  Solving the elasto-dynamics problem...
+  step=54  time=2.7e-05
+  Displacement L2-norm            : 2.01496e-06
+               Max X-displacement : 2.96996e-06
+               Max Y-displacement : 4.44357e-06
+  Velocity L2-norm                : 0.132085
+               Max X-velocity     : 0.340118
+               Max Y-velocity     : 0.314305
+  Acceleration L2-norm            : 23711.1
+               Max X-acceleration : 109981
+               Max Y-acceleration : 85222.5
+  Elastic strain energy:           eps_e : 0.0233515
+  Bulk energy:                     eps_b : 0.0228415
+  Tensile & compressive energies         : 3.01297 0.00518947
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.272713
+  Solving crack phase field at step=54 time=2.7e-05
+  Primary solution summary: L2-norm         : 0.867911
+                            Max value       : 0.987365
+  Dissipated energy:       eps_d : 0.0677107
+  >>> Paused for mesh refinement at time=2.7e-05
+  Lowest element:      202    |c| = 0.000645436
+  Highest element:     ...    |c| = 0.986567
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=55  time=2.75e-05
+  Displacement L2-norm            : 2.08028e-06
+               Max X-displacement : 3.14218e-06
+               Max Y-displacement : 4.59812e-06
+  Velocity L2-norm                : 0.133241
+               Max X-velocity     : 0.349222
+               Max Y-velocity     : 0.305066
+  Acceleration L2-norm            : 26891.3
+               Max X-acceleration : 192504
+               Max Y-acceleration : 75089.3
+  Elastic strain energy:           eps_e : 0.0241491
+  Bulk energy:                     eps_b : 0.0236159
+  Tensile & compressive energies         : 3.19729 0.00540511
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.276765
+  Solving crack phase field at step=55 time=2.75e-05
+  Primary solution summary: L2-norm         : 0.867249
+                            Max value       : 0.987365
+  Dissipated energy:       eps_d : 0.0682914
+  Solving the elasto-dynamics problem...
+  step=56  time=2.8e-05
+  Displacement L2-norm            : 2.14636e-06
+               Max X-displacement : 3.31839e-06
+               Max Y-displacement : 4.74484e-06
+  Velocity L2-norm                : 0.135232
+               Max X-velocity     : 0.35571
+               Max Y-velocity     : 0.298537
+  Acceleration L2-norm            : 31108
+               Max X-acceleration : 262288
+               Max Y-acceleration : 141271
+  Elastic strain energy:           eps_e : 0.0248322
+  Bulk energy:                     eps_b : 0.0242842
+  Tensile & compressive energies         : 3.37662 0.00555358
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.280949
+  Solving crack phase field at step=56 time=2.8e-05
+  Primary solution summary: L2-norm         : 0.86652
+                            Max value       : 0.987364
+  Dissipated energy:       eps_d : 0.0689379
+  >>> Paused for mesh refinement at time=2.8e-05
+  Lowest element:      202    |c| = 0.000622427
+  Highest element:     ...    |c| = 0.986566
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=57  time=2.85e-05
+  Displacement L2-norm            : 2.21358e-06
+               Max X-displacement : 3.49395e-06
+               Max Y-displacement : 4.88212e-06
+  Velocity L2-norm                : 0.138469
+               Max X-velocity     : 0.347491
+               Max Y-velocity     : 0.30713
+  Acceleration L2-norm            : 23413.9
+               Max X-acceleration : 98852.8
+               Max Y-acceleration : 73642.8
+  Elastic strain energy:           eps_e : 0.0253114
+  Bulk energy:                     eps_b : 0.0247617
+  Tensile & compressive energies         : 3.55952 0.00566288
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.285144
+  Solving crack phase field at step=57 time=2.85e-05
+  Primary solution summary: L2-norm         : 0.865767
+                            Max value       : 0.987364
+  Dissipated energy:       eps_d : 0.0696572
+  Solving the elasto-dynamics problem...
+  step=58  time=2.9e-05
+  Displacement L2-norm            : 2.28236e-06
+               Max X-displacement : 3.667e-06
+               Max Y-displacement : 5.01793e-06
+  Velocity L2-norm                : 0.142393
+               Max X-velocity     : 0.344204
+               Max Y-velocity     : 0.319304
+  Acceleration L2-norm            : 22934
+               Max X-acceleration : 91492.4
+               Max Y-acceleration : 76816.1
+  Elastic strain energy:           eps_e : 0.025671
+  Bulk energy:                     eps_b : 0.0251081
+  Tensile & compressive energies         : 3.7603 0.00581037
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.289346
+  Solving crack phase field at step=58 time=2.9e-05
+  Primary solution summary: L2-norm         : 0.864982
+                            Max value       : 0.987363
+  Dissipated energy:       eps_d : 0.0704758
+  >>> Paused for mesh refinement at time=2.9e-05
+  Lowest element:      202    |c| = 0.00059923
+  Highest element:     ...    |c| = 0.986566
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=59  time=2.95e-05
+  Displacement L2-norm            : 2.35305e-06
+               Max X-displacement : 3.83831e-06
+               Max Y-displacement : 5.16511e-06
+  Velocity L2-norm                : 0.146713
+               Max X-velocity     : 0.341103
+               Max Y-velocity     : 0.346712
+  Acceleration L2-norm            : 23554.2
+               Max X-acceleration : 90669.7
+               Max Y-acceleration : 82717
+  Elastic strain energy:           eps_e : 0.0259946
+  Bulk energy:                     eps_b : 0.0254078
+  Tensile & compressive energies         : 3.99447 0.00601181
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.29368
+  Solving crack phase field at step=59 time=2.95e-05
+  Primary solution summary: L2-norm         : 0.864209
+                            Max value       : 0.987363
+  Dissipated energy:       eps_d : 0.071384
+  Solving the elasto-dynamics problem...
+  step=60  time=3e-05
+  Displacement L2-norm            : 2.42577e-06
+               Max X-displacement : 4.00663e-06
+               Max Y-displacement : 5.33081e-06
+  Velocity L2-norm                : 0.1513
+               Max X-velocity     : 0.332521
+               Max Y-velocity     : 0.356785
+  Acceleration L2-norm            : 26320.1
+               Max X-acceleration : 74314.5
+               Max Y-acceleration : 104931
+  Elastic strain energy:           eps_e : 0.0263164
+  Bulk energy:                     eps_b : 0.025701
+  Tensile & compressive energies         : 4.27447 0.00621455
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.298305
+  Solving crack phase field at step=60 time=3e-05
+  Primary solution summary: L2-norm         : 0.863413
+                            Max value       : 0.987362
+  Dissipated energy:       eps_d : 0.0723847
+  >>> Paused for mesh refinement at time=3e-05
+  Lowest element:      202    |c| = 0.000576552
+  Highest element:     ...    |c| = 0.986566
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=61  time=3.05e-05
+  Displacement L2-norm            : 2.50051e-06
+               Max X-displacement : 4.17304e-06
+               Max Y-displacement : 5.50998e-06
+  Velocity L2-norm                : 0.156132
+               Max X-velocity     : 0.332492
+               Max Y-velocity     : 0.367038
+  Acceleration L2-norm            : 27348.5
+               Max X-acceleration : 70603.1
+               Max Y-acceleration : 132943
+  Elastic strain energy:           eps_e : 0.0265686
+  Bulk energy:                     eps_b : 0.0259321
+  Tensile & compressive energies         : 4.60645 0.00634062
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.303286
+  Solving crack phase field at step=61 time=3.05e-05
+  Primary solution summary: L2-norm         : 0.862572
+                            Max value       : 0.987361
+  Dissipated energy:       eps_d : 0.073464
+  Solving the elasto-dynamics problem...
+  step=62  time=3.1e-05
+  Displacement L2-norm            : 2.57706e-06
+               Max X-displacement : 4.34144e-06
+               Max Y-displacement : 5.68939e-06
+  Velocity L2-norm                : 0.160886
+               Max X-velocity     : 0.340685
+               Max Y-velocity     : 0.384724
+  Acceleration L2-norm            : 26319.5
+               Max X-acceleration : 68088.4
+               Max Y-acceleration : 107032
+  Elastic strain energy:           eps_e : 0.0266898
+  Bulk energy:                     eps_b : 0.0260485
+  Tensile & compressive energies         : 4.99077 0.00632785
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.308558
+  Solving crack phase field at step=62 time=3.1e-05
+  Primary solution summary: L2-norm         : 0.8617
+                            Max value       : 0.987361
+  Dissipated energy:       eps_d : 0.0746083
+  >>> Paused for mesh refinement at time=3.1e-05
+  Lowest element:      202    |c| = 0.000556957
+  Highest element:     ...    |c| = 0.986566
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=63  time=3.15e-05
+  Displacement L2-norm            : 2.65514e-06
+               Max X-displacement : 4.51354e-06
+               Max Y-displacement : 5.85715e-06
+  Velocity L2-norm                : 0.165128
+               Max X-velocity     : 0.347861
+               Max Y-velocity     : 0.398438
+  Acceleration L2-norm            : 26126.7
+               Max X-acceleration : 115766
+               Max Y-acceleration : 70612.3
+  Elastic strain energy:           eps_e : 0.0266368
+  Bulk energy:                     eps_b : 0.0260081
+  Tensile & compressive energies         : 5.42162 0.00614822
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.31399
+  Solving crack phase field at step=63 time=3.15e-05
+  Primary solution summary: L2-norm         : 0.860813
+                            Max value       : 0.98736
+  Dissipated energy:       eps_d : 0.0758155
+  Solving the elasto-dynamics problem...
+  step=64  time=3.2e-05
+  Displacement L2-norm            : 2.73438e-06
+               Max X-displacement : 4.68965e-06
+               Max Y-displacement : 6.00793e-06
+  Velocity L2-norm                : 0.168682
+               Max X-velocity     : 0.35647
+               Max Y-velocity     : 0.419166
+  Acceleration L2-norm            : 25946.5
+               Max X-acceleration : 151333
+               Max Y-acceleration : 72242.8
+  Elastic strain energy:           eps_e : 0.0263704
+  Bulk energy:                     eps_b : 0.0257725
+  Tensile & compressive energies         : 5.89118 0.00582089
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.319453
+  Solving crack phase field at step=64 time=3.2e-05
+  Primary solution summary: L2-norm         : 0.859929
+                            Max value       : 0.98736
+  Dissipated energy:       eps_d : 0.0770866
+  >>> Paused for mesh refinement at time=3.2e-05
+  Lowest element:      202    |c| = 0.000539556
+  Highest element:     ...    |c| = 0.986565
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=65  time=3.25e-05
+  Displacement L2-norm            : 2.81445e-06
+               Max X-displacement : 4.87178e-06
+               Max Y-displacement : 6.1421e-06
+  Velocity L2-norm                : 0.171551
+               Max X-velocity     : 0.371646
+               Max Y-velocity     : 0.43284
+  Acceleration L2-norm            : 23627.1
+               Max X-acceleration : 77988.9
+               Max Y-acceleration : 83027.8
+  Elastic strain energy:           eps_e : 0.0258643
+  Bulk energy:                     eps_b : 0.0253082
+  Tensile & compressive energies         : 6.39356 0.00541094
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.324851
+  Solving crack phase field at step=65 time=3.25e-05
+  Primary solution summary: L2-norm         : 0.859046
+                            Max value       : 0.987359
+  Dissipated energy:       eps_d : 0.0784269
+  Solving the elasto-dynamics problem...
+  step=66  time=3.3e-05
+  Displacement L2-norm            : 2.89509e-06
+               Max X-displacement : 5.06275e-06
+               Max Y-displacement : 6.26343e-06
+  Velocity L2-norm                : 0.173788
+               Max X-velocity     : 0.391949
+               Max Y-velocity     : 0.399266
+  Acceleration L2-norm            : 23221.4
+               Max X-acceleration : 116212
+               Max Y-acceleration : 84529.2
+  Elastic strain energy:           eps_e : 0.0251224
+  Bulk energy:                     eps_b : 0.0246061
+  Tensile & compressive energies         : 6.92099 0.00497959
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.330142
+  Solving crack phase field at step=66 time=3.3e-05
+  Primary solution summary: L2-norm         : 0.85815
+                            Max value       : 0.987359
+  Dissipated energy:       eps_d : 0.0798304
+  >>> Paused for mesh refinement at time=3.3e-05
+  Lowest element:      230    |c| = 2.4023e-05
+  Highest element:     ...    |c| = 0.986565
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=67  time=3.35e-05
+  Displacement L2-norm            : 2.97622e-06
+               Max X-displacement : 5.26356e-06
+               Max Y-displacement : 6.37779e-06
+  Velocity L2-norm                : 0.175747
+               Max X-velocity     : 0.411418
+               Max Y-velocity     : 0.353175
+  Acceleration L2-norm            : 24114.5
+               Max X-acceleration : 119080
+               Max Y-acceleration : 138586
+  Elastic strain energy:           eps_e : 0.0242088
+  Bulk energy:                     eps_b : 0.0237337
+  Tensile & compressive energies         : 7.46218 0.00454209
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.335353
+  Solving crack phase field at step=67 time=3.35e-05
+  Primary solution summary: L2-norm         : 0.857275
+                            Max value       : 0.987358
+  Dissipated energy:       eps_d : 0.0812622
+  Solving the elasto-dynamics problem...
+  step=68  time=3.4e-05
+  Displacement L2-norm            : 3.05797e-06
+               Max X-displacement : 5.47366e-06
+               Max Y-displacement : 6.49188e-06
+  Velocity L2-norm                : 0.177914
+               Max X-velocity     : 0.42907
+               Max Y-velocity     : 0.36203
+  Acceleration L2-norm            : 26517.7
+               Max X-acceleration : 198660
+               Max Y-acceleration : 104276
+  Elastic strain energy:           eps_e : 0.0232888
+  Bulk energy:                     eps_b : 0.0228568
+  Tensile & compressive energies         : 8.00879 0.00411071
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.340588
+  Solving crack phase field at step=68 time=3.4e-05
+  Primary solution summary: L2-norm         : 0.856427
+                            Max value       : 0.987358
+  Dissipated energy:       eps_d : 0.0827119
+  >>> Paused for mesh refinement at time=3.4e-05
+  Lowest element:      230    |c| = 0.000284978
+  Highest element:     ...    |c| = 0.986565
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=69  time=3.45e-05
+  Displacement L2-norm            : 3.14071e-06
+               Max X-displacement : 5.69322e-06
+               Max Y-displacement : 6.6126e-06
+  Velocity L2-norm                : 0.180883
+               Max X-velocity     : 0.449025
+               Max Y-velocity     : 0.364591
+  Acceleration L2-norm            : 28040.6
+               Max X-acceleration : 188057
+               Max Y-acceleration : 111312
+  Elastic strain energy:           eps_e : 0.022512
+  Bulk energy:                     eps_b : 0.0221217
+  Tensile & compressive energies         : 8.56357 0.00370919
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.346007
+  Solving crack phase field at step=69 time=3.45e-05
+  Primary solution summary: L2-norm         : 0.855599
+                            Max value       : 0.987357
+  Dissipated energy:       eps_d : 0.084184
+  Solving the elasto-dynamics problem...
+  step=70  time=3.5e-05
+  Displacement L2-norm            : 3.22502e-06
+               Max X-displacement : 5.91909e-06
+               Max Y-displacement : 6.74732e-06
+  Velocity L2-norm                : 0.184883
+               Max X-velocity     : 0.455381
+               Max Y-velocity     : 0.362823
+  Acceleration L2-norm            : 27841.6
+               Max X-acceleration : 21087.
+               Max Y-acceleration : 76560.1
+  Elastic strain energy:           eps_e : 0.0219588
+  Bulk energy:                     eps_b : 0.021599
+  Tensile & compressive energies         : 9.13869 0.00336234
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.351772
+  Solving crack phase field at step=70 time=3.5e-05
+  Primary solution summary: L2-norm         : 0.85475
+                            Max value       : 0.987357
+  Dissipated energy:       eps_d : 0.0857119
+  >>> Paused for mesh refinement at time=3.5e-05
+  Lowest element:      230    |c| = 0.000435934
+  Highest element:     ...    |c| = 0.986564
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=71  time=3.55e-05
+  Displacement L2-norm            : 3.31145e-06
+               Max X-displacement : 6.13952e-06
+               Max Y-displacement : 6.90336e-06
+  Velocity L2-norm                : 0.189379
+               Max X-velocity     : 0.428387
+               Max Y-velocity     : 0.360204
+  Acceleration L2-norm            : 28800.4
+               Max X-acceleration : 193572
+               Max Y-acceleration : 104123
+  Elastic strain energy:           eps_e : 0.0216335
+  Bulk energy:                     eps_b : 0.0212608
+  Tensile & compressive energies         : 9.74546 0.0030921
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.357993
+  Solving crack phase field at step=71 time=3.55e-05
+  Primary solution summary: L2-norm         : 0.853879
+                            Max value       : 0.987357
+  Dissipated energy:       eps_d : 0.0873034
+  Solving the elasto-dynamics problem...
+  step=72  time=3.6e-05
+  Displacement L2-norm            : 3.4003e-06
+               Max X-displacement : 6.34095e-06
+               Max Y-displacement : 7.08562e-06
+  Velocity L2-norm                : 0.19406
+               Max X-velocity     : 0.37844
+               Max Y-velocity     : 0.392213
+  Acceleration L2-norm            : 39777.6
+               Max X-acceleration : 25735.
+               Max Y-acceleration : 112687
+  Elastic strain energy:           eps_e : 0.0214715
+  Bulk energy:                     eps_b : 0.0210559
+  Tensile & compressive energies         : 10.3887 0.00286384
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.364689
+  Solving crack phase field at step=72 time=3.6e-05
+  Primary solution summary: L2-norm         : 0.853045
+                            Max value       : 0.987356
+  Dissipated energy:       eps_d : 0.088921
+  >>> Paused for mesh refinement at time=3.6e-05
+  Lowest element:      202    |c| = 0.00046233
+  Highest element:     ...    |c| = 0.986564
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=73  time=3.65e-05
+  Displacement L2-norm            : 3.49156e-06
+               Max X-displacement : 6.52675e-06
+               Max Y-displacement : 7.2939e-06
+  Velocity L2-norm                : 0.199121
+               Max X-velocity     : 0.362297
+               Max Y-velocity     : 0.441374
+  Acceleration L2-norm            : 33827.9
+               Max X-acceleration : 265988
+               Max Y-acceleration : 95448
+  Elastic strain energy:           eps_e : 0.0213616
+  Bulk energy:                     eps_b : 0.0209808
+  Tensile & compressive energies         : 11.0719 0.00255292
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.371786
+  Solving crack phase field at step=73 time=3.65e-05
+  Primary solution summary: L2-norm         : 0.852239
+                            Max value       : 0.987356
+  Dissipated energy:       eps_d : 0.0905612
+  Solving the elasto-dynamics problem...
+  step=74  time=3.7e-05
+  Displacement L2-norm            : 3.58511e-06
+               Max X-displacement : 6.70949e-06
+               Max Y-displacement : 7.5225e-06
+  Velocity L2-norm                : 0.203813
+               Max X-velocity     : 0.367694
+               Max Y-velocity     : 0.474057
+  Acceleration L2-norm            : 30483.2
+               Max X-acceleration : 22104.
+               Max Y-acceleration : 100696
+  Elastic strain energy:           eps_e : 0.0213975
+  Bulk energy:                     eps_b : 0.0210675
+  Tensile & compressive energies         : 11.7957 0.00224058
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.379143
+  Solving crack phase field at step=74 time=3.7e-05
+  Primary solution summary: L2-norm         : 0.851476
+                            Max value       : 0.987356
+  Dissipated energy:       eps_d : 0.0922166
+  >>> Paused for mesh refinement at time=3.7e-05
+  Lowest element:      202    |c| = 0.000410396
+  Highest element:     ...    |c| = 0.986564
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=75  time=3.75e-05
+  Displacement L2-norm            : 3.68072e-06
+               Max X-displacement : 6.89802e-06
+               Max Y-displacement : 7.76257e-06
+  Velocity L2-norm                : 0.207527
+               Max X-velocity     : 0.385795
+               Max Y-velocity     : 0.487317
+  Acceleration L2-norm            : 31834.6
+               Max X-acceleration : 282312
+               Max Y-acceleration : 83703
+  Elastic strain energy:           eps_e : 0.0216605
+  Bulk energy:                     eps_b : 0.0213491
+  Tensile & compressive energies         : 12.5463 0.00201836
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.386593
+  Solving crack phase field at step=75 time=3.75e-05
+  Primary solution summary: L2-norm         : 0.850725
+                            Max value       : 0.987356
+  Dissipated energy:       eps_d : 0.0938734
+  Solving the elasto-dynamics problem...
+  step=76  time=3.8e-05
+  Displacement L2-norm            : 3.77813e-06
+               Max X-displacement : 7.09994e-06
+               Max Y-displacement : 8.00589e-06
+  Velocity L2-norm                : 0.210285
+               Max X-velocity     : 0.420862
+               Max Y-velocity     : 0.486644
+  Acceleration L2-norm            : 32332.1
+               Max X-acceleration : 263998
+               Max Y-acceleration : 99193.8
+  Elastic strain energy:           eps_e : 0.0220552
+  Bulk energy:                     eps_b : 0.0217428
+  Tensile & compressive energies         : 13.3039 0.0018878
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.393992
+  Solving crack phase field at step=76 time=3.8e-05
+  Primary solution summary: L2-norm         : 0.850022
+                            Max value       : 0.987355
+  Dissipated energy:       eps_d : 0.0954992
+  >>> Paused for mesh refinement at time=3.8e-05
+  Lowest element:      202    |c| = 0.000362744
+  Highest element:     ...    |c| = 0.986564
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  Elements to refine: 2 (|c| = \[0.159802,0.159802])
+Refined mesh: 308 elements 330 nodes.
+6. Elasticity solver
+Parsing input file Short10x20-p1-adap.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Loaded (1,3,1D) (1,4,1D)
+  Parsing <refine>
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+Parsing <elasticity>
+	Material code 0: 3.2e+10 0.2 2450
+  Parsing <neumann>
+	Neumann code 1000000 direction 0: 1e+06
+Parsing <newmarksolver>
+Parsing <adaptive>
+Parsing input file succeeded.
+7. Cahn-Hilliard solver
+Parsing input file Short10x20-p1-adap.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Loaded (1,3,1D) (1,4,1D)
+  Parsing <refine>
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+Parsing <elasticity>
+Parsing <newmarksolver>
+Parsing <adaptive>
+Parsing input file succeeded.
+15. Elasticity solver
+Problem definition:
+Elasticity: 2D, gravity = 0 0
+LinIsotropic: E = 3.2e+10, nu = 0.2, rho = 2450, alpha = 1.2e-07
+Newmark predictor/multicorrector: beta = 0.444444 gamma = 0.833333
+ using zero acceleration predictor
+Resolving Dirichlet boundary conditions
+ >>> SAM model summary <<<
+Number of elements    308
+Number of nodes       330
+Number of dofs        660
+Number of unknowns    660
+16. Cahn-Hilliard solver
+Problem definition:
+Cahn-Hilliard: 2D
+	Critical fracture energy density: 3
+	Smearing factor: 0.0005
+	Max value in crack: 0.001
+Resolving Dirichlet boundary conditions
+ >>> SAM model summary <<<
+Number of elements    308
+Number of nodes       330
+Number of dofs        330
+Number of unknowns    330
+Transferring 3x660 solution variables to new mesh for Elasticity
+Transferring 330 solution variables to new mesh for CahnHilliard
+Transferring 1136 history variables to new mesh for CahnHilliard
+  >>> Resuming simulation from time=3.7e-05 on the new mesh.
+  Solving the elasto-dynamics problem...
+  step=75  time=3.75e-05
+  Displacement L2-norm            : 3.59896e-06
+               Max X-displacement : 6.89802e-06
+               Max Y-displacement : 7.76257e-06
+  Velocity L2-norm                : 0.207856
+               Max X-velocity     : 0.385795
+               Max Y-velocity     : 0.558801
+  Acceleration L2-norm            : 100659
+               Max X-acceleration : 333482
+               Max Y-acceleration : 1.04142e+06
+  Elastic strain energy:           eps_e : 0.0208067
+  Bulk energy:                     eps_b : 0.0205114
+  Tensile & compressive energies         : 12.5429 0.00200516
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.386593
+  Solving crack phase field at step=75 time=3.75e-05
+  Primary solution summary: L2-norm         : 0.834479
+                            Max value       : 0.987356
+  Dissipated energy:       eps_d : 0.096336
+  Solving the elasto-dynamics problem...
+  step=76  time=3.8e-05
+  Displacement L2-norm            : 3.69476e-06
+               Max X-displacement : 7.09994e-06
+               Max Y-displacement : 8.00589e-06
+  Velocity L2-norm                : 0.211674
+               Max X-velocity     : 0.420862
+               Max Y-velocity     : 0.687023
+  Acceleration L2-norm            : 112574
+               Max X-acceleration : 439443
+               Max Y-acceleration : 1.13395e+06
+  Elastic strain energy:           eps_e : 0.0186513
+  Bulk energy:                     eps_b : 0.0183292
+  Tensile & compressive energies         : 13.3076 0.0018595
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.393992
+  Solving crack phase field at step=76 time=3.8e-05
+  Primary solution summary: L2-norm         : 0.833256
+                            Max value       : 0.987356
+  Dissipated energy:       eps_d : 0.0977915
+  Solving the elasto-dynamics problem...
+  step=77  time=3.85e-05
+  Displacement L2-norm            : 3.79266e-06
+               Max X-displacement : 7.31741e-06
+               Max Y-displacement : 8.24763e-06
+  Velocity L2-norm                : 0.217865
+               Max X-velocity     : 0.449654
+               Max Y-velocity     : 0.649046
+  Acceleration L2-norm            : 65845.4
+               Max X-acceleration : 318274
+               Max Y-acceleration : 481722
+  Elastic strain energy:           eps_e : 0.0184447
+  Bulk energy:                     eps_b : 0.0181189
+  Tensile & compressive energies         : 14.0905 0.00175926
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.401259
+  Solving crack phase field at step=77 time=3.85e-05
+  Primary solution summary: L2-norm         : 0.832189
+                            Max value       : 0.987356
+  Dissipated energy:       eps_d : 0.0992772
+  >>> Paused for mesh refinement at time=3.85e-05
+  Lowest element:      202    |c| = 0.000341245
+  Highest element:     ...    |c| = 0.986564
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=78  time=3.9e-05
+  Displacement L2-norm            : 3.89303e-06
+               Max X-displacement : 7.5461e-06
+               Max Y-displacement : 8.48569e-06
+  Velocity L2-norm                : 0.223187
+               Max X-velocity     : 0.465811
+               Max Y-velocity     : 0.581642
+  Acceleration L2-norm            : 74120.9
+               Max X-acceleration : 323758
+               Max Y-acceleration : 525006
+  Elastic strain energy:           eps_e : 0.0182885
+  Bulk energy:                     eps_b : 0.0179758
+  Tensile & compressive energies         : 14.9073 0.00166333
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.40837
+  Solving crack phase field at step=78 time=3.9e-05
+  Primary solution summary: L2-norm         : 0.831138
+                            Max value       : 0.987356
+  Dissipated energy:       eps_d : 0.100793
+  Solving the elasto-dynamics problem...
+  step=79  time=3.95e-05
+  Displacement L2-norm            : 3.99609e-06
+               Max X-displacement : 7.78572e-06
+               Max Y-displacement : 8.71815e-06
+  Velocity L2-norm                : 0.227666
+               Max X-velocity     : 0.491861
+               Max Y-velocity     : 0.536037
+  Acceleration L2-norm            : 75375.6
+               Max X-acceleration : 629850
+               Max Y-acceleration : 324972
+  Elastic strain energy:           eps_e : 0.0181198
+  Bulk energy:                     eps_b : 0.0177615
+  Tensile & compressive energies         : 15.7731 0.00159231
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.415339
+  Solving crack phase field at step=79 time=3.95e-05
+  Primary solution summary: L2-norm         : 0.830086
+                            Max value       : 0.987356
+  Dissipated energy:       eps_d : 0.102098
+  >>> Paused for mesh refinement at time=3.95e-05
+  Lowest element:      202    |c| = 0.000303939
+  Highest element:     ...    |c| = 0.986564
+  Minimum |c|-value for refinement: 0.2
+  Minimum element area: 0.00125
+  No refinement, resume from current state
+  Solving the elasto-dynamics problem...
+  step=80  time=4e-05
+  Displacement L2-norm            : 4.10202e-06
+               Max X-displacement : 8.03939e-06
+               Max Y-displacement : 8.94352e-06
+  Velocity L2-norm                : 0.233201
+               Max X-velocity     : 0.536098
+               Max Y-velocity     : 0.557126
+  Acceleration L2-norm            : 59313.3
+               Max X-acceleration : 390538
+               Max Y-acceleration : 322478
+  Elastic strain energy:           eps_e : 0.0180706
+  Bulk energy:                     eps_b : 0.0176922
+  Tensile & compressive energies         : 16.7008 0.00149243
+  External energy: ((f,u^h)+(t,u^h))^0.5 : 0.422197
+  Solving crack phase field at step=80 time=4e-05
+  Primary solution summary: L2-norm         : 0.828983
+                            Max value       : 0.987356
+  Dissipated energy:       eps_d : 0.10348
+  Time integration completed.
