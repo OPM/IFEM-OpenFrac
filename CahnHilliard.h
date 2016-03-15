@@ -74,6 +74,8 @@ public:
   //! \brief Sets the pointer to the tensile energy buffer.
   void setTensileEnergy(const RealArray* tens) { tensileEnergy = tens; }
 
+  //! \brief Returns the initial crack function.
+  RealFunc* initCrack() { return initial_crack; }
   //! \brief Clears the initial crack function (used after first time step).
   void clearInitialCrack() { delete initial_crack; initial_crack = nullptr; }
 

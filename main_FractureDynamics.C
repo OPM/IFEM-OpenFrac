@@ -126,8 +126,8 @@ int runSimulator2 (char* infile)
 
   frac.setupDependencies();
 
-  int res = solver.solveProblem(infile,exporter,
-                                "100. Starting the simulation",false);
+  int res = solver.solveProblem(infile,exporter,"100. Starting the simulation",
+                                phaseSim.getInitRefine() < 1);
 
   delete exporter;
   return res;

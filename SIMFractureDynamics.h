@@ -67,8 +67,10 @@ public:
       os << std::setprecision(11) << std::setw(6) << std::scientific
          << tp.time.t;
       for (size_t i = 0; i < n1.size(); i++) os <<" "<< n1[i];
-      os <<" "<< (n2.size() > 2 ? n2[1] : 0.0)
-         <<" "<< n2(n2.size()-1) <<" "<< n2.back() << std::endl;
+      os <<" "<< (n2.size() > 2 ? n2[1] : 0.0);
+      os <<" "<< (n2.size() > 1 ? n2[n2.size()-2] : 0.0);
+      os <<" "<< (n2.size() > 0 ? n2.back() : 0.0);
+      os << std::endl;
     }
 
     return this->S2.saveStep(tp,nBlock) && this->S1.saveStep(tp,nBlock);
@@ -93,8 +95,11 @@ public:
   }
 
   //! \brief Refines the mesh on the initial configuration.
-  bool initialRefine(double beta, double min_frac, size_t nrefinements)
+  bool initialRefine(double beta, double min_frac, int nrefinements)
   {
+    if (this->S2.getInitRefine() >= nrefinements)
+      return true; // Grid is sufficiently refined during input parsing
+
     TimeStep step0;
     int newElements = 1;
     for (step0.iter = 0; newElements > 0; step0.iter++)
@@ -107,7 +112,7 @@ public:
   }
 
   //! \brief Refines the mesh with transfer of solution onto the new mesh.
-  int adaptMesh(double beta, double min_frac, size_t nrefinements)
+  int adaptMesh(double beta, double min_frac, int nrefinements)
   {
 #ifdef HAS_LRSPLINE
     ASMu2D* pch = dynamic_cast<ASMu2D*>(this->S1.getPatch(1));
@@ -158,7 +163,7 @@ public:
 
     // Do the mesh refinement
     LR::RefineData prm;
-    prm.options = { 10, 1, 2 };
+    prm.options = { 10, 1, 2, 0, 1 };
     prm.elements = pch->getFunctionsForElements(elements);
     if (!this->S1.refine(prm,sols) || !this->S2.refine(prm))
       return -2;

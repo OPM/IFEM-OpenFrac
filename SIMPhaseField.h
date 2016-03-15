@@ -41,8 +41,8 @@ public:
     if (gridOwner)
       this->clonePatches(gridOwner->getFEModel(),gridOwner->getGlob2LocMap());
 
-    eps_d0 = 0.0;
-    vtfStep = Lnorm = 0;
+    eps_d0 = refTol = 0.0;
+    vtfStep = Lnorm = irefine = 0;
   }
 
   //! \brief Empty destructor.
@@ -251,6 +251,8 @@ public:
 
   //! \brief Returns the maximum number of iterations (unlimited).
   int getMaxit() const { return 9999; }
+  //! \brief Returns the number of initial refinement cycles.
+  int getInitRefine() const { return irefine; }
 
   //! \brief Solves the linearized system of current iteration.
   //! \param[in] tp Time stepping parameters
@@ -324,11 +326,29 @@ protected:
         // Read problem parameters (including initial crack defintition)
         if (!Dim::isRefined) // but only for the initial grid when adaptive
         {
-          Dim::myProblem->parse(child);
           const char* value = utl::getValue(child,"Lnorm");
-          if (value) Lnorm = atoi(value);
+          if (value)
+            Lnorm = atoi(value);
+          else if ((value = utl::getValue(child,"initial_refine")))
+            irefine = atoi(value);
+          else if ((value = utl::getValue(child,"refine_limit")))
+            refTol = atof(value);
+          Dim::myProblem->parse(child);
         }
       }
+
+#ifdef HAS_LRSPLINE
+    if (Dim::isRefined)
+      return true;
+
+    // Perform initial refinement around the crack
+    RealFunc* refC = static_cast<CahnHilliard*>(Dim::myProblem)->initCrack();
+    ASMu2D* patch1 = dynamic_cast<ASMu2D*>(this->getPatch(1));
+    if (refC && patch1)
+      for (int i = 0; i < irefine; i++, refTol *= 0.5)
+        if (!patch1->refine(*refC,refTol))
+          return false;
+#endif
 
     return true;
   }
@@ -341,6 +361,8 @@ private:
   double eps_d0;     //!< Initial eps_d value, subtracted from following values
   int    vtfStep;    //!< VTF file step counter
   int    Lnorm;      //!< Which L-norm to use to guide mesh refinement
+  int    irefine;    //!< Number of initial refinement cycles
+  double refTol;     //!< Initial refinement threshold
 };
 
 #endif
