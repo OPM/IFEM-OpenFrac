@@ -17,54 +17,10 @@
 #include "SIMDynElasticity.h"
 #include "SIMPhaseField.h"
 #include "SIMFractureDynamics.h"
-#include "SIMCoupledSI.h"
 #include "SIMSolver.h"
-#include "SIMSolverTS.h"
-#include "GenAlphaSIM.h"
-#include "NonLinSIM.h"
+#include "SIMDriver.h"
 #include "ASMstruct.h"
 #include "AppCommon.h"
-
-
-/*!
-  \brief Dynamic simulation driver.
-
-  \details Only the parse method is reimplemented here to handle that the
-  time stepping parameters may be located within the specified context.
-*/
-
-template<class T, template<class S1> class Solver>
-class SIMDriver : public Solver<T>
-{
-public:
-  //! \brief The constructor initializes the reference to the actual solver.
-  SIMDriver(T& s, const char* c = nullptr) : Solver<T>(s), context(c) {}
-  //! \brief Empty destructor.
-  virtual ~SIMDriver() {}
-
-protected:
-  //! \brief Parses a data section from an XML element.
-  virtual bool parse(const TiXmlElement* elem)
-  {
-    if (!strcasecmp(elem->Value(),context))
-    {
-      const TiXmlElement* child = elem->FirstChildElement();
-      for (; child; child = child->NextSiblingElement())
-        this->SIMSolver<T>::parse(child);
-    }
-    else if (!strcasecmp(elem->Value(),"postprocessing"))
-    {
-      const TiXmlElement* child = elem->FirstChildElement("energyfile");
-      if (child && child->FirstChild())
-        this->S1.setEnergyFile(child->FirstChild()->Value());
-    }
-
-    return this->Solver<T>::parse(elem);
-  }
-
-private:
-  const char* context; //!< XML-tag to search for time-stepping input within
-};
 
 
 /*!
@@ -75,7 +31,7 @@ private:
 template<class Dim, class Integrator,
          template<class T1, class T2> class Cpl,
          template<class T1> class Solver=SIMSolver>
-int runSimulator2 (char* infile)
+int runCplSimulator (char* infile)
 {
   typedef SIMDynElasticity<Dim,Integrator> SIMElastoDynamics;
   typedef SIMPhaseField<Dim>               SIMCrackField;
@@ -141,7 +97,7 @@ int runSimulator2 (char* infile)
 */
 
 template<class Dim, class Integrator=NewmarkSIM>
-int runSimulator3 (char* infile, const char* context = "newmarksolver")
+int runSimulator (char* infile, const char* context = "newmarksolver")
 {
   typedef SIMDynElasticity<Dim,Integrator> SIMElastoDynamics;
 
@@ -186,74 +142,7 @@ int runSimulator3 (char* infile, const char* context = "newmarksolver")
 }
 
 
-/*!
-  \brief Creates the combined fracture simulator and launches the simulation.
-  \param[in] infile The input file to parse
-  \param[in] timeslabs Use time-slab adaptive solver
-*/
-
-template<class Dim, class Integrator, template<class T1, class T2> class Cpl>
-int runSolver (char* infile, bool timeslabs)
-{
-  if (timeslabs)
-    return runSimulator2<Dim,Integrator,Cpl,SIMSolverTS>(infile);
-
-  return runSimulator2<Dim,Integrator,Cpl>(infile);
-}
-
-
-/*!
-  \brief Creates the combined fracture simulator and launches the simulation.
-  \param[in] infile The input file to parse
-  \param[in] coupling Coupling flag (0: none, 1: staggered, 2: semi-implicit)
-  \param[in] timeslabs Use time-slab adaptive solver
-*/
-
-template<class Dim, class Integrator=NewmarkSIM>
-int runSimulator1 (char* infile, char coupling, bool timeslabs)
-{
-  if (coupling == 1)
-    return runSolver<Dim,Integrator,SIMCoupled>(infile,timeslabs);
-  else if (coupling == 2)
-    return runSolver<Dim,Integrator,SIMCoupledSI>(infile,timeslabs);
-  else
-    return runSimulator3<Dim,Integrator>(infile); // No phase field coupling
-}
-
-
-/*!
-  \brief Linear quasi-static solution driver.
-*/
-
-class LinSIM : public NonLinSIM
-{
-public:
-  //! \brief The constructor forwards to the parent class constructor.
-  LinSIM(SIMbase& sim) : NonLinSIM(sim,NonLinSIM::NONE) { fromIni = false; }
-  //! \brief Empty destructor.
-  virtual ~LinSIM() {}
-};
-
-
-/*!
-  \brief Creates the combined fracture simulator and launches the simulation.
-  \param[in] infile The input file to parse
-  \param[in] integrator The time integrator to use (0=linear quasi-static,
-             no phase-field coupling, 1=linear Newmark, 2=Generalized alpha)
-  \param[in] coupling Coupling flag (0: none, 1: staggered, 2: semi-implicit)
-  \param[in] timeslabs Use time-slab adaptive solver
-*/
-
-template<class Dim>
-int runSimulator (char* infile, char integrator, char coupling, bool timeslabs)
-{
-  if (integrator == 2)
-    return runSimulator1<Dim,GenAlphaSIM>(infile,coupling,timeslabs);
-  else if (integrator > 0)
-    return runSimulator1<Dim>(infile,coupling,timeslabs);
-  else
-    return runSimulator3<Dim,LinSIM>(infile,"staticsolver");
-}
+#include "runTimeInt.h"
 
 
 /*!
@@ -320,7 +209,7 @@ int main (int argc, char** argv)
   IFEM::cout << std::endl;
 
   if (twoD)
-    return runSimulator<SIM2D>(infile,integrator,coupling,adaptive);
+    return runTimeInt<SIM2D>(infile,integrator,coupling,adaptive);
   else
-    return runSimulator<SIM3D>(infile,integrator,coupling,adaptive);
+    return runTimeInt<SIM3D>(infile,integrator,coupling,adaptive);
 }
