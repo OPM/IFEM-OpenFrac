@@ -29,6 +29,10 @@ public:
   //! \brief The constructor invokes the parent class constructor only.
   //! \param[in] n Number of spatial dimensions
   FractureElasticity(unsigned short int n);
+  //! \brief Constructor for integrands with a parent integrand.
+  //! \param parent The parent integrand of this one
+  //! \param[in] n Number of spatial dimensions
+  FractureElasticity(IntegrandBase* parent, unsigned short int n);
   //! \brief Empty destructor.
   virtual ~FractureElasticity() {}
 

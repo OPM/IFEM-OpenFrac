@@ -34,6 +34,14 @@ FractureElasticity::FractureElasticity (unsigned short int n) : Elasticity(n)
 }
 
 
+FractureElasticity::FractureElasticity (IntegrandBase* parent,
+                                        unsigned short int n) : Elasticity(n)
+{
+  alpha = 0.0;
+  parent->registerVector("phasefield",&myCVec);
+}
+
+
 void FractureElasticity::initIntegration (size_t nGp, size_t)
 {
   // Initialize internal tensile energy buffer

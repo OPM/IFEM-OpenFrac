@@ -18,6 +18,7 @@
 #include "NewmarkSIM.h"
 #include "SIMPoroElasticity.h"
 #include "FractureElasticityVoigt.h"
+#include "PoroFracture.h"
 
 
 /*!
@@ -216,7 +217,7 @@ protected:
     else if (!strcasecmp(elem->Value(),"poroelasticity"))
     {
       if (!Dim::myProblem)
-        Dim::myProblem = new PoroElasticity(Dim::dimension);
+        Dim::myProblem = new PoroFracture(Dim::dimension);
       SIMElasticity<Dim>::myContext = "poroelasticity";
       result = this->SIMElasticity<Dim>::parse(elem);
     }
