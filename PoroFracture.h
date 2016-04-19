@@ -7,7 +7,7 @@
 //!
 //! \author Knut Morten Okstad / SINTEF
 //!
-//! \brief Integrand implementations for elasticity problems with fracture.
+//! \brief Integrand implementations for poroelasticity problems with fracture.
 //!
 //==============================================================================
 
@@ -21,9 +21,8 @@ class FractureElasticity;
 
 /*!
   \brief Class representing the integrand of poroelasticity with fracture.
-
   \details This class inherits PoroElasticity and uses elements from
-  FractureElasticity through a private member.
+  FractureElasticity in addition through a private member.
 */
 
 class PoroFracture : public PoroElasticity
@@ -38,15 +37,40 @@ public:
   //! \brief Parses a data section from an XML-element.
   virtual bool parse(const TiXmlElement* elem);
 
+  //! \brief Defines the solution mode before the element assembly is started.
+  //! \param[in] mode The solution mode to use
+  virtual void setMode(SIM::SolutionMode mode);
+
   //! \brief Initializes the integrand with the number of integration points.
   //! \param[in] nGp Total number of interior integration points
   //! \param[in] nBp Total number of boundary integration points
   virtual void initIntegration(size_t nGp, size_t nBp);
 
+  //! \brief Returns a local integral contribution object for the given element.
+  //! \param[in] nen Number of nodes on element
+  //! \param[in] neumann Whether or not we are assembling Neumann BCs
+  virtual LocalIntegral* getLocalIntegral(size_t nen,
+                                          size_t, bool neumann) const;
+  //! \brief Returns a local integral contribution object for the given element.
+  //! \param[in] nen Number of nodes on element for each basis
+  //! \param[in] neumann Whether or not we are assembling Neumann BCs
+  virtual LocalIntegral* getLocalIntegral(const std::vector<size_t>& nen,
+                                          size_t, bool neumann) const;
+
+  using Elasticity::initElement;
   //! \brief Initializes current element for numerical integration.
   //! \param[in] MNPC Matrix of nodal point correspondance for current element
-  //! \param elmInt Local integral for element
+  //! \param elmInt The local integral object for current element
   virtual bool initElement(const std::vector<int>& MNPC, LocalIntegral& elmInt);
+  //! \brief Initializes current element for numerical integration.
+  //! \param[in] MNPC Matrix of nodal point correspondance for current element
+  //! \param[in] elem_sizes Size of each basis on the element
+  //! \param[in] basis_sizes Size of each basis on the patch level
+  //! \param elmInt The local integral object for current element
+  virtual bool initElement(const std::vector<int>& MNPC,
+                           const std::vector<size_t>& elem_sizes,
+                           const std::vector<size_t>& basis_sizes,
+                           LocalIntegral& elmInt);
 
   //! \brief Returns a pointer to the Gauss-point tensile energy array.
   virtual const RealArray* getTensileEnergy() const;

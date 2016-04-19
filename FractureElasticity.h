@@ -36,6 +36,9 @@ public:
   //! \brief Empty destructor.
   virtual ~FractureElasticity() {}
 
+  //! \brief Sets the number of solution variables per node.
+  void setVar(unsigned short int n) { npv = n; }
+
   //! \brief Initializes the integrand with the number of integration points.
   //! \param[in] nGp Total number of interior integration points
   virtual void initIntegration(size_t nGp, size_t);
@@ -107,13 +110,17 @@ protected:
                   bool postProc = false) const;
 
   //! \brief Evaluates the stress degradation function \a g(c) at current point.
-  double getStressDegradation(const Vector& N, const Vector& eC) const;
+  double getStressDegradation(const Vector& N, const Vectors& eV) const;
+
+private:
+  unsigned short int eC; //!< Zero-based index to element phase field vector
 
 protected:
   double alpha;  //!< Relaxation factor for the crack phase field
   Vector myCVec; //!< Crack phase field values at nodal points
 
   mutable RealArray myPhi; //!< Tensile energy density at integration points
+  Vectors&          mySol; //!< Primary solution vectors for current patch
 };
 
 #endif
