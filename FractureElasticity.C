@@ -27,10 +27,23 @@
 #endif
 
 
-FractureElasticity::FractureElasticity (unsigned short int n) : Elasticity(n)
+FractureElasticity::FractureElasticity (unsigned short int n)
+  : Elasticity(n), mySol(primsol)
 {
   alpha = 0.0;
   this->registerVector("phasefield",&myCVec);
+  eC = 1; // Assuming second vector is phase field 
+}
+
+
+FractureElasticity::FractureElasticity (IntegrandBase* parent,
+                                        unsigned short int n)
+  : Elasticity(n), mySol(parent->getSolutions())
+{
+  alpha = 0.0;
+  parent->registerVector("phasefield",&myCVec);
+  // Assuming second vector is pressure, third vector is pressure velocity
+  eC = 3; // and fourth vector is the phase field
 }
 
 
@@ -44,7 +57,7 @@ void FractureElasticity::initIntegration (size_t nGp, size_t)
 bool FractureElasticity::initElement (const std::vector<int>& MNPC,
                                       LocalIntegral& elmInt)
 {
-  if (primsol.empty())
+  if (mySol.empty())
   {
     std::cerr <<" *** FractureElasticity::initElement:"
               <<" No primary solution vectors."<< std::endl;
@@ -52,20 +65,22 @@ bool FractureElasticity::initElement (const std::vector<int>& MNPC,
   }
 
   int ierr = 0;
-  elmInt.vec.resize(primsol.size()+1);
-
-  // Extract displacement vector for this element
-  if (!primsol.front().empty())
-    ierr = utl::gather(MNPC,npv,primsol.front(),elmInt.vec.front());
+  if (elmInt.vec.empty())
+  {
+    // Extract displacement vector for this element
+    elmInt.vec.resize(mySol.size()+eC);
+    if (!mySol.front().empty())
+      ierr = utl::gather(MNPC,npv,mySol.front(),elmInt.vec.front());
+  }
 
   // Extract crack phase field vector for this element
   if (ierr == 0 && !myCVec.empty())
-    ierr = utl::gather(MNPC,1,myCVec,elmInt.vec[1]);
+    ierr = utl::gather(MNPC,1,myCVec,elmInt.vec[eC]);
 
   // Extract velocity and acceleration vectors for this element
-  for (size_t i = 1; i < primsol.size() && ierr == 0; i++)
-    if (!primsol[i].empty())
-      ierr = utl::gather(MNPC,npv,primsol[i],elmInt.vec[1+i]);
+  for (size_t i = 1; i < mySol.size() && ierr == 0; i++)
+    if (!mySol[i].empty())
+      ierr = utl::gather(MNPC,npv,mySol[i],elmInt.vec[eC+i]);
 
   if (ierr == 0) return true;
 
@@ -211,10 +226,10 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
 
 
 double FractureElasticity::getStressDegradation (const Vector& N,
-                                                 const Vector& eC) const
+                                                 const Vectors& eV) const
 {
   // Evaluate the crack phase field function, c(X)
-  double c = eC.empty() ? 1.0 : N.dot(eC);
+  double c = eV[eC].empty() ? 1.0 : N.dot(eV[eC]);
   // Evaluate the stress degradation function, g(c), ignoring negative values
   return c > 0.0 ? (1.0-alpha)*c*c + alpha : alpha;
 }
@@ -254,7 +269,7 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
       return false;
 
     // Evaluate the stress degradation function
-    double Gc = this->getStressDegradation(fe.N,elmInt.vec[1]);
+    double Gc = this->getStressDegradation(fe.N,elmInt.vec);
 #if INT_DEBUG > 3
     std::cout <<"lambda = "<< lambda <<" mu = "<< mu <<" G(c) = "<< Gc <<"\n";
     if (lHaveStrains) std::cout <<"eps =\n"<< eps;
@@ -362,14 +377,14 @@ bool FractureElasticity::evalSol (Vector& s,
                                   const std::vector<int>& MNPC) const
 {
   // Extract element displacements
-  Vectors eV(2);
+  Vectors eV(1+eC);
   int ierr = 0;
-  if (!primsol.empty() && !primsol.front().empty())
-    ierr = utl::gather(MNPC,nsd,primsol.front(),eV.front());
+  if (!mySol.empty() && !mySol.front().empty())
+    ierr = utl::gather(MNPC,nsd,mySol.front(),eV.front());
 
   // Extract crack phase field vector for this element
   if (!myCVec.empty() && ierr == 0)
-    ierr = utl::gather(MNPC,1,myCVec,eV.back());
+    ierr = utl::gather(MNPC,1,myCVec,eV[eC]);
 
   if (ierr > 0)
   {
@@ -377,7 +392,6 @@ bool FractureElasticity::evalSol (Vector& s,
               <<" node numbers out of range."<< std::endl;
     return false;
   }
-
 
   return this->evalSol2(s,eV,fe,X);
 }
@@ -389,7 +403,7 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
 {
   PROFILE3("FractureEl::evalSol");
 
-  if (eV.size() < 2)
+  if (eV.size() <= eC)
   {
     std::cerr <<" *** FractureElasticity::evalSol: Missing solution vector."
               << std::endl;
@@ -402,10 +416,10 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
               << fe.dNdX.rows() <<","<< fe.dNdX.cols() << std::endl;
     return false;
   }
-  else if (!eV[1].empty() && eV[1].size() != fe.N.size())
+  else if (!eV[eC].empty() && eV[eC].size() != fe.N.size())
   {
     std::cerr <<" *** FractureElasticity::evalSol: Invalid phase field vector."
-              <<"\n     size(eC) = "<< eV[1].size() <<"   size(N) = "
+              <<"\n     size(eC) = "<< eV[eC].size() <<"   size(N) = "
               << fe.N.size() << std::endl;
     return false;
   }
@@ -428,7 +442,7 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
   // Evaluate the stress state at this point
   SymmTensor sigma(nsd);
   double Phi[3];
-  double Gc = this->getStressDegradation(fe.N,eV[1]);
+  double Gc = this->getStressDegradation(fe.N,eV);
   if (!this->evalStress(lambda,mu,Gc,eps,Phi,sigma))
     return false;
 
