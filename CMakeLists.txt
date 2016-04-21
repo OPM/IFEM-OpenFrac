@@ -21,30 +21,48 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 set(EXTRA_DOXY_PATHS "${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR}")
 
 if(EXISTS ${PROJECT_SOURCE_DIR}/../IFEM-Elasticity)
-  set(EXTRA_DOXY_PATHS "${EXTRA_DOXY_PATHS} \\
-                        ${PROJECT_SOURCE_DIR}/../IFEM-Elasticity")
-  if(NOT TARGET Elasticity)
-    add_subdirectory(../IFEM-Elasticity Elasticity)
-  endif()
-  include_directories(../IFEM-Elasticity)
+  set(ELASTICITY_DIR ../IFEM-Elasticity)
 elseif(EXISTS ${PROJECT_SOURCE_DIR}/../Elasticity)
-  set(EXTRA_DOXY_PATHS "${EXTRA_DOXY_PATHS} \\
-                        ${PROJECT_SOURCE_DIR}/../Elasticity")
-  if(NOT TARGET Elasticity)
-    add_subdirectory(../Elasticity Elasticity)
+  set(ELASTICITY_DIR ../Elasticity)
+else()
+  message(FATAL_ERROR "Need IFEM-Elasticity in a sibling directory.")
+endif()
+
+set(EXTRA_DOXY_PATHS "${EXTRA_DOXY_PATHS} \\
+                      ${PROJECT_SOURCE_DIR}/${ELASTICITY_DIR}")
+if(NOT TARGET Elasticity)
+  add_subdirectory(${ELASTICITY_DIR} Elasticity)
+endif()
+include_directories(${ELASTICITY_DIR})
+
+set(POROELASTIC_DIR ${PROJECT_SOURCE_DIR}/../IFEM-PoroElasticity/PoroElastic)
+if(NOT EXISTS ${POROELASTIC_DIR})
+  set(POROELASTIC_DIR ${PROJECT_SOURCE_DIR}/../PoroElasticity/PoroElastic)
+endif()
+
+if(EXISTS ${POROELASTIC_DIR})
+  set(EXTRA_DOXY_PATHS "${EXTRA_DOXY_PATHS} ${POROELASTIC_DIR}")
+  if(NOT TARGET PoroElastic)
+    add_subdirectory(${POROELASTIC_DIR} PoroElasticity)
   endif()
-  include_directories(../Elasticity)
+  include_directories(${POROELASTIC_DIR})
 endif()
 
 file(GLOB FracEl_SRCS [A-Z]*.C)
 
 add_library(CommonFrac STATIC ${FracEl_SRCS})
+set(Common_LIBRARIES CommonFrac Elasticity ${IFEM_LIBRARIES})
+if(EXISTS ${POROELASTIC_DIR})
+  set(Fracture_LIBRARIES CommonFrac PoroElastic Elasticity ${IFEM_LIBRARIES})
+else()
+  set(Fracture_LIBRARIES ${Common_LIBRARIES})
+endif()
 
 add_executable(CahnHilliard main_CahnHilliard.C)
 add_executable(FractureDynamics main_FractureDynamics.C)
 
-target_link_libraries(CahnHilliard CommonFrac Elasticity ${IFEM_LIBRARIES})
-target_link_libraries(FractureDynamics CommonFrac Elasticity ${IFEM_LIBRARIES})
+target_link_libraries(CahnHilliard ${Common_LIBRARIES})
+target_link_libraries(FractureDynamics ${Fracture_LIBRARIES})
 
 list(APPEND CHECK_SOURCES main_CahnHilliard.C main_FractureDynamics.C ${FracEl_SRCS})
 
@@ -88,7 +106,7 @@ list(APPEND TEST_APPS CahnHilliard FractureDynamics)
 IFEM_add_test_app(${PROJECT_SOURCE_DIR}/Test/*.C
                   ${PROJECT_SOURCE_DIR}/Test
                   FractureDynamics
-                  CommonFrac Elasticity ${IFEM_LIBRARIES})
+                  ${Fracture_LIBRARIES})
 
 if(IFEM_COMMON_APP_BUILD)
   set(TEST_APPS ${TEST_APPS} PARENT_SCOPE)
