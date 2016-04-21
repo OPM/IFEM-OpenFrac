@@ -12,7 +12,7 @@
 //==============================================================================
 
 #ifndef _FRACTURE_ELASTICITY_VOIGT_H
-#define _FRACTURE_ELASTICITY_VOIGH_H
+#define _FRACTURE_ELASTICITY_VOIGT_H
 
 #include "FractureElasticity.h"
 
@@ -30,6 +30,11 @@ public:
   //! \brief The constructor invokes the parent class constructor only.
   //! \param[in] n Number of spatial dimensions
   FractureElasticityVoigt(unsigned short int n) : FractureElasticity(n) {}
+  //! \brief Constructor for integrands with a parent integrand.
+  //! \param parent The parent integrand of this one
+  //! \param[in] n Number of spatial dimensions
+  FractureElasticityVoigt(IntegrandBase* parent, unsigned short int n)
+    : FractureElasticity(parent,n) {}
   //! \brief Empty destructor.
   virtual ~FractureElasticityVoigt() {}
 
