@@ -3,12 +3,11 @@
 //!
 //! \file SIMDynElasticity.h
 //!
-//! \date Jul 13 2015
+//! \date Dec 04 2015
 //!
-//! \author Arne Morten Kvarving / SINTEF
+//! \author Knut Morten Okstad / SINTEF
 //!
-//! \brief Wrapper equipping the elasticity solver with
-//! time-stepping support and phase field coupling.
+//! \brief Dynamic simulation driver for elasticity problems with fracture.
 //!
 //==============================================================================
 
@@ -16,23 +15,30 @@
 #define _SIM_DYN_ELASTICITY_H_
 
 #include "NewmarkSIM.h"
-#include "SIMElasticity.h"
+#include "SIMElasticityWrap.h"
 #include "FractureElasticityVoigt.h"
-#include "DataExporter.h"
+#ifdef IFEM_HAS_POROELASTIC
+#include "PoroFracture.h"
+#endif
 
 
 /*!
-  \brief Driver wrapping an elasticity solver with an ISolver interface.
+  \brief Driver class for dynamic elasticity problems with fracture.
 */
 
-template<class Dim, class DynSIM=NewmarkSIM>
-class SIMDynElasticity : public SIMElasticity<Dim>
+template<class Dim, class DynSIM=NewmarkSIM, class Sim=SIMElasticityWrap<Dim>>
+class SIMDynElasticity : public Sim
 {
 public:
   //! \brief Default constructor.
   SIMDynElasticity() : dSim(*this)
   {
-    Dim::myHeading = "Elasticity solver";
+    vtfStep = subIter = 0;
+  }
+
+  //! \brief Constructor for mixed problems.
+  SIMDynElasticity(const std::vector<unsigned char>& nf) : Sim(nf), dSim(*this)
+  {
     vtfStep = subIter = 0;
   }
 
@@ -46,22 +52,12 @@ public:
     if (++ncall == 1) // Avoiding infinite recursive calls
       dSim.printProblem();
     else
-      this->SIMElasticity<Dim>::printProblem();
+      this->Sim::printProblem();
     --ncall;
   }
 
-  //! \brief Registers fields for data output.
-  void registerFields(DataExporter& exporter)
-  {
-    int flag = DataExporter::PRIMARY;
-    if (!Dim::opt.pSolOnly)
-      flag |= DataExporter::SECONDARY;
-    exporter.registerField("u","solid displacement",DataExporter::SIM,flag);
-    exporter.setFieldValue("u",this,&dSim.getSolution());
-  }
-
   //! \brief Initializes the problem.
-  bool init(const TimeStep&)
+  virtual bool init(const TimeStep&)
   {
     dSim.initPrm();
     dSim.initSol(3);
@@ -72,21 +68,10 @@ public:
     return this->setInitialConditions() && ok;
   }
 
-  //! \brief Opens a new VTF-file and writes the model geometry to it.
-  //! \param[in] fileName File name used to construct the VTF-file name from
-  //! \param geoBlk Running geometry block counter
-  //! \param nBlock Running result block counter
-  bool saveModel(char* fileName, int& geoBlk, int& nBlock)
-  {
-    if (Dim::opt.format < 0) return true;
-
-    return dSim.saveModel(geoBlk,nBlock,fileName);
-  }
-
   //! \brief Saves the converged results of a given time step to VTF file.
   //! \param[in] tp Time stepping parameters
   //! \param nBlock Running result block counter
-  bool saveStep(const TimeStep& tp, int& nBlock)
+  virtual bool saveStep(const TimeStep& tp, int& nBlock)
   {
     double old = utl::zero_print_tol;
     utl::zero_print_tol = 1e-16;
@@ -115,7 +100,7 @@ public:
   virtual bool advanceStep(TimeStep& tp) { return dSim.advanceStep(tp,false); }
 
   //! \brief Computes the solution for the current time step.
-  bool solveStep(TimeStep& tp)
+  virtual bool solveStep(TimeStep& tp)
   {
     if (Dim::msgLevel >= 1)
       IFEM::cout <<"\n  Solving the elasto-dynamics problem...";
@@ -176,9 +161,9 @@ public:
   }
 
   //! \brief Returns the tensile energy in gauss points.
-  const RealArray* getTensileEnergy() const
+  virtual const RealArray* getTensileEnergy() const
   {
-    return static_cast<FractureElasticity*>(Dim::myProblem)->getTensileEnergy();
+    return static_cast<Elasticity*>(Dim::myProblem)->getTensileEnergy();
   }
 
   //! \brief Returns a const reference to the global norms.
@@ -194,7 +179,7 @@ public:
   void setEnergyFile(const std::string&) {}
 
   //! \brief Returns a const reference to current solution vector.
-  const Vector& getSolution(int idx = 0) const { return dSim.getSolution(idx); }
+  virtual const Vector& getSolution(int i) const { return dSim.getSolution(i); }
   //! \brief Returns a const reference to the solution vectors.
   const Vectors& getSolutions() const { return dSim.getSolutions(); }
 
@@ -227,7 +212,7 @@ protected:
   //! \brief Returns the actual integrand.
   virtual Elasticity* getIntegrand()
   {
-    if (!Dim::myProblem) // Using the Voigt formulation by default
+    if (!Dim::myProblem) // Using the Voigt elasticity formulation by default
       Dim::myProblem = new FractureElasticityVoigt(Dim::dimension);
     return static_cast<Elasticity*>(Dim::myProblem);
   }
@@ -239,15 +224,28 @@ protected:
     static short int ncall = 0;
     if (++ncall == 1) // Avoiding infinite recursive calls
       result = dSim.parse(elem);
-    else if (!strcasecmp(elem->Value(),"elasticity") && !Dim::myProblem)
+    else if (!strcasecmp(elem->Value(),SIMElasticity<Dim>::myContext.c_str()))
     {
-      std::string form("voigt");
-      if (utl::getAttribute(elem,"formulation",form,true) && form != "voigt")
-        Dim::myProblem = new FractureElasticity(Dim::dimension);
-      result = this->SIMElasticity<Dim>::parse(elem);
+      if (!Dim::myProblem)
+      {
+        if (this->getName() == "PoroElasticity")
+#ifdef IFEM_HAS_POROELASTIC
+          Dim::myProblem = new PoroFracture(Dim::dimension);
+#else
+          return false;
+#endif
+        else
+        {
+          std::string formulation("voigt");
+          utl::getAttribute(elem,"formulation",formulation,true);
+          if (formulation != "voigt")
+            Dim::myProblem = new FractureElasticity(Dim::dimension);
+        }
+      }
+      result = this->Sim::parse(elem);
     }
     else
-      result = this->SIMElasticity<Dim>::parse(elem);
+      result = this->Dim::parse(elem);
     --ncall;
     return result;
   }
