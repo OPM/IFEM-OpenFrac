@@ -30,6 +30,7 @@ public:
   //! 4=nonlinear Hilber-Hughes-Taylor)
   char integrator;
   char coupling; //!< Coupling flag (0: none, 1: staggered, 2: semi-implicit)
+  bool poroEl;   //!< If \e true, use the poroelastic solver
 
   //! \brief Default constructor.
   FractureArgs();

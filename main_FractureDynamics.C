@@ -17,6 +17,9 @@
 #include "SIMDynElasticity.h"
 #include "SIMPhaseField.h"
 #include "SIMFractureQstatic.h"
+#ifdef IFEM_HAS_POROELASTIC
+#include "SIMPoroElasticity.h"
+#endif
 #include "SIMCoupledSI.h"
 #include "SIMSolver.h"
 #include "SIMSolverTS.h"
@@ -134,15 +137,11 @@ int runCombined (char* infile, const char* context)
   \brief Determines whether the quasi-static semi-implicit driver is to be used.
 */
 
-template<class Dim, class Integrator,
+template<class ElSolver, class PhaseSolver,
          template<class T1, class T2> class Cpl,
          template<class T1> class Solver=SIMSolver>
-int runSimulator3 (const FractureArgs& args)
+int runSimulator4 (const FractureArgs& args, const char* contx)
 {
-  typedef SIMDynElasticity<Dim,Integrator> ElSolver;
-  typedef SIMPhaseField<Dim>               PhaseSolver;
-
-  const char* contx = Integrator::inputContext;
   if (args.integrator == 3 && args.coupling == 2)
   {
     typedef SIMFractureQstatic<ElSolver,PhaseSolver> Coupler;
@@ -211,13 +210,38 @@ int runStandAlone (char* infile, const char* context)
   \brief Determines whether the adaptive simulation driver is to be used.
 */
 
-template<class Dim, class Integrator, template<class T1, class T2> class Cpl>
+template<class Dim, class Integrator, class ElSolver,
+         template<class T1, class T2> class Cpl>
+int runSimulator3 (const FractureArgs& args)
+{
+  typedef SIMDynElasticity<Dim,Integrator,ElSolver> DynElSolver;
+  typedef SIMPhaseField<Dim>                        PhaseSolver;
+
+  const char* context = Integrator::inputContext;
+
+  if (args.adap)
+    return runSimulator4<DynElSolver,PhaseSolver,Cpl,SIMSolverTS>(args,context);
+
+  return runSimulator4<DynElSolver,PhaseSolver,Cpl>(args,context);
+}
+
+
+/*!
+  \brief Creates the combined fracture simulator and launches the simulation.
+*/
+
+template<class Dim, class Integrator,
+         template<class T1, class T2> class Cpl>
 int runSimulator2 (const FractureArgs& args)
 {
-  if (args.adap)
-    return runSimulator3<Dim,Integrator,Cpl,SIMSolverTS>(args);
+  if (args.poroEl)
+#ifdef IFEM_HAS_POROELASTIC
+    return runSimulator3<Dim,Integrator,SIMPoroElasticity<Dim>,Cpl>(args);
+#else
+    return 99; // Built without the poroelastic coupling
+#endif
 
-  return runSimulator3<Dim,Integrator,Cpl>(args);
+  return runSimulator3<Dim,Integrator,SIMElasticityWrap<Dim>,Cpl>(args);
 }
 
 
@@ -314,8 +338,8 @@ int main (int argc, char** argv)
   {
     std::cout <<"usage: "<< argv[0]
               <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n"
-              <<"       [-lag|-spec|-LR] [-2D] [-nGauss <n>]\n       "
-              <<"[-nocrack|-semiimplicit] [-[l|q]static|-GA|-HHT] [-adaptive]\n"
+              <<"       [-lag|-spec|-LR] [-2D] [-nGauss <n>]\n       [-nocrack|"
+              <<"-semiimplicit] [-[l|q]static|-GA|-HHT] [-poro] [-adaptive]\n"
               <<"       [-vtf <format> [-nviz <nviz>] [-nu <nu>] [-nv <nv]"
               <<" [-nw <nw>]]\n       [-hdf5] [-principal]\n";
     return 0;
