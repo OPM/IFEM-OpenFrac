@@ -47,6 +47,17 @@ FractureElasticity::FractureElasticity (IntegrandBase* parent,
 }
 
 
+void FractureElasticity::setMode (SIM::SolutionMode mode)
+{
+  this->Elasticity::setMode(mode);
+  if (eC != 3) return; // no parent integrand
+
+  eKg = 0; // No geometric stiffness (assuming linear behaviour)
+  eM = eS = 0; // Inertia and external forces are calulated by parent integrand
+  if (eKm) eKm = 2; // Index for stiffness matrix in parent integrand
+}
+
+
 void FractureElasticity::initIntegration (size_t nGp, size_t)
 {
   // Initialize internal tensile energy buffer
