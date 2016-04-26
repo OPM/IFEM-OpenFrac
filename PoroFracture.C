@@ -51,7 +51,7 @@ void PoroFracture::setMaterial (Material* mat)
 
 void PoroFracture::setMode (SIM::SolutionMode mode)
 {
-  m_mode = mode;
+  this->PoroElasticity::setMode(mode);
   fracEl->setMode(mode);
   primsol.resize(fracEl->getNoSolutions());
 }

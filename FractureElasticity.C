@@ -121,6 +121,19 @@ void FractureElasticity::printLog () const
 }
 
 
+void FractureElasticity::setMode (SIM::SolutionMode mode)
+{
+  this->Elasticity::setMode(mode);
+  if (eC <= 1) return; // no parent integrand
+
+  eKg = 0; // No geometric stiffness (assuming linear behaviour)
+  eM = eS = 0; // Inertia and external forces are calculated by parent integrand
+  if (eKm) eKm = 2; // Index for stiffness matrix in parent integrand
+  if (iS) iS = 2; // Index for internal force vector in parent integrand
+  eC = mode == SIM::DYNAMIC ? 5 : 3; // include velocity & acceleration vectors
+}
+
+
 void FractureElasticity::initIntegration (size_t nGp, size_t)
 {
   // Initialize internal tensile energy buffer
