@@ -29,6 +29,7 @@
 #include "NewmarkNLSIM.h"
 #include "NonLinSIM.h"
 #include "ASMstruct.h"
+#include "ASMmxBase.h"
 
 
 /*!
@@ -140,7 +141,7 @@ int runCombined (char* infile, const char* context)
 template<class ElSolver, class PhaseSolver,
          template<class T1, class T2> class Cpl,
          template<class T1> class Solver=SIMSolver>
-int runSimulator4 (const FractureArgs& args, const char* contx)
+int runSimulator5 (const FractureArgs& args, const char* contx)
 {
   if (args.integrator == 3 && args.coupling == 2)
   {
@@ -166,10 +167,10 @@ int runSimulator4 (const FractureArgs& args, const char* contx)
   \param[in] context Input-file context for the time integrator
 */
 
-template<class Dim, class Integrator=NewmarkSIM>
+template<class Dim, class Integrator, class ElSolver>
 int runStandAlone (char* infile, const char* context)
 {
-  typedef SIMDynElasticity<Dim,Integrator> SIMElastoDynamics;
+  typedef SIMDynElasticity<Dim,Integrator,ElSolver> SIMElastoDynamics;
 
   IFEM::cout <<"\n\n0. Parsing input file(s)."
              <<"\n========================="<< std::endl;
@@ -207,6 +208,27 @@ int runStandAlone (char* infile, const char* context)
 
 
 /*!
+  \brief Determines whether the poroelastic simulation driver is to be used.
+*/
+
+template<class Dim, class Integrator>
+int runSimulator4 (const FractureArgs& args,
+                   const char* context = "newmarksolver")
+{
+  if (args.poroEl)
+#ifdef IFEM_HAS_POROELASTIC
+    return runStandAlone<Dim,Integrator,SIMPoroElasticity<Dim>>(args.inpfile,
+                                                                context);
+#else
+    return 99; // Built without the poroelastic coupling
+#endif
+
+  return runStandAlone<Dim,Integrator,SIMElasticityWrap<Dim>>(args.inpfile,
+                                                              context);
+}
+
+
+/*!
   \brief Determines whether the adaptive simulation driver is to be used.
 */
 
@@ -220,9 +242,9 @@ int runSimulator3 (const FractureArgs& args)
   const char* context = Integrator::inputContext;
 
   if (args.adap)
-    return runSimulator4<DynElSolver,PhaseSolver,Cpl,SIMSolverTS>(args,context);
+    return runSimulator5<DynElSolver,PhaseSolver,Cpl,SIMSolverTS>(args,context);
 
-  return runSimulator4<DynElSolver,PhaseSolver,Cpl>(args,context);
+  return runSimulator5<DynElSolver,PhaseSolver,Cpl>(args,context);
 }
 
 
@@ -259,7 +281,7 @@ int runSimulator1 (const FractureArgs& args)
   case 2:
     return runSimulator2<Dim,Integrator,SIMCoupledSI>(args);
   default: // No phase field coupling
-    return runStandAlone<Dim,Integrator>(args.inpfile,Integrator::inputContext);
+    return runSimulator4<Dim,Integrator>(args,Integrator::inputContext);
   }
 }
 
@@ -290,7 +312,7 @@ int runSimulator (const FractureArgs& args)
 {
   switch (args.integrator) {
   case 0:
-    return runStandAlone<Dim,LinSIM>(args.inpfile,"staticsolver");
+    return runSimulator4<Dim,LinSIM>(args,"staticsolver");
   case 1:
     return runSimulator1<Dim,NewmarkSIM>(args);
   case 2:
@@ -318,6 +340,7 @@ int main (int argc, char** argv)
 
   FractureArgs args;
   Elastic::planeStrain = true;
+  ASMmxBase::Type = ASMmxBase::NONE;
   IFEM::Init(argc,argv,"Fracture dynamics solver");
 
   for (int i = 1; i < argc; i++)
@@ -325,6 +348,8 @@ int main (int argc, char** argv)
       ; // ignore the input file on the second pass
     else if (SIMoptions::ignoreOldOptions(argc,argv,i))
       ; // ignore the obsolete option
+    else if (!strcmp(argv[i],"-mixed"))
+      ASMmxBase::Type = ASMmxBase::FULL_CONT_RAISE_BASIS1;
     else if (!strcmp(argv[i],"-principal"))
       Elasticity::wantPrincipalStress = true;
     else if (!strcmp(argv[i],"-dbgElm") && i < argc-1)
@@ -337,10 +362,10 @@ int main (int argc, char** argv)
   if (!args.inpfile)
   {
     std::cout <<"usage: "<< argv[0]
-              <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n"
-              <<"       [-lag|-spec|-LR] [-2D] [-nGauss <n>]\n       [-nocrack|"
-              <<"-semiimplicit] [-[l|q]static|-GA|-HHT] [-poro] [-adaptive]\n"
-              <<"       [-vtf <format> [-nviz <nviz>] [-nu <nu>] [-nv <nv]"
+              <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n      "
+              <<" [-lag|-spec|-LR] [-2D] [-mixed] [-nGauss <n>]\n       [-nocra"
+              <<"ck|-semiimplicit] [-[l|q]static|-GA|-HHT] [-poro] [-adaptive]"
+              <<"\n       [-vtf <format> [-nviz <nviz>] [-nu <nu>] [-nv <nv]"
               <<" [-nw <nw>]]\n       [-hdf5] [-principal]\n";
     return 0;
   }
