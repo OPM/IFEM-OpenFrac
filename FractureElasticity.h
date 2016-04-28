@@ -100,6 +100,15 @@ public:
   virtual bool evalSol(Vector& s, const Vectors& eV, const FiniteElement& fe,
                        const Vec3& X, bool toLocal, Vec3* pdir) const;
 
+  //! \brief Evaluates the phase field and gradient at current point.
+  //! \param[out] gradD Phase field gradient at current point
+  //! \param[in] eV Element solution vectors
+  //! \param[in] N Basis function values at current point
+  //! \param[in] dNdX Basis function gradients at current point
+  //! \return Phase field value at current point
+  double evalPhaseField(Vec3& gradD, const Vectors& eV,
+                        const Vector& N, const Matrix& dNdX) const;
+
   //! \brief Returns a pointer to the Gauss-point tensile energy array.
   virtual const RealArray* getTensileEnergy() const { return &myPhi; }
 
