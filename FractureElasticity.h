@@ -39,29 +39,26 @@ public:
   //! \brief Sets the number of solution variables per node.
   void setVar(unsigned short int n) { npv = n; }
 
+  //! \brief Returns whether this norm has explicit boundary contributions.
+  virtual bool hasBoundaryTerms() const { return m_mode != SIM::RECOVERY; }
+
   //! \brief Initializes the integrand with the number of integration points.
   //! \param[in] nGp Total number of interior integration points
   virtual void initIntegration(size_t nGp, size_t);
 
+  using Elasticity::initElement;
   //! \brief Initializes current element for numerical integration.
   //! \param[in] MNPC Matrix of nodal point correspondance for current element
   //! \param elmInt Local integral for element
   virtual bool initElement(const std::vector<int>& MNPC, LocalIntegral& elmInt);
 
+  using Elasticity::evalInt;
   //! \brief Evaluates the integrand at an interior point.
   //! \param elmInt The local integral object to receive the contributions
   //! \param[in] fe Finite element data of current integration point
   //! \param[in] X Cartesian coordinates of current integration point
   virtual bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
                        const Vec3& X) const;
-
-  //! \brief Evaluates the integrand at a boundary point.
-  //! \param elmInt The local integral object to receive the contributions
-  //! \param[in] fe Finite element data of current integration point
-  //! \param[in] X Cartesian coordinates of current integration point
-  //! \param[in] normal Boundary normal vector at current integration point
-  virtual bool evalBou(LocalIntegral& elmInt, const FiniteElement& fe,
-                       const Vec3& X, const Vec3& normal) const;
 
   using Elasticity::evalSol;
   //! \brief Evaluates the secondary solution at a result point.
@@ -70,7 +67,7 @@ public:
   //! \param[in] X Cartesian coordinates of current point
   //! \param[in] MNPC Nodal point correspondance for the basis function values
   virtual bool evalSol(Vector& s, const FiniteElement& fe,
-		       const Vec3& X, const std::vector<int>& MNPC) const;
+                       const Vec3& X, const std::vector<int>& MNPC) const;
 
   //! \brief Evaluates the finite element (FE) solution at an integration point.
   //! \param[out] s The FE stress values at current point
@@ -83,7 +80,7 @@ public:
                        const Vec3& X, bool toLocal, Vec3* pdir) const;
 
   //! \brief Returns a pointer to the Gauss-point tensile energy array.
-  const RealArray* getTensileEnergy() const { return &myPhi; }
+  virtual const RealArray* getTensileEnergy() const { return &myPhi; }
 
   //! \brief Returns the number of primary/secondary solution field components.
   //! \param[in] fld which field set to consider (1=primary, 2=secondary)

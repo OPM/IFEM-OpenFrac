@@ -32,7 +32,7 @@ FractureElasticity::FractureElasticity (unsigned short int n)
 {
   alpha = 0.0;
   this->registerVector("phasefield",&myCVec);
-  eC = 1; // Assuming second vector is phase field 
+  eC = 1; // Assuming second vector is phase field
 }
 
 
@@ -228,6 +228,14 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
 }
 
 
+bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
+                                     const SymmTensor& epsilon,
+                                     double* Phi, SymmTensor& sigma) const
+{
+  return this->evalStress(lambda,mu,Gc,epsilon,Phi,sigma,nullptr,true);
+}
+
+
 double FractureElasticity::getStressDegradation (const Vector& N,
                                                  const Vectors& eV) const
 {
@@ -346,35 +354,6 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
 }
 
 
-bool FractureElasticity::evalBou (LocalIntegral& elmInt,
-                                  const FiniteElement& fe, const Vec3& X,
-                                  const Vec3& normal) const
-{
-  if (!tracFld && !fluxFld)
-  {
-    std::cerr <<" *** FractureElasticity::evalBou: No tractions."<< std::endl;
-    return false;
-  }
-  else if (!eS)
-  {
-    if (m_mode == SIM::RECOVERY) return true;
-    std::cerr <<" *** FractureElasticity::evalBou: No load vector."<< std::endl;
-    return false;
-  }
-
-  // Evaluate the surface traction
-  Vec3 T = this->getTraction(X,normal);
-
-  // Integrate the force vector
-  Vector& ES = static_cast<ElmMats&>(elmInt).b[eS-1];
-  for (size_t a = 1; a <= fe.N.size(); a++)
-    for (unsigned short int i = 1; i <= nsd; i++)
-      ES(nsd*(a-1)+i) += T[i-1]*fe.N(a)*fe.detJxW;
-
-  return true;
-}
-
-
 bool FractureElasticity::evalSol (Vector& s,
                                   const FiniteElement& fe, const Vec3& X,
                                   const std::vector<int>& MNPC) const
@@ -485,14 +464,6 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
   }
 
   return true;
-}
-
-
-bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
-                                     const SymmTensor& epsilon,
-                                     double* Phi, SymmTensor& sigma) const
-{
-  return this->evalStress(lambda,mu,Gc,epsilon,Phi,sigma,nullptr,true);
 }
 
 
