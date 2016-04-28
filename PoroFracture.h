@@ -91,8 +91,24 @@ protected:
                                       const FiniteElement& fe,
                                       const Vec3& X) const;
 
+  //! \brief Computes the permeability tensor of the broken material.
+  //! \param[out] Kcrack Permeability tensor of the broken material
+  //! \param[in] eV Element solution vectors
+  //! \param[in] fe Finite element data of current integration point
+  //! \param[in] X Cartesian coordinates of current integration point
+  //! \return Estimated crack opening
+  double formCrackedPermeabilityTensor(SymmTensor& Kcrack,
+                                       const Vectors& eV,
+                                       const FiniteElement& fe,
+                                       const Vec3& X) const;
+
 private:
   FractureElasticity* fracEl; //!< Integrand for tangent stiffness evaluation
+
+  double L_per; //!< Characteristic length of crack-perpendicular line
+  double d_min; //!< Crack phase field value for incorporating Poiseuille flow
+  double Kc;    //!< Spatial permeability in fracture
+  double eps;   //!< Permeability transition exponent
 };
 
 #endif
