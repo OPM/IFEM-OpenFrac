@@ -162,5 +162,13 @@ bool PoroFracture::evalElasticityMatrices (ElmMats& elMat, const Matrix&,
                                            const Vec3& X) const
 {
   // Evaluate tangent stiffness matrix and internal forces
-  return fracEl->evalInt(elMat,fe,X);
+  if (!fracEl->evalInt(elMat,fe,X))
+    return false;
+
+  PoroElasticity::Mats* pelm = dynamic_cast<PoroElasticity::Mats*>(&elMat);
+  if (!pelm) return false;
+
+  // Evaluate the perpendicular crack stretch
+  pelm->setCrackStretch(fracEl->crackStretch(elMat.vec,fe,X));
+  return true;
 }

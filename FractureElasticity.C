@@ -236,6 +236,14 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
 }
 
 
+bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
+                                     const SymmTensor& epsilon,
+                                     double* Phi, SymmTensor& sigma) const
+{
+  return this->evalStress(lambda,mu,Gc,epsilon,Phi,sigma,nullptr,true);
+}
+
+
 double FractureElasticity::getStressDegradation (const Vector& N,
                                                  const Vectors& eV) const
 {
@@ -354,32 +362,57 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
 }
 
 
-bool FractureElasticity::evalBou (LocalIntegral& elmInt,
-                                  const FiniteElement& fe, const Vec3& X,
-                                  const Vec3& normal) const
+bool FractureElasticity::checkSolVec (const Vectors& eV, size_t nen,
+                                      const char* name) const
 {
-  if (!tracFld && !fluxFld)
-  {
-    std::cerr <<" *** FractureElasticity::evalBou: No tractions."<< std::endl;
-    return false;
-  }
-  else if (!eS)
-  {
-    if (m_mode == SIM::RECOVERY) return true;
-    std::cerr <<" *** FractureElasticity::evalBou: No load vector."<< std::endl;
-    return false;
-  }
+  if (eV.size() <= eC)
+    std::cerr <<" *** FractureElasticity::"<< name
+              <<": Missing solution vector."<< std::endl;
+  else if (!eV.front().empty() && eV.front().size() != nsd*nen)
+    std::cerr <<" *** FractureElasticity::"<< name
+              <<": Invalid displacement vector.\n     size(eV) = "
+              << eV.front().size() <<"   size(dNdX) = "<< nsd*nen << std::endl;
+  else if (!eV[eC].empty() && eV[eC].size() != nen)
+    std::cerr <<" *** FractureElasticity::"<< name
+              <<": Invalid phase field vector.\n     size(eC) = "
+              << eV[eC].size() <<"   size(N) = "<< nen << std::endl;
+  else
+    return true;
 
-  // Evaluate the surface traction
-  Vec3 T = this->getTraction(X,normal);
+  return false;
+}
 
-  // Integrate the force vector
-  Vector& ES = static_cast<ElmMats&>(elmInt).b[eS-1];
-  for (size_t a = 1; a <= fe.N.size(); a++)
-    for (unsigned short int i = 1; i <= nsd; i++)
-      ES(nsd*(a-1)+i) += T[i-1]*fe.N(a)*fe.detJxW;
 
-  return true;
+double FractureElasticity::crackStretch (const Vectors& eV,
+                                         const FiniteElement& fe,
+                                         const Vec3& X) const
+{
+  if (!this->checkSolVec(eV,fe.N.size(),"crackStretch"))
+    return -1.0;
+  else if (eV[eC].empty())
+    return 1.0; // No phase field ==> unit stretch
+
+  // Compute the deformation gradient (F)
+  Tensor F(nDF), C(nDF);
+  if (!this->formDefGradient(eV.front(),fe.N,fe.dNdX,X.x,F))
+    return -2.0;
+
+  // Compute the inverse right Cauchy-Green tensor (C^-1)
+  SymmTensor Ci(nDF);
+  if (Ci.rightCauchyGreen(F).inverse() == 0.0)
+    return -3.0;
+
+  // Compute the phase field gradient (dD/dX where D = 1 - C)
+  Vector eD(eV[eC]), tmp(nsd);
+  for (size_t i = 0; i < eD.size(); i++)
+    eD[i] = 1.0 - eD[i]; // d = 1 - c
+  if (!fe.dNdX.multiply(eD,tmp,true))
+    return -4.0;
+
+  // Calculate the perpendicular crack stretch
+  // lambda = gradD*gradD / gradD*Ci*gradD (see eq. (106) in Miehe2015pfm3)
+  Vec3 gradD(tmp);
+  return gradD.length2() / (gradD*(Ci*gradD));
 }
 
 
@@ -414,26 +447,8 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
 {
   PROFILE3("FractureEl::evalSol");
 
-  if (eV.size() <= eC)
-  {
-    std::cerr <<" *** FractureElasticity::evalSol: Missing solution vector."
-              << std::endl;
+  if (!this->checkSolVec(eV,fe.N.size(),"evalSol"))
     return false;
-  }
-  else if (!eV.front().empty() && eV.front().size() != fe.dNdX.rows()*nsd)
-  {
-    std::cerr <<" *** FractureElasticity::evalSol: Invalid displacement vector."
-              <<"\n     size(eV) = "<< eV.front().size() <<"   size(dNdX) = "
-              << fe.dNdX.rows() <<","<< fe.dNdX.cols() << std::endl;
-    return false;
-  }
-  else if (!eV[eC].empty() && eV[eC].size() != fe.N.size())
-  {
-    std::cerr <<" *** FractureElasticity::evalSol: Invalid phase field vector."
-              <<"\n     size(eC) = "<< eV[eC].size() <<"   size(N) = "
-              << fe.N.size() << std::endl;
-    return false;
-  }
 
   // Evaluate the symmetric strain tensor, eps
   Matrix Bmat;
@@ -493,14 +508,6 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
   }
 
   return true;
-}
-
-
-bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
-                                     const SymmTensor& epsilon,
-                                     double* Phi, SymmTensor& sigma) const
-{
-  return this->evalStress(lambda,mu,Gc,epsilon,Phi,sigma,nullptr,true);
 }
 
 
