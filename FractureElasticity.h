@@ -29,8 +29,22 @@ public:
   //! \brief The constructor invokes the parent class constructor only.
   //! \param[in] n Number of spatial dimensions
   FractureElasticity(unsigned short int n);
+  //! \brief Constructor for integrands with a parent integrand.
+  //! \param parent The parent integrand of this one
+  //! \param[in] n Number of spatial dimensions
+  FractureElasticity(IntegrandBase* parent, unsigned short int n);
   //! \brief Empty destructor.
   virtual ~FractureElasticity() {}
+
+  //! \brief Sets the number of solution variables per node.
+  void setVar(unsigned short int n) { npv = n; }
+
+  //! \brief Defines the solution mode before the element assembly is started.
+  //! \param[in] mode The solution mode to use
+  virtual void setMode(SIM::SolutionMode mode);
+
+  //! \brief Returns whether this norm has explicit boundary contributions.
+  virtual bool hasBoundaryTerms() const { return m_mode != SIM::RECOVERY; }
 
   //! \brief Initializes the integrand with the number of integration points.
   //! \param[in] nGp Total number of interior integration points
@@ -48,14 +62,6 @@ public:
   virtual bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
                        const Vec3& X) const;
 
-  //! \brief Evaluates the integrand at a boundary point.
-  //! \param elmInt The local integral object to receive the contributions
-  //! \param[in] fe Finite element data of current integration point
-  //! \param[in] X Cartesian coordinates of current integration point
-  //! \param[in] normal Boundary normal vector at current integration point
-  virtual bool evalBou(LocalIntegral& elmInt, const FiniteElement& fe,
-                       const Vec3& X, const Vec3& normal) const;
-
   using Elasticity::evalSol;
   //! \brief Evaluates the secondary solution at a result point.
   //! \param[out] s Array of solution field values at current point
@@ -63,7 +69,7 @@ public:
   //! \param[in] X Cartesian coordinates of current point
   //! \param[in] MNPC Nodal point correspondance for the basis function values
   virtual bool evalSol(Vector& s, const FiniteElement& fe,
-		       const Vec3& X, const std::vector<int>& MNPC) const;
+                       const Vec3& X, const std::vector<int>& MNPC) const;
 
   //! \brief Evaluates the finite element (FE) solution at an integration point.
   //! \param[out] s The FE stress values at current point
@@ -76,7 +82,15 @@ public:
                        const Vec3& X, bool toLocal, Vec3* pdir) const;
 
   //! \brief Returns a pointer to the Gauss-point tensile energy array.
-  const RealArray* getTensileEnergy() const { return &myPhi; }
+  virtual const RealArray* getTensileEnergy() const { return &myPhi; }
+
+  //! \brief Evaluates the crack stretch at an integration point.
+  //! \param[in] eV Element solution vectors
+  //! \param[in] fe Finite element data at current point
+  //! \param[in] X Cartesian coordinates of current point
+  //! \return Perpendicular relative crack opening meassure
+  double crackStretch(const Vectors& eV, const FiniteElement& fe,
+                      const Vec3& X) const;
 
   //! \brief Returns the number of primary/secondary solution field components.
   //! \param[in] fld which field set to consider (1=primary, 2=secondary)
@@ -103,13 +117,20 @@ protected:
                   bool postProc = false) const;
 
   //! \brief Evaluates the stress degradation function \a g(c) at current point.
-  double getStressDegradation(const Vector& N, const Vector& eC) const;
+  double getStressDegradation(const Vector& N, const Vectors& eV) const;
+
+  //! \brief Internal helper used to check solution vector dimensions.
+  bool checkSolVec(const Vectors& eV, size_t nen, const char* name) const;
+
+private:
+  unsigned short int eC; //!< Zero-based index to element phase field vector
 
 protected:
   double alpha;  //!< Relaxation factor for the crack phase field
   Vector myCVec; //!< Crack phase field values at nodal points
 
   mutable RealArray myPhi; //!< Tensile energy density at integration points
+  Vectors&          mySol; //!< Primary solution vectors for current patch
 };
 
 #endif

@@ -268,7 +268,7 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
       return false;
 
     // Evaluate the stress degradation function
-    double Gc = this->getStressDegradation(fe.N,elmInt.vec[1]);
+    double Gc = this->getStressDegradation(fe.N,elmInt.vec);
 #if INT_DEBUG > 3
     std::cout <<"lambda = "<< lambda <<" mu = "<< mu <<" G(c) = "<< Gc <<"\n";
     if (lHaveStrains) std::cout <<"eps =\n"<< eps;
@@ -391,7 +391,7 @@ bool FractureElasticNorm::evalInt (LocalIntegral& elmInt,
 
   // Evaluate the strain energy at this point
   double Phi[4];
-  double Gc = p.getStressDegradation(fe.N,elmInt.vec[1]);
+  double Gc = p.getStressDegradation(fe.N,elmInt.vec);
   if (!p.evalStress(lambda,mu,Gc,eps,Phi,nullptr,nullptr,true,printElm))
     return false;
 

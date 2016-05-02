@@ -26,6 +26,17 @@ if(NOT WIN32)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 endif(NOT WIN32)
 
+if(EXISTS ${PROJECT_SOURCE_DIR}/../IFEM-PoroElasticity)
+  if(NOT TARGET PoroElastic)
+    add_subdirectory(../IFEM-PoroElasticity/PoroElastic PoroElasticity)
+  endif()
+  include_directories(../IFEM-PoroElasticity/PoroElastic)
+elseif(EXISTS ${PROJECT_SOURCE_DIR}/../PoroElasticity)
+  if(NOT TARGET PoroElastic)
+    add_subdirectory(../PoroElasticity/PoroElastic PoroElasticity)
+  endif()
+  include_directories(../PoroElasticity/PoroElastic)
+endif()
 if(EXISTS ${PROJECT_SOURCE_DIR}/../IFEM-Elasticity)
   if(NOT TARGET Elasticity)
     add_subdirectory(../IFEM-Elasticity Elasticity)
@@ -41,12 +52,14 @@ endif()
 file(GLOB FracEl_SRCS [A-Z]*.C)
 
 add_library(CommonFrac STATIC ${FracEl_SRCS})
+set(Common_LIBRARIES CommonFrac Elasticity ${IFEM_LIBRARIES})
+set(Fracture_LIBRARIES CommonFrac PoroElastic Elasticity ${IFEM_LIBRARIES})
 
 add_executable(CahnHilliard main_CahnHilliard.C)
 add_executable(FractureDynamics main_FractureDynamics.C)
 
-target_link_libraries(CahnHilliard CommonFrac Elasticity ${IFEM_LIBRARIES})
-target_link_libraries(FractureDynamics CommonFrac Elasticity ${IFEM_LIBRARIES})
+target_link_libraries(CahnHilliard ${Common_LIBRARIES})
+target_link_libraries(FractureDynamics ${Fracture_LIBRARIES})
 
 # Installation
 install(TARGETS CahnHilliard FractureDynamics DESTINATION bin)
@@ -79,7 +92,7 @@ list(APPEND TEST_APPS CahnHilliard FractureDynamics)
 IFEM_add_test_app(${PROJECT_SOURCE_DIR}/Test/*.C
                   ${PROJECT_SOURCE_DIR}/Test
                   FractureDynamics
-                  CommonFrac Elasticity ${IFEM_LIBRARIES})
+                  ${Fracture_LIBRARIES})
 
 if(IFEM_COMMON_APP_BUILD)
   set(TEST_APPS ${TEST_APPS} PARENT_SCOPE)
