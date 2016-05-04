@@ -12,6 +12,7 @@
 //==============================================================================
 
 #include "PoroFracture.h"
+#include "PoroMaterial.h"
 #include "FractureElasticityVoigt.h"
 #include "FiniteElement.h"
 #include "Tensor.h"
@@ -248,4 +249,23 @@ double PoroFracture::formCrackedPermeabilityTensor (SymmTensor& Kcrack,
   // Compute the permeability tensor, scale by d^eps*Kc*w^2*J (see eq. (108))
   Kcrack *= pow(d,eps)*Kc*w*w*F.det();
   return w;
+}
+
+
+bool PoroFracture::formPermeabilityTensor (SymmTensor& K,
+                                           const Vectors& eV,
+                                           const FiniteElement& fe,
+                                           const Vec3& X) const
+{
+  if (this->formCrackedPermeabilityTensor(K,eV,fe,X) < 0.0)
+    return false;
+
+  const PoroMaterial* pmat = dynamic_cast<const PoroMaterial*>(material);
+  if (!pmat) return false;
+
+  Vec3 permeability = pmat->getPermeability(X);
+  for (size_t i = 1; i <= K.dim(); i++)
+    K(i,i) += permeability(i);
+
+  return true;
 }

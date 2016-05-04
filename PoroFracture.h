@@ -91,6 +91,16 @@ protected:
                                       const FiniteElement& fe,
                                       const Vec3& X) const;
 
+  //! \brief Evaluates the permeability tensor at a quadrature point.
+  //! \param[out] K The permeability tensor
+  //! \param[in] eV Element solution vectors
+  //! \param[in] fe Finite element data of current integration point
+  //! \param[in] X Cartesian coordinates of current integration point
+  virtual bool formPermeabilityTensor(SymmTensor& K,
+                                      const Vectors& eV,
+                                      const FiniteElement& fe,
+                                      const Vec3& X) const;
+
   //! \brief Computes the permeability tensor of the broken material.
   //! \param[out] Kcrack Permeability tensor of the broken material
   //! \param[in] eV Element solution vectors
