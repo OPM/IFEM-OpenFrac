@@ -243,3 +243,49 @@ bool PoroFracture::formPermeabilityTensor (SymmTensor& K,
 
   return true;
 }
+
+
+size_t PoroFracture::getNoFields (int fld) const
+{
+  size_t nK = fld == 2 ? 1+nsd : 0;
+  return this->PoroElasticity::getNoFields(fld) + nK;
+}
+
+
+std::string PoroFracture::getField2Name (size_t i, const char* prefix) const
+{
+  if (i < this->PoroElasticity::getNoFields(2))
+    return this->PoroElasticity::getField2Name(i,prefix);
+
+  i -= this->PoroElasticity::getNoFields(2);
+
+  static const char* s[4] = { "w", "K_xx", "K_yy", "K_zz" };
+
+  if (!prefix) return s[i%4];
+
+  return prefix + std::string(" ") + s[i%4];
+}
+
+
+bool PoroFracture::evalSol (Vector& s, const FiniteElement& fe,
+                            const Vec3& X, const std::vector<int>& MNPC) const
+{
+  if (!this->PoroElasticity::evalSol(s,fe,X,MNPC))
+    return false;
+
+  Vectors eV;
+  if (!fracEl->getElementSolution(eV,MNPC))
+    return false;
+
+  SymmTensor Kc(nsd);
+  s.push_back(this->formCrackedPermeabilityTensor(Kc,eV,fe,X));
+
+  const PoroMaterial* pmat = dynamic_cast<const PoroMaterial*>(material);
+  if (!pmat) return false;
+
+  Vec3 permeability = pmat->getPermeability(X);
+  for (size_t i = 1; i <= Kc.dim(); i++)
+    s.push_back(Kc(i,i)+permeability(i));
+
+  return true;
+}

@@ -64,7 +64,7 @@ public:
   virtual LocalIntegral* getLocalIntegral(const std::vector<size_t>& nen,
                                           size_t, bool neumann) const;
 
-  using Elasticity::initElement;
+  using PoroElasticity::initElement;
   //! \brief Initializes current element for numerical integration.
   //! \param[in] MNPC Matrix of nodal point correspondance for current element
   //! \param elmInt The local integral object for current element
@@ -79,8 +79,26 @@ public:
                            const std::vector<size_t>& basis_sizes,
                            LocalIntegral& elmInt);
 
+  using PoroElasticity::evalSol;
+  //! \brief Evaluates the secondary solution at a result point.
+  //! \param[out] s Array of solution field values at current point
+  //! \param[in] fe Finite element data at current point
+  //! \param[in] X Cartesian coordinates of current point
+  //! \param[in] MNPC Nodal point correspondance for the basis function values
+  virtual bool evalSol(Vector& s, const FiniteElement& fe,
+                       const Vec3& X, const std::vector<int>& MNPC) const;
+
   //! \brief Returns a pointer to the Gauss-point tensile energy array.
   virtual const RealArray* getTensileEnergy() const;
+
+  //! \brief Returns the number of primary/secondary solution field components.
+  //! \param[in] fld Which field set to consider (1=primary,2=secondary)
+  virtual size_t getNoFields(int fld) const;
+
+  //! \brief Returns the name of a secondary solution field component.
+  //! \param[in] i Field component index
+  //! \param[in] prefix Name prefix for all components
+  virtual std::string getField2Name(size_t i, const char* prefix) const;
 
 protected:
   //! \brief Computes the elasticity matrices for a quadrature point.
