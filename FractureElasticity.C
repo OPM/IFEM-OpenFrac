@@ -521,12 +521,11 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
 }
 
 
-bool FractureElasticity::evalSol (Vector& s,
-                                  const FiniteElement& fe, const Vec3& X,
-                                  const std::vector<int>& MNPC) const
+bool FractureElasticity::getElementSolution (Vectors& eV,
+                                             const std::vector<int>& MNPC) const
 {
   // Extract element displacements
-  Vectors eV(1+eC);
+  eV.resize(1+eC);
   int ierr = 0;
   if (!mySol.empty() && !mySol.front().empty())
     ierr = utl::gather(MNPC,nsd,mySol.front(),eV.front());
@@ -535,14 +534,21 @@ bool FractureElasticity::evalSol (Vector& s,
   if (!myCVec.empty() && ierr == 0)
     ierr = utl::gather(MNPC,1,myCVec,eV[eC]);
 
-  if (ierr > 0)
-  {
-    std::cerr <<" *** FractureElasticity::evalSol: Detected "<< ierr
-              <<" node numbers out of range."<< std::endl;
-    return false;
-  }
+  if (ierr == 0)
+    return true;
 
-  return this->evalSol2(s,eV,fe,X);
+  std::cerr <<" *** FractureElasticity::getElementSolution: Detected "<< ierr
+            <<" node numbers out of range."<< std::endl;
+  return false;
+}
+
+
+bool FractureElasticity::evalSol (Vector& s,
+                                  const FiniteElement& fe, const Vec3& X,
+                                  const std::vector<int>& MNPC) const
+{
+  Vectors eV(1+eC);
+  return this->getElementSolution(eV,MNPC) && this->evalSol2(s,eV,fe,X);
 }
 
 
