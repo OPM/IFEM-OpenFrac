@@ -20,7 +20,9 @@
 #include "SIMCoupledSI.h"
 #include "SIMSolver.h"
 #include "SIMSolverTS.h"
+#include "HHTSIM.h"
 #include "GenAlphaSIM.h"
+#include "NewmarkNLSIM.h"
 #include "NonLinSIM.h"
 #include "ASMstruct.h"
 #include "AppCommon.h"
@@ -100,7 +102,7 @@ int runSimulator2 (char* infile)
   phaseSim.opt.print(IFEM::cout) << std::endl;
 
   SIMFractureDynamics frac(elastoSim,phaseSim,infile);
-  SIMDriver<SIMFractureDynamics,Solver> solver(frac,"newmarksolver");
+  SIMDriver<SIMFractureDynamics,Solver> solver(frac,Integrator::inputContext);
   if (!solver.read(infile))
     return 1;
 
@@ -141,7 +143,7 @@ int runSimulator2 (char* infile)
 */
 
 template<class Dim, class Integrator=NewmarkSIM>
-int runSimulator3 (char* infile, const char* context = "newmarksolver")
+int runSimulator3 (char* infile, const char* context)
 {
   typedef SIMDynElasticity<Dim,Integrator> SIMElastoDynamics;
 
@@ -216,8 +218,8 @@ int runSimulator1 (char* infile, char coupling, bool timeslabs)
     return runSolver<Dim,Integrator,SIMCoupled>(infile,timeslabs);
   else if (coupling == 2)
     return runSolver<Dim,Integrator,SIMCoupledSI>(infile,timeslabs);
-  else
-    return runSimulator3<Dim,Integrator>(infile); // No phase field coupling
+  else // No phase field coupling
+    return runSimulator3<Dim,Integrator>(infile,Integrator::inputContext);
 }
 
 
@@ -239,7 +241,8 @@ public:
   \brief Creates the combined fracture simulator and launches the simulation.
   \param[in] infile The input file to parse
   \param[in] integrator The time integrator to use (0=linear quasi-static,
-             no phase-field coupling, 1=linear Newmark, 2=Generalized alpha)
+             no phase-field coupling, 1=linear Newmark, 2=Generalized alpha,
+             3=nonlinear quasi-static, 4=nonlinear Hilber-Hughes-Taylor)
   \param[in] coupling Coupling flag (0: none, 1: staggered, 2: semi-implicit)
   \param[in] timeslabs Use time-slab adaptive solver
 */
@@ -247,12 +250,23 @@ public:
 template<class Dim>
 int runSimulator (char* infile, char integrator, char coupling, bool timeslabs)
 {
-  if (integrator == 2)
-    return runSimulator1<Dim,GenAlphaSIM>(infile,coupling,timeslabs);
-  else if (integrator > 0)
-    return runSimulator1<Dim>(infile,coupling,timeslabs);
-  else
+  switch (integrator) {
+  case 0:
     return runSimulator3<Dim,LinSIM>(infile,"staticsolver");
+  case 1:
+    return runSimulator1<Dim>(infile,coupling,timeslabs);
+  case 2:
+    return runSimulator1<Dim,GenAlphaSIM>(infile,coupling,timeslabs);
+  case 3:
+    return runSimulator1<Dim,NonLinSIM>(infile,coupling,timeslabs);
+  case 4:
+    return runSimulator1<Dim,HHTSIM>(infile,coupling,timeslabs);
+  case 5:
+    return runSimulator1<Dim,NewmarkNLSIM>(infile,coupling,timeslabs);
+  default:
+    std::cerr <<" *** Invalid time integrator "<< integrator << std::endl;
+    return 99;
+  }
 }
 
 
@@ -282,10 +296,16 @@ int main (int argc, char** argv)
       coupling = 0;
     else if (!strcmp(argv[i],"-semiimplicit"))
       coupling = 2;
-    else if (!strcmp(argv[i],"-static"))
+    else if (!strcmp(argv[i],"-lstatic"))
       integrator = 0;
     else if (!strcmp(argv[i],"-GA"))
       integrator = 2;
+    else if (!strcmp(argv[i],"-qstatic"))
+      integrator = 3;
+    else if (!strcmp(argv[i],"-HHT"))
+      integrator = 4;
+    else if (!strcmp(argv[i],"-oldHHT"))
+      integrator = 5;
     else if (!strcmp(argv[i],"-principal"))
       Elasticity::wantPrincipalStress = true;
     else if (!strcmp(argv[i],"-dbgElm") && i < argc-1)
@@ -301,8 +321,8 @@ int main (int argc, char** argv)
   {
     std::cout <<"usage: "<< argv[0]
               <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n"
-              <<"       [-lag|-spec|-LR] [-2D] [-nGauss <n>]\n"
-              <<"       [-nocrack|-semiimplicit] [-static|-GA] [-adaptive]\n"
+              <<"       [-lag|-spec|-LR] [-2D] [-nGauss <n>]\n       "
+              <<"[-nocrack|-semiimplicit] [-[l|q]static|-GA|-HHT] [-adaptive]\n"
               <<"       [-vtf <format> [-nviz <nviz>] [-nu <nu>] [-nv <nv]"
               <<" [-nw <nw>]] [-hdf5] [-principal]\n"<< std::endl;
     return 0;
