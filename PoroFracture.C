@@ -113,33 +113,12 @@ bool PoroFracture::initElement (const std::vector<int>& MNPC,
   // (1 = pressure, 2 = pressure rate, 3 = phase field)
   elmInt.vec.resize(primsol.size()+3);
 
-  // Extract element displacement and pressure vectors
+  // Extract element displacement, velocity, acceleration and pressure vectors
   if (!this->PoroElasticity::initElement(MNPC,elmInt))
     return false;
 
-  // Extract element phase-field, velocity and acceleration vectors
-  if (!fracEl->initElement(MNPC,elmInt))
-    return false;
-
-  if (primsol.size() < 2)
-    return true; // Quasi-static simulation
-
-  // For the standard (non-mixed) formulation, the displacement and pressure
-  // variables are assumed stored interleaved in the element solution vector,
-  // now we need to separate them (for velocities and accelerations)
-  size_t uA = elmInt.vec.size() - 2; // Index to element acceleration vector
-  size_t uV = uA - 1;                // Index to element velocity vector
-  size_t pV = 2;                     // Index to element pressure rate vector
-  Matrix eMat(nsd+1,MNPC.size());
-  eMat = elmInt.vec[uV]; // Interleaved velocity vector
-  elmInt.vec[pV] = eMat.getRow(nsd+1);  // Assign pressure rate vector
-  elmInt.vec[uV] = eMat.expandRows(-1); // Assign velocity vector
-  eMat.resize(nsd+1,MNPC.size());
-  eMat = elmInt.vec[uA]; // Interleaved acceleration vector
-  elmInt.vec[uA] = eMat.expandRows(-1); // Assign acceleration vector
-  // We don't need the pressure acceleration
-
-  return true;
+  // Extract element phase-field vector
+  return fracEl->initElement(MNPC,elmInt);
 }
 
 
@@ -152,27 +131,13 @@ bool PoroFracture::initElement (const std::vector<int>& MNPC,
   // (1 = pressure, 2 = pressure rate, 3 = phase field)
   elmInt.vec.resize(primsol.size()+3);
 
-  // Extract element displacement and pressure vectors
+  // Extract element displacement, velocity, acceleration and pressure vectors
   if (!this->PoroElasticity::initElement(MNPC,elem_sizes,basis_sizes,elmInt))
     return false;
 
-  // Extract element phase-field, velocity and acceleration vectors
+  // Extract element phase-field vector
   std::vector<int>::const_iterator uEnd = MNPC.begin() + elem_sizes.front();
-  if (!fracEl->initElement(std::vector<int>(MNPC.begin(),uEnd),elmInt))
-    return false;
-
-  if (primsol.size() < 2)
-    return true; // Quasi-static simulation
-
-  // Extract the element level pressure rate vector
-  std::vector<int> MNPCp(uEnd,MNPC.end());
-  int ierr = utl::gather(MNPCp, 0,1, primsol[primsol.size()-2], elmInt.vec[2],
-                         nsd*basis_sizes.front(), basis_sizes.front());
-  if (ierr == 0) return true;
-
-  std::cerr <<" *** PoroFracture::initElement: Detected "<< ierr
-            <<" node numbers out of range."<< std::endl;
-  return false;
+  return fracEl->initElement(std::vector<int>(MNPC.begin(),uEnd),elmInt);
 }
 
 
@@ -192,8 +157,8 @@ bool PoroFracture::evalElasticityMatrices (ElmMats& elMat, const Matrix&,
 
 
 /*!
-  This method calculates the anisotropic peremeability for the broken solid
-  based on a Poiseuielle flow approximation of the fluid flow in the crack.
+  This method calculates the anisotropic permeability for the broken solid
+  based on a Poiseuille flow approximation of the fluid flow in the crack.
   See Section 5.5.2 (eqs. (104)-(109)) of Miehe and Maute (2015)
   "Phase field modeling of fracture in multi-physics problems. Part III."
 */
@@ -244,11 +209,20 @@ double PoroFracture::formCrackedPermeabilityTensor (SymmTensor& Kcrack,
   // Compute the perpendicular crack stretch
   // lambda = gradD*gradD / gradD*C^-1*gradD (see eq. (106))
   double lambda = sqrt(d2 / (gradD*CigD));
-  double w = lambda*L_per - L_per; // Crack opening (see eq. (107))
+#if INT_DEBUG > 3
+  std::cout <<"PoroFracture::formCrackedPermeabilityTensor(X = "<< X
+            <<") lambda = "<< lambda << std::endl;
+#endif
+  if (lambda <= 1.0)
+  {
+    Kcrack.zero();
+    return 0.0;
+  }
 
   // Compute the permeability tensor, scale by d^eps*Kc*w^2*J (see eq. (108))
+  double w = lambda*L_per - L_per; // Crack opening (see eq. (107))
   Kcrack *= pow(d,eps)*Kc*w*w*F.det();
-  return w;
+  return w < 0.0 ? 0.0 : w;
 }
 
 
