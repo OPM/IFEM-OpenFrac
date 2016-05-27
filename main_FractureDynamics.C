@@ -16,6 +16,7 @@
 #include "SIM3D.h"
 #include "SIMDynElasticity.h"
 #include "SIMPhaseField.h"
+#include "SIMExplPhaseField.h"
 #include "SIMFractureQstatic.h"
 #ifdef IFEM_HAS_POROELASTIC
 #include "SIMPoroElasticity.h"
@@ -141,7 +142,7 @@ int runCombined (char* infile, const char* context)
 template<class ElSolver, class PhaseSolver,
          template<class T1, class T2> class Cpl,
          template<class T1> class Solver=SIMSolver>
-int runSimulator5 (const FractureArgs& args, const char* contx)
+int runSimulator6 (const FractureArgs& args, const char* contx)
 {
   if (args.integrator == 3 && args.coupling == 2)
   {
@@ -158,6 +159,22 @@ int runSimulator5 (const FractureArgs& args, const char* contx)
     typedef SIMFracture<ElSolver,PhaseSolver,Cpl> Coupler;
     return runCombined<ElSolver,PhaseSolver,Coupler,Solver>(args.inpfile,contx);
   }
+}
+
+
+/*!
+  \brief Determines whether the explicit phase-field driver is to be used.
+*/
+
+template<class Dim, class ElSolver,
+         template<class T1, class T2> class Cpl,
+         template<class T1> class Solver=SIMSolver>
+int runSimulator5 (const FractureArgs& args, const char* context)
+{
+  if (args.expPhase)
+    return runSimulator6<ElSolver,SIMExplPhaseField,Cpl,Solver>(args,context);
+  else
+    return runSimulator6<ElSolver,SIMPhaseField<Dim>,Cpl,Solver>(args,context);
 }
 
 
@@ -237,14 +254,13 @@ template<class Dim, class Integrator, class ElSolver,
 int runSimulator3 (const FractureArgs& args)
 {
   typedef SIMDynElasticity<Dim,Integrator,ElSolver> DynElSolver;
-  typedef SIMPhaseField<Dim>                        PhaseSolver;
 
   const char* context = Integrator::inputContext;
 
   if (args.adap)
-    return runSimulator5<DynElSolver,PhaseSolver,Cpl,SIMSolverTS>(args,context);
+    return runSimulator5<Dim,DynElSolver,Cpl,SIMSolverTS>(args,context);
 
-  return runSimulator5<DynElSolver,PhaseSolver,Cpl>(args,context);
+  return runSimulator5<Dim,DynElSolver,Cpl>(args,context);
 }
 
 
@@ -362,10 +378,11 @@ int main (int argc, char** argv)
   if (!args.inpfile)
   {
     std::cout <<"usage: "<< argv[0]
-              <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n      "
-              <<" [-lag|-spec|-LR] [-2D] [-mixed] [-nGauss <n>]\n       [-nocra"
-              <<"ck|-semiimplicit] [-[l|q]static|-GA|-HHT] [-poro] [-adaptive]"
-              <<"\n       [-vtf <format> [-nviz <nviz>] [-nu <nu>] [-nv <nv]"
+              <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n"
+              <<"       [-lag|-spec|-LR] [-2D] [-mixed] [-nGauss <n>]\n"
+              <<"       [-nocrack|-explcrack|-semiimplicit]"
+              <<" [-[l|q]static|-GA|-HHT] [-poro] [-adaptive]\n"
+              <<"       [-vtf <format> [-nviz <nviz>] [-nu <nu>] [-nv <nv]"
               <<" [-nw <nw>]]\n       [-hdf5] [-principal]\n";
     return 0;
   }

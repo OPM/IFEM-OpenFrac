@@ -31,6 +31,7 @@ public:
   char integrator;
   char coupling; //!< Coupling flag (0: none, 1: staggered, 2: semi-implicit)
   bool poroEl;   //!< If \e true, use the poroelastic solver
+  bool expPhase; //!< If \e true, use an explicit phase field
 
   //! \brief Default constructor.
   FractureArgs();
