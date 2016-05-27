@@ -7,7 +7,7 @@
 //!
 //! \author Arne Morten Kvarving
 //!
-//! \brief Main program for an isogeometric fracture-dynamics solver.
+//! \brief Main program for the isogeometric fracture-dynamics solver.
 //!
 //==============================================================================
 
@@ -26,6 +26,23 @@
 #include "NonLinSIM.h"
 #include "ASMstruct.h"
 #include "AppCommon.h"
+
+
+//! \brief A struct collecting the command-line argument values.
+struct FDargs
+{
+  //! Time integrator to use (0=linear quasi-static, no phase-field coupling,
+  //! 1=linear Newmark, 2=linear generalized alpha, 3=nonlinear quasi-static,
+  //! 4=nonlinear Hilber-Hughes-Taylor)
+  char integrator;
+  char coupling;  //!< Coupling flag (0: none, 1: staggered, 2: semi-implicit)
+  bool adaptive;  //!< If \e true, use the time-slab adaptive solver
+  char* inpfile;  //!< The input file to parse
+
+  //! \brief Default constructor.
+  FDargs() : inpfile(nullptr)
+  { coupling = integrator = 1; adaptive = false; }
+};
 
 
 /*!
@@ -77,7 +94,7 @@ private:
 template<class Dim, class Integrator,
          template<class T1, class T2> class Cpl,
          template<class T1> class Solver=SIMSolver>
-int runSimulator2 (char* infile)
+int runSimulator3 (char* infile)
 {
   typedef SIMDynElasticity<Dim,Integrator> SIMElastoDynamics;
   typedef SIMPhaseField<Dim>               SIMCrackField;
@@ -143,7 +160,7 @@ int runSimulator2 (char* infile)
 */
 
 template<class Dim, class Integrator=NewmarkSIM>
-int runSimulator3 (char* infile, const char* context)
+int runStandAlone (char* infile, const char* context)
 {
   typedef SIMDynElasticity<Dim,Integrator> SIMElastoDynamics;
 
@@ -189,37 +206,34 @@ int runSimulator3 (char* infile, const char* context)
 
 
 /*!
-  \brief Creates the combined fracture simulator and launches the simulation.
-  \param[in] infile The input file to parse
-  \param[in] timeslabs Use time-slab adaptive solver
+  \brief Determines whether the adaptive simulation driver is to be used.
 */
 
 template<class Dim, class Integrator, template<class T1, class T2> class Cpl>
-int runSolver (char* infile, bool timeslabs)
+int runSimulator2 (const FDargs& args)
 {
-  if (timeslabs)
-    return runSimulator2<Dim,Integrator,Cpl,SIMSolverTS>(infile);
+  if (args.adaptive)
+    return runSimulator3<Dim,Integrator,Cpl,SIMSolverTS>(args.inpfile);
 
-  return runSimulator2<Dim,Integrator,Cpl>(infile);
+  return runSimulator3<Dim,Integrator,Cpl>(args.inpfile);
 }
 
 
 /*!
-  \brief Creates the combined fracture simulator and launches the simulation.
-  \param[in] infile The input file to parse
-  \param[in] coupling Coupling flag (0: none, 1: staggered, 2: semi-implicit)
-  \param[in] timeslabs Use time-slab adaptive solver
+  \brief Selects the coupling driver to be used.
 */
 
-template<class Dim, class Integrator=NewmarkSIM>
-int runSimulator1 (char* infile, char coupling, bool timeslabs)
+template<class Dim, class Integrator>
+int runSimulator1 (const FDargs& args)
 {
-  if (coupling == 1)
-    return runSolver<Dim,Integrator,SIMCoupled>(infile,timeslabs);
-  else if (coupling == 2)
-    return runSolver<Dim,Integrator,SIMCoupledSI>(infile,timeslabs);
-  else // No phase field coupling
-    return runSimulator3<Dim,Integrator>(infile,Integrator::inputContext);
+  switch (args.coupling) {
+  case 1:
+    return runSimulator2<Dim,Integrator,SIMCoupled>(args);
+  case 2:
+    return runSimulator2<Dim,Integrator,SIMCoupledSI>(args);
+  default: // No phase field coupling
+    return runStandAlone<Dim,Integrator>(args.inpfile,Integrator::inputContext);
+  }
 }
 
 
@@ -238,51 +252,42 @@ public:
 
 
 /*!
-  \brief Creates the combined fracture simulator and launches the simulation.
-  \param[in] infile The input file to parse
-  \param[in] integrator The time integrator to use (0=linear quasi-static,
-             no phase-field coupling, 1=linear Newmark, 2=Generalized alpha,
-             3=nonlinear quasi-static, 4=nonlinear Hilber-Hughes-Taylor)
-  \param[in] coupling Coupling flag (0: none, 1: staggered, 2: semi-implicit)
-  \param[in] timeslabs Use time-slab adaptive solver
+  \brief Selects the time integration driver to be used.
 */
 
 template<class Dim>
-int runSimulator (char* infile, char integrator, char coupling, bool timeslabs)
+int runSimulator (const FDargs& args)
 {
-  switch (integrator) {
+  switch (args.integrator) {
   case 0:
-    return runSimulator3<Dim,LinSIM>(infile,"staticsolver");
+    return runStandAlone<Dim,LinSIM>(args.inpfile,"staticsolver");
   case 1:
-    return runSimulator1<Dim>(infile,coupling,timeslabs);
+    return runSimulator1<Dim,NewmarkSIM>(args);
   case 2:
-    return runSimulator1<Dim,GenAlphaSIM>(infile,coupling,timeslabs);
+    return runSimulator1<Dim,GenAlphaSIM>(args);
   case 3:
-    return runSimulator1<Dim,NonLinSIM>(infile,coupling,timeslabs);
+    return runSimulator1<Dim,NonLinSIM>(args);
   case 4:
-    return runSimulator1<Dim,HHTSIM>(infile,coupling,timeslabs);
+    return runSimulator1<Dim,HHTSIM>(args);
   case 5:
-    return runSimulator1<Dim,NewmarkNLSIM>(infile,coupling,timeslabs);
+    return runSimulator1<Dim,NewmarkNLSIM>(args);
   default:
-    std::cerr <<" *** Invalid time integrator "<< integrator << std::endl;
+    std::cerr <<" *** Invalid time integrator "<< args.integrator << std::endl;
     return 99;
   }
 }
 
 
 /*!
-  \brief Main program for NURBS-based fracture elasticity solver.
+  \brief Main program for the isogeometric fracture elasticity solver.
 */
 
 int main (int argc, char** argv)
 {
   Profiler prof(argv[0]);
 
-  char* infile = nullptr;
-  char coupling = 1;
-  char integrator = 1;
+  FDargs args;
   bool twoD = false;
-  bool adaptive = false;
 
   IFEM::Init(argc,argv,"Fracture dynamics solver");
 
@@ -292,31 +297,31 @@ int main (int argc, char** argv)
     else if (!strcmp(argv[i],"-2D"))
       twoD = SIMElasticity<SIM2D>::planeStrain = true;
     else if (!strcmp(argv[i],"-nocrack"))
-      coupling = 0;
+      args.coupling = 0;
     else if (!strcmp(argv[i],"-semiimplicit"))
-      coupling = 2;
+      args.coupling = 2;
     else if (!strcmp(argv[i],"-lstatic"))
-      integrator = 0;
+      args.integrator = 0;
     else if (!strcmp(argv[i],"-GA"))
-      integrator = 2;
+      args.integrator = 2;
     else if (!strcmp(argv[i],"-qstatic"))
-      integrator = 3;
+      args.integrator = 3;
     else if (!strcmp(argv[i],"-HHT"))
-      integrator = 4;
+      args.integrator = 4;
     else if (!strcmp(argv[i],"-oldHHT"))
-      integrator = 5;
+      args.integrator = 5;
     else if (!strcmp(argv[i],"-principal"))
       Elasticity::wantPrincipalStress = true;
     else if (!strcmp(argv[i],"-dbgElm") && i < argc-1)
       FractureElasticNorm::dbgElm = atoi(argv[++i]);
     else if (!strncmp(argv[i],"-adap",5))
-      adaptive = true;
-    else if (!infile)
-      infile = argv[i];
+      args.adaptive = true;
+    else if (!args.inpfile)
+      args.inpfile = argv[i];
     else
       std::cerr <<"  ** Unknown option ignored: "<< argv[i] << std::endl;
 
-  if (!infile)
+  if (!args.inpfile)
   {
     std::cout <<"usage: "<< argv[0]
               <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n"
@@ -327,15 +332,14 @@ int main (int argc, char** argv)
     return 0;
   }
 
-  if (adaptive)
+  if (args.adaptive)
     IFEM::getOptions().discretization = ASM::LRSpline;
 
-  IFEM::cout <<"\nInput file: "<< infile;
-  IFEM::getOptions().print(IFEM::cout);
-  IFEM::cout << std::endl;
+  IFEM::cout <<"\nInput file: "<< args.inpfile;
+  IFEM::getOptions().print(IFEM::cout) << std::endl;
 
   if (twoD)
-    return runSimulator<SIM2D>(infile,integrator,coupling,adaptive);
+    return runSimulator<SIM2D>(args);
   else
-    return runSimulator<SIM3D>(infile,integrator,coupling,adaptive);
+    return runSimulator<SIM3D>(args);
 }
