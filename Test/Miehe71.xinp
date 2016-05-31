@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<simulation>
+
+  <geometry Lx="5.0" Ly="5.0">
+    <refine type="uniform" patch="1" u="19" v="19"/>
+    <topologysets>
+      <set name="Left" type="edge">
+        <item patch="1">1</item>
+      </set>
+      <set name="Right" type="edge">
+        <item patch="1">2</item>
+      </set>
+      <set name="TopBottom" type="edge">
+        <item patch="1">3 4</item>
+      </set>
+    </topologysets>
+  </geometry>
+
+  <cahnhilliard>
+    <Gc>1.0</Gc>
+    <smearing>0.1</smearing>
+    <initial_crack type="expression">abs(x-2.5)</initial_crack>
+    <Lnorm>1</Lnorm>
+  </cahnhilliard>
+
+  <phasefield type="expression">
+    C=1.0-exp(-0.08)/1.08;
+    l=0.25; xx=abs(x-2.5); xi=2.0*(xx-l)/l;
+    if(above(xx,l),1.0-exp(-xi)/(1.0+xi),C*xx/l)
+  </phasefield>
+
+  <poroelasticity>
+    <isotropic mu="98.0" nu="0.3" poro="0.1" alpha="1.0" Minv="0.01"
+               rhof="1000.0" rhos="666.67" perm="2.07e-9 2.07e-9"/>
+    <boundaryconditions>
+      <dirichlet set="TopBottom" comp="2"/>
+      <dirichlet set="Left" comp="1"/>
+      <dirichlet set="Right" comp="1" type="Ramp">3.0 10.0</dirichlet>
+    </boundaryconditions>
+  </poroelasticity>
+
+  <elasticity>
+    <isotropic E="254.8" nu="0.3" rho="700.0"/>
+    <boundaryconditions>
+      <dirichlet set="TopBottom" comp="2"/>
+      <dirichlet set="Left" comp="1"/>
+      <dirichlet set="Right" comp="1" type="Ramp">3.0 10.0</dirichlet>
+    </boundaryconditions>
+  </elasticity>
+
+  <discretization>
+    <nGauss>2</nGauss>
+  </discretization>
+
+  <newmarksolver beta="0.3025" gamma="0.6">
+    <solve_displacements/>
+    <predictor>constant displacement</predictor>
+  </newmarksolver>
+
+  <timestepping>
+    <step end="10.0">1.0</step>
+    <step end="1220.0">122</step>
+  </timestepping>
+
+</simulation>
