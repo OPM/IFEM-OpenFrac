@@ -22,7 +22,6 @@
 #include "SIMPoroElasticity.h"
 #endif
 #include "SIMCoupledSI.h"
-#include "SIMSolver.h"
 #include "SIMSolverTS.h"
 #include "FractureArgs.h"
 #include "HHTSIM.h"
@@ -48,6 +47,9 @@ public:
   SIMDriver(T& s, const char* c = nullptr) : Solver<T>(s), context(c) {}
   //! \brief Empty destructor.
   virtual ~SIMDriver() {}
+
+  //! \brief Overrides the stop time that was read from the input file.
+  void setStopTime(double t) { Solver<T>::tp.stopTime = t; }
 
 protected:
   using Solver<T>::parse;
@@ -81,12 +83,13 @@ private:
 /*!
   \brief Creates the combined fracture simulator and launches the simulation.
   \param[in] infile The input file to parse
+  \param[in] stopTime Stop time of the simulation (if non-negative)
   \param[in] context Input-file context for the time integrator
 */
 
 template<class ElSolver, class PhaseSolver, class SIMFractureDynamics,
          template<class T1> class Solver=SIMSolver>
-int runCombined (char* infile, const char* context)
+int runCombined (char* infile, double stopTime, const char* context)
 {
   IFEM::cout <<"\n\n0. Parsing input file(s)."
              <<"\n========================="<< std::endl;
@@ -108,6 +111,9 @@ int runCombined (char* infile, const char* context)
   SIMDriver<SIMFractureDynamics,Solver> solver(frac,context);
   if (!readModel(solver,infile))
     return 1;
+
+  if (stopTime >= 0.0)
+    solver.setStopTime(stopTime);
 
   IFEM::cout <<"\n\n10. Preprocessing the finite element model:"
              <<"\n==========================================="<< std::endl;
@@ -142,22 +148,28 @@ int runCombined (char* infile, const char* context)
 template<class ElSolver, class PhaseSolver,
          template<class T1, class T2> class Cpl,
          template<class T1> class Solver=SIMSolver>
-int runSimulator6 (const FractureArgs& args, const char* contx)
+int runSimulator6 (const FractureArgs& args, const char* context)
 {
   if (args.integrator == 3 && args.coupling == 2)
   {
     typedef SIMFractureQstatic<ElSolver,PhaseSolver> Coupler;
-    return runCombined<ElSolver,PhaseSolver,Coupler,Solver>(args.inpfile,contx);
+    return runCombined<ElSolver,PhaseSolver,Coupler,Solver>(args.inpfile,
+                                                            args.stopT,
+                                                            context);
   }
   else if (args.integrator == 3 && args.coupling == 3)
   {
     typedef SIMFractureMiehe<ElSolver,PhaseSolver> Coupler;
-    return runCombined<ElSolver,PhaseSolver,Coupler,Solver>(args.inpfile,contx);
+    return runCombined<ElSolver,PhaseSolver,Coupler,Solver>(args.inpfile,
+                                                            args.stopT,
+                                                            context);
   }
   else
   {
     typedef SIMFracture<ElSolver,PhaseSolver,Cpl> Coupler;
-    return runCombined<ElSolver,PhaseSolver,Coupler,Solver>(args.inpfile,contx);
+    return runCombined<ElSolver,PhaseSolver,Coupler,Solver>(args.inpfile,
+                                                            args.stopT,
+                                                            context);
   }
 }
 
@@ -181,11 +193,12 @@ int runSimulator5 (const FractureArgs& args, const char* context)
 /*!
   \brief Creates and launches a stand-alone elasticity simulator (no coupling).
   \param[in] infile The input file to parse
+  \param[in] stopTime Stop time of the simulation (if non-negative)
   \param[in] context Input-file context for the time integrator
 */
 
 template<class Dim, class Integrator, class ElSolver>
-int runStandAlone (char* infile, const char* context)
+int runStandAlone (char* infile, double stopTime, const char* context)
 {
   typedef SIMDynElasticity<Dim,Integrator,ElSolver> SIMElastoDynamics;
 
@@ -201,6 +214,9 @@ int runStandAlone (char* infile, const char* context)
   SIMDriver<SIMElastoDynamics,SIMSolver> solver(elastoSim,context);
   if (!readModel(solver,infile))
     return 1;
+
+  if (stopTime >= 0.0)
+    solver.setStopTime(stopTime);
 
   IFEM::cout <<"\n\n10. Preprocessing the finite element model:"
              <<"\n==========================================="<< std::endl;
@@ -235,12 +251,14 @@ int runSimulator4 (const FractureArgs& args,
   if (args.poroEl)
 #ifdef IFEM_HAS_POROELASTIC
     return runStandAlone<Dim,Integrator,SIMPoroElasticity<Dim>>(args.inpfile,
+                                                                args.stopT,
                                                                 context);
 #else
     return 99; // Built without the poroelastic coupling
 #endif
 
   return runStandAlone<Dim,Integrator,SIMElasticityWrap<Dim>>(args.inpfile,
+                                                              args.stopT,
                                                               context);
 }
 
@@ -368,8 +386,10 @@ int main (int argc, char** argv)
       ASMmxBase::Type = ASMmxBase::FULL_CONT_RAISE_BASIS1;
     else if (!strcmp(argv[i],"-principal"))
       Elasticity::wantPrincipalStress = true;
-    else if (!strcmp(argv[i],"-dbgElm") && i < argc-1)
+    else if (!strncmp(argv[i],"-dbgEl",6) && i < argc-1)
       FractureElasticNorm::dbgElm = atoi(argv[++i]);
+    else if (!strncmp(argv[i],"-stopT",6) && i < argc-1)
+      args.stopT = atof(argv[++i]);
     else if (!args.inpfile)
       args.parseFile(argv[i],i);
     else
@@ -383,7 +403,7 @@ int main (int argc, char** argv)
               <<"       [-nocrack|-explcrack|-semiimplicit]"
               <<" [-[l|q]static|-GA|-HHT] [-poro] [-adaptive]\n"
               <<"       [-vtf <format> [-nviz <nviz>] [-nu <nu>] [-nv <nv]"
-              <<" [-nw <nw>]]\n       [-hdf5] [-principal]\n";
+              <<" [-nw <nw>]]\n       [-hdf5] [-principal] [-stopTime <t>]\n";
     return 0;
   }
 
@@ -391,7 +411,10 @@ int main (int argc, char** argv)
     IFEM::getOptions().discretization = ASM::LRSpline;
 
   IFEM::cout <<"\nInput file: "<< args.inpfile;
-  IFEM::getOptions().print(IFEM::cout) << std::endl;
+  IFEM::getOptions().print(IFEM::cout);
+  if (args.stopT >= 0.0)
+    IFEM::cout <<"\nSimulation stop time: "<< args.stopT;
+  IFEM::cout << std::endl;
 
   if (args.dim == 2)
     return runSimulator<SIM2D>(args);

@@ -32,6 +32,7 @@ public:
   char coupling; //!< Coupling flag (0: none, 1: staggered, 2: semi-implicit)
   bool poroEl;   //!< If \e true, use the poroelastic solver
   bool expPhase; //!< If \e true, use an explicit phase field
+  double stopT;  //!< Stop time of the simulation
 
   //! \brief Default constructor.
   FractureArgs();
@@ -42,7 +43,7 @@ public:
   void parseFile(const char* argv, int& iarg);
 
 protected:
-  //! \brief Parse an element from the input file
+  //! \brief Parses an element from the input file.
   virtual bool parse(const TiXmlElement* elem);
 };
 

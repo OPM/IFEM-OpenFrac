@@ -21,6 +21,7 @@ FractureArgs::FractureArgs () : SIMargsBase("fracturedynamics")
   inpfile = nullptr;
   integrator = coupling = 1;
   poroEl = expPhase = false;
+  stopT = -1.0;
 }
 
 
