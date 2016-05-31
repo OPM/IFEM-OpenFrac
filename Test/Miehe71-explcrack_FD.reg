@@ -1,0 +1,91 @@
+Miehe71.xinp -qstatic -explcrack
+
+Input file: Miehe71.xinp
+Equation solver: 2
+Number of Gauss points: 4
+0. Parsing input file(s).
+1. Elasticity solver
+Parsing input file Miehe71.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Generating linear geometry on unit parameter domain \[0,1]^2
+	Length in X = 5
+	Length in Y = 5
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Left (1,1,1D)
+	               Right (1,2,1D)
+	               TopBottom (1,3,1D) (1,4,1D)
+  Parsing <refine>
+	Refining P1 19 19
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+Parsing <phasefield>
+Parsing <poroelasticity>
+Parsing <elasticity>
+  Parsing <isotropic>
+	Material code 0: 254.8 0.3 700
+  Parsing <dirichlet>
+	Dirichlet code 2: (fixed)
+  Parsing <dirichlet>
+	Dirichlet code 1: (fixed)
+  Parsing <dirichlet>
+	Dirichlet code 1000001 (ramp): 3 \* Ramp(t,10)
+Parsing <newmarksolver>
+Parsing <timestepping>
+Parsing input file succeeded.
+Equation solver: 2
+Number of Gauss points: 2
+2. Explicit phase field
+Parsing input file Miehe71.xinp
+Parsing <geometry>
+Parsing <cahnhilliard>
+Parsing <phasefield>
+	Phase-field function: C=1.0-exp(-0.08)/1.08; l=0.25; xx=abs(x-2.5); xi=2.0\*(xx-l)/l; if(above(xx,l),1.0-exp(-xi)/(1.0+xi),C\*xx/l)
+Parsing <poroelasticity>
+Parsing <elasticity>
+Parsing <discretization>
+Parsing <newmarksolver>
+Parsing <timestepping>
+Parsing input file succeeded.
+Equation solver: 2
+Number of Gauss points: 4
+3. Time integration driver
+Parsing input file Miehe71.xinp
+Parsing <geometry>
+Parsing <cahnhilliard>
+Parsing <phasefield>
+Parsing <poroelasticity>
+Parsing <elasticity>
+Parsing <discretization>
+Parsing <newmarksolver>
+Parsing <timestepping>
+Parsing input file succeeded.
+10. Preprocessing the finite element model:
+11. Elasticity solver
+Problem definition:
+Elasticity: 2D, gravity = 0 0
+LinIsotropic: E = 254.8, nu = 0.3, rho = 700, alpha = 1.2e-07
+	Degrading of tensile strain energy density.
+Resolving Dirichlet boundary conditions
+	Constraining P1 E3 in direction(s) 2
+	Constraining P1 E4 in direction(s) 2
+	Constraining P1 E1 in direction(s) 1
+	Constraining P1 E2 in direction(s) 1 code = 1000001
+ >>> SAM model summary <<<
+Number of elements    400
+Number of nodes       441
+Number of dofs        882
+Number of constraints 21
+Number of unknowns    798
+100. Starting the simulation
+  Solving the elasto-dynamics problem...
+  step=1  time=1
+  Primary solution summary: L2-norm         : 0.123996
+                            Max X-component : 0.3
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -30.87
+  Elastic strain energy:           eps_e : 15.435
+  Bulk energy:                     eps_b : 15.435
+  Tensile & compressive energies         : 15.435
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -3.92874
