@@ -278,16 +278,15 @@ int main (int argc, char** argv)
 {
   Profiler prof(argv[0]);
 
-  int  i;
-  char* infile = 0;
+  char* infile = nullptr;
   char coupling = 1;
   char integrator = 1;
   bool twoD = false;
   bool adaptive = false;
 
-  IFEM::Init(argc,argv);
+  IFEM::Init(argc,argv,"Fracture dynamics solver");
 
-  for (i = 1; i < argc; i++)
+  for (int i = 1; i < argc; i++)
     if (SIMoptions::ignoreOldOptions(argc,argv,i))
       ; // ignore the obsolete option
     else if (!strcmp(argv[i],"-2D"))
@@ -331,11 +330,7 @@ int main (int argc, char** argv)
   if (adaptive)
     IFEM::getOptions().discretization = ASM::LRSpline;
 
-  IFEM::cout <<"\n >>> IFEM Fracture dynamics solver <<<"
-             <<"\n =====================================\n"
-             <<"\n Executing command:\n";
-  for (i = 0; i < argc; i++) IFEM::cout <<" "<< argv[i];
-  IFEM::cout <<"\n\nInput file: "<< infile;
+  IFEM::cout <<"\nInput file: "<< infile;
   IFEM::getOptions().print(IFEM::cout);
   IFEM::cout << std::endl;
 
