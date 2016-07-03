@@ -127,6 +127,18 @@ public:
   //! \brief Computes solution norms, etc. on the converged solution.
   bool postSolve(TimeStep& tp)
   {
+    RealArray RF;
+    if (this->getCurrentReactions(RF,dSim.getSolution()))
+    {
+      IFEM::cout <<"  Total reaction forces:          Sum(R) :";
+      for (size_t i = 1; i < RF.size(); i++)
+        IFEM::cout <<" "<< utl::trunc(RF[i]);
+      double Ru = RF.front();
+      if (utl::trunc(Ru) != 0.0)
+        IFEM::cout <<"\n  displacement*reactions:          (R,u) : "<< Ru;
+      IFEM::cout << std::endl;
+    }
+
     // Update strain energy density for the converged solution
     this->setMode(SIM::RECOVERY);
     if (!this->assembleSystem(tp.time,dSim.getSolutions()))
