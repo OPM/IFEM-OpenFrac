@@ -57,9 +57,17 @@ public:
     {
       std::ofstream os(energFile, tp.step == 1 ? std::ios::out : std::ios::app);
 
+      RealArray RF;
+      this->S1.getCurrentReactions(RF,this->S1.getSolution());
+
       if (tp.step == 1)
+      {
         os <<"#t eps_e external_energy eps+ eps- eps_b |c|"
-           <<" eps_d-eps_d(0) eps_d load"<< std::endl;
+           <<" eps_d-eps_d(0) eps_d";
+        for (size_t i = 1; i < RF.size(); i++)
+          os <<" load_"<< char('W'+i);
+        os << std::endl;
+      }
 
       const Vector& n1 = this->S1.getGlobalNorms();
       const Vector& n2 = this->S2.getGlobalNorms();
@@ -70,12 +78,8 @@ public:
       os <<" "<< (n2.size() > 2 ? n2[1] : 0.0);
       os <<" "<< (n2.size() > 1 ? n2[n2.size()-2] : 0.0);
       os <<" "<< (n2.size() > 0 ? n2.back() : 0.0);
-      RealArray RF;
-      if (this->S1.getCurrentReactions(RF,this->S1.getSolution()))
-      {
-        for (size_t i = 1; i < RF.size(); i++)
-          os <<" "<< utl::trunc(RF[i]);
-      }
+      for (size_t i = 1; i < RF.size(); i++)
+        os <<" "<< utl::trunc(RF[i]);
       os << std::endl;
     }
 
