@@ -57,15 +57,19 @@ public:
     {
       std::ofstream os(energFile, tp.step == 1 ? std::ios::out : std::ios::app);
 
-      RealArray RF;
+      size_t i;
+      Vector BF, RF;
+      this->S1.getBoundaryForce(BF,this->S1.getSolutions(),tp);
       this->S1.getCurrentReactions(RF,this->S1.getSolution(0));
 
       if (tp.step == 1)
       {
         os <<"#t eps_e external_energy eps+ eps- eps_b |c|"
            <<" eps_d-eps_d(0) eps_d";
-        for (size_t i = 1; i < RF.size(); i++)
-          os <<" load_"<< char('W'+i);
+        for (i = 0; i < BF.size(); i++)
+          os <<" load_"<< char('X'+i);
+        for (i = 1; i < RF.size(); i++)
+          os <<" react_"<< char('W'+i);
         os << std::endl;
       }
 
@@ -78,7 +82,9 @@ public:
       os <<" "<< (n2.size() > 2 ? n2[1] : 0.0);
       os <<" "<< (n2.size() > 1 ? n2[n2.size()-2] : 0.0);
       os <<" "<< (n2.size() > 0 ? n2.back() : 0.0);
-      for (size_t i = 1; i < RF.size(); i++)
+      for (i = 0; i < BF.size(); i++)
+        os <<" "<< utl::trunc(BF[i]);
+      for (i = 1; i < RF.size(); i++)
         os <<" "<< utl::trunc(RF[i]);
       os << std::endl;
     }
