@@ -69,18 +69,8 @@ bool SIMExplPhaseField::solveStep (TimeStep& tp, bool)
     return false;
   }
 
-  size_t numNod = myOwner->getNoNodes(false,1);
-  phaseField.resize(numNod);
-
-  for (size_t n = 1; n <= numNod; n++)
-  {
-    // Works since we are using basis 1
-    Vec4 X = myOwner->getNodeCoord(n);
-    X.t = tp.time.t;
-    phaseField[n-1] = (*phaseFunc)(X);
-  }
-
-  return true;
+  phaseField.resize(myOwner->getNoNodes(true,1));
+  return myOwner->project(phaseField,phaseFunc,1,0,1,tp.time.t);
 }
 
 
