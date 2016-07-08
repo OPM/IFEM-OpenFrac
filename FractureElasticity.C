@@ -358,13 +358,20 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
 
 
 double FractureElasticity::getStressDegradation (const Vector& N,
-                                                 const Vectors& eV) const
+                                                 const Vectors& eV,
+                                                 char derivative) const
 {
+  if (derivative > 1)
+    return (1.0-alpha)*2.0; // return the (constant) 2nd derivative of g(c)
+
   // Evaluate the crack phase field function, c(X)
   double c = eV[eC].empty() ? 1.0 : N.dot(eV[eC]);
   if (c > 1.0) c = 1.0; // Ignore values larger than 1.0
-  // Evaluate the stress degradation function, g(c), ignoring negative values
-  return c > 0.0 ? (1.0-alpha)*c*c + alpha : alpha;
+
+  if (derivative > 0) // Evaluate the 1st derivative of g(c)
+    return c > 0.0 ? (1.0-alpha)*c*2.0 : 0.0;
+  else // Evaluate g(c) itself, ignoring negative values
+    return c > 0.0 ? (1.0-alpha)*c*c + alpha : alpha;
 }
 
 

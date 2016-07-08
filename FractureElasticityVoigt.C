@@ -30,14 +30,14 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
                                           const SymmTensor& epsil, double* Phi,
                                           SymmTensor& sigma) const
 {
-  return this->evalStress(lambda,mu,Gc,epsil,Phi,&sigma,nullptr);
+  return this->evalStress(lambda,mu,Gc,epsil,Phi,&sigma,nullptr,nullptr);
 }
 
 
 bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
                                           const SymmTensor& epsil, double* Phi,
-                                          SymmTensor* sigma, Matrix* dSdE,
-                                          bool printElm) const
+                                          SymmTensor* sigma, SymmTensor* sigP,
+                                          Matrix* dSdE, bool printElm) const
 {
   PROFILE3("FractureEl::evalStress");
 
@@ -96,6 +96,12 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
     *sigma = C0*trEps;
     *sigma += 2.0*mu*(Gc*ePos + eNeg);
   }
+  if (sigP)
+  {
+    // Evaluate the non-degraded tensile stress tensor
+    *sigP = lambda*trEps;
+    *sigP += 2.0*mu*ePos;
+  }
 
   // Evaluate the tensile energy
   Phi[0] = mu*(ePos*ePos).trace();
@@ -125,6 +131,7 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
   {
     std::cout <<"ePos =\n"<< ePos <<"eNeg =\n"<< eNeg;
     if (sigma) std::cout <<"sigma =\n"<< *sigma;
+    if (sigP) std::cout <<"sigP =\n"<< *sigP;
     std::cout <<"Phi = "<< Phi[0] <<" "<< Phi[1] <<" "<< Phi[2] <<" "<< Phi[3];
     std::cout << std::endl;
   }
@@ -234,7 +241,7 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
 
   size_t nstrc = (nsd+1)*nsd/2;
   Matrix Bmat, dSdE(nstrc,nstrc);
-  SymmTensor eps(nsd), sigma(nsd);
+  SymmTensor eps(nsd), sigma(nsd), sigP(nsd);
   bool lHaveStrains = false;
   double U = 0.0;
 
@@ -255,12 +262,12 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
     if (tSplit < 0.0 || static_cast<const Vec4&>(X).t < tSplit)
     {
       // Evaluate the constitutive matrix and the stress tensor at this point
-      if (!material->evaluate(dSdE,sigma,U,fe,X,eps,eps,3))
+      if (!material->evaluate(dSdE,sigP,U,fe,X,eps,eps,3))
         return false;
 
       // Degrade the stresses and strain energy isotropically
       dSdE *= Gc;
-      sigma *= Gc;
+      sigma = Gc*sigP;
       U *= Gc;
       if (m_mode != SIM::RHS_ONLY)
         myPhi[fe.iGP] = U;
@@ -294,7 +301,7 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
       // Evaluate the stress state at this point, with degraded tensile part
       double Phi[4];
       if (!this->evalStress(lambda,mu,Gc,eps,Phi,&sigma,
-                            eKm ? &dSdE : nullptr))
+                            eKc ? &sigP : nullptr, eKm ? &dSdE : nullptr))
         return false;
 
       if (m_mode != SIM::RHS_ONLY)
@@ -334,6 +341,17 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
     this->formBodyForce(elMat.b[eS-1],fe.N,X,fe.detJxW);
     // Integrate the load vector due to internal crack pressure
     if (!this->formCrackForce(elMat.b[eS-1],elMat.vec,fe,X))
+      return false;
+  }
+
+  if (eKc && lHaveStrains)
+  {
+    // Integrate the coupling matrix between displacement and phase-field DOFs
+    Vector BtSig;
+    sigP *= this->getStressDegradation(fe.N,elmInt.vec,1)*fe.detJxW; // *= g'(c)
+    if (!Bmat.multiply(sigP,BtSig,true)) // BtSig = B^T*g'(c)*sigP
+      return false;
+    if (!elMat.A[eKc-1].outer_product(BtSig,fe.N,true)) // Kc += BtSig*N
       return false;
   }
 
@@ -428,7 +446,7 @@ bool FractureElasticNorm::evalInt (LocalIntegral& elmInt,
     if (!p.material->evaluate(lambda,mu,fe,X))
       return false;
     // Evaluate the tensile-degraded strain energy
-    if (!p.evalStress(lambda,mu,Gc,eps,Phi,nullptr,nullptr,printElm))
+    if (!p.evalStress(lambda,mu,Gc,eps,Phi,nullptr,nullptr,nullptr,printElm))
       return false;
   }
 
