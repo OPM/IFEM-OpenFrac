@@ -98,6 +98,8 @@ protected:
   double maxCrack; //!< Maximum value in initial crack
   double stabk;    //!< Stabilization parameter
   double scale2nd; //!< Scaling factor in front of second order term
+  double pgamma;   //!< Penalty factor. If != 1.0, penalty formulation is used
+  double pthresh;  //!< Threshold for penalty formulation
 
 private:
   RealFunc*        initial_crack; //!< For generating initial history field

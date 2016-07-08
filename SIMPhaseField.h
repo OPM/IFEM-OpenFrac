@@ -76,6 +76,8 @@ public:
     this->setMode(SIM::INIT);
     this->setQuadratureRule(Dim::opt.nGauss[0],true);
     this->registerField("phasefield",phasefield);
+    phasefield.resize(this->getNoDOFs());
+    phasefield.fill(1.0);
     return true;
   }
 
@@ -151,7 +153,7 @@ public:
       static_cast<CahnHilliard*>(Dim::myProblem)->scaleSmearing(0.5);
 
     this->setMode(SIM::STATIC);
-    if (!this->assembleSystem())
+    if (!this->assembleSystem(Vectors(1,phasefield)))
       return false;
 
     if (!this->solveSystem(phasefield,0))
