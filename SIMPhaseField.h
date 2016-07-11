@@ -76,8 +76,6 @@ public:
     this->setMode(SIM::INIT);
     this->setQuadratureRule(Dim::opt.nGauss[0],true);
     this->registerField("phasefield",phasefield);
-    phasefield.resize(this->getNoDOFs());
-    phasefield.fill(1.0);
     return true;
   }
 

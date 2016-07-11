@@ -248,20 +248,21 @@ public:
     double dummy;
     this->S1.iterationNorms(residual, residual, dummy, eHistory.back(), dummy);
 
+    IFEM::cout << "   subit=" << eHistory.size()-1 <<" conv=" << eHistory.back()/eHistory.front();
     if (eHistory.size() > 1) {
       double beta = atan2(eHistory[eHistory.size()-2]-eHistory.back(),
                           eHistory.front()-eHistory.back()) * 180 / M_PI;
 
-      IFEM::cout << "FractureDynamics::checkConvergence: beta = " <<  beta << std::endl;
+      IFEM::cout << " beta=" <<  beta;
     }
+    IFEM::cout << std::endl;
 
-    IFEM::cout << "FractureDynamics::checkConvergence: |r| = " << eHistory.back() << std::endl;
-    if (eHistory.back() < 1e-4) {
+    if (eHistory.back()/eHistory.front() < 1e-4) {
       eHistory.clear();
       return SIM::CONVERGED;
     }
 
-    static const int maxSubIt = 50; // TODO: Max 50 subiterations hardcoded
+    static const int maxSubIt = 1000; // TODO: Max 50 subiterations hardcoded
     if (eHistory.size() > maxSubIt) {
       std::cerr << "FractureDynamics::checkConvergence: Did not converge in maxSubIt sub-iterations, bailing.." << std::endl;
       return SIM::DIVERGED;

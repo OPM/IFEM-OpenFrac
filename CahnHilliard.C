@@ -116,8 +116,8 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
   double s1JxW = scale*fe.detJxW;
   double s2JxW = scale2nd*smearing*smearing*fe.detJxW;
   double d = 0.0;
-  if (pgamma != 1.0) {
-    d = fe.N.dot(static_cast<ElmMats&>(elmInt).vec.front());
+  if (pgamma != 1.0 && !elmInt.vec.empty() &&!elmInt.vec.front().empty()) {
+    d = fe.N.dot(elmInt.vec.front());
     if (d < pthresh)
       s1JxW -= 1.0/pgamma*fe.detJxW;
   }
