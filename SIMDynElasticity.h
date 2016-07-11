@@ -16,7 +16,7 @@
 
 #include "NewmarkSIM.h"
 #include "SIMElasticityWrap.h"
-#include "FractureElasticityVoigt.h"
+#include "FractureElasticityMonol.h"
 #ifdef IFEM_HAS_POROELASTIC
 #include "PoroFracture.h"
 #endif
@@ -32,9 +32,16 @@ class SIMDynElasticity : public Sim
 {
 public:
   //! \brief Default constructor.
-  SIMDynElasticity() : dSim(*this)
+  explicit SIMDynElasticity(bool monolithic = false) : dSim(*this)
   {
     vtfStep = 0;
+    if (monolithic)
+    {
+      ++Dim::nf[0]; // Account for the phase field as an unknown field variable
+      phOrder = 2;  // Default 2nd order phase field when monolithic coupling
+    }
+    else
+      phOrder = 0;
   }
 
   //! \brief Constructor for mixed problems.
@@ -42,6 +49,7 @@ public:
     : Sim(nf), dSim(*this)
   {
     vtfStep = 0;
+    phOrder = 0;
   }
 
   //! \brief Empty destructor.
@@ -145,7 +153,7 @@ public:
   //! \brief Computes the solution for the current time step.
   bool solveStep(TimeStep& tp) override
   {
-    if (Dim::msgLevel >= 1)
+    if (Dim::msgLevel >= 1 && phOrder < 2)
       IFEM::cout <<"\n  Solving the elasto-dynamics problem...";
 
     if (dSim.solveStep(tp) != SIM::CONVERGED)
@@ -291,8 +299,13 @@ protected:
   //! \brief Returns the actual integrand.
   Elasticity* getIntegrand() override
   {
-    if (!Dim::myProblem) // Using the Voigt formulation by default
-      Dim::myProblem = new FractureElasticityVoigt(Dim::dimension);
+    if (!Dim::myProblem)
+    {
+      if (phOrder > 1) // Monolithic phase-field coupling
+        Dim::myProblem = new FractureElasticityMonol(Dim::dimension,phOrder);
+      else // Using the Voigt elasticity formulation by default
+        Dim::myProblem = new FractureElasticityVoigt(Dim::dimension);
+    }
     return static_cast<Elasticity*>(Dim::myProblem);
   }
 
@@ -304,6 +317,13 @@ protected:
     static short int ncall = 0;
     if (++ncall == 1) // Avoiding infinite recursive calls
       result = dSim.parse(elem);
+    else if (!strcasecmp(elem->Value(),"cahnhilliard") && phOrder > 1)
+    {
+      utl::getAttribute(elem,"order",phOrder);
+      const TiXmlElement* child = elem->FirstChildElement();
+      for (; child; child = child->NextSiblingElement())
+        this->getIntegrand()->parse(child);
+    }
     else if (!strcasecmp(elem->Value(),SIMElasticity<Dim>::myContext.c_str()))
     {
       if (!Dim::myProblem)
@@ -315,7 +335,7 @@ protected:
 #else
           return false;
 #endif
-        else
+        else if (phOrder < 2)
         {
           std::string formulation("voigt");
           utl::getAttribute(elem,"formulation",formulation,true);
@@ -344,6 +364,7 @@ private:
   Matrix eNorm;   //!< Element norm values
   Vector gNorm;   //!< Global norm values
   int    vtfStep; //!< VTF file step counter
+  int    phOrder; //!< Phase-field order for monolithic coupling
 };
 
 #endif
