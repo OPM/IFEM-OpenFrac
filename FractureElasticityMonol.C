@@ -120,9 +120,9 @@ LocalIntegral* FractureElasticityMonol::getLocalIntegral (size_t nen, size_t,
       ; // Other solution modes not supported
   }
 
-  result->redim(eKm-1,nen,nsd);
-  result->redim(eAcc-1,nen,1);
-  result->redimOffDiag(eKc-1);
+  result->redim(1,nen,nsd);
+  result->redim(2,nen,1);
+  result->redimOffDiag(3);
   result->redimNewtonMat();
 
   return result;
@@ -150,17 +150,7 @@ bool FractureElasticityMonol::initElement (const std::vector<int>& MNPC,
   if (elmInt.vec.size() < nsol)
     elmInt.vec.resize(nsol);
 
-  // Extract the element level solution vectors from the monolithic solution
-  Matrix temp(npv,MNPC.size());
-  int ierr = utl::gather(MNPC,npv,primsol.front(),temp);
-  elmInt.vec[eC] = temp.getRow(npv);
-  elmInt.vec.front() = temp.expandRows(-1);
-
-  if (ierr == 0) return true;
-
-  std::cerr <<" *** FractureElasticityMonol::initElement: Detected "
-            << ierr <<" node numbers out of range."<< std::endl;
-  return false;
+  return this->getSolution(elmInt.vec,MNPC);
 }
 
 
@@ -218,19 +208,32 @@ bool FractureElasticityMonol::evalSol (Vector& s,
                                        const FiniteElement& fe, const Vec3& X,
                                        const std::vector<int>& MNPC) const
 {
-  // Extract element displacements and phase field from the monolithic solution
   Vectors eV(1+eC);
+  if (!mySol.empty() && this->getSolution(eV,MNPC))
+    return this->evalSol2(s,eV,fe,X);
+  else
+    return false;
+}
+
+
+bool FractureElasticityMonol::getSolution (Vectors& eV,
+                                           const std::vector<int>& MNPC) const
+{
+  // Extract element displacements and phase field from the monolithic solution
   Matrix temp(npv,MNPC.size());
   int ierr = utl::gather(MNPC,npv,mySol.front(),temp);
-  eV[eC] = temp.getRow(npv);
-  eV.front() = temp.expandRows(-1);
-
   if (ierr > 0)
   {
-    std::cerr <<" *** FractureElasticityMonol::evalSol: Detected "<< ierr
-              <<" node numbers out of range."<< std::endl;
+    std::cerr <<" *** FractureElasticityMonol::getSolution: Detected "
+              << ierr <<" node numbers out of range."<< std::endl;
     return false;
   }
 
-  return this->evalSol2(s,eV,fe,X);
+  eV[eC]     = temp.getRow(npv);
+  eV.front() = temp.expandRows(-1);
+#if INT_DEBUG > 2
+  std::cout <<"Element displacement vector:"<< eV.front()
+            <<"Element phase field vector:"<< eV[eC];
+#endif
+  return true;
 }

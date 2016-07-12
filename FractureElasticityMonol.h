@@ -73,6 +73,12 @@ public:
                        const Vec3& X, const std::vector<int>& MNPC) const;
 
 protected:
+  //! \brief Extracts element solution vectors from the patch solution vectors.
+  //! \param[out] eV Element solution vectors
+  //! \param[in] MNPC Nodal point correspondance for the basis function values
+  bool getSolution(Vectors& eV, const std::vector<int>& MNPC) const;
+
+private:
   unsigned short int eAcc; //!< Zero-based index to element phase-field matrix
   unsigned short int eBc;  //!< Zero-based index to element phase-field vector
 
