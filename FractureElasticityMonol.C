@@ -22,7 +22,7 @@
 FractureElasticityMonol::FractureElasticityMonol (unsigned short int n, int ord)
   : FractureElasticityVoigt(n)
 {
-  Gc = smearing = gamma = 1.0;
+  Gc = smearing = gammaInv = 1.0;
   crtol = 0.0;
   use4th = ord == 4;
   npv = nsd + 1;
@@ -37,7 +37,7 @@ bool FractureElasticityMonol::parse (const TiXmlElement* elem)
   else if ((value = utl::getValue(elem,"smearing")))
     smearing = atof(value);
   else if ((value = utl::getValue(elem,"penalty_factor"))) {
-    gamma = atof(value);
+    gammaInv = 1.0/atof(value);
     utl::getAttribute(elem,"threshold",crtol);
   }
   else
@@ -56,7 +56,7 @@ void FractureElasticityMonol::printLog () const
              <<"\n\tUsing monolithic coupling to "
              << (use4th ? "fourth" : "second")
              <<"-order phase field."<< std::endl;
-  IFEM::cout <<"\tPenalty parameter: "<< gamma
+  IFEM::cout <<"\tPenalty parameter: "<< 1.0/gammaInv
              <<" (threshold value: "<< crtol <<")"<< std::endl;
 }
 
@@ -160,17 +160,19 @@ bool FractureElasticityMonol::evalInt (LocalIntegral& elmInt,
 {
   if (!this->FractureElasticityVoigt::evalInt(elmInt,fe,X))
     return false;
+  else if (!eAcc && !eBc)
+    return true;
+
+  double C = fe.N.dot(elmInt.vec[eC]);
+  double ddGc = this->getStressDegradation(fe.N,elmInt.vec,2);
+  double scale = ddGc*myPhi[fe.iGP] + 0.5*Gc/smearing;
+  if (C < crtol) scale += gammaInv;
+  double s1JxW = scale*fe.detJxW;
+  double s2JxW = (use4th ? 1.0 : 2.0)*Gc*smearing*fe.detJxW;
 
   if (eAcc)
   {
     Matrix& A = static_cast<ElmMats&>(elmInt).A[eAcc-1];
-
-    double PhiPl = myPhi[fe.iGP];
-    double scale = 0.5*Gc/smearing + 2.0*PhiPl;
-    double s1JxW = scale*fe.detJxW;
-    double s2JxW = (use4th ? 1.0 : 2.0)*Gc*smearing*fe.detJxW;
-    if (fe.N.dot(elmInt.vec[eC]) < crtol)
-      s1JxW -= fe.detJxW/gamma;
 
     for (size_t i = 1; i <= fe.N.size(); i++)
       for (size_t j = 1; j <= fe.N.size(); j++)
@@ -198,7 +200,21 @@ bool FractureElasticityMonol::evalInt (LocalIntegral& elmInt,
   }
 
   if (eBc)
-    static_cast<ElmMats&>(elmInt).b[eBc-1].add(fe.N,0.5*Gc/smearing*fe.detJxW);
+  {
+    Vector& R = static_cast<ElmMats&>(elmInt).b[eBc-1];
+
+    double dGc = this->getStressDegradation(fe.N,elmInt.vec,1);
+    scale = dGc*myPhi[fe.iGP] - 0.5*(1.0-C)*Gc/smearing;
+    if (C < crtol) scale += C*gammaInv;
+    R.add(fe.N,-scale*fe.detJxW); // R -= N*scale*detJxW
+
+    Vector gradC; // Compute the phase field gradient gradC = dNdX^t*eC
+    if (!fe.dNdX.multiply(elmInt.vec[eC],gradC,true))
+      return false;
+
+    gradC *= -s2JxW;
+    return fe.dNdX.multiply(gradC,R,false,true); // R -= dNdX*gradC*s2JxW
+  }
 
   return true;
 }
