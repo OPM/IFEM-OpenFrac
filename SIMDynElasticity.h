@@ -71,6 +71,22 @@ public:
   {
     dSim.initPrm();
     dSim.initSol(dynamic_cast<NewmarkSIM*>(&dSim) ? 3 : 1);
+    if (phOrder > 1)
+    {
+      if (strcmp(DynSIM::inputContext,"nonlinearsolver"))
+      {
+        std::cerr <<" *** SIMDynElasticity::init: Monolithic dynamic simulation"
+                  <<" is not available."<< std::endl;
+        return false;
+      }
+
+      // Insert initial phase field solution 1.0 (undamaged material)
+      size_t nndof = Dim::nf[0];
+      Vector sol(this->getNoDOFs());
+      for (size_t d = nndof-1; d < sol.size(); d += nndof)
+        sol[d] = 1.0;
+      dSim.setSolution(sol,0);
+    }
 
     bool ok = this->setMode(SIM::INIT);
     this->setQuadratureRule(Dim::opt.nGauss[0],true);
