@@ -253,3 +253,21 @@ bool FractureElasticityMonol::getSolution (Vectors& eV,
 #endif
   return true;
 }
+
+
+size_t FractureElasticityMonol::getNoFields (int fld) const
+{
+  return fld < 2 ? npv : this->FractureElasticityVoigt::getNoFields(fld);
+}
+
+
+std::string FractureElasticityMonol::getField1Name (size_t i,
+                                                    const char* prefix) const
+{
+  if (i < nsd)
+    return this->FractureElasticityVoigt::getField1Name(i,prefix);
+  else if (i > nsd)
+    return this->FractureElasticityVoigt::getField1Name(4,prefix);
+
+  return prefix ? prefix + std::string(" phase") : std::string("phase");
+}

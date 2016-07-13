@@ -72,6 +72,14 @@ public:
   virtual bool evalSol(Vector& s, const FiniteElement& fe,
                        const Vec3& X, const std::vector<int>& MNPC) const;
 
+  //! \brief Returns the number of primary/secondary solution field components.
+  //! \param[in] fld which field set to consider (1=primary, 2=secondary)
+  virtual size_t getNoFields(int fld) const;
+  //! \brief Returns the name of a primary solution field component.
+  //! \param[in] i Field component index
+  //! \param[in] prefix Name prefix for all components
+  virtual std::string getField1Name(size_t i, const char* prefix) const;
+
 protected:
   //! \brief Extracts element solution vectors from the patch solution vectors.
   //! \param[out] eV Element solution vectors
