@@ -264,22 +264,35 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
     std::cout <<"\nFractureElasticity::evalInt(X = "<< X <<")\nBmat ="<< Bmat;
 #endif
 
-    // Evaluate the material parameters at this point
-    double lambda, mu;
-    if (!material->evaluate(lambda,mu,fe,X))
-      return false;
-
     // Evaluate the stress degradation function
     double Gc = this->getStressDegradation(fe.N,elmInt.vec);
+    if (noSplit)
+    {
+      // Evaluate the constitutive matrix and the stress tensor at this point
+      if (!material->evaluate(dSdE,sigma,myPhi[fe.iGP],fe,X,eps,eps))
+	return false;
+
+      // Degrade the stresses and strain energy isotropically
+      myPhi[fe.iGP] *= Gc;
+      sigma *= Gc;
+    }
+    else
+    {
+      // Evaluate the material parameters at this point
+      double lambda, mu;
+      if (!material->evaluate(lambda,mu,fe,X))
+        return false;
+
 #if INT_DEBUG > 3
-    std::cout <<"lambda = "<< lambda <<" mu = "<< mu <<" G(c) = "<< Gc <<"\n";
-    if (lHaveStrains) std::cout <<"eps =\n"<< eps;
+      std::cout <<"lambda = "<< lambda <<" mu = "<< mu <<" G(c) = "<< Gc <<"\n";
+      if (lHaveStrains) std::cout <<"eps =\n"<< eps;
 #endif
 
-    // Evaluate the stress state at this point
-    if (!this->evalStress(lambda,mu,Gc,eps,&myPhi[fe.iGP],&sigma,
-                          eKm ? &dSdE : nullptr))
-      return false;
+      // Evaluate the stress state at this point, with degraded tensile part
+      if (!this->evalStress(lambda,mu,Gc,eps,&myPhi[fe.iGP],&sigma,
+                            eKm ? &dSdE : nullptr))
+	return false;
+    }
   }
 
   if (eKm)
@@ -386,11 +399,6 @@ bool FractureElasticNorm::evalInt (LocalIntegral& elmInt,
       for (unsigned short int j = i+1; j <= eps.dim(); j++)
         eps(i,j) *= 0.5;
 
-  // Evaluate the material parameters at this point
-  double lambda, mu;
-  if (!p.material->evaluate(lambda,mu,fe,X))
-    return false;
-
   bool printElm = fe.iel == dbgElm;
   if (printElm)
     std::cout <<"\nFractureElasticNorm::evalInt: iel,ip,X = "
@@ -399,8 +407,25 @@ bool FractureElasticNorm::evalInt (LocalIntegral& elmInt,
   // Evaluate the strain energy at this point
   double Phi[4];
   double Gc = p.getStressDegradation(fe.N,elmInt.vec);
-  if (!p.evalStress(lambda,mu,Gc,eps,Phi,nullptr,nullptr,true,printElm))
-    return false;
+  if (p.noSplit)
+  {
+    // Evaluate the strain energy density at this point
+    SymmTensor sigma(eps.dim());
+    if (!p.material->evaluate(Bmat,sigma,Phi[2],fe,X,eps,eps,3))
+      return false;
+    Phi[2] *= Gc; // Isotropic scaling
+    Phi[0] = Phi[1] = Phi[3] = 0.0;
+  }
+  else
+  {
+    // Evaluate the material parameters at this point
+    double lambda, mu;
+    if (!p.material->evaluate(lambda,mu,fe,X))
+      return false;
+    // Evaluate the tensile-degraded strain energy
+    if (!p.evalStress(lambda,mu,Gc,eps,Phi,nullptr,nullptr,true,printElm))
+      return false;
+  }
 
   // Integrate the total elastic energy
   pnorm[0] += Phi[2]*fe.detJxW;

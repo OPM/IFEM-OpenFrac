@@ -36,6 +36,7 @@ FractureElasticity::FractureElasticity (unsigned short int n)
   crackP = nullptr;
   sigmaC = alpha = 0.0;
   zeta = 1.0;
+  noSplit = false;
   this->registerVector("phasefield",&myCVec);
   eC = 1; // Assuming second vector is phase field
 }
@@ -48,6 +49,7 @@ FractureElasticity::FractureElasticity (IntegrandBase* parent,
   crackP = nullptr;
   sigmaC = alpha = 0.0;
   zeta = 1.0;
+  noSplit = false;
   parent->registerVector("phasefield",&myCVec);
   // Assuming second vector is pressure, third vector is pressure velocity
   eC = 3; // and fourth vector is the phase field
@@ -72,6 +74,8 @@ bool FractureElasticity::parse (const TiXmlElement* elem)
     sigmaC = atof(value);
     utl::getAttribute(elem,"slope",zeta);
   }
+  else if (!strcasecmp(elem->Value(),"noEnergySplit"))
+    noSplit = true;
   else
     return this->Elasticity::parse(elem);
 
@@ -89,6 +93,11 @@ void FractureElasticity::printLog () const
   if (sigmaC > 0.0)
     IFEM::cout <<"\tCritical stress: "<< sigmaC
                <<" slope parameter: "<< zeta << std::endl;
+
+  if (noSplit)
+    IFEM::cout <<"\tIsotropic degrading of strain energy density."<< std::endl;
+  else
+    IFEM::cout <<"\tDegrading of tensile strain energy density."<< std::endl;
 }
 
 
@@ -306,6 +315,7 @@ double FractureElasticity::getStressDegradation (const Vector& N,
 {
   // Evaluate the crack phase field function, c(X)
   double c = eV[eC].empty() ? 1.0 : N.dot(eV[eC]);
+  if (c > 1.0) c = 1.0; // Ignore values larger than 1.0
   // Evaluate the stress degradation function, g(c), ignoring negative values
   return c > 0.0 ? (1.0-alpha)*c*c + alpha : alpha;
 }
@@ -329,6 +339,13 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
                                   const FiniteElement& fe, const Vec3& X) const
 {
   PROFILE3("FractureEl::evalInt");
+
+  if (noSplit)
+  {
+    std::cerr <<" *** FractureElasticity::evalInt: Isotropic degrading is not"
+              <<" available with the tensorial formulation."<< std::endl;
+    return false;
+  }
 
   ElmMats& elMat = static_cast<ElmMats&>(elmInt);
 

@@ -140,6 +140,7 @@ private:
 protected:
   double sigmaC; //!< Critical fracture tensile stress
   double zeta;   //!< Slope parameter for the driving crack force
+  bool noSplit;  //!< If \e true, no strain energy split, just isotropic scaling
 
   mutable RealArray myPhi; //!< Tensile energy density at integration points
   Vectors&          mySol; //!< Primary solution vectors for current patch
