@@ -76,7 +76,7 @@ public:
     this->setMode(SIM::INIT);
     this->setQuadratureRule(Dim::opt.nGauss[0],true);
     this->registerField("phasefield",phasefield);
-    return true;
+    return SIM::setInitialConditions(*this);
   }
 
   //! \brief Opens a new VTF-file and writes the model geometry to it.
@@ -207,9 +207,6 @@ public:
     return true;
   }
 
-  //! \brief Sets initial conditions.
-  void setInitialConditions() { SIM::setInitialConditions(*this); }
-
   //! \brief Sets the tensile energy vector from the elasticity problem.
   void setTensileEnergy(const RealArray* te)
   {
@@ -244,7 +241,7 @@ public:
   const Vector& getGlobalNorms() const { return norm; }
 
   //! \brief Returns a const reference to the current solution.
-  const Vector& getSolution(int = 0) { return phasefield; }
+  const Vector& getSolution(int = 0) const { return phasefield; }
 
   //! \brief Updates the solution vector.
   void setSolution(const Vector& vec) { phasefield = vec; }

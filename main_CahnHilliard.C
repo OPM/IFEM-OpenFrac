@@ -52,7 +52,6 @@ template<class Dim> int runSimulator (char* infile)
 
   // Time-step loop
   phaseSim.init(TimeStep());
-  phaseSim.setInitialConditions();
 
   DataExporter* exporter = nullptr;
   if (phaseSim.opt.dumpHDF5(infile))
