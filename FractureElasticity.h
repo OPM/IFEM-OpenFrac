@@ -100,6 +100,9 @@ public:
   //! \note Not implemented for the tensor-based formulation.
   virtual NormBase* getNormIntegrand(AnaSol*) const { return nullptr; }
 
+  //! \brief Returns the applied pressure in the crack.
+  bool getCrackPressure() const { return crackP; }
+
 protected:
   //! \brief Evaluates the stress tensor and tensile energy at current point.
   virtual bool evalStress(double lambda, double mu, double Gc,
@@ -118,9 +121,17 @@ protected:
   //! \brief Evaluates Miehe's crack driving state function (eq. 56).
   double MieheCrit56(const Vec3& eps, double lambda, double mu) const;
 
+  //! \brief Calculates integration point crack force vector contributions.
+  //! \param ES Element vector to receive the force contributions
+  //! \param[in] eV Element solution vectors
+  //! \param[in] fe Finite element data at current point
+  void formCrackForce(Vector& ES, const Vectors& eV,
+                      const FiniteElement& fe) const;
+
 private:
   unsigned short int eC; //!< Zero-based index to element phase field vector
 
+  double crackP; //!< Applied pressure in the crack
   double alpha;  //!< Relaxation factor for the crack phase field
   Vector myCVec; //!< Crack phase field values at control (nodal) points
 
