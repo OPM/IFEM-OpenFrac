@@ -104,6 +104,8 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
     // Evaluate the bulk energy
     Phi[3] = Gc*(Phi[0] + Phi[1]);
   }
+  else if (sigmaC > 0.0) // Evaluate the crack driving function
+    Phi[0] = this->MieheCrit56(eps,lambda,mu);
 
 #if INT_DEBUG > 4
   std::cout <<"eps_p = "<< eps <<"\n";

@@ -20,6 +20,8 @@
 #include "Tensor4.h"
 #include "Tensor.h"
 #include "Profiler.h"
+#include "IFEM.h"
+#include "tinyxml.h"
 
 #ifndef epsZ
 //! \brief Zero tolerance for strains.
@@ -30,7 +32,8 @@
 FractureElasticity::FractureElasticity (unsigned short int n)
   : Elasticity(n), mySol(primsol)
 {
-  alpha = 0.0;
+  sigmaC = alpha = 0.0;
+  zeta = 1.0;
   this->registerVector("phasefield",&myCVec);
   eC = 1; // Assuming second vector is phase field
 }
@@ -40,10 +43,41 @@ FractureElasticity::FractureElasticity (IntegrandBase* parent,
                                         unsigned short int n)
   : Elasticity(n), mySol(parent->getSolutions())
 {
-  alpha = 0.0;
+  sigmaC = alpha = 0.0;
+  zeta = 1.0;
   parent->registerVector("phasefield",&myCVec);
   // Assuming second vector is pressure, third vector is pressure velocity
   eC = 3; // and fourth vector is the phase field
+}
+
+
+bool FractureElasticity::parse (const TiXmlElement* elem)
+{
+  const char* value = utl::getValue(elem,"stabilization");
+  if (value)
+    alpha = atof(value);
+  else if ((value = utl::getValue(elem,"critical_stress")))
+  {
+    sigmaC = atof(value);
+    utl::getAttribute(elem,"slope",zeta);
+  }
+  else
+    return this->Elasticity::parse(elem);
+
+  return true;
+}
+
+
+void FractureElasticity::printLog () const
+{
+  this->Elasticity::printLog();
+
+  if (alpha != 0.0)
+    IFEM::cout <<"\tStabilization parameter: "<< alpha << std::endl;
+
+  if (sigmaC > 0.0)
+    IFEM::cout <<"\tCritical stress: "<< sigmaC
+               <<" slope parameter: "<< zeta << std::endl;
 }
 
 
@@ -90,6 +124,24 @@ bool FractureElasticity::initElement (const std::vector<int>& MNPC,
   std::cerr <<" *** FractureElasticity::initElement: Detected "
             << ierr <<" node numbers out of range."<< std::endl;
   return false;
+}
+
+
+double FractureElasticity::MieheCrit56 (const Vec3& eps,
+                                        double lambda, double mu) const
+{
+  double D = 0.0;
+  for (unsigned short int a = 0; a < nsd; a++)
+    if (eps[a] > 0.0)
+      D += eps[a]*eps[a];
+
+  if (D == 0.0)
+    return D;
+
+  double E = mu+mu + lambda*mu/(lambda+mu); // Youngs modulus
+
+  D *= E*E/(sigmaC*sigmaC);
+  return D > 1.0 ? zeta*(D-1.0) : 0.0;
 }
 
 
@@ -165,6 +217,8 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
     // Evaluate the total strain energy
     Phi[2] = Gc*Phi[0] + Phi[1];
   }
+  else if (sigmaC > 0.0) // Evaluate the crack driving function
+    Phi[0] = this->MieheCrit56(eps,lambda,mu);
 
 #if INT_DEBUG > 4
   std::cout <<"eps_p = "<< eps <<"\n";

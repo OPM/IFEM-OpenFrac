@@ -36,6 +36,12 @@ public:
   //! \brief Empty destructor.
   virtual ~FractureElasticity() {}
 
+  //! \brief Parses a data section from an XML element.
+  virtual bool parse(const TiXmlElement* elem);
+
+  //! \brief Prints out the problem definition to the log stream.
+  virtual void printLog() const;
+
   //! \brief Sets the number of solution variables per node.
   void setVar(unsigned short int n) { npv = n; }
 
@@ -109,12 +115,18 @@ protected:
   //! \brief Evaluates the stress degradation function \a g(c) at current point.
   double getStressDegradation(const Vector& N, const Vectors& eV) const;
 
+  //! \brief Evaluates Miehe's crack driving state function (eq. 56).
+  double MieheCrit56(const Vec3& eps, double lambda, double mu) const;
+
 private:
   unsigned short int eC; //!< Zero-based index to element phase field vector
 
-protected:
   double alpha;  //!< Relaxation factor for the crack phase field
-  Vector myCVec; //!< Crack phase field values at nodal points
+  Vector myCVec; //!< Crack phase field values at control (nodal) points
+
+protected:
+  double sigmaC; //!< Critical fracture tensile stress
+  double zeta;   //!< Slope parameter for the driving crack force
 
   mutable RealArray myPhi; //!< Tensile energy density at integration points
   Vectors&          mySol; //!< Primary solution vectors for current patch
