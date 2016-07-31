@@ -20,6 +20,7 @@
 #include "LRSpline/LRSplineSurface.h"
 #endif
 #include <fstream>
+#include <numeric>
 
 
 /*!
@@ -60,7 +61,7 @@ public:
       size_t i;
       Vector BF, RF;
       this->S1.getBoundaryForce(BF,this->S1.getSolutions(),tp);
-      this->S1.getCurrentReactions(RF,this->S1.getSolution(0));
+      this->S1.getBoundaryReactions(RF);
 
       if (tp.step == 1)
       {
@@ -68,8 +69,8 @@ public:
            <<" eps_d-eps_d(0) eps_d";
         for (i = 0; i < BF.size(); i++)
           os <<" load_"<< char('X'+i);
-        for (i = 1; i < RF.size(); i++)
-          os <<" react_"<< char('W'+i);
+        for (i = 0; i < RF.size(); i++)
+          os <<" react_"<< char('X'+i);
         os << std::endl;
       }
 
@@ -84,7 +85,7 @@ public:
       os <<" "<< (n2.size() > 0 ? n2.back() : 0.0);
       for (i = 0; i < BF.size(); i++)
         os <<" "<< utl::trunc(BF[i]);
-      for (i = 1; i < RF.size(); i++)
+      for (i = 0; i < RF.size(); i++)
         os <<" "<< utl::trunc(RF[i]);
       os << std::endl;
     }
