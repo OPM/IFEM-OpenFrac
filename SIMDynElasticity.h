@@ -210,6 +210,13 @@ public:
   //! \brief Returns the maximum number of iterations.
   int getMaxit() const { return dSim.getMaxit(); }
 
+  //! \brief Checks whether an internal crack pressure has been specified.
+  bool haveCrackPressure() const
+  {
+    FractureElasticity* fel = dynamic_cast<FractureElasticity*>(Dim::myProblem);
+    return fel ? fel->getCrackPressure() != 0.0 : false;
+  }
+
 protected:
   //! \brief Returns the actual integrand.
   virtual Elasticity* getIntegrand()

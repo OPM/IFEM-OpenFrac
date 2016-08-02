@@ -50,6 +50,17 @@ public:
     this->S2.setTensileEnergy(this->S1.getTensileEnergy());
   }
 
+  //! \brief Computes the solution for the current time step.
+  virtual bool solveStep(TimeStep& tp)
+  {
+    if (tp.step == 1 && this->S1.haveCrackPressure())
+      // Start the initial step by solving the phase-field first
+      if (!this->S2.solveStep(tp,false))
+        return false;
+
+    return this->Coupling<SolidSolver,PhaseSolver>::solveStep(tp);
+  }
+
   //! \brief Saves the converged results to VTF-file of a given time step.
   //! \details It also writes global energy quantities to file for plotting.
   virtual bool saveStep(const TimeStep& tp, int& nBlock)
