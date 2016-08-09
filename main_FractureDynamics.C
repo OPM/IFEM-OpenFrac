@@ -69,7 +69,10 @@ protected:
     {
       const TiXmlElement* child = elem->FirstChildElement();
       for (; child; child = child->NextSiblingElement())
-        this->SIMSolver<T>::parse(child);
+        if (!strcasecmp(child->Value(),"subiterations"))
+          this->S1.parseSubiteration(child);
+        else
+          this->SIMSolver<T>::parse(child);
     }
     else if (!strcasecmp(elem->Value(),"postprocessing"))
     {
@@ -89,37 +92,32 @@ private:
 /*!
   \brief Creates the combined fracture simulator and launches the simulation.
   \param[in] infile The input file to parse
+  \param[in] context Input-file context for the time integrator
 */
 
-template<class Dim, class Integrator,
-         template<class T1, class T2> class Cpl,
+template<class ElSolver, class PhaseSolver, class SIMFractureDynamics,
          template<class T1> class Solver=SIMSolver>
-int runSimulator3 (char* infile)
+int runCombined (char* infile, const char* context)
 {
-  typedef SIMDynElasticity<Dim,Integrator> SIMElastoDynamics;
-  typedef SIMPhaseField<Dim>               SIMCrackField;
-
-  typedef SIMFracture<SIMElastoDynamics,SIMCrackField,Cpl> SIMFractureDynamics;
-
   utl::profiler->start("Model input");
   IFEM::cout <<"\n\n0. Parsing input file(s)."
              <<"\n========================="<< std::endl;
 
-  SIMElastoDynamics elastoSim;
+  ElSolver elastoSim;
   ASMstruct::resetNumbering();
   if (!elastoSim.read(infile))
     return 1;
 
   elastoSim.opt.print(IFEM::cout) << std::endl;
 
-  SIMCrackField phaseSim(&elastoSim);
+  PhaseSolver phaseSim(&elastoSim);
   if (!phaseSim.read(infile))
     return 1;
 
   phaseSim.opt.print(IFEM::cout) << std::endl;
 
   SIMFractureDynamics frac(elastoSim,phaseSim,infile);
-  SIMDriver<SIMFractureDynamics,Solver> solver(frac,Integrator::inputContext);
+  SIMDriver<SIMFractureDynamics,Solver> solver(frac,context);
   if (!solver.read(infile))
     return 1;
 
@@ -150,6 +148,32 @@ int runSimulator3 (char* infile)
 
   delete exporter;
   return res;
+}
+
+
+/*!
+  \brief Determines whether the quasi-static semi-implicit driver is to be used.
+*/
+
+template<class Dim, class Integrator,
+         template<class T1, class T2> class Cpl,
+         template<class T1> class Solver=SIMSolver>
+int runSimulator3 (const FDargs& args)
+{
+  typedef SIMDynElasticity<Dim,Integrator> ElSolver;
+  typedef SIMPhaseField<Dim>               PhaseSolver;
+
+  const char* contx = Integrator::inputContext;
+  if (args.integrator == 3 && args.coupling == 2)
+  {
+    typedef SIMFractureQstatic<ElSolver,PhaseSolver,Cpl> Coupler;
+    return runCombined<ElSolver,PhaseSolver,Coupler,Solver>(args.inpfile,contx);
+  }
+  else
+  {
+    typedef SIMFracture<ElSolver,PhaseSolver,Cpl> Coupler;
+    return runCombined<ElSolver,PhaseSolver,Coupler,Solver>(args.inpfile,contx);
+  }
 }
 
 
@@ -213,9 +237,9 @@ template<class Dim, class Integrator, template<class T1, class T2> class Cpl>
 int runSimulator2 (const FDargs& args)
 {
   if (args.adaptive)
-    return runSimulator3<Dim,Integrator,Cpl,SIMSolverTS>(args.inpfile);
+    return runSimulator3<Dim,Integrator,Cpl,SIMSolverTS>(args);
 
-  return runSimulator3<Dim,Integrator,Cpl>(args.inpfile);
+  return runSimulator3<Dim,Integrator,Cpl>(args);
 }
 
 

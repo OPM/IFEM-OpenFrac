@@ -104,6 +104,9 @@ public:
     return this->S2.saveStep(tp,nBlock) && this->S1.saveStep(tp,nBlock);
   }
 
+  //! \brief Parses sub-iteration parameters from an XML element.
+  virtual void parseSubiteration(const TiXmlElement*) {}
+
   //! \brief Assigns the file name for global energy output.
   void setEnergyFile(const char* fName)
   {
@@ -245,6 +248,108 @@ private:
   double    aMin; //!< Minimum element area
   Vectors   sols; //!< Solution state to transfer onto refined mesh
   RealArray hsol; //!< History field to transfer onto refined mesh
+};
+
+
+/*!
+  \brief Driver class for quasi-static fracture simulators with sub-iterations.
+*/
+
+template<class SolidSolver, class PhaseSolver,
+         template<class S1, class S2> class Coupling=SIMCoupled>
+class SIMFractureQstatic : public SIMFracture<SolidSolver,PhaseSolver,Coupling>
+{
+public:
+  //! \brief The constructor forwards to the parent class contructor.
+  SIMFractureQstatic(SolidSolver& s1, PhaseSolver& s2, const std::string& input)
+    : SIMFracture<SolidSolver,PhaseSolver,Coupling>(s1,s2,input)
+  {
+    subIType = 1;
+    maxSubIt = 50;
+    subItTol = 1.0e-4;
+  }
+
+  //! \brief Empty destructor.
+  virtual ~SIMFractureQstatic() {}
+
+  //! \brief Parses sub-iteration parameters from an XML element.
+  virtual void parseSubiteration(const TiXmlElement* elem)
+  {
+    this->S1.parseSubiteration(elem);
+    utl::getAttribute(elem,"type",subIType);
+    utl::getAttribute(elem,"tol",subItTol);
+    if (subIType == 2)
+      maxSubIt = this->S1.getMaxit();
+    else
+      utl::getAttribute(elem,"max",maxSubIt);
+  }
+
+  //! \brief Computes the solution for the current time step.
+  virtual bool solveStep(TimeStep& tp)
+  {
+    if (tp.step == 1 && this->S1.haveCrackPressure() && rHistory.empty())
+      // Start the initial step by solving the phase-field first
+      if (!this->S2.solveStep(tp,false))
+        return false;
+
+    return this->Coupling<SolidSolver,PhaseSolver>::solveStep(tp);
+  }
+
+  //! \brief Checks if the coupled simulator has converged.
+  virtual SIM::ConvStatus checkConvergence(const TimeStep& tp,
+                                           SIM::ConvStatus status1,
+                                           SIM::ConvStatus status2)
+  {
+    if (status1 == SIM::FAILURE || status2 == SIM::FAILURE)
+      return SIM::FAILURE;
+    else if (status1 == SIM::DIVERGED || status2 == SIM::DIVERGED)
+      return SIM::DIVERGED;
+    else if (status1 != SIM::CONVERGED || status2 != SIM::CONVERGED)
+      return SIM::OK;
+
+    // Compute residual
+    this->S1.setMode(SIM::RHS_ONLY);
+    if (!this->S1.assembleSystem(tp.time,this->S1.getSolutions(),false))
+      return SIM::FAILURE;
+
+    Vector residual;
+    if (!this->S1.extractLoadVec(residual))
+      return SIM::FAILURE;
+
+    int subIt = rHistory.size();
+    double dummy, rNorm;
+    this->S1.iterationNorms(Vector(), residual, dummy, rNorm, dummy);
+    rHistory.push_back(rNorm);
+
+    double beta = 10.0, rConv = rNorm/rHistory.front();
+    IFEM::cout <<"  subit="<< subIt <<"  conv="<< rConv;
+    if (subIt > 0)
+    {
+      double r0 = rHistory.front();
+      double r2 = rHistory[subIt-1];
+      beta = atan2(subIt*(r2-rNorm),r0-rNorm) * 180.0/M_PI;
+      IFEM::cout <<"  beta="<< beta;
+    }
+    IFEM::cout << std::endl;
+
+    if (rConv < subItTol)
+    {
+      rHistory.clear();
+      return SIM::CONVERGED;
+    }
+    else if (subIt <= maxSubIt)
+      return SIM::OK;
+
+    std::cerr <<"SIMFractureQstatic::checkConvergence: Did not converge in "
+              << maxSubIt <<" sub-iterations, bailing.."<< std::endl;
+    return SIM::DIVERGED;
+  }
+
+private:
+  int       subIType; //!< Sub-iteration type flag
+  int       maxSubIt; //!< Maximum number of sub-iterations
+  double    subItTol; //!< Sub-iteration tolerance
+  RealArray rHistory; //!< Residual norm history for quasi-static simulations
 };
 
 #endif
