@@ -125,13 +125,15 @@ protected:
   //! \param ES Element vector to receive the force contributions
   //! \param[in] eV Element solution vectors
   //! \param[in] fe Finite element data at current point
+  //! \param[in] X Cartesian coordinates of current point
   void formCrackForce(Vector& ES, const Vectors& eV,
-                      const FiniteElement& fe) const;
+                      const FiniteElement& fe, const Vec3& X) const;
 
 private:
   unsigned short int eC; //!< Zero-based index to element phase field vector
 
-  double crackP; //!< Applied pressure in the crack
+  RealFunc* crackP; //!< Applied pressure in the crack
+
   double alpha;  //!< Relaxation factor for the crack phase field
   Vector myCVec; //!< Crack phase field values at control (nodal) points
 

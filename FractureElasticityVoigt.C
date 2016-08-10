@@ -312,7 +312,7 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
     // Integrate the load vector due to gravitation and other body forces
     this->formBodyForce(elMat.b[eS-1],fe.N,X,fe.detJxW);
     // Integrate the load vector due to internal crack pressure
-    this->formCrackForce(elMat.b[eS-1],elMat.vec,fe);
+    this->formCrackForce(elMat.b[eS-1],elMat.vec,fe,X);
   }
 
   return true;

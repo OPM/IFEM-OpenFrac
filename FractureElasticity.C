@@ -15,6 +15,7 @@
 #include "FiniteElement.h"
 #include "MaterialBase.h"
 #include "ElmMats.h"
+#include "Functions.h"
 #include "Utilities.h"
 #include "Vec3Oper.h"
 #include "Tensor4.h"
@@ -32,7 +33,8 @@
 FractureElasticity::FractureElasticity (unsigned short int n)
   : Elasticity(n), mySol(primsol)
 {
-  sigmaC = alpha = crackP = 0.0;
+  crackP = nullptr;
+  sigmaC = alpha = 0.0;
   zeta = 1.0;
   this->registerVector("phasefield",&myCVec);
   eC = 1; // Assuming second vector is phase field
@@ -43,7 +45,8 @@ FractureElasticity::FractureElasticity (IntegrandBase* parent,
                                         unsigned short int n)
   : Elasticity(n), mySol(parent->getSolutions())
 {
-  sigmaC = alpha = crackP = 0.0;
+  crackP = nullptr;
+  sigmaC = alpha = 0.0;
   zeta = 1.0;
   parent->registerVector("phasefield",&myCVec);
   // Assuming second vector is pressure, third vector is pressure velocity
@@ -57,7 +60,13 @@ bool FractureElasticity::parse (const TiXmlElement* elem)
   if (value)
     alpha = atof(value);
   else if ((value = utl::getValue(elem,"crackpressure")))
-    crackP = atof(value);
+  {
+    std::string type;
+    utl::getAttribute(elem,"type",type);
+    IFEM::cout <<"\tCrack pressure";
+    crackP = utl::parseRealFunc(value,type);
+    IFEM::cout << std::endl;
+  }
   else if ((value = utl::getValue(elem,"critical_stress")))
   {
     sigmaC = atof(value);
@@ -76,9 +85,6 @@ void FractureElasticity::printLog () const
 
   if (alpha != 0.0)
     IFEM::cout <<"\tStabilization parameter: "<< alpha << std::endl;
-
-  if (crackP != 0.0)
-    IFEM::cout <<"\tCrack pressure: "<< crackP << std::endl;
 
   if (sigmaC > 0.0)
     IFEM::cout <<"\tCritical stress: "<< sigmaC
@@ -306,12 +312,13 @@ double FractureElasticity::getStressDegradation (const Vector& N,
 
 
 void FractureElasticity::formCrackForce (Vector& ES, const Vectors& eV,
-                                         const FiniteElement& fe) const
+                                         const FiniteElement& fe,
+                                         const Vec3& X) const
 {
-  if (crackP == 0.0) return;
+  if (!crackP) return;
 
   // Integrate the load vector due to internal crack pressure
-  double cpLoad = crackP * eV[eC].dot(fe.N) * fe.detJxW;
+  double cpLoad = (*crackP)(X) * eV[eC].dot(fe.N) * fe.detJxW;
   for (size_t i = 0; i < fe.N.size(); i++)
     for (size_t j = 0; j < nsd; j++)
       ES[i*nsd+j] += fe.dNdX(i+1,j+1) * cpLoad;
@@ -424,7 +431,7 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
     // Integrate the load vector due to gravitation and other body forces
     this->formBodyForce(elMat.b[eS-1],fe.N,X,fe.detJxW);
     // Integrate the load vector due to internal crack pressure
-    this->formCrackForce(elMat.b[eS-1],elMat.vec,fe);
+    this->formCrackForce(elMat.b[eS-1],elMat.vec,fe,X);
   }
 
   return true;
