@@ -375,6 +375,18 @@ protected:
     return result;
   }
 
+  //! \brief Initializes for integration of Neumann terms for a given property.
+  //! \param[in] propInd Physical property index
+  virtual bool initNeumann(size_t propInd)
+  {
+    typename Dim::VecFuncMap::const_iterator tit = Dim::myVectors.find(propInd);
+    if (tit == Dim::myVectors.end()) return false;
+
+    static_cast<CahnHilliard*>(Dim::myProblem)->setFlux(tit->second);
+
+    return true;
+  }
+
 private:
   Vector phasefield; //!< Current phase field solution
   Matrix projSol;    //!< Projected solution fields

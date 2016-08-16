@@ -66,6 +66,7 @@ else()
                          ${PROJECT_SOURCE_DIR}/Test/*_CH.reg)
   file(GLOB FD_TESTFILES RELATIVE ${PROJECT_SOURCE_DIR}/Test
                          ${PROJECT_SOURCE_DIR}/Test/*_FD.reg)
+  list(REMOVE_ITEM CH_TESTFILES Rectangle-p2_penalty_CH.reg) # Disabled due to merge order. Re-enable when penalty in ch is merged.
   foreach(TESTFILE ${CH_TESTFILES})
     ifem_add_test(${TESTFILE} CahnHilliard)
   endforeach()
