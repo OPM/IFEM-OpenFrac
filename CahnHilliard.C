@@ -110,8 +110,9 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
       double grad = 0.0;
       for (size_t k = 1; k <= nsd; k++)
         grad += fe.dNdX(i,k)*fe.dNdX(j,k);
-      A(i,j) += fe.N(i)*fe.N(j)*s1JxW + grad*s2JxW;
+      A(i,j) += grad*s2JxW;
     }
+  A.outer_product(fe.N, fe.N, true, s1JxW);
 
   static_cast<ElmMats&>(elmInt).b.front().add(fe.N,fe.detJxW);
 
