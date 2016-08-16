@@ -91,6 +91,8 @@ public:
   double getSmearingFactor() const { return smearing; }
   //! \brief Scale the smearing factor, for use during initial refinement cycle.
   double scaleSmearing(double s) { return smearing *= s; }
+  //! \brief Returns whether or not to use penalty formulation.
+  bool penaltyFormulation() const { return pgamma > 0.0; }
 
 protected:
   double Gc;       //!< Fracture energy density
@@ -98,6 +100,8 @@ protected:
   double maxCrack; //!< Maximum value in initial crack
   double stabk;    //!< Stabilization parameter
   double scale2nd; //!< Scaling factor in front of second order term
+  double pgamma;   //!< Penalty factor. If positive, penalty formulation is used
+  double pthresh;  //!< Threshold for penalty formulation
 
 private:
   RealFunc*        initial_crack; //!< For generating initial history field
