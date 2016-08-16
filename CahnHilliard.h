@@ -48,7 +48,7 @@ public:
   virtual void initIntegration(size_t nGp, size_t);
 
   //! \brief Returns that this integrand has no explicit boundary contributions.
-  virtual bool hasBoundaryTerms() const { return false; }
+  virtual bool hasBoundaryTerms() const { return true; }
 
   //! \brief Evaluates the integrand at an interior point.
   //! \param elmInt The local integral object to receive the contributions
@@ -65,6 +65,15 @@ public:
   virtual bool evalSol(Vector& s, const FiniteElement& fe,
                        const Vec3& X, const std::vector<int>& MNPC) const;
 
+  using IntegrandBase::evalBou;
+  //! \brief Evaluates the integrand at a boundary point.
+  //! \param elmInt The local integral object to receive the contributions
+  //! \param[in] fe Finite element data of current integration point
+  //! \param[in] X Cartesian coordinates of current integration point
+  //! \param[in] normal Boundary normal vector at current integration point
+  virtual bool evalBou(LocalIntegral& elmInt, const FiniteElement& fe,
+                       const Vec3& X, const Vec3& normal) const;
+
   //! \brief Returns the number of primary/secondary solution field components.
   virtual size_t getNoFields(int fld) const { return fld > 1 ? 2 : 1; }
   //! \brief Returns the name of the primary solution field.
@@ -76,6 +85,9 @@ public:
 
   //! \brief Sets the pointer to the tensile energy buffer.
   void setTensileEnergy(const RealArray* tens) { tensileEnergy = tens; }
+
+  //! \brief Set flux function associated with Neumann boundary
+  void setFlux(VecFunc* f) { flux=f; }
 
   //! \brief Returns the initial crack function.
   RealFunc* initCrack() { return initial_crack; }
@@ -104,6 +116,7 @@ protected:
 
 private:
   RealFunc*        initial_crack; //!< For generating initial history field
+  VecFunc*         flux;          //!< Boundary flux function
   const RealArray* tensileEnergy; //!< Tensile energy from elasticity solver
   int              Lnorm;         //!< Which L-norm to integrate
 

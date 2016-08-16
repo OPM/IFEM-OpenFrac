@@ -25,7 +25,7 @@
 
 CahnHilliard::CahnHilliard (unsigned short int n) : IntegrandBase(n),
   Gc(1.0), smearing(1.0), maxCrack(1.0e-3), stabk(0.0), scale2nd(4.0),
-  initial_crack(nullptr), tensileEnergy(nullptr), Lnorm(0)
+  initial_crack(nullptr), flux(nullptr), tensileEnergy(nullptr), Lnorm(0)
 {
   primsol.resize(1);
 }
@@ -120,6 +120,19 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
   return true;
 }
 
+
+bool CahnHilliard::evalBou (LocalIntegral& elmInt, const FiniteElement& fe,
+                            const Vec3& X, const Vec3& normal) const
+{
+  double val = 0.0;
+
+  if (flux)
+    val = normal * (*flux)(X);
+
+  static_cast<ElmMats&>(elmInt).b.front().add(fe.N,val*fe.detJxW);
+
+  return true;
+}
 
 bool CahnHilliard::evalSol (Vector& s, const FiniteElement& fe,
                             const Vec3& X, const std::vector<int>& MNPC) const
