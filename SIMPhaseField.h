@@ -21,6 +21,7 @@
 #include "TimeStep.h"
 #include "Profiler.h"
 #include "Utilities.h"
+#include "AnaSol.h"
 #include "DataExporter.h"
 #include "IFEM.h"
 #include "tinyxml.h"
@@ -205,6 +206,22 @@ public:
       if (norm.size() > 1 && utl::trunc(norm.back()) != 0.0)
         IFEM::cout <<"  Dissipated energy:       eps_d : "
                    << norm.back() << std::endl;
+
+      if (gNorm.size() > 1) {
+        norm = gNorm.back();
+        IFEM::cout <<"  L2-norm: |c^h| = (c^h,c^h)^0.5 : "
+                   << sqrt(norm(1)) << std::endl;
+        IFEM::cout <<"  H1-norm: |c^h| = a(c^h,c^h)^0.5 : "
+                   << sqrt(norm(2)) << std::endl;
+        IFEM::cout <<"  L2-norm: |c|   = (c^h,c^h)^0.5 : "
+                   << sqrt(norm(3)) << std::endl;
+        IFEM::cout <<"  H1-norm: |c|   = a(c,c)^0.5 : "
+                   << sqrt(norm(4)) << std::endl;
+        IFEM::cout <<"  L2-norm: |e|   = (e^h,e^h)^0.5 : "
+                   << sqrt(norm(5)/norm(3)) << std::endl;
+        IFEM::cout <<"  H1-norm: |e|   = a(e,e)^0.5 : "
+                   << sqrt(norm(6)/norm(4)) << std::endl;
+      }
     }
 
     return true;
@@ -320,6 +337,10 @@ protected:
         if (!Dim::opt.project.empty())
           IFEM::cout <<"\tFiltering phase field using "
                      << Dim::opt.project.begin()->second <<"."<< std::endl;
+      } else if (!strcasecmp(child->Value(),"anasol")) {
+        IFEM::cout <<"\tAnalytical solution: Expression"<< std::endl;
+        if (!this->mySol)
+          this->mySol = new AnaSol(child,true);
       }
       else
       {
