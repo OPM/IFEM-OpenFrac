@@ -75,6 +75,8 @@ public:
     this->setMode(SIM::INIT);
     this->setQuadratureRule(Dim::opt.nGauss[0],true);
     this->registerField("phasefield",phasefield);
+    if (this->hasIC("phasefield"))
+      phasefield.resize(this->getNoDOFs(),1.0);
     return this->setInitialConditions();
   }
 
@@ -149,8 +151,10 @@ public:
       // by a factor of 1/2 after each initial mesh refinement (at step=0)
       static_cast<CahnHilliard*>(Dim::myProblem)->scaleSmearing(0.5);
 
-    this->setMode(SIM::STATIC);
-    if (!this->assembleSystem())
+    if (!this->setMode(SIM::STATIC))
+      return false;
+
+    if (!this->assembleSystem(Vectors(1,phasefield)))
       return false;
 
     if (!this->solveSystem(phasefield,0))

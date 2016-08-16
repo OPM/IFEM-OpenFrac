@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<simulation>
+
+  <geometry Lx="10">
+    <raiseorder patch="1" u="1" v="1"/>
+    <refine patch="1" u="999"/>
+    <topologysets>
+      <set name="Left" type="edge">
+        <item patch="1">1</item>
+      </set>
+    </topologysets>
+  </geometry>
+
+  <cahnhilliard order="2">
+    <Gc>3.0</Gc>
+    <smearing>0.1</smearing>
+    <boundaryconditions>
+      <dirichlet set="Left" comp="1"/>
+    </boundaryconditions>
+    <initialcondition field="phasefield" comp="1" type="expression">
+      1.0 - exp(-x/0.2)
+    </initialcondition>
+    <penalty_factor threshold="0.05">1.0e12</penalty_factor>
+  </cahnhilliard>
+
+  <discretization>
+    <nGauss>3</nGauss>
+  </discretization>
+
+</simulation>

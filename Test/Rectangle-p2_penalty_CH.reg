@@ -1,0 +1,24 @@
+Rectangle-p2_penalty_CH.xinp -2D
+
+	Length in X = 10
+	Topology sets: Left (1,1,1D)
+	Raising order of P1 1 1
+	Refining P1 999 0
+	Dirichlet code 1: (fixed)
+	Initial condition expression function: 1.0 - exp(-x/0.2)
+	Field name: "phasefield" on basis 1 (component 1)
+	Critical fracture energy density: 3
+	Smearing factor: 0.1
+	Max value in crack: 0.001
+	Enforcing crack irreversibility using penalty formulation
+	  gamma=1e+12 threshold=0.05
+	Constraining P1 E1 in direction(s) 1
+Number of elements    1000
+Number of nodes       3006
+Number of dofs        3006
+Number of unknowns    3003
+Loading initial condition for "phasefield" component 1
+from expression function: 1.0 - exp(-x/0.2)
+L2-norm            : 0.983758
+Max phasefield     : 1
+  Dissipated energy:       eps_d : 1.59696

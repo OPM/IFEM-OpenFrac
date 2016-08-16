@@ -90,15 +90,14 @@ int main (int argc, char** argv)
   {
     std::cout <<"usage: "<< argv[0]
               <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n"
-              <<"       [-lag|-spec|-LR] [-1D|-2D] [-nGauss <n>] [-fourth]\n"
+              <<"       [-lag|-spec|-LR] [-1D|-2D] [-nGauss <n>]\n"
               <<"       [-vtf <format> [-nviz <nviz>]"
               <<" [-nu <nu>] [-nv <nv>] [-nw <nw>]] [-hdf5]"<< std::endl;
     return 0;
   }
 
   IFEM::cout <<"\nInput file: "<< infile;
-  IFEM::getOptions().print(IFEM::cout);
-  IFEM::cout << std::endl;
+  IFEM::getOptions().print(IFEM::cout) << std::endl;
 
   if (ndim == 3)
     return runSimulator<SIM3D>(infile);

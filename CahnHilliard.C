@@ -22,9 +22,13 @@
 
 
 CahnHilliard::CahnHilliard (unsigned short int n) : IntegrandBase(n),
-  Gc(1.0), smearing(1.0), maxCrack(1.0e-3), stabk(0.0), scale2nd(4.0),
   initial_crack(nullptr), tensileEnergy(nullptr), Lnorm(0)
 {
+  Gc = smearing = 1.0;
+  maxCrack = 1.0e-3;
+  scale2nd = 4.0;
+  stabk = pgamma = pthresh = 0.0;
+
   primsol.resize(1);
 }
 
@@ -40,6 +44,11 @@ bool CahnHilliard::parse (const TiXmlElement* elem)
     maxCrack = atof(value);
   else if ((value = utl::getValue(elem,"stabilization")))
     stabk = atof(value);
+  else if ((value = utl::getValue(elem,"penalty_factor")))
+  {
+    pgamma = atof(value);
+    utl::getAttribute(elem,"threshold",pthresh);
+  }
   else if ((value = utl::getValue(elem,"initial_crack")))
   {
     std::string type;
@@ -67,6 +76,12 @@ void CahnHilliard::printLog () const
     IFEM::cout <<"\n\tInitial crack specified as a function.";
   if (scale2nd == 2.0)
     IFEM::cout <<"\n\tUsing fourth-order phase field.";
+  if (pgamma > 0.0)
+    IFEM::cout <<"\n\tEnforcing crack irreversibility using penalty formulation"
+               <<"\n\t  gamma="<< pgamma <<" threshold="<< pthresh << std::endl;
+  else
+    IFEM::cout <<"\n\tEnforcing crack irreversibility using history buffer.";
+
   IFEM::cout << std::endl;
 }
 
@@ -74,7 +89,7 @@ void CahnHilliard::printLog () const
 void CahnHilliard::setMode (SIM::SolutionMode mode)
 {
   m_mode = mode;
-  primsol.resize(mode == SIM::RECOVERY ? 1 : 0);
+  primsol.resize(mode == SIM::RECOVERY || pgamma > 0.0 ? 1 : 0);
 }
 
 
@@ -97,12 +112,17 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
   }
 
   // Update history field
-  if (tensileEnergy)
-    H = std::max(H,(*tensileEnergy)[fe.iGP]);
+  if (tensileEnergy) {
+    double Psi = (*tensileEnergy)[fe.iGP];
+    if (pgamma > 0.0 || Psi > H) H = Psi;
+  }
 
   double scale = 1.0 + 4.0*smearing*(1.0-stabk)*H/Gc;
   double s1JxW = scale*fe.detJxW;
   double s2JxW = scale2nd*smearing*smearing*fe.detJxW;
+  if (pgamma > 0.0 && !elmInt.vec.front().empty())
+    if (fe.N.dot(elmInt.vec.front()) < pthresh)
+      s1JxW -= fe.detJxW*pgamma;
 
   Matrix& A = static_cast<ElmMats&>(elmInt).A.front();
   for (size_t i = 1; i <= fe.N.size(); i++)

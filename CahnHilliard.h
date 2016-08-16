@@ -98,6 +98,8 @@ protected:
   double maxCrack; //!< Maximum value in initial crack
   double stabk;    //!< Stabilization parameter
   double scale2nd; //!< Scaling factor in front of second order term
+  double pgamma;   //!< Penalty factor (if positive) for crack irreversibility
+  double pthresh;  //!< Penalty formulation phase field threshold
 
 private:
   RealFunc*        initial_crack; //!< For generating initial history field
