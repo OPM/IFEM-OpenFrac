@@ -105,14 +105,8 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
   double s2JxW = scale2nd*smearing*smearing*fe.detJxW;
 
   Matrix& A = static_cast<ElmMats&>(elmInt).A.front();
-  for (size_t i = 1; i <= fe.N.size(); i++)
-    for (size_t j = 1; j <= fe.N.size(); j++) {
-      double grad = 0.0;
-      for (size_t k = 1; k <= nsd; k++)
-        grad += fe.dNdX(i,k)*fe.dNdX(j,k);
-      A(i,j) += grad*s2JxW;
-    }
   A.outer_product(fe.N, fe.N, true, s1JxW);
+  A.multiply(fe.dNdX, fe.dNdX, false, true, true, s2JxW);
 
   static_cast<ElmMats&>(elmInt).b.front().add(fe.N,fe.detJxW);
 
