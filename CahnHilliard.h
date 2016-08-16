@@ -17,6 +17,9 @@
 #include "IntegrandBase.h"
 
 
+class AnaSol;
+
+
 /*!
   \brief Class representing the integrand of the 2. order Cahn Hilliard problem.
 */
@@ -141,7 +144,7 @@ class CahnHilliardNorm : public NormBase
 {
 public:
   //! \brief The constructor forwards to the parent class constructor.
-  CahnHilliardNorm(CahnHilliard& p, int Ln);
+  CahnHilliardNorm(CahnHilliard& p, int Ln, const AnaSol* asol=nullptr);
   //! \brief Empty destructor.
   virtual ~CahnHilliardNorm() {}
 
@@ -166,6 +169,7 @@ public:
 
 private:
   int Lnorm; //!< Which L-norm to integrate (0: none, 1: L1-norm, 2: L2-norm)
+  const AnaSol* aSol; //!< Analytical solution
 };
 
 #endif
