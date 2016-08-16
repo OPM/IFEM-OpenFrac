@@ -76,6 +76,8 @@ public:
     this->setMode(SIM::INIT);
     this->setQuadratureRule(Dim::opt.nGauss[0],true);
     this->registerField("phasefield",phasefield);
+    phasefield.resize(this->getNoDOFs());
+    phasefield.fill(1.0);
     return SIM::setInitialConditions(*this);
   }
 
@@ -151,7 +153,8 @@ public:
       static_cast<CahnHilliard*>(Dim::myProblem)->scaleSmearing(0.5);
 
     this->setMode(SIM::STATIC);
-    if (!this->assembleSystem())
+    bool penalty = static_cast<CahnHilliard*>(Dim::myProblem)->penaltyFormulation();
+    if (!this->assembleSystem(penalty ? Vectors(1,phasefield): Vectors()))
       return false;
 
     if (!this->solveSystem(phasefield,0))

@@ -1,0 +1,16 @@
+Rectangle-p2_penalty_CH.xinp -2D
+
+	Initial condition function: 1 - exp(-x/(2\*0.1))
+	Field name: "phasefield (component 1 basis 1)
+	Time level: -1
+	Critical fracture energy density: 3
+	Smearing factor: 0.1
+	Max value in crack: 0.001
+	Enforcing irreversibility using penalty formulation.
+Number of elements    1000
+Number of nodes       3006
+Number of dofs        3006
+Number of unknowns    3003
+L2-norm            : 0.983758
+Max phasefield     : 1
+  Dissipated energy:       eps_d : 1.59696
