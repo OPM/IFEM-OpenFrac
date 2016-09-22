@@ -218,6 +218,9 @@ public:
                    << gNorm(5)
                    <<"\n  Tensile & compressive energies         : "
                    << gNorm(3) <<" "<< gNorm(4) << std::endl;
+      if (gNorm.size() > 5 && utl::trunc(gNorm(6)) != 0.0)
+        IFEM::cout <<"  Dissipated energy:               eps_d : "
+                   << gNorm(6) << std::endl;
       if (gNorm.size() > 1 && utl::trunc(gNorm(2)) != 0.0)
         IFEM::cout <<"  External energy: ((f,u^h)+(t,u^h))^0.5 : "
                    << (gNorm(2) < 0.0 ? -sqrt(-gNorm(2)) : sqrt(gNorm(2)))

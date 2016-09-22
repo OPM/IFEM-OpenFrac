@@ -14,6 +14,7 @@
 #include "FractureElasticityMonol.h"
 #include "FiniteElement.h"
 #include "BlockElmMats.h"
+#include "ElmNorm.h"
 #include "Utilities.h"
 #include "IFEM.h"
 #include "tinyxml.h"
@@ -270,4 +271,52 @@ std::string FractureElasticityMonol::getField1Name (size_t i,
     return this->FractureElasticityVoigt::getField1Name(4,prefix);
 
   return prefix ? prefix + std::string(" phase") : std::string("phase");
+}
+
+
+NormBase* FractureElasticityMonol::getNormIntegrand (AnaSol*) const
+{
+  return new FractureElasticMoNorm(*const_cast<FractureElasticityMonol*>(this));
+}
+
+
+size_t FractureElasticMoNorm::getNoFields (int group) const
+{
+  return group < 1 ? 1 : 6;
+}
+
+
+std::string FractureElasticMoNorm::getName (size_t, size_t j,
+                                            const char* pfx) const
+{
+  if (j == 6)
+    return "Dissipated energy";
+  else
+    return this->FractureElasticNorm::getName(1,j,pfx);
+}
+
+
+bool FractureElasticMoNorm::evalInt (LocalIntegral& elmInt,
+                                     const FiniteElement& fe,
+                                     const Vec3& X) const
+{
+  if (!this->FractureElasticNorm::evalInt(elmInt,fe,X))
+    return false;
+
+  FractureElasticityMonol& p = static_cast<FractureElasticityMonol&>(myProblem);
+  ElmNorm&             pnorm = static_cast<ElmNorm&>(elmInt);
+
+  Vector gradC; // Compute the phase field gradient gradC = dNdX^t*eC
+  if (!fe.dNdX.multiply(elmInt.vec[p.eC],gradC,true))
+    return false;
+
+  double C = fe.N.dot(elmInt.vec[p.eC]);
+  double d = 1.0 - C;
+  double scale = 0.25*p.Gc*d*d/p.smearing + p.smearing*gradC.dot(gradC);
+  if (C < p.crtol) scale += 0.5*p.gammaInv*C*C;
+
+  // Integrate the dissipated energy
+  pnorm[5] += scale*fe.detJxW;
+
+  return true;
 }
