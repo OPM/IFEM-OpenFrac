@@ -43,11 +43,22 @@ bool QuasiStaticSIM::lineSearch (TimeStep& param)
     return true; // No line search
 
   alpha = 1.0;
+  Vectors tmpSol(1,solution.front()), gNorm;
+
+  if (!model.setMode(SIM::RHS_ONLY))
+    return false;
+
+  if (!model.assembleSystem(param.time,tmpSol,false))
+    return false;
+
+  if (!model.extractLoadVec(residual))
+    return false;
+
+  double fprime0 = residual.dot(linsol);
 
   if (!model.setMode(SIM::RECOVERY))
     return false;
 
-  Vectors tmpSol(1,solution.front()), gNorm;
   if (!model.solutionNorms(param.time,tmpSol,gNorm))
     return false;
 
@@ -66,19 +77,18 @@ bool QuasiStaticSIM::lineSearch (TimeStep& param)
 #endif
   if (param.iter < 2 || curr < prev)
     return true; // No line search needed in this iteration
-#ifdef SP_DEBUG
-  std::cout <<"\tDoing line search."<< std::endl;
-#endif
 
-  const size_t numPt = 10;
-  const double delta = 2.0/(numPt-1);
+  const size_t numPt = fprime0 > 0.0 ? 21 : 11;
+  const double start = fprime0 > 0.0 ? -1.0 : 0.0;
+  const double delta = (1.0-start)/(numPt-1);
 
   RealArray params(numPt), values(numPt), derivs(numPt);
+  IFEM::cout <<"\tDoing line search..."<< std::flush;
 
   for (size_t i = 0; i < numPt; i++)
   {
-    params[i] = i*delta - 1.0;
-    sol.add(linsol, i == 0 ? -2.0 : delta);
+    params[i] = start + i*delta;
+    sol.add(linsol, i == 0 ? start-1.0 : delta);
 
     if (!model.setMode(SIM::RHS_ONLY))
       return false;
@@ -100,6 +110,9 @@ bool QuasiStaticSIM::lineSearch (TimeStep& param)
   }
 
 #if SP_DEBUG > 1
+  std::cout <<"\nParameters:\n";
+  std::copy(params.begin(),params.end(),
+            std::ostream_iterator<double>(std::cout," "));
   std::cout <<"\nValues:\n";
   std::copy(values.begin(),values.end(),
             std::ostream_iterator<double>(std::cout," "));
