@@ -34,9 +34,18 @@ public:
   //! \brief Prints out problem-specific data to the log stream.
   virtual void printProblem() const;
 
+  using NonLinSIM::parse;
+  //! \brief Parses a data section from an XML document.
+  virtual bool parse(const TiXmlElement* elem);
+
 protected:
   //! \brief Performs line search to accelerate convergence.
   virtual bool lineSearch(TimeStep& param);
+
+private:
+  RealArray params;   // alpha-values in domain [-1,1] to evaluate f(alpha) at
+  size_t    numPt;    // Total number of alpha-values
+  size_t    numPtPos; // Number of non-negative alpha-values
 };
 
 #endif

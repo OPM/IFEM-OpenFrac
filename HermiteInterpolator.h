@@ -38,7 +38,8 @@ public:
   double evaluateDeriv2(double x) const { return this->evaluate(x,2); }
 
   //! \brief Finds the minimum of a cubic hermite interpolant.
-  bool findMinimum(double& xmin) const;
+  bool findMinimum(double& xmin, unsigned int maxIts = 20,
+                   double absTol = 1.0e-16, double relTol = 1.0e-8) const;
 
 private:
   //! \brief Evaluates derOrder'th derivative of the interpolation polynomial.
