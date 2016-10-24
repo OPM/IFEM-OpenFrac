@@ -15,6 +15,7 @@
 #define HERMITE_INTERPOLATOR_H_
 
 #include <vector>
+#include <iostream>
 
 
 /*!
@@ -37,11 +38,15 @@ public:
   //! \brief Evaluates 2nd derivative of interpolation polynomial at \a x.
   double evaluateDeriv2(double x) const { return this->evaluate(x,2); }
 
+  //! \brief Dumps the function value and derivatives to given output stream.
+  void dump(std::ostream& os, size_t n = 100) const;
+
   //! \brief Finds the minimum of a cubic hermite interpolant.
-  bool findMinimum(double& xmin, unsigned int maxIts = 20,
-                   double absTol = 1.0e-16, double relTol = 1.0e-8) const;
+  bool findMinimum(double& xmin) const;
 
 private:
+  //! \brief Internal helper method evaluating the constants \a c2 and \a c3.
+  double getC2C3(size_t i, double& c2, double& c3) const;
   //! \brief Evaluates derOrder'th derivative of the interpolation polynomial.
   double evaluate(double x, int derOrder) const;
 

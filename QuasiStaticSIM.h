@@ -46,6 +46,7 @@ private:
   RealArray params;   // alpha-values in domain [-1,1] to evaluate f(alpha) at
   size_t    numPt;    // Total number of alpha-values
   size_t    numPtPos; // Number of non-negative alpha-values
+  size_t    nDump;    // Number of grid-points to dump f(alpha) to file for
 };
 
 #endif

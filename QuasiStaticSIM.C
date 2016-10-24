@@ -18,8 +18,10 @@
 #include "Utilities.h"
 #include "tinyxml.h"
 #include "IFEM.h"
+#include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <fstream>
 #if SP_DEBUG > 1
 #include <iterator>
 #endif
@@ -27,7 +29,7 @@
 
 QuasiStaticSIM::QuasiStaticSIM (SIMbase& sim) : NonLinSIM(sim)
 {
-  numPt = numPtPos = 0;
+  numPt = numPtPos = nDump = 0;
 }
 
 
@@ -63,6 +65,7 @@ bool QuasiStaticSIM::parse (const TiXmlElement* elem)
           }
         numPt = params.size();
       }
+      utl::getAttribute(child,"nDump",nDump);
     }
 
   return this->NonLinSIM::parse(elem);
@@ -79,6 +82,8 @@ void QuasiStaticSIM::printProblem () const
     IFEM::cout <<" with line search\n\tParameters: "<< params.front();
     for (size_t i = 1; i < params.size(); i++)
       IFEM::cout << (i%10 ? " " : "\n\t            ") << params[i];
+    if (nDump > 0)
+      IFEM::cout <<"\n\tDumping f(alpha) at "<< nDump <<" sampling points.";
   }
   IFEM::cout << std::endl;
 }
@@ -101,7 +106,7 @@ bool QuasiStaticSIM::lineSearch (TimeStep& param)
   if (!model.extractLoadVec(residual))
     return false;
 
-  const size_t nVal = residual.dot(linsol) > 0.0 ? numPt : numPtPos;
+  const size_t nVal = residual.dot(linsol) < 0.0 ? numPt : numPtPos;
 
   if (!model.setMode(SIM::RECOVERY))
     return false;
@@ -149,7 +154,7 @@ bool QuasiStaticSIM::lineSearch (TimeStep& param)
       return false;
 
     values[i] = norm(1) + norm(6);
-    derivs[i] = residual.dot(linsol);
+    derivs[i] = -residual.dot(linsol);
   }
 
 #if SP_DEBUG > 1
@@ -165,5 +170,13 @@ bool QuasiStaticSIM::lineSearch (TimeStep& param)
   std::cout << std::endl;
 #endif
   HermiteInterpolator h(prm,values,derivs);
+  if (nDump > 0)
+  {
+    // Dump the scalar energy functional to file for plotting
+    char filename[64];
+    sprintf(filename,"f_alpha_s%d_i%d.dat",param.step,param.iter);
+    std::ofstream os(filename);
+    h.dump(os,nDump);
+  }
   return h.findMinimum(alpha);
 }
