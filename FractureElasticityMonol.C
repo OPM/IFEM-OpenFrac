@@ -83,7 +83,9 @@ void FractureElasticityMonol::setMode (SIM::SolutionMode mode)
       break;
 
     case SIM::RHS_ONLY:
-      eS  = iS = 2;
+      eS  = 2;
+    case SIM::INT_FORCES:
+      iS  = 2;
       eBc = 3;
 
     case SIM::RECOVERY:
@@ -110,6 +112,7 @@ LocalIntegral* FractureElasticityMonol::getLocalIntegral (size_t nen, size_t,
       break;
 
     case SIM::RHS_ONLY:
+    case SIM::INT_FORCES:
       result->resize(neumann ? 0 : 4, 3);
 
     case SIM::RECOVERY:

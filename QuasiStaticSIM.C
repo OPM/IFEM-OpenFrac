@@ -97,7 +97,7 @@ bool QuasiStaticSIM::lineSearch (TimeStep& param)
 
   Vectors tmpSol(1,solution.front()), gNorm;
 
-  if (!model.setMode(SIM::RHS_ONLY))
+  if (!model.setMode(SIM::INT_FORCES))
     return false;
 
   if (!model.assembleSystem(param.time,tmpSol,false))
@@ -138,7 +138,7 @@ bool QuasiStaticSIM::lineSearch (TimeStep& param)
   {
     sol.add(linsol, i == 0 ? prm.front()-1.0 : prm[i]-prm[i-1]);
 
-    if (!model.setMode(SIM::RHS_ONLY))
+    if (!model.setMode(SIM::INT_FORCES))
       return false;
 
     if (!model.assembleSystem(param.time,tmpSol,false))
