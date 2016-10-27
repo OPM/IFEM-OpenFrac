@@ -39,6 +39,10 @@ public:
   virtual bool parse(const TiXmlElement* elem);
 
 protected:
+  //! \brief Evaluates the energy funtionals f(alpha) and/or f'(alpha).
+  bool evalEnergyFunctional(const TimeDomain& time, const Vectors& psol,
+                            double* fVal, double* fDer = nullptr);
+
   //! \brief Performs line search to accelerate convergence.
   virtual bool lineSearch(TimeStep& param);
 

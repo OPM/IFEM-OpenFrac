@@ -89,40 +89,60 @@ void QuasiStaticSIM::printProblem () const
 }
 
 
+bool QuasiStaticSIM::evalEnergyFunctional (const TimeDomain& time,
+                                           const Vectors& pSol,
+                                           double* fVal, double* fDer)
+{
+  if (fDer)
+  {
+    if (!model.setMode(SIM::INT_FORCES))
+      return false;
+
+    if (!model.assembleSystem(time,pSol,false))
+      return false;
+
+    if (!model.extractLoadVec(residual))
+      return false;
+
+    *fDer = -residual.dot(linsol);
+  }
+
+  if (fVal)
+  {
+    if (!model.setMode(SIM::RECOVERY))
+      return false;
+
+    Vectors gNorm;
+    if (!model.solutionNorms(time,pSol,gNorm))
+      return false;
+
+    *fVal = gNorm.front()(1) + gNorm.front()(6);
+  }
+
+  return true;
+}
+
+
 bool QuasiStaticSIM::lineSearch (TimeStep& param)
 {
   alpha = 1.0;
   if (numPtPos < 2)
     return true; // No line search
 
-  Vectors tmpSol(1,solution.front()), gNorm;
+  // Make a temporary copy of the primary solution
+  Vectors tmpSol(1,solution.front());
+  Vector& solVec = tmpSol.front();
+  double curr, prev;
 
-  if (!model.setMode(SIM::INT_FORCES))
+  // Evaluate f(alpha) at alpha=1.0
+  solVec.add(linsol);
+  if (!this->evalEnergyFunctional(param.time,tmpSol,&curr))
     return false;
 
-  if (!model.assembleSystem(param.time,tmpSol,false))
+  // Evaluate f(alpha) at alpha=0.0
+  solVec.add(linsol,-1.0);
+  if (!this->evalEnergyFunctional(param.time,tmpSol,&prev))
     return false;
-
-  if (!model.extractLoadVec(residual))
-    return false;
-
-  const size_t nVal = residual.dot(linsol) < 0.0 ? numPt : numPtPos;
-
-  if (!model.setMode(SIM::RECOVERY))
-    return false;
-
-  if (!model.solutionNorms(param.time,tmpSol,gNorm))
-    return false;
-
-  Vector& sol  = tmpSol.front();
-  Vector& norm = gNorm.front();
-  double  prev = norm(1) + norm(6);
-
-  sol.add(linsol);
-  if (!model.solutionNorms(param.time,tmpSol,gNorm))
-    return false;
-
-  double curr = norm(1) + norm(6);
 
 #ifdef SP_DEBUG
   std::cout <<"\tLine search? curr: "<< curr <<" prev: "<< prev << std::endl;
@@ -130,31 +150,26 @@ bool QuasiStaticSIM::lineSearch (TimeStep& param)
   if (curr < prev)
     return true; // No line search needed in this iteration
 
+  // Evaluate f'(alpha) at alpha=0.0
+  if (!this->evalEnergyFunctional(param.time,tmpSol,nullptr,&curr))
+    return false;
+
+  IFEM::cout <<"\tDoing line search, f'(0) = "<< curr <<" :"<< std::flush;
+
+  // If f'(alpha) < 0 then use sampling interval [0,1] else use [-1,1]
+  const size_t nVal = curr < 0.0 ? numPtPos : numPt;
   RealArray prm(params.begin()+numPt-nVal,params.end());
   RealArray values(nVal), derivs(nVal);
-  IFEM::cout <<"\tDoing line search..."<< std::flush;
 
+  // Evaluate f(alpha) and f'(alpha) forall alpha in [prm.front(),prm.back()]
   for (size_t i = 0; i < nVal; i++)
   {
-    sol.add(linsol, i == 0 ? prm.front()-1.0 : prm[i]-prm[i-1]);
-
-    if (!model.setMode(SIM::INT_FORCES))
+    if (i > 0)
+      solVec.add(linsol,prm[i] - prm[i-1]);
+    else if (prm.front() != 0.0)
+      solVec.add(linsol,prm.front());
+    if (!this->evalEnergyFunctional(param.time,tmpSol,&values[i],&derivs[i]))
       return false;
-
-    if (!model.assembleSystem(param.time,tmpSol,false))
-      return false;
-
-    if (!model.extractLoadVec(residual))
-      return false;
-
-    if (!model.setMode(SIM::RECOVERY))
-      return false;
-
-    if (!model.solutionNorms(param.time,Vectors(1,sol),gNorm))
-      return false;
-
-    values[i] = norm(1) + norm(6);
-    derivs[i] = -residual.dot(linsol);
   }
 
 #if SP_DEBUG > 1
