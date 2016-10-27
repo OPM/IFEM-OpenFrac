@@ -375,6 +375,15 @@ protected:
     return result;
   }
 
+  //! \brief Computes (possibly problem-dependent) external energy contribution.
+  double externalEnergy(const Vectors& sol, const TimeDomain& tp) const override
+  {
+    if (FractureElasticNorm::extEnr)
+      return this->Dim::externalEnergy(sol,tp);
+
+    return 0.0; // No external energy integration
+  }
+
 private:
   std::string energFile; //!< File name for global energy output
 

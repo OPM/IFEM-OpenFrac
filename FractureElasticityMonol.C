@@ -27,6 +27,7 @@ FractureElasticityMonol::FractureElasticityMonol (unsigned short int n, int ord)
   crtol = 0.0;
   use4th = ord == 4;
   npv = nsd + 1;
+  eC = 2; // Assuming third vector is phase field
 }
 
 
@@ -87,9 +88,11 @@ void FractureElasticityMonol::setMode (SIM::SolutionMode mode)
     case SIM::INT_FORCES:
       iS  = 2;
       eBc = 3;
+      primsol.resize(1);
+      break;
 
     case SIM::RECOVERY:
-      primsol.resize(1);
+      primsol.resize(FractureElasticNorm::dirDer ? 2 : 1);
       break;
 
     default:
@@ -151,6 +154,8 @@ bool FractureElasticityMonol::initElement (const std::vector<int>& MNPC,
   }
 
   size_t nsol = 1 + eC;
+  if (m_mode == SIM::RECOVERY && FractureElasticNorm::dirDer)
+    nsol++;
   if (elmInt.vec.size() < nsol)
     elmInt.vec.resize(nsol);
 
@@ -255,6 +260,26 @@ bool FractureElasticityMonol::getSolution (Vectors& eV,
   std::cout <<"Element displacement vector:"<< eV.front()
             <<"Element phase field vector:"<< eV[eC];
 #endif
+
+  if (m_mode == SIM::RECOVERY && FractureElasticNorm::dirDer)
+  {
+    // Extract element solution correction vectors
+    ierr = utl::gather(MNPC,npv,mySol.back(),temp);
+    if (ierr > 0)
+    {
+      std::cerr <<" *** FractureElasticityMonol::getSolution: Detected "
+                << ierr <<" node numbers out of range."<< std::endl;
+      return false;
+    }
+
+    eV[eC+1] = temp.getRow(npv);
+    eV[1]    = temp.expandRows(-1);
+#if INT_DEBUG > 2
+    std::cout <<"Element displacement correction vector:"<< eV[1]
+              <<"Element phase field correction vector:"<< eV[eC+1];
+#endif
+  }
+
   return true;
 }
 
@@ -315,11 +340,26 @@ bool FractureElasticMoNorm::evalInt (LocalIntegral& elmInt,
 
   double C = fe.N.dot(elmInt.vec[p.eC]);
   double d = 1.0 - C;
-  double scale = 0.25*p.Gc*d*d/p.smearing + p.smearing*gradC.dot(gradC);
+  double ell = 2.0*p.smearing;
+  double scale = 0.5*p.Gc*(gradC.dot(gradC)*ell + d*d/ell);
   if (C < p.crtol) scale += 0.5*p.gammaInv*C*C;
 
   // Integrate the dissipated energy
   pnorm[5] += scale*fe.detJxW;
+
+  if (dirDer)
+  {
+    Vector gradCc; // Compute the gradient of the phase field correction
+    if (!fe.dNdX.multiply(elmInt.vec[p.eC+1],gradCc,true))
+      return false;
+
+    double Cc = fe.N.dot(elmInt.vec[p.eC+1]);
+    scale = p.Gc*(gradC.dot(gradCc)*ell - d*Cc/ell);
+    if (C < p.crtol) scale += p.gammaInv*C*Cc;
+
+    // Integrate directional derivative of the dissipated energy
+    pnorm[4] += scale*fe.detJxW;
+  }
 
   return true;
 }

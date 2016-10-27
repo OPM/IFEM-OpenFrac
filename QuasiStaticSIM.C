@@ -13,6 +13,7 @@
 
 #include "QuasiStaticSIM.h"
 #include "HermiteInterpolator.h"
+#include "FractureElasticityVoigt.h"
 #include "SIMoutput.h"
 #include "TimeStep.h"
 #include "Utilities.h"
@@ -30,6 +31,7 @@
 QuasiStaticSIM::QuasiStaticSIM (SIMbase& sim) : NonLinSIM(sim)
 {
   numPt = numPtPos = nDump = 0;
+  version = 1;
 }
 
 
@@ -66,6 +68,7 @@ bool QuasiStaticSIM::parse (const TiXmlElement* elem)
         numPt = params.size();
       }
       utl::getAttribute(child,"nDump",nDump);
+      utl::getAttribute(child,"version",version);
     }
 
   return this->NonLinSIM::parse(elem);
@@ -84,6 +87,10 @@ void QuasiStaticSIM::printProblem () const
       IFEM::cout << (i%10 ? " " : "\n\t            ") << params[i];
     if (nDump > 0)
       IFEM::cout <<"\n\tDumping f(alpha) at "<< nDump <<" sampling points.";
+    if (version == 1)
+      IFEM::cout <<"\n\tEvaluating f'(alpha) as {F}_int * {u}_corr.";
+    else if (version == 2)
+      IFEM::cout <<"\n\tEvaluating f'(alpha) by direct integration.";
   }
   IFEM::cout << std::endl;
 }
@@ -93,8 +100,10 @@ bool QuasiStaticSIM::evalEnergyFunctional (const TimeDomain& time,
                                            const Vectors& pSol,
                                            double* fVal, double* fDer)
 {
-  if (fDer)
+  if (fDer && version == 1)
   {
+    // Integrate f'(alpha) as the dot-product between internal force vector
+    // and the solution correction vector
     if (!model.setMode(SIM::INT_FORCES))
       return false;
 
@@ -107,8 +116,10 @@ bool QuasiStaticSIM::evalEnergyFunctional (const TimeDomain& time,
     *fDer = -residual.dot(linsol);
   }
 
-  if (fVal)
+  if (fVal || version == 2)
   {
+    FractureElasticNorm::dirDer = fDer && version == 2;
+
     if (!model.setMode(SIM::RECOVERY))
       return false;
 
@@ -116,7 +127,12 @@ bool QuasiStaticSIM::evalEnergyFunctional (const TimeDomain& time,
     if (!model.solutionNorms(time,pSol,gNorm))
       return false;
 
-    *fVal = gNorm.front()(1) + gNorm.front()(6);
+    if (fVal)
+      *fVal = gNorm.front()(1) + gNorm.front()(6);
+    if (fDer && version == 2)
+      *fDer = gNorm.front()(5); // f'(alpha) is integrated by the norm class
+
+    FractureElasticNorm::dirDer = false;
   }
 
   return true;
@@ -129,8 +145,11 @@ bool QuasiStaticSIM::lineSearch (TimeStep& param)
   if (numPtPos < 2)
     return true; // No line search
 
+  FractureElasticNorm::extEnr = false; // Disable external energy calculation,
+  // since it uses a path integral valid at the converged configuration only
+
   // Make a temporary copy of the primary solution
-  Vectors tmpSol(1,solution.front());
+  Vectors tmpSol(version == 2 ? 2 : 1, solution.front());
   Vector& solVec = tmpSol.front();
   double curr, prev;
 
@@ -148,7 +167,13 @@ bool QuasiStaticSIM::lineSearch (TimeStep& param)
   std::cout <<"\tLine search? curr: "<< curr <<" prev: "<< prev << std::endl;
 #endif
   if (curr < prev)
+  {
+    FractureElasticNorm::extEnr = true; // Enable external energy calculation
     return true; // No line search needed in this iteration
+  }
+
+  if (version == 2) // Store the solution correction in tmpSol
+    tmpSol.back() = linsol;
 
   // Evaluate f'(alpha) at alpha=0.0
   if (!this->evalEnergyFunctional(param.time,tmpSol,nullptr,&curr))
@@ -171,6 +196,7 @@ bool QuasiStaticSIM::lineSearch (TimeStep& param)
     if (!this->evalEnergyFunctional(param.time,tmpSol,&values[i],&derivs[i]))
       return false;
   }
+  FractureElasticNorm::extEnr = true; // Enable external energy calculation
 
 #if SP_DEBUG > 1
   std::cout <<"\nParameters:\n";

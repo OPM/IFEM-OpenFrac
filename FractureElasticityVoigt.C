@@ -369,7 +369,9 @@ NormBase* FractureElasticityVoigt::getNormIntegrand (AnaSol*) const
 }
 
 
-int FractureElasticNorm::dbgElm = 0;
+bool FractureElasticNorm::extEnr = true;
+bool FractureElasticNorm::dirDer = false;
+int  FractureElasticNorm::dbgElm = 0;
 
 
 FractureElasticNorm::FractureElasticNorm (FractureElasticityVoigt& p)
@@ -430,11 +432,12 @@ bool FractureElasticNorm::evalInt (LocalIntegral& elmInt,
   // Evaluate the strain energy at this point
   double Phi[4];
   double Gc = p.getStressDegradation(fe.N,elmInt.vec);
+  SymmTensor sigma(eps.dim());
   if (p.tSplit < 0.0 || static_cast<const Vec4&>(X).t < p.tSplit)
   {
     // Evaluate the strain energy density at this point
-    SymmTensor sigma(eps.dim());
-    if (!p.material->evaluate(Bmat,sigma,Phi[2],fe,X,eps,eps,3))
+    Matrix Cmat;
+    if (!p.material->evaluate(Cmat,sigma,Phi[2],fe,X,eps,eps,3))
       return false;
     Phi[2] *= Gc; // Isotropic scaling
     Phi[0] = Phi[1] = Phi[3] = 0.0;
@@ -446,14 +449,16 @@ bool FractureElasticNorm::evalInt (LocalIntegral& elmInt,
     if (!p.material->evaluate(lambda,mu,fe,X))
       return false;
     // Evaluate the tensile-degraded strain energy
-    if (!p.evalStress(lambda,mu,Gc,eps,Phi,nullptr,nullptr,nullptr,printElm))
+    if (!p.evalStress(lambda,mu,Gc,eps,Phi,
+                      dirDer ? &sigma : nullptr,
+                      nullptr,nullptr,printElm))
       return false;
   }
 
   // Integrate the total elastic energy
   pnorm[0] += Phi[2]*fe.detJxW;
 
-  if (p.haveLoads())
+  if (extEnr && p.haveLoads())
   {
     // Evaluate the body load
     Vec3 f = p.getBodyforce(X);
@@ -466,8 +471,17 @@ bool FractureElasticNorm::evalInt (LocalIntegral& elmInt,
   // Integrate the tensile and compressive energies
   pnorm[2] += Phi[0]*fe.detJxW;
   pnorm[3] += Phi[1]*fe.detJxW;
-  // Integrate the bulk energy
-  pnorm[4] += Phi[3]*fe.detJxW;
+  if (dirDer)
+  {
+    // Integrate directional derivative of the elastic energy
+    Bmat.multiply(elmInt.vec[1],eps);
+    double dGc = p.getStressDegradation(fe.N,elmInt.vec,1);
+    double Cc = fe.N.dot(elmInt.vec[p.eC+1]);
+    pnorm[4] += (sigma.innerProd(eps) + dGc*Phi[0]*Cc)*fe.detJxW;
+  }
+  else
+    // Integrate the bulk energy
+    pnorm[4] += Phi[3]*fe.detJxW;
 
   return true;
 }

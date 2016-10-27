@@ -97,7 +97,9 @@ public:
   //! \brief Returns the name of a norm quantity.
   virtual std::string getName(size_t, size_t j, const char*) const;
 
-  static int dbgElm; //!< Element index for debug output
+  static bool extEnr; //!< Flag for integration of external energy
+  static bool dirDer; //!< Flag for calculation of directional derivatives
+  static int  dbgElm; //!< Element index for debug output
 };
 
 #endif

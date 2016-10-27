@@ -51,6 +51,9 @@ private:
   size_t    numPt;    // Total number of alpha-values
   size_t    numPtPos; // Number of non-negative alpha-values
   size_t    nDump;    // Number of grid-points to dump f(alpha) to file for
+
+protected:
+  int       version;  // Algorithm version, for internal testing
 };
 
 #endif
