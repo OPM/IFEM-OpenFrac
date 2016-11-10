@@ -387,7 +387,10 @@ protected:
 private:
   std::string energFile; //!< File name for global energy output
 
+protected:
   DynSIM dSim;    //!< Dynamic solution driver
+
+private:
   Matrix projSol; //!< Projected secondary solution fields
   Matrix eNorm;   //!< Element norm values
   Vector gNorm;   //!< Global norm values
