@@ -28,7 +28,7 @@
 #endif
 
 
-QuasiStaticSIM::QuasiStaticSIM (SIMbase& sim) : NonLinSIM(sim)
+QuasiStaticSIM::QuasiStaticSIM (SIMbase& sim) : NonLinSIM(sim,L2)
 {
   numPt = numPtPos = nDump = 0;
   version = 1;
@@ -110,10 +110,11 @@ bool QuasiStaticSIM::evalEnergyFunctional (const TimeDomain& time,
     if (!model.assembleSystem(time,pSol,false))
       return false;
 
-    if (!model.extractLoadVec(residual))
+    Vector forces;
+    if (!model.extractLoadVec(forces))
       return false;
 
-    *fDer = -residual.dot(linsol);
+    *fDer = -forces.dot(linsol);
   }
 
   if (fVal || version == 2)
@@ -141,7 +142,7 @@ bool QuasiStaticSIM::evalEnergyFunctional (const TimeDomain& time,
 
 bool QuasiStaticSIM::lineSearch (TimeStep& param)
 {
-  alpha = 1.0;
+  alpha = alphaO = 1.0;
   if (numPtPos < 2)
     return true; // No line search
 
@@ -219,5 +220,20 @@ bool QuasiStaticSIM::lineSearch (TimeStep& param)
     std::ofstream os(filename);
     h.dump(os,nDump);
   }
-  return h.findMinimum(alpha);
+
+  // Find the value of alpha that minimizes the function f(alpha)
+  if (h.findMinimum(alpha))
+    alphaO = alpha;
+  else
+    return false;
+
+  // Evaluate the residual at the new solution for the convergence check
+  if (!model.setMode(SIM::RHS_ONLY))
+    return false;
+
+  solVec.add(linsol,alpha-prm.back());
+  if (!model.assembleSystem(param.time,tmpSol,false))
+    return false;
+
+  return model.extractLoadVec(residual);
 }
