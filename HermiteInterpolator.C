@@ -56,21 +56,36 @@ double HermiteInterpolator::evaluate (double x, int derOrder) const
 
 void HermiteInterpolator::dump (std::ostream& os, size_t n) const
 {
-  if (n < 2) return;
+  if (n <= grid.size())
+    for (size_t i = 0; i < grid.size(); i++)
+    {
+      std::streamsize oldPrec = os.precision(3);
+      std::ios::fmtflags oldF = os.flags(std::ios::right);
+      os << grid[i] <<'\t';
+      os.precision(15);
+      os.flags(std::ios::scientific | std::ios::right);
+      os << std::setw(22) << values[i] << std::setw(23) << derivs[i] <<'\n';
+      os.precision(oldPrec);
+      os.flags(oldF);
+    }
 
-  double x, dx = (grid.back() - grid.front())/(n-1);
-  for (size_t i = 0; i < n; i++)
+  else
   {
-    std::streamsize oldPrec = os.precision(3);
-    std::ios::fmtflags oldF = os.flags(std::ios::right);
-    os << (x = grid.front() + dx*i) <<'\t';
-    os.precision(15);
-    os.flags(std::ios::scientific | std::ios::right);
-    os << std::setw(22) << this->evaluate(x)
-       << std::setw(23) << this->evaluateDeriv(x) <<'\n';
-    os.precision(oldPrec);
-    os.flags(oldF);
+    double x, dx = (grid.back() - grid.front())/(n-1);
+    for (size_t i = 0; i < n; i++)
+    {
+      std::streamsize oldPrec = os.precision(3);
+      std::ios::fmtflags oldF = os.flags(std::ios::right);
+      os << (x = grid.front() + dx*i) <<'\t';
+      os.precision(15);
+      os.flags(std::ios::scientific | std::ios::right);
+      os << std::setw(22) << this->evaluate(x)
+         << std::setw(23) << this->evaluateDeriv(x) <<'\n';
+      os.precision(oldPrec);
+      os.flags(oldF);
+    }
   }
+
   os << std::flush;
 }
 
