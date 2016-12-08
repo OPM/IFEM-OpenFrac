@@ -90,7 +90,8 @@ public:
 
     bool ok = this->setMode(SIM::INIT);
     this->setQuadratureRule(Dim::opt.nGauss[0],true);
-    this->registerField("solution",dSim.getSolution());
+    this->registerField(phOrder > 1 ? "solution" : "displacement",
+                        dSim.getSolution());
     return this->setInitialConditions() && ok;
   }
 
