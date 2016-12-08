@@ -14,7 +14,6 @@
 #ifndef _SIM_PHASE_FIELD_H
 #define _SIM_PHASE_FIELD_H
 
-#include "InitialConditionHandler.h"
 #include "CahnHilliard.h"
 #ifdef HAS_LRSPLINE
 #include "ASMu2D.h"
@@ -76,7 +75,7 @@ public:
     this->setMode(SIM::INIT);
     this->setQuadratureRule(Dim::opt.nGauss[0],true);
     this->registerField("phasefield",phasefield);
-    return SIM::setInitialConditions(*this);
+    return this->setInitialConditions();
   }
 
   //! \brief Opens a new VTF-file and writes the model geometry to it.
@@ -308,6 +307,7 @@ protected:
         Dim::myProblem = new CahnHilliard(Dim::dimension);
     }
 
+    bool result = true;
     const TiXmlElement* child = elem->FirstChildElement();
     for (; child; child = child->NextSiblingElement())
       if (!strcasecmp(child->Value(),"projection"))
@@ -319,7 +319,7 @@ protected:
       }
       else
       {
-        this->Dim::parse(child);
+        result &= this->Dim::parse(child);
         // Read problem parameters (including initial crack defintition)
         if (!Dim::isRefined) // but only for the initial grid when adaptive
         {
@@ -335,8 +335,8 @@ protected:
       }
 
 #ifdef HAS_LRSPLINE
-    if (Dim::isRefined)
-      return true;
+    if (Dim::isRefined || !result)
+      return result;
 
     // Perform initial refinement around the crack
     RealFunc* refC = static_cast<CahnHilliard*>(Dim::myProblem)->initCrack();
@@ -347,7 +347,7 @@ protected:
           return false;
 #endif
 
-    return true;
+    return result;
   }
 
 private:

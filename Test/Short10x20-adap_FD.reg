@@ -9,10 +9,10 @@ LR-spline basis functions are used
 Parsing input file Short10x20-p1-adap.xinp
 Parsing <discretization>
 Parsing <geometry>
-  Using default linear geometry basis on unit domain \[0,1]^2
-  Corner: -0.01 -0.02 0
-  Length in X: 0.02
-  Length in Y: 0.04
+  Generating linear geometry on unit parameter domain \[0,1]^2
+	Corner = -0.01 -0.02 0
+	Length in X = 0.02
+	Length in Y = 0.04
   Parsing <refine>
   Parsing <topologysets>
 	Topology sets: Loaded (1,3,1D) (1,4,1D)

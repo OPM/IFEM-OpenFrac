@@ -17,7 +17,6 @@
 
 #include "NewmarkSIM.h"
 #include "SIMElasticity.h"
-#include "InitialConditionHandler.h"
 #include "FractureElasticityVoigt.h"
 #include "DataExporter.h"
 
@@ -69,7 +68,7 @@ public:
     bool ok = this->setMode(SIM::INIT);
     this->setQuadratureRule(Dim::opt.nGauss[0],true);
     this->registerField("solution",dSim.getSolution());
-    return SIM::setInitialConditions(*this) && ok;
+    return this->setInitialConditions() && ok;
   }
 
   //! \brief Opens a new VTF-file and writes the model geometry to it.
