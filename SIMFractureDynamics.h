@@ -65,7 +65,8 @@ public:
   //! \details It also writes global energy quantities to file for plotting.
   virtual bool saveStep(const TimeStep& tp, int& nBlock)
   {
-    if (!energFile.empty() && this->S1.getProcessAdm().getProcId() == 0)
+    if (!energFile.empty() && tp.step > 0 &&
+        this->S1.getProcessAdm().getProcId() == 0)
     {
       std::ofstream os(energFile, tp.step == 1 ? std::ios::out : std::ios::app);
 
