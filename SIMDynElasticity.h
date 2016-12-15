@@ -59,6 +59,12 @@ public:
     exporter.setFieldValue("u",this,&dSim.getSolution());
   }
 
+  //! \brief Returns true if simulator is quasi-static
+  bool quasiStatic() const
+  {
+    return strcmp(dSim.inputContext, "nonlinearsolver") == 0;
+  }
+
   //! \brief Initializes the problem.
   bool init(const TimeStep&)
   {
@@ -203,6 +209,9 @@ public:
   //! \param[in] tp Time stepping parameters
   SIM::ConvStatus solveIteration(TimeStep& tp)
   {
+    if (quasiStatic())
+      return dSim.solveStep(tp);
+
     return dSim.solveIteration(tp);
   }
 

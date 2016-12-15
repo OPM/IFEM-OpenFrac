@@ -150,7 +150,7 @@ public:
       static_cast<CahnHilliard*>(Dim::myProblem)->scaleSmearing(0.5);
 
     this->setMode(SIM::STATIC);
-    if (!this->assembleSystem())
+    if (!this->assembleSystem(Vectors(1,phasefield)))
       return false;
 
     if (!this->solveSystem(phasefield,0))

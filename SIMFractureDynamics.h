@@ -238,6 +238,51 @@ public:
 #endif
   }
 
+  SIM::ConvStatus checkConvergence(const TimeStep& tp,
+                                   SIM::ConvStatus status1,
+                                   SIM::ConvStatus status2)
+  {
+    if (!this->S1.quasiStatic())
+      return this->Coupling<SolidSolver,PhaseSolver>::checkConvergence(tp, status1, status2);
+
+    if (status1 != SIM::CONVERGED || status2 != SIM::CONVERGED)
+      return SIM::OK;
+
+    // Compute residual
+    this->S1.setMode(SIM::RHS_ONLY);
+    if (!this->S1.assembleSystem(tp.time,this->S1.getSolutions(),false))
+      return SIM::DIVERGED;
+
+    Vector residual;
+    this->S1.extractLoadVec(residual);
+
+    eHistory.resize(eHistory.size()+1);
+    double dummy;
+    this->S1.iterationNorms(residual, residual, dummy, eHistory.back(), dummy);
+
+    IFEM::cout << "   subit=" << eHistory.size()-1 <<" conv=" << eHistory.back()/eHistory.front();
+    if (eHistory.size() > 1) {
+      double beta = atan2(eHistory[eHistory.size()-2]-eHistory.back(),
+                          eHistory.front()-eHistory.back()) * 180 / M_PI;
+
+      IFEM::cout << " beta=" <<  beta;
+    }
+    IFEM::cout << std::endl;
+
+    if (eHistory.back()/eHistory.front() < 1e-4) {
+      eHistory.clear();
+      return SIM::CONVERGED;
+    }
+
+    static const int maxSubIt = 1000; // TODO: Max 50 subiterations hardcoded
+    if (eHistory.size() > maxSubIt) {
+      std::cerr << "FractureDynamics::checkConvergence: Did not converge in maxSubIt sub-iterations, bailing.." << std::endl;
+      return SIM::DIVERGED;
+    }
+
+    return SIM::OK;
+  }
+
 private:
   std::string energFile; //!< File name for global energy output
   std::string infile;    //!< Input file parsed
@@ -245,6 +290,7 @@ private:
   double    aMin; //!< Minimum element area
   Vectors   sols; //!< Solution state to transfer onto refined mesh
   RealArray hsol; //!< History field to transfer onto refined mesh
+  RealArray eHistory; //!< Energy history for quasi-static simulations
 };
 
 #endif
