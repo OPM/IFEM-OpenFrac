@@ -12,18 +12,20 @@
 //==============================================================================
 
 #include "CahnHilliard.h"
+#include "AnaSol.h"
 #include "FiniteElement.h"
 #include "ElmMats.h"
 #include "ElmNorm.h"
 #include "Functions.h"
 #include "Utilities.h"
 #include "IFEM.h"
+#include "Vec3Oper.h"
 #include "tinyxml.h"
 
 
 CahnHilliard::CahnHilliard (unsigned short int n) : IntegrandBase(n),
   Gc(1.0), smearing(1.0), maxCrack(1.0e-3), stabk(0.0), scale2nd(4.0),
-  initial_crack(nullptr), tensileEnergy(nullptr), Lnorm(0)
+  initial_crack(nullptr), flux(nullptr), tensileEnergy(nullptr), Lnorm(0)
 {
   primsol.resize(1);
 }
@@ -119,6 +121,19 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
 }
 
 
+bool CahnHilliard::evalBou (LocalIntegral& elmInt, const FiniteElement& fe,
+                            const Vec3& X, const Vec3& normal) const
+{
+  double val = 0.0;
+
+  if (flux)
+    val = normal * (*flux)(X);
+
+  static_cast<ElmMats&>(elmInt).b.front().add(fe.N,val*fe.detJxW);
+
+  return true;
+}
+
 bool CahnHilliard::evalSol (Vector& s, const FiniteElement& fe,
                             const Vec3& X, const std::vector<int>& MNPC) const
 {
@@ -154,9 +169,9 @@ std::string CahnHilliard::getField2Name (size_t idx, const char* prefix) const
 }
 
 
-NormBase* CahnHilliard::getNormIntegrand (AnaSol*) const
+NormBase* CahnHilliard::getNormIntegrand (AnaSol* a) const
 {
-  return new CahnHilliardNorm(*const_cast<CahnHilliard*>(this),Lnorm);
+  return new CahnHilliardNorm(*const_cast<CahnHilliard*>(this),Lnorm,a);
 }
 
 
@@ -181,7 +196,8 @@ bool CahnHilliard4::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
 }
 
 
-CahnHilliardNorm::CahnHilliardNorm (CahnHilliard& p, int Ln) : NormBase(p)
+CahnHilliardNorm::CahnHilliardNorm (CahnHilliard& p, int Ln, const AnaSol* asol)
+  : NormBase(p), aSol(asol)
 {
   finalOp = ASM::NONE;
   Lnorm   = Ln;
@@ -222,6 +238,20 @@ bool CahnHilliardNorm::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
 
     // Dissipated energy, eps_d
     pnorm[k++] += Gc*(pow(C-1.0,2.0)/(4.0*l0) + l0*gradC.dot(gradC))*fe.detJxW;
+
+    if (aSol && i == 0) { // add final group
+      size_t nNorms = pnorm.size();
+      pnorm[nNorms-6] += C*C*fe.detJxW;
+      pnorm[nNorms-5] += gradC.dot(gradC)*fe.detJxW;
+      double CA = (*aSol->getScalarSol())(X);
+      Vec3 gradCA = (*aSol->getScalarSecSol())(X);
+      pnorm[nNorms-4] += CA*CA*fe.detJxW;
+      pnorm[nNorms-3] += gradCA*gradCA*fe.detJxW;
+      double eC = C-CA;
+      pnorm[nNorms-2] += eC*eC*fe.detJxW;
+      gradCA -= gradC;
+      pnorm[nNorms-1] += gradCA*gradCA*fe.detJxW;
+    }
   }
 
   return true;
@@ -235,7 +265,7 @@ bool CahnHilliardNorm::finalizeElement (LocalIntegral& elmInt)
   ElmNorm& pnorm = static_cast<ElmNorm&>(elmInt);
 
   // Evaluate the volume-specific norm |c|/V
-  for (size_t ip = 1; ip < pnorm.size(); ip += 3)
+  for (size_t ip = 1; ip < pnorm.size()-(aSol?6:0); ip += 3)
     pnorm[ip+1] = pnorm[ip] / pnorm[0];
 
   return true;
@@ -245,24 +275,31 @@ bool CahnHilliardNorm::finalizeElement (LocalIntegral& elmInt)
 std::string CahnHilliardNorm::getName (size_t i, size_t j,
                                        const char* prefix) const
 {
-  if (i == 1 && j == 1)
-    return "volume";
-  else if (i == 1 && j > 1)
-    j --;
-  if (Lnorm == 0)
-    j += 2;
-  else if (Lnorm < 0 && j > 1)
-    j ++;
-
   std::string name;
-  if (j == 1)
-    name = "|c|";
-  else if (j == 2)
-    name = "|c|/V";
-  else if (j == 3)
-    name = "eps_d";
-  else
-    return this->NormBase::getName(i,j,prefix);
+  if (i == 2) {
+    static const char* names[] = {"||c^h||_L2", "||c^h||_H1",
+                                  "||c||_L2", "||c||_H1",
+                                  "||e^h||_L2", "||e^h||_H1"};
+    name = names[j-1];
+  } else  {
+    if (i == 1 && j == 1)
+      return "volume";
+    else if (i == 1 && j > 1)
+      j --;
+    if (Lnorm == 0)
+      j += 2;
+    else if (Lnorm < 0 && j > 1)
+      j ++;
+
+    if (j == 1)
+      name = "|c|";
+    else if (j == 2)
+      name = "|c|/V";
+    else if (j == 3)
+      name = "eps_d";
+    else
+      return this->NormBase::getName(i,j,prefix);
+  }
 
   if (!prefix)
     return name;
@@ -274,7 +311,9 @@ std::string CahnHilliardNorm::getName (size_t i, size_t j,
 size_t CahnHilliardNorm::getNoFields (int group) const
 {
   if (group < 1)
-    return this->NormBase::getNoFields();
+    return this->NormBase::getNoFields() + (aSol ? 1 : 0);
+  else if (group == (int)(1+this->NormBase::getNoFields()))
+    return 6;
   else if (Lnorm == 0)
     return 2;
   else if (group == 1 && Lnorm > 0)
