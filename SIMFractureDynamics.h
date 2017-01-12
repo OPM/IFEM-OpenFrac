@@ -14,7 +14,7 @@
 #ifndef _SIM_FRACTURE_DYNAMICS_H_
 #define _SIM_FRACTURE_DYNAMICS_H_
 
-#include "SIMCoupled.h"
+#include "SIMCoupledSI.h"
 #ifdef HAS_LRSPLINE
 #include "ASMu2D.h"
 #include "LRSpline/LRSplineSurface.h"
@@ -105,8 +105,8 @@ public:
     return this->S2.saveStep(tp,nBlock) && this->S1.saveStep(tp,nBlock);
   }
 
-  //! \brief Parses sub-iteration parameters from an XML element.
-  virtual void parseSubiteration(const TiXmlElement*) {}
+  //! \brief Parses staggering parameters from an XML element.
+  virtual void parseStaggering(const TiXmlElement*) {}
 
   //! \brief Assigns the file name for global energy output.
   void setEnergyFile(const char* fName)
@@ -253,36 +253,30 @@ private:
 
 
 /*!
-  \brief Driver class for quasi-static fracture simulators with sub-iterations.
+  \brief Driver class for staggered quasi-static fracture simulators.
 */
 
-template<class SolidSolver, class PhaseSolver,
-         template<class S1, class S2> class Coupling=SIMCoupled>
-class SIMFractureQstatic : public SIMFracture<SolidSolver,PhaseSolver,Coupling>
+template<class SolidSlv, class PhaseSlv>
+class SIMFractureQstatic : public SIMFracture<SolidSlv,PhaseSlv,SIMCoupledSI>
 {
 public:
   //! \brief The constructor forwards to the parent class contructor.
-  SIMFractureQstatic(SolidSolver& s1, PhaseSolver& s2, const std::string& input)
-    : SIMFracture<SolidSolver,PhaseSolver,Coupling>(s1,s2,input)
+  SIMFractureQstatic(SolidSlv& s1, PhaseSlv& s2, const std::string& input)
+    : SIMFracture<SolidSlv,PhaseSlv,SIMCoupledSI>(s1,s2,input),
+      maxCycle(this->maxIter)
   {
-    subIType = 1;
-    maxSubIt = 50;
-    subItTol = 1.0e-4;
+    maxCycle = 50;
+    cycleTol = 1.0e-4;
   }
 
   //! \brief Empty destructor.
   virtual ~SIMFractureQstatic() {}
 
-  //! \brief Parses sub-iteration parameters from an XML element.
-  virtual void parseSubiteration(const TiXmlElement* elem)
+  //! \brief Parses staggering parameters from an XML element.
+  virtual void parseStaggering(const TiXmlElement* elem)
   {
-    this->S1.parseSubiteration(elem);
-    utl::getAttribute(elem,"type",subIType);
-    utl::getAttribute(elem,"tol",subItTol);
-    if (subIType == 2)
-      maxSubIt = this->S1.getMaxit();
-    else
-      utl::getAttribute(elem,"max",maxSubIt);
+    utl::getAttribute(elem,"tol",cycleTol);
+    utl::getAttribute(elem,"max",maxCycle);
   }
 
   //! \brief Computes the solution for the current time step.
@@ -293,7 +287,7 @@ public:
       if (!this->S2.solveStep(tp,false))
         return false;
 
-    return this->Coupling<SolidSolver,PhaseSolver>::solveStep(tp);
+    return this->SIMCoupledSI<SolidSlv,PhaseSlv>::solveStep(tp);
   }
 
   //! \brief Checks if the coupled simulator has converged.
@@ -317,40 +311,39 @@ public:
     if (!this->S1.extractLoadVec(residual))
       return SIM::FAILURE;
 
-    int subIt = rHistory.size();
+    int cycle = rHistory.size();
     double dummy, rNorm;
     this->S1.iterationNorms(Vector(), residual, dummy, rNorm, dummy);
     rHistory.push_back(rNorm);
 
     double beta = 10.0, rConv = rNorm/rHistory.front();
-    IFEM::cout <<"  subit="<< subIt <<"  conv="<< rConv;
-    if (subIt > 0)
+    IFEM::cout <<"  cycle="<< cycle <<"  conv="<< rConv;
+    if (cycle > 0)
     {
       double r0 = rHistory.front();
-      double r2 = rHistory[subIt-1];
-      beta = atan2(subIt*(r2-rNorm),r0-rNorm) * 180.0/M_PI;
+      double r2 = rHistory[cycle-1];
+      beta = atan2(cycle*(r2-rNorm),r0-rNorm) * 180.0/M_PI;
       IFEM::cout <<"  beta="<< beta;
     }
     IFEM::cout << std::endl;
 
-    if (rConv < subItTol)
+    if (rConv < cycleTol)
     {
       rHistory.clear();
       return SIM::CONVERGED;
     }
-    else if (subIt <= maxSubIt)
+    else if (cycle < maxCycle)
       return SIM::OK;
 
     std::cerr <<"SIMFractureQstatic::checkConvergence: Did not converge in "
-              << maxSubIt <<" sub-iterations, bailing.."<< std::endl;
+              << maxCycle <<" staggering cycles, bailing.."<< std::endl;
     return SIM::DIVERGED;
   }
 
 private:
-  int       subIType; //!< Sub-iteration type flag
-  int       maxSubIt; //!< Maximum number of sub-iterations
-  double    subItTol; //!< Sub-iteration tolerance
-  RealArray rHistory; //!< Residual norm history for quasi-static simulations
+  int&      maxCycle; //!< Maximum number of staggering cycles
+  double    cycleTol; //!< Residual norm tolerance for the staggering cycles
+  RealArray rHistory; //!< Residual norm history for the staggering cycles
 };
 
 #endif

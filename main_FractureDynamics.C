@@ -69,8 +69,8 @@ protected:
     {
       const TiXmlElement* child = elem->FirstChildElement();
       for (; child; child = child->NextSiblingElement())
-        if (!strcasecmp(child->Value(),"subiterations"))
-          this->S1.parseSubiteration(child);
+        if (!strncasecmp(child->Value(),"stag",4))
+          this->S1.parseStaggering(child);
         else
           this->SIMSolver<T>::parse(child);
     }
@@ -166,7 +166,7 @@ int runSimulator3 (const FDargs& args)
   const char* contx = Integrator::inputContext;
   if (args.integrator == 3 && args.coupling == 2)
   {
-    typedef SIMFractureQstatic<ElSolver,PhaseSolver,Cpl> Coupler;
+    typedef SIMFractureQstatic<ElSolver,PhaseSolver> Coupler;
     return runCombined<ElSolver,PhaseSolver,Coupler,Solver>(args.inpfile,contx);
   }
   else
