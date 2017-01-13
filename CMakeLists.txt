@@ -59,7 +59,7 @@ include(IFEMTesting)
 configure_file(${IFEM_REGTEST_SCRIPT} regtest.sh)
 
 # Regression tests
-if(IFEM_USE_PARALLEL_PETSC)
+if(MPI_FOUND)
   # Add parallel tests here
 else()
   file(GLOB CH_TESTFILES RELATIVE ${PROJECT_SOURCE_DIR}/Test
