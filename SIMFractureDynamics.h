@@ -14,7 +14,6 @@
 #ifndef _SIM_FRACTURE_DYNAMICS_H_
 #define _SIM_FRACTURE_DYNAMICS_H_
 
-#include "SIMCoupledSI.h"
 #include "ProcessAdm.h"
 #ifdef HAS_LRSPLINE
 #include "ASMu2D.h"
@@ -31,7 +30,7 @@
 */
 
 template<class SolidSolver, class PhaseSolver,
-         template<class S1, class S2> class Coupling=SIMCoupled>
+         template<class S1, class S2> class Coupling>
 class SIMFracture : public Coupling<SolidSolver,PhaseSolver>
 {
   //! Convenience type
@@ -253,103 +252,6 @@ private:
   double    aMin; //!< Minimum element area
   Vectors   sols; //!< Solution state to transfer onto refined mesh
   RealArray hsol; //!< History field to transfer onto refined mesh
-};
-
-
-/*!
-  \brief Driver class for staggered quasi-static fracture simulators.
-*/
-
-template<class SolidSlv, class PhaseSlv>
-class SIMFractureQstatic : public SIMFracture<SolidSlv,PhaseSlv,SIMCoupledSI>
-{
-  //! Convenience type
-  typedef SIMFracture<SolidSlv,PhaseSlv,SIMCoupledSI> CoupledSIM;
-
-public:
-  //! \brief The constructor forwards to the parent class contructor.
-  SIMFractureQstatic(SolidSlv& s1, PhaseSlv& s2, const std::string& input)
-    : CoupledSIM(s1,s2,input), maxCycle(this->maxIter)
-  {
-    maxCycle = 50;
-    cycleTol = 1.0e-4;
-  }
-
-  //! \brief Empty destructor.
-  virtual ~SIMFractureQstatic() {}
-
-  //! \brief Parses staggering parameters from an XML element.
-  virtual void parseStaggering(const TiXmlElement* elem)
-  {
-    utl::getAttribute(elem,"tol",cycleTol);
-    utl::getAttribute(elem,"max",maxCycle);
-  }
-
-  //! \brief Computes the solution for the current time step.
-  virtual bool solveStep(TimeStep& tp, bool firstS1 = true)
-  {
-    if (tp.step == 1 && this->S1.haveCrackPressure() && rHistory.empty())
-      // Start the initial step by solving the phase-field first
-      if (!this->S2.solveStep(tp,false))
-        return false;
-
-    return this->SIMCoupledSI<SolidSlv,PhaseSlv>::solveStep(tp,firstS1);
-  }
-
-  //! \brief Checks if the coupled simulator has converged.
-  virtual SIM::ConvStatus checkConvergence(const TimeStep& tp,
-                                           SIM::ConvStatus status1,
-                                           SIM::ConvStatus status2)
-  {
-    if (status1 == SIM::FAILURE || status2 == SIM::FAILURE)
-      return SIM::FAILURE;
-    else if (status1 == SIM::DIVERGED || status2 == SIM::DIVERGED)
-      return SIM::DIVERGED;
-    else if (status1 != SIM::CONVERGED || status2 != SIM::CONVERGED)
-      return SIM::OK;
-
-    // Compute residual
-    this->S1.setMode(SIM::RHS_ONLY);
-    if (!this->S1.assembleSystem(tp.time,this->S1.getSolutions(),false))
-      return SIM::FAILURE;
-
-    Vector residual;
-    if (!this->S1.extractLoadVec(residual))
-      return SIM::FAILURE;
-
-    int cycle = rHistory.size();
-    double dummy, rNorm;
-    this->S1.iterationNorms(Vector(), residual, dummy, rNorm, dummy);
-    rHistory.push_back(rNorm);
-
-    double beta = 10.0, rConv = rNorm/rHistory.front();
-    IFEM::cout <<"  cycle="<< cycle <<"  conv="<< rConv;
-    if (cycle > 0)
-    {
-      double r0 = rHistory.front();
-      double r2 = rHistory[cycle-1];
-      beta = atan2(cycle*(r2-rNorm),r0-rNorm) * 180.0/M_PI;
-      IFEM::cout <<"  beta="<< beta;
-    }
-    IFEM::cout << std::endl;
-
-    if (rConv < cycleTol)
-    {
-      rHistory.clear();
-      return SIM::CONVERGED;
-    }
-    else if (cycle < maxCycle)
-      return SIM::OK;
-
-    std::cerr <<"SIMFractureQstatic::checkConvergence: Did not converge in "
-              << maxCycle <<" staggering cycles, bailing.."<< std::endl;
-    return SIM::DIVERGED;
-  }
-
-private:
-  int&      maxCycle; //!< Maximum number of staggering cycles
-  double    cycleTol; //!< Residual norm tolerance for the staggering cycles
-  RealArray rHistory; //!< Residual norm history for the staggering cycles
 };
 
 #endif

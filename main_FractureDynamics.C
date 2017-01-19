@@ -16,7 +16,7 @@
 #include "SIM3D.h"
 #include "SIMDynElasticity.h"
 #include "SIMPhaseField.h"
-#include "SIMFractureDynamics.h"
+#include "SIMFractureQstatic.h"
 #include "SIMCoupledSI.h"
 #include "SIMSolver.h"
 #include "SIMSolverTS.h"
