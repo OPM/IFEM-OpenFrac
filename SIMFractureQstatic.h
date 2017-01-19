@@ -81,9 +81,25 @@ public:
     if (!this->S1.extractLoadVec(residual))
       return SIM::FAILURE;
 
-    rHistory.push_back(residual.norm2());
+    double rNorm1 = residual.norm2();
+
+    // Compute residual of the phase-field equation
+    if (!this->S2.setMode(SIM::INT_FORCES))
+      return SIM::FAILURE;
+
+    Vectors sol2(1,this->S2.getSolution());
+    if (!this->S2.assembleSystem(tp.time,sol2,false))
+      return SIM::FAILURE;
+
+    if (!this->S2.extractLoadVec(residual))
+      return SIM::FAILURE;
+
+    double rNorm2 = residual.norm2();
+
+    rHistory.push_back(rNorm1+rNorm2);
     double rConv = rHistory.back()/rHistory.front();
-    IFEM::cout <<"  cycle="<< cycle <<"  conv="<< rConv;
+    IFEM::cout <<"  cycle="<< cycle <<"  res1="<< rNorm1 <<"  res2="<< rNorm2
+               <<"  conv="<< rConv;
     if (cycle > 0)
     {
       double r0 = rHistory.front();

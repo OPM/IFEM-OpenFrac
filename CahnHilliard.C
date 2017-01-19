@@ -18,8 +18,8 @@
 #include "AnaSol.h"
 #include "Functions.h"
 #include "Utilities.h"
-#include "IFEM.h"
 #include "Vec3Oper.h"
+#include "IFEM.h"
 #include "tinyxml.h"
 
 
@@ -131,11 +131,41 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
   double s1JxW = scale*fe.detJxW;
   double s2JxW = scale2nd*smearing*smearing*fe.detJxW;
 
-  Matrix& A = static_cast<ElmMats&>(elmInt).A.front();
-  A.outer_product(fe.N, fe.N, true, s1JxW);
-  A.multiply(fe.dNdX, fe.dNdX, false, true, true, s2JxW);
+  if (m_mode == SIM::STATIC)
+  {
+    Matrix& A = static_cast<ElmMats&>(elmInt).A.front();
 
-  static_cast<ElmMats&>(elmInt).b.front().add(fe.N,fe.detJxW);
+    A.outer_product(fe.N,fe.N,true,s1JxW);             // A +=  N  * N^t  *s1JxW
+    A.multiply(fe.dNdX,fe.dNdX,false,true,true,s2JxW); // A += dNdX*dNdX^t*s2JxW
+
+    static_cast<ElmMats&>(elmInt).b.front().add(fe.N,fe.detJxW); // R += N*|J|*W
+  }
+  else if (m_mode == SIM::INT_FORCES && !elmInt.vec.front().empty())
+  {
+    Vector& R = static_cast<ElmMats&>(elmInt).b.front();
+
+    // Integrate the residual force vector.
+    // Apply scaling Gc/ell compared to the STATIC mode, such that
+    // the resulting residual force vector has comparable dimension
+    // as the residual forces of the elasticity equation.
+    s1JxW  = GcOell*(1.0 - C*scale)*fe.detJxW;
+    s2JxW *= GcOell;
+
+    R.add(fe.N,s1JxW); // R += N*s1JxW
+
+    Vector gradC; // Compute the phase field gradient gradC = dNdX^t*eC
+    if (!fe.dNdX.multiply(elmInt.vec.front(),gradC,true))
+      return false;
+
+    gradC *= -s2JxW;
+    return fe.dNdX.multiply(gradC,R,false,true); // R -= dNdX*gradC*s2JxW
+  }
+  else
+  {
+    std::cerr <<" *** CahnHilliard::evalInt: Invalid simulation mode "
+              << m_mode << std::endl;
+    return false;
+  }
 
   return true;
 }
@@ -144,15 +174,18 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
 bool CahnHilliard::evalBou (LocalIntegral& elmInt, const FiniteElement& fe,
                             const Vec3& X, const Vec3& normal) const
 {
-  double val = 0.0;
+  if (!flux)
+  {
+    std::cerr <<" *** CahnHilliard::evalBou: No flux field."<< std::endl;
+    return false;
+  }
 
-  if (flux)
-    val = normal * (*flux)(X);
-
+  double val = normal * (*flux)(X);
   static_cast<ElmMats&>(elmInt).b.front().add(fe.N,val*fe.detJxW);
 
   return true;
 }
+
 
 bool CahnHilliard::evalSol (Vector& s, const FiniteElement& fe,
                             const Vec3& X, const std::vector<int>& MNPC) const
@@ -205,7 +238,8 @@ bool CahnHilliard4::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
   double s4JxW = pow(smearing,4.0)*fe.detJxW;
 
   for (size_t i = 1; i <= fe.N.size(); i++)
-    for (size_t j = 1; j <= fe.N.size(); j++) {
+    for (size_t j = 1; j <= fe.N.size(); j++)
+    {
       double grad = 0.0;
       for (unsigned short int k = 1; k <= nsd; k++)
         grad += fe.d2NdX2(i,k,k)*fe.d2NdX2(j,k,k);
@@ -259,18 +293,20 @@ bool CahnHilliardNorm::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
     // Dissipated energy, eps_d
     pnorm[k++] += Gc*(pow(C-1.0,2.0)/(4.0*l0) + l0*gradC.dot(gradC))*fe.detJxW;
 
-    if (aSol && i == 0) { // add final group
-      size_t nNorms = pnorm.size();
-      pnorm[nNorms-6] += C*C*fe.detJxW;
-      pnorm[nNorms-5] += gradC.dot(gradC)*fe.detJxW;
-      double CA = (*aSol->getScalarSol())(X);
+    if (aSol && i == 0)
+    {
+      // Add final norm group when an analytical solution is provided
+      double   CA = (*aSol->getScalarSol())(X);
       Vec3 gradCA = (*aSol->getScalarSecSol())(X);
-      pnorm[nNorms-4] += CA*CA*fe.detJxW;
-      pnorm[nNorms-3] += gradCA*gradCA*fe.detJxW;
-      double eC = C-CA;
-      pnorm[nNorms-2] += eC*eC*fe.detJxW;
+      size_t ip = pnorm.size() - 6;
+      pnorm[ip++] += C*C*fe.detJxW;
+      pnorm[ip++] += gradC.dot(gradC)*fe.detJxW;
+      pnorm[ip++] += CA*CA*fe.detJxW;
+      pnorm[ip++] += gradCA*gradCA*fe.detJxW;
+      CA     -= C;
       gradCA -= gradC;
-      pnorm[nNorms-1] += gradCA*gradCA*fe.detJxW;
+      pnorm[ip++] += CA*CA*fe.detJxW;
+      pnorm[ip++] += gradCA*gradCA*fe.detJxW;
     }
   }
 
@@ -283,9 +319,11 @@ bool CahnHilliardNorm::finalizeElement (LocalIntegral& elmInt)
   if (Lnorm < 1) return true;
 
   ElmNorm& pnorm = static_cast<ElmNorm&>(elmInt);
+  size_t nNorm = pnorm.size();
+  if (aSol) nNorm -= 6;
 
   // Evaluate the volume-specific norm |c|/V
-  for (size_t ip = 1; ip < pnorm.size()-(aSol?6:0); ip += 3)
+  for (size_t ip = 1; ip < nNorm; ip += 3)
     pnorm[ip+1] = pnorm[ip] / pnorm[0];
 
   return true;
@@ -295,14 +333,18 @@ bool CahnHilliardNorm::finalizeElement (LocalIntegral& elmInt)
 std::string CahnHilliardNorm::getName (size_t i, size_t j,
                                        const char* prefix) const
 {
+  static const char* errorNorms[] = { "||c^h||_L2", "||c^h||_H1",
+                                      "||c||_L2"  , "||c||_H1"  ,
+                                      "||e^h||_L2", "||e^h||_H1" };
   std::string name;
-  if (i == 2) {
-    static const char* names[] = {"||c^h||_L2", "||c^h||_H1",
-                                  "||c||_L2", "||c||_H1",
-                                  "||e^h||_L2", "||e^h||_H1"};
-    name = names[j-1];
+
+  if (aSol && i == this->getNoFields(0))
+  {
+    if (j <= 6)
+      name = errorNorms[j-1];
   }
-  else {
+  else
+  {
     if (i == 1 && j == 1)
       return "volume";
     else if (i == 1 && j > 1)
@@ -318,11 +360,11 @@ std::string CahnHilliardNorm::getName (size_t i, size_t j,
       name = "|c|/V";
     else if (j == 3)
       name = "eps_d";
-    else
-      return this->NormBase::getName(i,j,prefix);
   }
 
-  if (!prefix)
+  if (name.empty())
+    return this->NormBase::getName(i,j,prefix);
+  else if (!prefix)
     return name;
 
   return std::string(prefix) + " " + name;
@@ -331,9 +373,10 @@ std::string CahnHilliardNorm::getName (size_t i, size_t j,
 
 size_t CahnHilliardNorm::getNoFields (int group) const
 {
+  size_t nNorm = this->NormBase::getNoFields();
   if (group < 1)
-    return this->NormBase::getNoFields() + (aSol ? 1 : 0);
-  else if (group == (int)(1+this->NormBase::getNoFields()))
+    return aSol ? nNorm+1 : nNorm;
+  else if (group == (int)(nNorm+1))
     return 6;
   else if (Lnorm == 0)
     return 2;
