@@ -12,10 +12,10 @@
 //==============================================================================
 
 #include "CahnHilliard.h"
-#include "AnaSol.h"
 #include "FiniteElement.h"
 #include "ElmMats.h"
 #include "ElmNorm.h"
+#include "AnaSol.h"
 #include "Functions.h"
 #include "Utilities.h"
 #include "IFEM.h"
@@ -29,7 +29,7 @@ CahnHilliard::CahnHilliard (unsigned short int n) : IntegrandBase(n),
   Gc = smearing = 1.0;
   maxCrack = 1.0e-3;
   scale2nd = 4.0;
-  stabk = pgamma = pthresh = 0.0;
+  stabk = gammaInv = pthresh = 0.0;
 
   primsol.resize(1);
 }
@@ -48,7 +48,7 @@ bool CahnHilliard::parse (const TiXmlElement* elem)
     stabk = atof(value);
   else if ((value = utl::getValue(elem,"penalty_factor")))
   {
-    pgamma = atof(value);
+    gammaInv = 1.0/atof(value);
     utl::getAttribute(elem,"threshold",pthresh);
   }
   else if ((value = utl::getValue(elem,"initial_crack")))
@@ -74,13 +74,14 @@ void CahnHilliard::printLog () const
              <<"\n\tMax value in crack: "<< maxCrack;
   if (stabk != 0.0)
     IFEM::cout <<"\n\tStabilization parameter: "<< stabk;
-  if (initial_crack)
+  if (initial_crack && gammaInv <= 0.0)
     IFEM::cout <<"\n\tInitial crack specified as a function.";
   if (scale2nd == 2.0)
     IFEM::cout <<"\n\tUsing fourth-order phase field.";
-  if (pgamma > 0.0)
+  if (gammaInv > 0.0)
     IFEM::cout <<"\n\tEnforcing crack irreversibility using penalty formulation"
-               <<"\n\t  gamma="<< pgamma <<" threshold="<< pthresh << std::endl;
+               <<"\n\t  gamma="<< 1.0/gammaInv
+               <<" threshold="<< pthresh << std::endl;
   else
     IFEM::cout <<"\n\tEnforcing crack irreversibility using history buffer.";
 
@@ -91,7 +92,7 @@ void CahnHilliard::printLog () const
 void CahnHilliard::setMode (SIM::SolutionMode mode)
 {
   m_mode = mode;
-  primsol.resize(mode == SIM::RECOVERY || pgamma > 0.0 ? 1 : 0);
+  primsol.resize(mode >= SIM::RHS_ONLY || gammaInv > 0.0 ? 1 : 0);
 }
 
 
@@ -106,25 +107,29 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
                             const Vec3& X) const
 {
   double& H = historyField[fe.iGP];
+  double GcOell = Gc/smearing;
 
-  if (initial_crack) {
+  if (initial_crack && !(tensileEnergy && gammaInv > 0.0)) {
+    // Initialize the history field using the specified initial crack function
     double dist = (*initial_crack)(X);
     if (dist < smearing)
-      H = (0.25*Gc/smearing) * (1.0/maxCrack-1.0) * (1.0-dist/smearing);
+      H = (0.25*GcOell) * (1.0/maxCrack-1.0) * (1.0-dist/smearing);
   }
 
   // Update history field
   if (tensileEnergy) {
     double Psi = (*tensileEnergy)[fe.iGP];
-    if (pgamma > 0.0 || Psi > H) H = Psi;
+    if (gammaInv > 0.0 || Psi > H) H = Psi;
   }
 
-  double scale = 1.0 + 4.0*smearing*(1.0-stabk)*H/Gc;
+  // Evaluate the current phase field, if provided
+  double C = elmInt.vec.front().empty() ? 1.0 : fe.N.dot(elmInt.vec.front());
+
+  double scale = 1.0 + 4.0*(1.0-stabk)*H/GcOell;
+  if (gammaInv > 0.0 && C < pthresh)
+    scale += gammaInv/GcOell;
   double s1JxW = scale*fe.detJxW;
   double s2JxW = scale2nd*smearing*smearing*fe.detJxW;
-  if (pgamma > 0.0 && !elmInt.vec.front().empty())
-    if (fe.N.dot(elmInt.vec.front()) < pthresh)
-      s1JxW -= fe.detJxW*pgamma;
 
   Matrix& A = static_cast<ElmMats&>(elmInt).A.front();
   A.outer_product(fe.N, fe.N, true, s1JxW);
@@ -211,8 +216,8 @@ bool CahnHilliard4::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
 }
 
 
-CahnHilliardNorm::CahnHilliardNorm (CahnHilliard& p, int Ln, const AnaSol* asol)
-  : NormBase(p), aSol(asol)
+CahnHilliardNorm::CahnHilliardNorm (CahnHilliard& p, int Ln, const AnaSol* a)
+  : NormBase(p), aSol(a)
 {
   finalOp = ASM::NONE;
   Lnorm   = Ln;
@@ -296,7 +301,8 @@ std::string CahnHilliardNorm::getName (size_t i, size_t j,
                                   "||c||_L2", "||c||_H1",
                                   "||e^h||_L2", "||e^h||_H1"};
     name = names[j-1];
-  } else  {
+  }
+  else {
     if (i == 1 && j == 1)
       return "volume";
     else if (i == 1 && j > 1)

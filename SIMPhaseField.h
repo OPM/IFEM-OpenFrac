@@ -155,10 +155,10 @@ public:
     if (!this->setMode(SIM::STATIC))
       return false;
 
-    if (!this->assembleSystem(Vectors(1,phasefield)))
+    if (!this->assembleSystem(tp.time,Vectors(1,phasefield)))
       return false;
 
-    if (!this->solveSystem(phasefield,0))
+    if (!this->solveSystem(phasefield, standalone ? 0 : 1, nullptr, nullptr))
       return false;
 
     if (tp.step == 1)
@@ -198,30 +198,25 @@ public:
                      <<"\n  Normalized L1-norm: |c^h|/V    : "
                      << norm(2)/norm(1) << std::endl;
         else if (Lnorm == 2)
-          IFEM::cout <<"  L2-norm: |c^h| = (c^h,c^h)^0.5 : "
-                     << sqrt(norm(2))
+          IFEM::cout <<"  L2-norm: |c^h| = (c^h,c^h)^0.5 : "<< sqrt(norm(2))
                      <<"\n  Normalized L2-norm: |c^h|/V^.5 : "
                      << sqrt(norm(2)/norm(1)) << std::endl;
       }
       if (norm.size() > 1 && utl::trunc(norm.back()) != 0.0)
         IFEM::cout <<"  Dissipated energy:       eps_d : "
                    << norm.back() << std::endl;
-
-      if (gNorm.size() > 1) {
-        norm = gNorm.back();
-        IFEM::cout <<"  L2-norm: |c^h| = (c^h,c^h)^0.5 : "
-                   << sqrt(norm(1)) << std::endl;
-        IFEM::cout <<"  H1-norm: |c^h| = a(c^h,c^h)^0.5 : "
-                   << sqrt(norm(2)) << std::endl;
-        IFEM::cout <<"  L2-norm: |c|   = (c^h,c^h)^0.5 : "
-                   << sqrt(norm(3)) << std::endl;
-        IFEM::cout <<"  H1-norm: |c|   = a(c,c)^0.5 : "
-                   << sqrt(norm(4)) << std::endl;
-        IFEM::cout <<"  L2-norm: |e|   = (e^h,e^h)^0.5 : "
-                   << sqrt(norm(5)/norm(3)) << std::endl;
-        IFEM::cout <<"  H1-norm: |e|   = a(e,e)^0.5 : "
-                   << sqrt(norm(6)/norm(4)) << std::endl;
-      }
+    }
+    if (gNorm.size() > 1)
+    {
+      const Vector& nrm = gNorm.back(); // Don't overwrite 'norm' here
+      IFEM::cout <<  "  L2-norm: |c^h| = (c^h,c^h)^0.5 : "<< sqrt(nrm(1))
+                 <<"\n  H1-norm: |c^h| = a(c^h,c^h)^.5 : "<< sqrt(nrm(2))
+                 <<"\n  L2-norm: |c|   = (c,c)^0.5     : "<< sqrt(nrm(3))
+                 <<"\n  H1-norm: |c|   = a(c,c)^0.5    : "<< sqrt(nrm(4))
+                 <<"\n  L2-norm: |e|   = (e,e)^0.5     : "
+                 << sqrt(nrm(5)/nrm(3))
+                 <<"\n  H1-norm: |e|   = a(e,e)^0.5    : "
+                 << sqrt(nrm(6)/nrm(4)) << std::endl;
     }
 
     return true;
@@ -277,7 +272,9 @@ public:
   //! \details Since this solver is linear, this is just a normal solve.
   SIM::ConvStatus solveIteration(TimeStep& tp)
   {
-    return this->solveStep(tp,false) ? SIM::CONVERGED : SIM::DIVERGED;
+    if (Dim::msgLevel == 1)
+      IFEM::cout <<"\n  step="<< tp.step <<"  time="<< tp.time.t << std::endl;
+    return this->solveStep(tp,false) ? SIM::CONVERGED : SIM::FAILURE;
   }
 
   //! \brief Returns the current history field.
@@ -337,10 +334,12 @@ protected:
         if (!Dim::opt.project.empty())
           IFEM::cout <<"\tFiltering phase field using "
                      << Dim::opt.project.begin()->second <<"."<< std::endl;
-      } else if (!strcasecmp(child->Value(),"anasol")) {
+      }
+      else if (!strcasecmp(child->Value(),"anasol"))
+      {
         IFEM::cout <<"\tAnalytical solution: Expression"<< std::endl;
-        if (!this->mySol)
-          this->mySol = new AnaSol(child,true);
+        if (!Dim::mySol)
+          Dim::mySol = new AnaSol(child,true);
       }
       else
       {

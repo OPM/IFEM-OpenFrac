@@ -17,11 +17,8 @@
 #include "IntegrandBase.h"
 
 
-class AnaSol;
-
-
 /*!
-  \brief Class representing the integrand of the 2. order Cahn Hilliard problem.
+  \brief Class representing the integrand of a 2nd order Cahn Hilliard problem.
 */
 
 class CahnHilliard : public IntegrandBase
@@ -46,9 +43,6 @@ public:
   //! \brief Initializes the integrand with the number of integration points.
   //! \param[in] nGp Total number of interior integration points
   virtual void initIntegration(size_t nGp, size_t);
-
-  //! \brief Returns that this integrand has no explicit boundary contributions.
-  virtual bool hasBoundaryTerms() const { return true; }
 
   //! \brief Evaluates the integrand at an interior point.
   //! \param elmInt The local integral object to receive the contributions
@@ -85,9 +79,8 @@ public:
 
   //! \brief Sets the pointer to the tensile energy buffer.
   void setTensileEnergy(const RealArray* tens) { tensileEnergy = tens; }
-
-  //! \brief Set flux function associated with Neumann boundary
-  void setFlux(VecFunc* f) { flux=f; }
+  //! \brief Sets the flux function associated with the Neumann boundary.
+  void setFlux(VecFunc* f) { flux = f; }
 
   //! \brief Returns the initial crack function.
   RealFunc* initCrack() { return initial_crack; }
@@ -98,7 +91,7 @@ public:
   //! \note The Integrand object is allocated dynamically and has to be deleted
   //! manually when leaving the scope of the pointer variable receiving the
   //! returned pointer value.
-  virtual NormBase* getNormIntegrand(AnaSol*) const;
+  virtual NormBase* getNormIntegrand(AnaSol* a) const;
 
   //! \brief Returns the critical fracture energy.
   double getCriticalFracEnergy() const { return Gc; }
@@ -113,7 +106,7 @@ protected:
   double maxCrack; //!< Maximum value in initial crack
   double stabk;    //!< Stabilization parameter
   double scale2nd; //!< Scaling factor in front of second order term
-  double pgamma;   //!< Penalty factor (if positive) for crack irreversibility
+  double gammaInv; //!< Penalty factor (if positive) for crack irreversibility
   double pthresh;  //!< Penalty formulation phase field threshold
 
 private:
@@ -128,7 +121,7 @@ public:
 
 
 /*!
-  \brief Class representing the integrand of the 4. order Cahn Hilliard problem.
+  \brief Class representing the integrand of a 4th order Cahn Hilliard problem.
 */
 
 class CahnHilliard4 : public CahnHilliard
@@ -159,7 +152,7 @@ class CahnHilliardNorm : public NormBase
 {
 public:
   //! \brief The constructor forwards to the parent class constructor.
-  CahnHilliardNorm(CahnHilliard& p, int Ln, const AnaSol* asol=nullptr);
+  CahnHilliardNorm(CahnHilliard& p, int Ln, const AnaSol* a = nullptr);
   //! \brief Empty destructor.
   virtual ~CahnHilliardNorm() {}
 
