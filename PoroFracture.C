@@ -22,9 +22,54 @@
 #include "tinyxml.h"
 
 
+class PoroFractureElasticityVoigt : public FractureElasticityVoigt
+{
+public:
+  PoroFractureElasticityVoigt(IntegrandBase *parent, unsigned short int n)
+    : FractureElasticityVoigt(parent, n)
+  {}
+
+  void setMode(SIM::SolutionMode mode)
+  {
+    this->FractureElasticityVoigt::setMode(mode);
+    iS = PoroElasticity::Fu + 1;
+  }
+
+  bool getElementSolution(Vectors& eV, const std::vector<int>& MNPC) const
+  {
+    eV.resize(1+eC);
+    int ierr = 0;
+
+    // Filter out the pressure components
+    // FIXME: Mixed
+    if (!mySol.empty() && !mySol.front().empty()) {
+      Vector temp;
+      ierr = utl::gather(MNPC, nsd+1, mySol.front(), temp);
+      size_t nbfuns = temp.size() / (nsd + 1);
+      Vector& actual = eV.front();
+      actual.resize(nsd * nbfuns);
+      for (size_t i = 0; i < nsd; i++)
+        for (size_t bfun = 0; bfun < nbfuns; bfun++)
+          actual[nsd*bfun+i] = temp[(nsd+1)*bfun+i];
+    }
+
+    // Extract crack phase field vector for this element
+    if (!myCVec.empty() && ierr == 0)
+      ierr = utl::gather(MNPC,1,myCVec,eV[eC]);
+
+    if (ierr == 0)
+      return true;
+
+    std::cerr <<" *** FractureElasticity::getElementSolution: Detected "<< ierr
+              <<" node numbers out of range."<< std::endl;
+    return false;
+  }
+};
+
+
 PoroFracture::PoroFracture (unsigned short int n) : PoroElasticity(n)
 {
-  fracEl = new FractureElasticityVoigt(this,n);
+  fracEl = new PoroFractureElasticityVoigt(this,n);
 
   L_per = 0.01;
   d_min = 0.1;
@@ -161,6 +206,7 @@ bool PoroFracture::evalElasticityMatrices (ElmMats& elMat, const Matrix&,
   based on a Poiseuille flow approximation of the fluid flow in the crack.
   See Section 5.5.2 (eqs. (104)-(109)) of Miehe and Maute (2015)
   "Phase field modeling of fracture in multi-physics problems. Part III."
+  as well as clarifying note by Fonn and Kvamsdal (2016).
 */
 
 double PoroFracture::formCrackedPermeabilityTensor (SymmTensor& Kcrack,
@@ -168,6 +214,13 @@ double PoroFracture::formCrackedPermeabilityTensor (SymmTensor& Kcrack,
                                                     const FiniteElement& fe,
                                                     const Vec3& X) const
 {
+  // Base permeability
+  // FIXME: What to do for non-isotropic permeability?
+  const PoroMaterial* pmat = dynamic_cast<const PoroMaterial*>(material);
+  if (!pmat)
+    return -4.0;
+  double perm = pmat->getPermeability(X)[0];
+
   Vec3 gradD; // Evaluate the phase field value and gradient
   double d = fracEl->evalPhaseField(gradD,eV,fe.N,fe.dNdX);
   if (d < 0.0)
@@ -179,7 +232,7 @@ double PoroFracture::formCrackedPermeabilityTensor (SymmTensor& Kcrack,
   else if (d < d_min)
   {
     // The crack does not affect the permeability tensor at this point
-    Kcrack.zero();
+    Kcrack.diag(perm);
     return 0.0;
   }
 
@@ -199,15 +252,23 @@ double PoroFracture::formCrackedPermeabilityTensor (SymmTensor& Kcrack,
   if (Kcrack.rightCauchyGreen(F).inverse() == 0.0)
     return -3.0;
 
-  // Compute the symmetric tensor C^-1 - (C^-1*n0)otimes(C^-1*n0)
+  // Compute alpha = |grad D| / |F^-T grad D|, see F&K eq. (44)
+  Tensor Finv(F, true);
+  Finv.inverse();
+  Vec3 FtgradD = Finv * gradD;
+  double alpha = gradD.length() / FtgradD.length();
+  SymmTensor kCinv = perm * Kcrack; // k * C^-1
+
+  // Compute the symmetric tensor C^-1 - alpha * (C^-1*n0)otimes(C^-1*n0)
   // (the term in the bracket [] of eq. (108) in Miehe2015pfm3)
+  // See also F&K eq. (45)
   Vec3 CigD = Kcrack*gradD; // C^-1*gradD
   for (unsigned short int j = 1; j <= nsd; j++)
     for (unsigned short int i = 1; i <= j; i++)
-      Kcrack(i,j) -= CigD(i)*CigD(j)/d2;
+      Kcrack(i,j) -= CigD(i) * CigD(j) / d2 * alpha * alpha;
 
   // Compute the perpendicular crack stretch
-  // lambda = gradD*gradD / gradD*C^-1*gradD (see eq. (106))
+  // lambda = gradD*gradD / gradD*C^-1*gradD (see M&M eq. (106), F&K eq. (36))
   double lambda = sqrt(d2 / (gradD*CigD));
 #if INT_DEBUG > 3
   std::cout <<"PoroFracture::formCrackedPermeabilityTensor(X = "<< X
@@ -220,9 +281,14 @@ double PoroFracture::formCrackedPermeabilityTensor (SymmTensor& Kcrack,
   }
 
   // Compute the permeability tensor, scale by d^eps*Kc*w^2*J (see eq. (108))
-  double w = lambda*L_per - L_per; // Crack opening (see eq. (107))
-  Kcrack *= pow(d,eps)*Kc*w*w*F.det();
-  return w < 0.0 ? 0.0 : w;
+  // See also F&K eq. (45)
+  double w = lambda*L_per - L_per; // Crack opening (see M&M eq. (107))
+  w = w > 0.0 ? w : 0.0;           // See F&K eq. (37)
+  Kcrack *= pow(d, eps) * (w*w/12 - perm);
+  Kcrack += kCinv;
+  Kcrack *= F.det();
+
+  return w;
 }
 
 
@@ -231,17 +297,7 @@ bool PoroFracture::formPermeabilityTensor (SymmTensor& K,
                                            const FiniteElement& fe,
                                            const Vec3& X) const
 {
-  if (this->formCrackedPermeabilityTensor(K,eV,fe,X) < 0.0)
-    return false;
-
-  const PoroMaterial* pmat = dynamic_cast<const PoroMaterial*>(material);
-  if (!pmat) return false;
-
-  Vec3 permeability = pmat->getPermeability(X);
-  for (size_t i = 1; i <= K.dim(); i++)
-    K(i,i) += permeability(i);
-
-  return true;
+  return this->formCrackedPermeabilityTensor(K, eV, fe, X) >= 0.0;
 }
 
 
@@ -279,13 +335,8 @@ bool PoroFracture::evalSol (Vector& s, const FiniteElement& fe,
 
   SymmTensor Kc(nsd);
   s.push_back(this->formCrackedPermeabilityTensor(Kc,eV,fe,X));
-
-  const PoroMaterial* pmat = dynamic_cast<const PoroMaterial*>(material);
-  if (!pmat) return false;
-
-  Vec3 permeability = pmat->getPermeability(X);
   for (size_t i = 1; i <= Kc.dim(); i++)
-    s.push_back(Kc(i,i)+permeability(i));
+    s.push_back(Kc(i,i));
 
   return true;
 }

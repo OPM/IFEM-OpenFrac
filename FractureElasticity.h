@@ -92,7 +92,7 @@ public:
   //! \brief Retrieves the element solution vectors.
   //! \param[out] eV Element solution vectors
   //! \param[in] MNPC Nodal point correspondance for the basis function values
-  bool getElementSolution(Vectors& eV, const std::vector<int>& MNPC) const;
+  virtual bool getElementSolution(Vectors& eV, const std::vector<int>& MNPC) const;
 
   //! \brief Evaluates the phase field and gradient at current point.
   //! \param[out] gradD Phase field gradient at current point
@@ -148,14 +148,13 @@ protected:
                       const FiniteElement& fe, const Vec3& X) const;
 
 private:
-  unsigned short int eC; //!< Zero-based index to element phase field vector
-
   RealFunc* crackP; //!< Applied pressure in the crack
 
   double alpha;  //!< Relaxation factor for the crack phase field
-  Vector myCVec; //!< Crack phase field values at control (nodal) points
 
 protected:
+  unsigned short int eC; //!< Zero-based index to element phase field vector
+  Vector myCVec; //!< Crack phase field values at control (nodal) points
   double sigmaC; //!< Critical fracture tensile stress
   double zeta;   //!< Slope parameter for the driving crack force
   bool noSplit;  //!< If \e true, no strain energy split, just isotropic scaling
