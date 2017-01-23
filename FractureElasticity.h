@@ -103,7 +103,8 @@ public:
   //! \brief Retrieves the element solution vectors.
   //! \param[out] eV Element solution vectors
   //! \param[in] MNPC Nodal point correspondance for the basis function values
-  bool getElementSolution(Vectors& eV, const std::vector<int>& MNPC) const;
+  virtual bool getElementSolution(Vectors& eV,
+                                  const std::vector<int>& MNPC) const;
 
   //! \brief Evaluates the phase field and gradient at current point.
   //! \param[out] gradD Phase field gradient at current point

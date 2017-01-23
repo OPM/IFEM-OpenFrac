@@ -52,6 +52,7 @@ FractureElasticity::FractureElasticity (IntegrandBase* parent,
   parent->registerVector("phasefield",&myCVec);
   // Assuming second vector is pressure, third vector is pressure velocity
   eC = 3; // and fourth vector is the phase field
+  npv = nsd+1; // Account for pressure variables in the primary solution vector
 }
 
 

@@ -126,3 +126,18 @@ Number of unknowns    441
   Dissipated energy:               eps_d : 9.21268
   L1-norm: |c^h| = (|c^h|)        : 17.9004
   Normalized L1-norm: |c^h|/V     : 0.716017
+  Solving the elasto-dynamics problem...
+  step=2  time=2
+  Primary solution summary: L2-norm            : 0.217789
+                            Max X-displacement : 0.6
+                            Max pressure       : 2.10171e-06
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -40.5157
+  Solving crack phase field at step=2 time=2
+  Primary solution summary: L2-norm      : 0.711321
+                            Max value    : 0.796012
+                            Min value    : -0.0289993
+                            Range        : 1.029
+  Dissipated energy:               eps_d : 12.1926
+  L1-norm: |c^h| = (|c^h|)        : 16.4654
+  Normalized L1-norm: |c^h|/V     : 0.658615
