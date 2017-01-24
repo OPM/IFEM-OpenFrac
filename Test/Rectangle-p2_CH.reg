@@ -1,25 +1,33 @@
 Rectangle-p2_CH.xinp -2D
 
-Neumann code 1000000 direction -1 (expression): exp(-x/(2\*0.1))/(2\*0.1) \| 0
-Analytical solution: Expression
-Variables=l0=0.1;
-Primary=1 - exp(-x/(2\*l0))
-Secondary=exp(-x/(2\*l0))/(2\*l0)
-Critical fracture energy density: 3
-Smearing factor: 0.1
-Max value in crack: 0.001
+	Length in X = 10
+	Topology sets: Left (1,1,1D)
+	               Right (1,2,1D)
+	Raising order of P1 1 1
+	Refining P1 999 0
+	Dirichlet code 1: (fixed)
+	Neumann code 1000000 direction -1 (expression): exp(-x/(2\*0.1))/(2\*0.1) \| 0
+	Analytical solution: Expression
+	Variables=l0=0.1;
+	Primary=1 - exp(-x/(2\*l0))
+	Secondary=exp(-x/(2\*l0))/(2\*l0)
+	Critical fracture energy density: 3
+	Smearing factor: 0.1
+	Max value in crack: 0.001
+	Enforcing crack irreversibility using history buffer.
+	Constraining P1 E1 in direction(s) 1
 Number of elements    1000
 Number of nodes       3006
 Number of dofs        3006
 Number of unknowns    3003
 L2-norm            : 0.984413
-Max phasefield     : 1 node
+Max phasefield     : 1
   L1-norm: |c^h| = (|c^h|)       : 9.8
   Normalized L1-norm: |c^h|/V    : 0.98
   Dissipated energy:       eps_d : 1.5
   L2-norm: |c^h| = (c^h,c^h)^0.5 : 3.11448
-  H1-norm: |c^h| = a(c^h,c^h)^0.5 : 1.58114
-  L2-norm: |c|   = (c^h,c^h)^0.5 : 3.11448
-  H1-norm: |c|   = a(c,c)^0.5 : 1.58114
-  L2-norm: |e|   = (e^h,e^h)^0.5 : 6.11151e-08
-  H1-norm: |e|   = a(e,e)^0.5 : 9.31832e-05
+  H1-norm: |c^h| = a(c^h,c^h)^.5 : 1.58114
+  L2-norm: |c|   = (c,c)^0.5     : 3.11448
+  H1-norm: |c|   = a(c,c)^0.5    : 1.58114
+  L2-norm: |e|   = (e,e)^0.5     : 6.11151e-08
+  H1-norm: |e|   = a(e,e)^0.5    : 9.31832e-05

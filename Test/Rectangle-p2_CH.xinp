@@ -2,9 +2,9 @@
 
 <simulation>
 
-  <geometry Lx="10" Ly="1">
+  <geometry Lx="10">
     <raiseorder patch="1" u="1" v="1"/>
-    <refine type="uniform" patch="1" u="999"/>
+    <refine patch="1" u="999"/>
     <topologysets>
       <set name="Left" type="edge">
         <item patch="1">1</item>

@@ -19,6 +19,6 @@ Number of dofs        3006
 Number of unknowns    3003
 Loading initial condition for "phasefield" component 1
 from expression function: 1.0 - exp(-x/0.2)
-L2-norm            : 0.983758
+L2-norm            : 0.984413
 Max phasefield     : 1
-  Dissipated energy:       eps_d : 1.59696
+  Dissipated energy:       eps_d : 1.5
