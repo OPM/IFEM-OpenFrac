@@ -266,15 +266,23 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
 
     // Evaluate the stress degradation function
     double Gc = this->getStressDegradation(fe.N,elmInt.vec);
-    if (noSplit)
+    if (tSplit < 0.0 || static_cast<const Vec4&>(X).t < tSplit)
     {
       // Evaluate the constitutive matrix and the stress tensor at this point
       if (!material->evaluate(dSdE,sigma,myPhi[fe.iGP],fe,X,eps,eps))
 	return false;
 
       // Degrade the stresses and strain energy isotropically
-      myPhi[fe.iGP] *= Gc;
+      dSdE *= Gc;
       sigma *= Gc;
+      myPhi[fe.iGP] *= Gc;
+
+#if INT_DEBUG > 3
+      std::cout <<"G(c) = "<< Gc <<"\n";
+      if (lHaveStrains)
+        std::cout <<"eps =\n"<< eps <<"sigma =\n"<< sigma
+                  <<"Phi = "<< myPhi[fe.iGP] << std::endl;
+#endif
     }
     else
     {
@@ -407,7 +415,7 @@ bool FractureElasticNorm::evalInt (LocalIntegral& elmInt,
   // Evaluate the strain energy at this point
   double Phi[4];
   double Gc = p.getStressDegradation(fe.N,elmInt.vec);
-  if (p.noSplit)
+  if (p.tSplit < 0.0 || static_cast<const Vec4&>(X).t < p.tSplit)
   {
     // Evaluate the strain energy density at this point
     SymmTensor sigma(eps.dim());

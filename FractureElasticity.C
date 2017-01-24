@@ -34,9 +34,8 @@ FractureElasticity::FractureElasticity (unsigned short int n)
   : Elasticity(n), mySol(primsol)
 {
   crackP = nullptr;
-  sigmaC = alpha = 0.0;
+  sigmaC = alpha = tSplit = 0.0;
   zeta = 1.0;
-  noSplit = false;
   this->registerVector("phasefield",&myCVec);
   eC = 1; // Assuming second vector is phase field
 }
@@ -47,9 +46,8 @@ FractureElasticity::FractureElasticity (IntegrandBase* parent,
   : Elasticity(n), mySol(parent->getSolutions())
 {
   crackP = nullptr;
-  sigmaC = alpha = 0.0;
+  sigmaC = alpha = tSplit = 0.0;
   zeta = 1.0;
-  noSplit = false;
   parent->registerVector("phasefield",&myCVec);
   // Assuming second vector is pressure, third vector is pressure velocity
   eC = 3; // and fourth vector is the phase field
@@ -74,8 +72,10 @@ bool FractureElasticity::parse (const TiXmlElement* elem)
     sigmaC = atof(value);
     utl::getAttribute(elem,"slope",zeta);
   }
+  else if ((value = utl::getValue(elem,"noEnergySplit")))
+    tSplit = atof(value);
   else if (!strcasecmp(elem->Value(),"noEnergySplit"))
-    noSplit = true;
+    tSplit = -1.0;
   else
     return this->Elasticity::parse(elem);
 
@@ -94,10 +94,15 @@ void FractureElasticity::printLog () const
     IFEM::cout <<"\tCritical stress: "<< sigmaC
                <<" slope parameter: "<< zeta << std::endl;
 
-  if (noSplit)
-    IFEM::cout <<"\tIsotropic degrading of strain energy density."<< std::endl;
+  if (tSplit < 0.0)
+    IFEM::cout <<"\tIsotropic degrading of";
+  else if (tSplit > 0.0)
+    IFEM::cout <<"\tIsotropic degrading of strain energy density up to t="
+               << tSplit <<",\n\tthereafter degrading of tensile";
   else
-    IFEM::cout <<"\tDegrading of tensile strain energy density."<< std::endl;
+    IFEM::cout <<"\tDegrading of tensile";
+
+  IFEM::cout <<" strain energy density."<< std::endl;
 }
 
 
@@ -340,7 +345,7 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
 {
   PROFILE3("FractureEl::evalInt");
 
-  if (noSplit)
+  if (tSplit != 0.0)
   {
     std::cerr <<" *** FractureElasticity::evalInt: Isotropic degrading is not"
               <<" available with the tensorial formulation."<< std::endl;
