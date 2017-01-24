@@ -45,6 +45,10 @@ public:
   //! \brief Sets the number of solution variables per node.
   void setVar(unsigned short int n) { npv = n; }
 
+  //! \brief Defines the solution mode before the element assembly is started.
+  //! \param[in] mode The solution mode to use
+  virtual void setMode(SIM::SolutionMode mode);
+
   //! \brief Returns whether this norm has explicit boundary contributions.
   virtual bool hasBoundaryTerms() const { return m_mode != SIM::RECOVERY; }
 
@@ -84,6 +88,20 @@ public:
   //! \param[out] pdir Directions of the principal stresses
   virtual bool evalSol(Vector& s, const Vectors& eV, const FiniteElement& fe,
                        const Vec3& X, bool toLocal, Vec3* pdir) const;
+
+  //! \brief Retrieves the element solution vectors.
+  //! \param[out] eV Element solution vectors
+  //! \param[in] MNPC Nodal point correspondance for the basis function values
+  virtual bool getElementSolution(Vectors& eV, const std::vector<int>& MNPC) const;
+
+  //! \brief Evaluates the phase field and gradient at current point.
+  //! \param[out] gradD Phase field gradient at current point
+  //! \param[in] eV Element solution vectors
+  //! \param[in] N Basis function values at current point
+  //! \param[in] dNdX Basis function gradients at current point
+  //! \return Phase field value at current point
+  double evalPhaseField(Vec3& gradD, const Vectors& eV,
+                        const Vector& N, const Matrix& dNdX) const;
 
   //! \brief Returns a pointer to the Gauss-point tensile energy array.
   virtual const RealArray* getTensileEnergy() const { return &myPhi; }
@@ -130,14 +148,13 @@ protected:
                       const FiniteElement& fe, const Vec3& X) const;
 
 private:
-  unsigned short int eC; //!< Zero-based index to element phase field vector
-
   RealFunc* crackP; //!< Applied pressure in the crack
 
   double alpha;  //!< Relaxation factor for the crack phase field
-  Vector myCVec; //!< Crack phase field values at control (nodal) points
 
 protected:
+  unsigned short int eC; //!< Zero-based index to element phase field vector
+  Vector myCVec; //!< Crack phase field values at control (nodal) points
   double sigmaC; //!< Critical fracture tensile stress
   double zeta;   //!< Slope parameter for the driving crack force
   bool noSplit;  //!< If \e true, no strain energy split, just isotropic scaling

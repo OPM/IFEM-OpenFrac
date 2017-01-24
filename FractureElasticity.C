@@ -101,6 +101,19 @@ void FractureElasticity::printLog () const
 }
 
 
+void FractureElasticity::setMode (SIM::SolutionMode mode)
+{
+  this->Elasticity::setMode(mode);
+  if (eC <= 1) return; // no parent integrand
+
+  eKg = 0; // No geometric stiffness (assuming linear behaviour)
+  eM = eS = 0; // Inertia and external forces are calculated by parent integrand
+  if (eKm) eKm = 2; // Index for stiffness matrix in parent integrand
+  if (iS) iS = 2; // Index for internal force vector in parent integrand
+  eC = mode == SIM::DYNAMIC ? 5 : 3; // include velocity & acceleration vectors
+}
+
+
 void FractureElasticity::initIntegration (size_t nGp, size_t)
 {
   // Initialize internal tensile energy buffer
@@ -455,12 +468,11 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
 }
 
 
-bool FractureElasticity::evalSol (Vector& s,
-                                  const FiniteElement& fe, const Vec3& X,
-                                  const std::vector<int>& MNPC) const
+bool FractureElasticity::getElementSolution (Vectors& eV,
+                                             const std::vector<int>& MNPC) const
 {
   // Extract element displacements
-  Vectors eV(1+eC);
+  eV.resize(1+eC);
   int ierr = 0;
   if (!mySol.empty() && !mySol.front().empty())
     ierr = utl::gather(MNPC,nsd,mySol.front(),eV.front());
@@ -469,14 +481,21 @@ bool FractureElasticity::evalSol (Vector& s,
   if (!myCVec.empty() && ierr == 0)
     ierr = utl::gather(MNPC,1,myCVec,eV[eC]);
 
-  if (ierr > 0)
-  {
-    std::cerr <<" *** FractureElasticity::evalSol: Detected "<< ierr
-              <<" node numbers out of range."<< std::endl;
-    return false;
-  }
+  if (ierr == 0)
+    return true;
 
-  return this->evalSol2(s,eV,fe,X);
+  std::cerr <<" *** FractureElasticity::getElementSolution: Detected "<< ierr
+            <<" node numbers out of range."<< std::endl;
+  return false;
+}
+
+
+bool FractureElasticity::evalSol (Vector& s,
+                                  const FiniteElement& fe, const Vec3& X,
+                                  const std::vector<int>& MNPC) const
+{
+  Vectors eV(1+eC);
+  return this->getElementSolution(eV,MNPC) && this->evalSol2(s,eV,fe,X);
 }
 
 
@@ -565,6 +584,49 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
   }
 
   return true;
+}
+
+
+double FractureElasticity::evalPhaseField (Vec3& gradD,
+                                           const Vectors& eV,
+                                           const Vector& N,
+                                           const Matrix& dNdX) const
+{
+  if (eV.size() <= eC)
+  {
+    std::cerr <<" *** FractureElasticity::evalPhaseField:"
+              <<" Missing phase field solution vector."<< std::endl;
+    return -1.1;
+
+  }
+  else if (eV[eC].empty()) // No phase field ==> no crack yet
+  {
+    gradD = 0.0;
+    return 0.0;
+  }
+  else if (eV[eC].size() != N.size())
+  {
+    std::cerr <<" *** FractureElasticity::evalPhaseField:"
+              <<" Invalid phase field vector.\n     size(eC) = "
+              << eV[eC].size() <<"   size(N) = "<< N.size() << std::endl;
+    return -1.2;
+  }
+
+  // Invert the nodal phase field values, D = 1 - C,
+  // since that is the convention used in the Miehe papers
+  Vector eD(eV[eC].size()), tmp(nsd);
+  for (size_t i = 0; i < eD.size(); i++)
+    eD[i] = 1.0 - eV[eC][i];
+
+  // Compute the phase field gradient, dD/dX
+  if (dNdX.multiply(eD,tmp,true))
+    gradD = tmp;
+  else
+    return -2.0;
+
+  // Compute the phase field value, filtering out values outside [0.0,1.0]
+  double d = eD.dot(N);
+  return d > 1.0 ? 1.0 : (d < 0.0 ? 0.0 : d);
 }
 
 

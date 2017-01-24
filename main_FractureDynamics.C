@@ -16,7 +16,11 @@
 #include "SIM3D.h"
 #include "SIMDynElasticity.h"
 #include "SIMPhaseField.h"
+#include "SIMExplPhaseField.h"
 #include "SIMFractureDynamics.h"
+#ifdef IFEM_HAS_POROELASTIC
+#include "SIMPoroElasticity.h"
+#endif
 #include "SIMCoupledSI.h"
 #include "SIMSolver.h"
 #include "SIMSolverTS.h"
@@ -25,6 +29,7 @@
 #include "NewmarkNLSIM.h"
 #include "NonLinSIM.h"
 #include "ASMstruct.h"
+#include "ASMmxBase.h"
 #include "AppCommon.h"
 
 
@@ -36,12 +41,14 @@ struct FDargs
   //! 4=nonlinear Hilber-Hughes-Taylor)
   char integrator;
   char coupling;  //!< Coupling flag (0: none, 1: staggered, 2: semi-implicit)
+  bool poroEl;    //!< If \e true, use the poroelastic solver
   bool adaptive;  //!< If \e true, use the time-slab adaptive solver
+  bool explPhase; //!< If \e true, use an explicit phase field
   char* inpfile;  //!< The input file to parse
 
   //! \brief Default constructor.
   FDargs() : inpfile(nullptr)
-  { coupling = integrator = 1; adaptive = false; }
+  { coupling = integrator = 1; poroEl = adaptive = explPhase = false; }
 };
 
 
@@ -155,15 +162,11 @@ int runCombined (char* infile, const char* context)
   \brief Determines whether the quasi-static semi-implicit driver is to be used.
 */
 
-template<class Dim, class Integrator,
+template<class ElSolver, class PhaseSolver,
          template<class T1, class T2> class Cpl,
          template<class T1> class Solver=SIMSolver>
-int runSimulator3 (const FDargs& args)
+int runSimulator6 (const FDargs& args, const char* contx)
 {
-  typedef SIMDynElasticity<Dim,Integrator> ElSolver;
-  typedef SIMPhaseField<Dim>               PhaseSolver;
-
-  const char* contx = Integrator::inputContext;
   if (args.integrator == 3 && args.coupling == 2)
   {
     typedef SIMFractureQstatic<ElSolver,PhaseSolver,Cpl> Coupler;
@@ -178,15 +181,31 @@ int runSimulator3 (const FDargs& args)
 
 
 /*!
+  \brief Determines whether the explicit phase-field driver is to be used.
+*/
+
+template<class Dim, class ElSolver,
+         template<class T1, class T2> class Cpl,
+         template<class T1> class Solver=SIMSolver>
+int runSimulator5 (const FDargs& args, const char* context)
+{
+  if (args.explPhase)
+    return runSimulator6<ElSolver,SIMExplPhaseField,Cpl,Solver>(args,context);
+  else
+    return runSimulator6<ElSolver,SIMPhaseField<Dim>,Cpl,Solver>(args,context);
+}
+
+
+/*!
   \brief Creates and launches a stand-alone elasticity simulator (no coupling).
   \param[in] infile The input file to parse
   \param[in] context Input-file context for the time integrator
 */
 
-template<class Dim, class Integrator=NewmarkSIM>
+template<class Dim, class Integrator, class ElSolver>
 int runStandAlone (char* infile, const char* context)
 {
-  typedef SIMDynElasticity<Dim,Integrator> SIMElastoDynamics;
+  typedef SIMDynElasticity<Dim,Integrator,ElSolver> SIMElastoDynamics;
 
   utl::profiler->start("Model input");
   IFEM::cout <<"\n\n0. Parsing input file(s)."
@@ -230,16 +249,60 @@ int runStandAlone (char* infile, const char* context)
 
 
 /*!
+  \brief Determines whether the poroelastic simulation driver is to be used.
+*/
+
+template<class Dim, class Integrator>
+int runSimulator4 (const FDargs& args, const char* context = "newmarksolver")
+{
+  if (args.poroEl)
+#ifdef IFEM_HAS_POROELASTIC
+    return runStandAlone<Dim,Integrator,SIMPoroElasticity<Dim>>(args.inpfile,
+                                                                context);
+#else
+    return 99; // Built without the poroelastic coupling
+#endif
+
+  return runStandAlone<Dim,Integrator,SIMElasticityWrap<Dim>>(args.inpfile,
+                                                              context);
+}
+
+
+/*!
   \brief Determines whether the adaptive simulation driver is to be used.
 */
 
-template<class Dim, class Integrator, template<class T1, class T2> class Cpl>
+template<class Dim, class Integrator, class ElSolver,
+         template<class T1, class T2> class Cpl>
+int runSimulator3 (const FDargs& args)
+{
+  typedef SIMDynElasticity<Dim,Integrator,ElSolver> DynElSolver;
+
+  const char* context = Integrator::inputContext;
+
+  if (args.adaptive)
+    return runSimulator5<Dim,DynElSolver,Cpl,SIMSolverTS>(args,context);
+
+  return runSimulator5<Dim,DynElSolver,Cpl>(args,context);
+}
+
+
+/*!
+  \brief Creates the combined fracture simulator and launches the simulation.
+*/
+
+template<class Dim, class Integrator,
+         template<class T1, class T2> class Cpl>
 int runSimulator2 (const FDargs& args)
 {
-  if (args.adaptive)
-    return runSimulator3<Dim,Integrator,Cpl,SIMSolverTS>(args);
+  if (args.poroEl)
+#ifdef IFEM_HAS_POROELASTIC
+    return runSimulator3<Dim,Integrator,SIMPoroElasticity<Dim>,Cpl>(args);
+#else
+    return 99; // Built without the poroelastic coupling
+#endif
 
-  return runSimulator3<Dim,Integrator,Cpl>(args);
+  return runSimulator3<Dim,Integrator,SIMElasticityWrap<Dim>,Cpl>(args);
 }
 
 
@@ -256,7 +319,7 @@ int runSimulator1 (const FDargs& args)
   case 2:
     return runSimulator2<Dim,Integrator,SIMCoupledSI>(args);
   default: // No phase field coupling
-    return runStandAlone<Dim,Integrator>(args.inpfile,Integrator::inputContext);
+    return runSimulator4<Dim,Integrator>(args,Integrator::inputContext);
   }
 }
 
@@ -284,7 +347,7 @@ int runSimulator (const FDargs& args)
 {
   switch (args.integrator) {
   case 0:
-    return runStandAlone<Dim,LinSIM>(args.inpfile,"staticsolver");
+    return runSimulator4<Dim,LinSIM>(args,"staticsolver");
   case 1:
     return runSimulator1<Dim,NewmarkSIM>(args);
   case 2:
@@ -312,6 +375,7 @@ int main (int argc, char** argv)
 
   FDargs args;
   bool twoD = false;
+  ASMmxBase::Type = ASMmxBase::NONE;
 
   IFEM::Init(argc,argv,"Fracture dynamics solver");
 
@@ -320,6 +384,10 @@ int main (int argc, char** argv)
       ; // ignore the obsolete option
     else if (!strcmp(argv[i],"-2D"))
       twoD = SIMElasticity<SIM2D>::planeStrain = true;
+    else if (!strcmp(argv[i],"-mixed"))
+      ASMmxBase::Type = ASMmxBase::FULL_CONT_RAISE_BASIS1;
+    else if (!strcmp(argv[i],"-explcrack"))
+      args.explPhase = true;
     else if (!strcmp(argv[i],"-nocrack"))
       args.coupling = 0;
     else if (!strcmp(argv[i],"-semiimplicit"))
@@ -338,6 +406,8 @@ int main (int argc, char** argv)
       Elasticity::wantPrincipalStress = true;
     else if (!strcmp(argv[i],"-dbgElm") && i < argc-1)
       FractureElasticNorm::dbgElm = atoi(argv[++i]);
+    else if (!strncmp(argv[i],"-poro",5))
+      args.poroEl = true;
     else if (!strncmp(argv[i],"-adap",5))
       args.adaptive = true;
     else if (!args.inpfile)
@@ -349,10 +419,11 @@ int main (int argc, char** argv)
   {
     std::cout <<"usage: "<< argv[0]
               <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n"
-              <<"       [-lag|-spec|-LR] [-2D] [-nGauss <n>]\n       "
-              <<"[-nocrack|-semiimplicit] [-[l|q]static|-GA|-HHT] [-adaptive]\n"
+              <<"       [-lag|-spec|-LR] [-2D] [-mixed] [-nGauss <n>]\n"
+              <<"       [-nocrack|-explcrack|-semiimplicit]"
+              <<" [-[l|q]static|-GA|-HHT] [-poro] [-adaptive]\n"
               <<"       [-vtf <format> [-nviz <nviz>] [-nu <nu>] [-nv <nv]"
-              <<" [-nw <nw>]] [-hdf5] [-principal]\n"<< std::endl;
+              <<" [-nw <nw>]]\n       [-hdf5] [-principal]\n"<< std::endl;
     return 0;
   }
 
