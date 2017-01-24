@@ -50,10 +50,28 @@ public:
   //! \brief Computes the solution for the current time step.
   virtual bool solveStep(TimeStep& tp, bool firstS1 = true)
   {
-    if (tp.step == 1 && this->S1.haveCrackPressure() && rHistory.empty())
-      // Start the initial step by solving the phase-field first
-      if (!this->S2.solveStep(tp,false))
-        return false;
+    if (tp.step == 1)
+    {
+      // Only solve the elasticity problem in the first step,
+      if (this->S2.hasIC("phasefield")) // if an initial phase field is given
+      {
+        IFEM::cout <<"\n  Initial phase field..."<< std::endl;
+        if (!this->S2.postSolve(tp))
+          return false;
+
+        TimeStep myTp(tp); // Make a copy to avoid changing the cycle counter
+        if (!this->S1.solveStep(myTp))
+          return false;
+
+        return this->checkConvergence(tp,SIM::OK,SIM::CONVERGED) >= SIM::OK;
+      }
+      else if (this->S1.haveCrackPressure() && rHistory.empty())
+        // Start the initial step by solving the phase-field first
+        if (!this->S2.solveStep(tp,false))
+          return false;
+    }
+    else // solve the phase-field equation first, if an initial field is given
+      firstS1 = !this->S2.hasIC("phasefield");
 
     return this->SIMCoupledSI<SolidSlv,PhaseSlv>::solveStep(tp,firstS1);
   }
