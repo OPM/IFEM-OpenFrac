@@ -38,7 +38,7 @@ public:
   SIMPhaseField(Dim* gridOwner = nullptr) : Dim(1)
   {
     Dim::myHeading = "Cahn-Hilliard solver";
-    if (gridOwner)
+    if (gridOwner && gridOwner->createFEMmodel())
       this->clonePatches(gridOwner->getFEModel(),gridOwner->getGlob2LocMap());
 
     eps_d0 = refTol = 0.0;
@@ -190,32 +190,31 @@ public:
       if (tp.step == 1)
         eps_d0 = norm.back();
       norm(norm.size()-1) -= eps_d0;
-
+      if (norm.size() > 1 && utl::trunc(norm.back()) != 0.0)
+        IFEM::cout <<"  Dissipated energy:               eps_d : "
+                   << norm.back() << std::endl;
       if (norm.size() > 3 && utl::trunc(norm(2)) != 0.0)
       {
         if (Lnorm == 1)
-          IFEM::cout <<"  L1-norm: |c^h| = (|c^h|)       : "<< norm(2)
-                     <<"\n  Normalized L1-norm: |c^h|/V    : "
+          IFEM::cout <<"  L1-norm: |c^h| = (|c^h|)        : "<< norm(2)
+                     <<"\n  Normalized L1-norm: |c^h|/V     : "
                      << norm(2)/norm(1) << std::endl;
         else if (Lnorm == 2)
-          IFEM::cout <<"  L2-norm: |c^h| = (c^h,c^h)^0.5 : "<< sqrt(norm(2))
-                     <<"\n  Normalized L2-norm: |c^h|/V^.5 : "
+          IFEM::cout <<"  L2-norm: |c^h| = (c^h,c^h)^0.5  : "<< sqrt(norm(2))
+                     <<"\n  Normalized L2-norm: |c^h|/V^0.5 : "
                      << sqrt(norm(2)/norm(1)) << std::endl;
       }
-      if (norm.size() > 1 && utl::trunc(norm.back()) != 0.0)
-        IFEM::cout <<"  Dissipated energy:       eps_d : "
-                   << norm.back() << std::endl;
     }
     if (gNorm.size() > 1)
     {
       const Vector& nrm = gNorm.back(); // Don't overwrite 'norm' here
-      IFEM::cout <<  "  L2-norm: |c^h| = (c^h,c^h)^0.5 : "<< sqrt(nrm(1))
-                 <<"\n  H1-norm: |c^h| = a(c^h,c^h)^.5 : "<< sqrt(nrm(2))
-                 <<"\n  L2-norm: |c|   = (c,c)^0.5     : "<< sqrt(nrm(3))
-                 <<"\n  H1-norm: |c|   = a(c,c)^0.5    : "<< sqrt(nrm(4))
-                 <<"\n  L2-norm: |e|   = (e,e)^0.5     : "
+      IFEM::cout <<  "  L2-norm: |c^h| = (c^h,c^h)^0.5  : "<< sqrt(nrm(1))
+                 <<"\n  H1-norm: |c^h| = a(c^h,c^h)^0.5 : "<< sqrt(nrm(2))
+                 <<"\n  L2-norm: |c|   = (c,c)^0.5      : "<< sqrt(nrm(3))
+                 <<"\n  H1-norm: |c|   = a(c,c)^0.5     : "<< sqrt(nrm(4))
+                 <<"\n  L2-norm: |e|   = (e,e)^0.5      : "
                  << sqrt(nrm(5)/nrm(3))
-                 <<"\n  H1-norm: |e|   = a(e,e)^0.5    : "
+                 <<"\n  H1-norm: |e|   = a(e,e)^0.5     : "
                  << sqrt(nrm(6)/nrm(4)) << std::endl;
     }
 

@@ -22,12 +22,12 @@ Number of dofs        3006
 Number of unknowns    3003
 L2-norm            : 0.984413
 Max phasefield     : 1
-  L1-norm: |c^h| = (|c^h|)       : 9.8
-  Normalized L1-norm: |c^h|/V    : 0.98
-  Dissipated energy:       eps_d : 1.5
-  L2-norm: |c^h| = (c^h,c^h)^0.5 : 3.11448
-  H1-norm: |c^h| = a(c^h,c^h)^.5 : 1.58114
-  L2-norm: |c|   = (c,c)^0.5     : 3.11448
-  H1-norm: |c|   = a(c,c)^0.5    : 1.58114
-  L2-norm: |e|   = (e,e)^0.5     : 6.11151e-08
-  H1-norm: |e|   = a(e,e)^0.5    : 9.31832e-05
+  Dissipated energy:               eps_d : 1.5
+  L1-norm: |c^h| = (|c^h|)        : 9.8
+  Normalized L1-norm: |c^h|/V     : 0.98
+  L2-norm: |c^h| = (c^h,c^h)^0.5  : 3.11448
+  H1-norm: |c^h| = a(c^h,c^h)^0.5 : 1.58114
+  L2-norm: |c|   = (c,c)^0.5      : 3.11448
+  H1-norm: |c|   = a(c,c)^0.5     : 1.58114
+  L2-norm: |e|   = (e,e)^0.5      : 6.11151e-08
+  H1-norm: |e|   = a(e,e)^0.5     : 9.31832e-05
