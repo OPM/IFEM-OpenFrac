@@ -45,6 +45,13 @@ public:
   //! \param[in] nGp Total number of interior integration points
   virtual void initIntegration(size_t nGp, size_t);
 
+  using IntegrandBase::getLocalIntegral;
+  //! \brief Returns a local integral container for the given element.
+  //! \param[in] nen Number of nodes on element
+  //! \param[in] neumann Whether or not we are assembling Neumann BC's
+  virtual LocalIntegral* getLocalIntegral(size_t nen, size_t,
+                                          bool neumann) const;
+
   using IntegrandBase::evalInt;
   //! \brief Evaluates the integrand at an interior point.
   //! \param elmInt The local integral object to receive the contributions

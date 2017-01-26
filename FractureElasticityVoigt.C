@@ -26,6 +26,16 @@
 #endif
 
 
+LocalIntegral* FractureElasticityVoigt::getLocalIntegral (size_t nen, size_t,
+                                                          bool neumann) const
+{
+  LocalIntegral* li = this->FractureElasticity::getLocalIntegral(nen,0,neumann);
+  if (m_mode >= SIM::RHS_ONLY && !neumann)
+    static_cast<ElmMats*>(li)->c.resize(1); // Total strain energy
+  return li;
+}
+
+
 bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
                                           const SymmTensor& epsil, double* Phi,
                                           SymmTensor* sigma, Matrix* dSdE,
@@ -94,16 +104,13 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
   // Evaluate the tensile energy
   Phi[0] = mu*(ePos*ePos).trace();
   if (trEps > 0.0) Phi[0] += 0.5*lambda*trEps*trEps;
-  if (postProc)
-  {
-    // Evaluate the compressive energy
-    Phi[1] = mu*(eNeg*eNeg).trace();
-    if (trEps < 0.0) Phi[1] += 0.5*lambda*trEps*trEps;
-    // Evaluate the total strain energy
-    Phi[2] = Gc*Phi[0] + Phi[1];
-    // Evaluate the bulk energy
+  // Evaluate the compressive energy
+  Phi[1] = mu*(eNeg*eNeg).trace();
+  if (trEps < 0.0) Phi[1] += 0.5*lambda*trEps*trEps;
+  // Evaluate the total strain energy
+  Phi[2] = Gc*Phi[0] + Phi[1];
+  if (postProc) // Evaluate the bulk energy
     Phi[3] = Gc*(Phi[0] + Phi[1]);
-  }
   else if (sigmaC > 0.0) // Evaluate the crack driving function
     Phi[0] = this->MieheCrit56(eps,lambda,mu);
 
@@ -113,8 +120,8 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
     std::cout <<"M("<< 1+a <<") =\n"<< M[a];
   std::cout <<"ePos =\n"<< ePos <<"eNeg =\n"<< eNeg;
   if (sigma) std::cout <<"sigma =\n"<< *sigma;
-  std::cout <<"Phi = "<< Phi[0];
-  if (postProc) std::cout <<" "<< Phi[1] <<" "<< Phi[2] <<" "<< Phi[3];
+  std::cout <<"Phi = "<< Phi[0] <<" "<< Phi[1] <<" "<< Phi[2];
+  if (postProc) std::cout <<" "<< Phi[3];
   std::cout << std::endl;
 #else
   if (printElm)
@@ -123,8 +130,8 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
               <<"\nepsilon =\n"<< epsil <<"eps_p = "<< eps
               <<"\nePos =\n"<< ePos <<"eNeg =\n"<< eNeg;
     if (sigma) std::cout <<"sigma =\n"<< *sigma;
-    std::cout <<"Phi = "<< Phi[0];
-    if (postProc) std::cout <<" "<< Phi[1] <<" "<< Phi[2] <<" "<< Phi[3];
+    std::cout <<"Phi = "<< Phi[0] <<" "<< Phi[1] <<" "<< Phi[2];
+    if (postProc) std::cout <<" "<< Phi[3];
     std::cout << std::endl;
   }
 #endif
@@ -244,6 +251,7 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
   Matrix Bmat, dSdE(nstrc,nstrc);
   SymmTensor eps(nsd), sigma(nsd);
   bool lHaveStrains = false;
+  double U = 0.0;
 
   if (eKm || eKg || iS || m_mode == SIM::RECOVERY)
   {
@@ -262,13 +270,13 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
     if (tSplit < 0.0 || static_cast<const Vec4&>(X).t < tSplit)
     {
       // Evaluate the constitutive matrix and the stress tensor at this point
-      if (!material->evaluate(dSdE,sigma,myPhi[fe.iGP],fe,X,eps,eps))
-	return false;
+      if (!material->evaluate(dSdE,sigma,U,fe,X,eps,eps,3))
+        return false;
 
       // Degrade the stresses and strain energy isotropically
       dSdE *= Gc;
       sigma *= Gc;
-      myPhi[fe.iGP] *= Gc;
+      myPhi[fe.iGP] = (U *= Gc);
 
 #if INT_DEBUG > 3
       std::cout <<"G(c) = "<< Gc <<"\n";
@@ -297,9 +305,13 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
 #endif
 
       // Evaluate the stress state at this point, with degraded tensile part
-      if (!this->evalStress(lambda,mu,Gc,eps,&myPhi[fe.iGP],&sigma,
+      double Phi[3];
+      if (!this->evalStress(lambda,mu,Gc,eps,Phi,&sigma,
                             eKm ? &dSdE : nullptr))
-	return false;
+        return false;
+
+      myPhi[fe.iGP] = Phi[0];
+      U = Phi[2];
     }
   }
 
@@ -335,6 +347,10 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
     // Integrate the load vector due to internal crack pressure
     this->formCrackForce(elMat.b[eS-1],elMat.vec,fe,X);
   }
+
+  if (lHaveStrains && !elMat.c.empty())
+    // Integrate the total strain energy
+    elMat.c.front() += U*fe.detJxW;
 
   return true;
 }

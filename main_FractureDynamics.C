@@ -130,8 +130,8 @@ int runCombined (char* infile, const char* context)
     return 2;
 
   // Initialize the linear solvers
-  if (!elastoSim.initSystem(elastoSim.opt.solver,1,1,0,true) ||
-      !phaseSim.initSystem(phaseSim.opt.solver))
+  if (!elastoSim.initSystem(elastoSim.opt.solver,1,1,1,true) ||
+      !phaseSim.initSystem(phaseSim.opt.solver,1,1,1))
     return 2;
 
   // Initialize the solution fields
@@ -207,7 +207,7 @@ int runStandAlone (char* infile, const char* context)
     return 2;
 
   // Initialize the linear solvers
-  if (!elastoSim.initSystem(elastoSim.opt.solver))
+  if (!elastoSim.initSystem(elastoSim.opt.solver,1,1,0,true))
     return 2;
 
   // Initialize the solution fields

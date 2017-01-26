@@ -35,6 +35,7 @@ public:
   {
     maxCycle = 50;
     cycleTol = 1.0e-4;
+    E0 = Ec = Ep = 0.0;
   }
 
   //! \brief Empty destructor.
@@ -65,7 +66,7 @@ public:
 
         return this->checkConvergence(tp,SIM::OK,SIM::CONVERGED) >= SIM::OK;
       }
-      else if (this->S1.haveCrackPressure() && rHistory.empty())
+      else if (this->S1.haveCrackPressure())
         // Start the initial step by solving the phase-field first
         if (!this->S2.solveStep(tp,false))
           return false;
@@ -85,10 +86,6 @@ public:
       return SIM::FAILURE;
     else if (status1 == SIM::DIVERGED || status2 == SIM::DIVERGED)
       return SIM::DIVERGED;
-    else if (status1 != SIM::CONVERGED || status2 != SIM::CONVERGED)
-      return SIM::OK;
-
-    int cycle = rHistory.size();
 
     // Compute residual of the elasticity equation
     this->S1.setMode(SIM::RHS_ONLY);
@@ -100,6 +97,7 @@ public:
       return SIM::FAILURE;
 
     double rNorm1 = residual.norm2();
+    double eNorm1 = this->S1.extractScalar();
 
     // Compute residual of the phase-field equation
     if (!this->S2.setMode(SIM::INT_FORCES))
@@ -113,26 +111,26 @@ public:
       return SIM::FAILURE;
 
     double rNorm2 = residual.norm2();
+    double eNorm2 = this->S2.extractScalar();
 
-    rHistory.push_back(rNorm1+rNorm2);
-    double rConv = rHistory.back()/rHistory.front();
-    IFEM::cout <<"  cycle="<< cycle <<"  res1="<< rNorm1 <<"  res2="<< rNorm2
-               <<"  conv="<< rConv;
-    if (cycle > 0)
+    double rConv = rNorm1 + rNorm2;
+    double eConv = eNorm1 + eNorm2;
+    IFEM::cout <<"  cycle "<< tp.iter <<": Res = "<< rNorm1 <<" + "<< rNorm2
+               <<" = "<< rConv <<"  E = "<< eNorm1 <<" + "<< eNorm2
+               <<" = "<< eConv;
+    if (tp.iter == 0)
+      E0 = eConv;
+    else
     {
-      double r0 = rHistory.front();
-      double r1 = rHistory.back();
-      double r2 = rHistory[cycle-1];
-      IFEM::cout <<"  beta="<< atan2(cycle*(r2-r1),r0-r1) * 180.0/M_PI;
+      Ep = tp.iter > 1 ? Ec : E0;
+      Ec = eConv;
+      IFEM::cout <<"  beta="<< atan2(tp.iter*(Ep-Ec),E0-Ec) * 180.0/M_PI;
     }
     IFEM::cout << std::endl;
 
     if (rConv < cycleTol)
-    {
-      rHistory.clear();
       return SIM::CONVERGED;
-    }
-    else if (cycle < maxCycle)
+    else if (tp.iter < maxCycle)
       return SIM::OK;
 
     std::cerr <<"SIMFractureQstatic::checkConvergence: Did not converge in "
@@ -141,9 +139,11 @@ public:
   }
 
 private:
-  int&      maxCycle; //!< Maximum number of staggering cycles
-  double    cycleTol; //!< Residual norm tolerance for the staggering cycles
-  RealArray rHistory; //!< Residual norm history for the staggering cycles
+  int&   maxCycle; //!< Maximum number of staggering cycles
+  double cycleTol; //!< Residual norm tolerance for the staggering cycles
+  double E0;       //!< Energy norm of initial staggering cycle
+  double Ec;       //!< Energy norm of current staggering cycle
+  double Ep;       //!< Energy norm of previous staggering cycle
 };
 
 #endif
