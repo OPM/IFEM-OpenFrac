@@ -51,6 +51,28 @@ target_link_libraries(FractureDynamics CommonFrac Elasticity ${IFEM_LIBRARIES})
 # Installation
 install(TARGETS CahnHilliard FractureDynamics DESTINATION bin)
 
+# For generating the doxy
+if(IFEM_AS_SUBMODULE OR IFEM_INTREE_BUILD)
+  set(EXTRA_DOXY_PATHS "${PROJECT_SOURCE_DIR} \
+                        ${PROJECT_BINARY_DIR} \
+                        ${PROJECT_SOURCE_DIR}/../IFEM-Elasticity")
+  configure_file(${IFEM_PATH}/doc/Doxyfile.in Doxyfile)
+else()
+  configure_file(doc/Doxyfile.in Doxyfile)
+endif()
+configure_file(doc/FractureDynamics.dox.in FractureDynamics.dox)
+add_custom_target(doc doxygen ${PROJECT_BINARY_DIR}/Doxyfile
+                  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                  COMMENT "Generating API documentation" VERBATIM)
+
+if(IFEM_INSTALL_DOXY)
+  install(CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_BUILD_TOOL} doc WORKING_DIRECTORY \"${CMAKE_CURRENT_BINARY_DIR}\")" COMPONENT doc)
+  install(DIRECTORY ${PROJECT_BINARY_DIR}/doc/html DESTINATION ${CMAKE_INSTALL_DOCDIR}/Apps/OpenFrac
+          COMPONENT doc
+          PATTERN *.md5 EXCLUDE
+          PATTERN *.map EXCLUDE)
+endif(IFEM_INSTALL_DOXY)
+
 # Testing
 enable_testing()
 include(IFEMTesting)

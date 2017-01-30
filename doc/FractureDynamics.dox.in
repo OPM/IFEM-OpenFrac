@@ -1,0 +1,28 @@
+// $Id$
+//==============================================================================
+//!
+//! \file FractureDynamics.dox
+//!
+//! \date Jan 30 2017
+//!
+//! \author Arne Morten Kvarving / SINTEF
+//!
+//! \brief File containing the Main Page of the IFEM-OpenFrac documentation.
+//!
+//==============================================================================
+
+/*! \mainpage Isogeometric FEM fracture dynamics application
+
+\author Knut Morten Okstad, SINTEF Digital, Trondheim
+
+\section intro Introduction
+This is a Fracture dynamics application built on top of the IFEM library.
+
+IFEM is an object-oriented toolbox for implementing isogeometric finite element
+solvers for linear and nonlinear partial differential equations.
+The toolbox is developed through the ICADA project at SINTEF ICT, Trondheim.
+The purpose of this code is to serve as a common base for isogeometric
+PDE-simulators, using splines and NURBS as basis functions in the finite element
+formulations. The toolbox contains methods for doing linear and non-linear,
+stationary and dynamic time-domain analyses, as well as eigenvalue analyses.
+*/
