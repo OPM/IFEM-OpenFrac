@@ -144,6 +144,11 @@ bool FractureElasticity::initElement (const std::vector<int>& MNPC,
   if (ierr == 0 && !myCVec.empty())
     ierr = utl::gather(MNPC,1,myCVec,elmInt.vec[eC]);
 
+#if INT_DEBUG > 2
+  for (size_t i = 0; i < elmInt.vec.size(); i++)
+    std::cout <<"Element solution vector "<< i+1 << elmInt.vec[i];
+#endif
+
   if (ierr == 0) return true;
 
   std::cerr <<" *** FractureElasticity::initElement: Detected "
