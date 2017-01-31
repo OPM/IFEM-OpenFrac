@@ -251,15 +251,8 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
     if (!this->kinematics(elMat.vec.front(),fe.N,fe.dNdX,0.0,Bmat,eps,eps))
       return false;
     else if (!eps.isZero(1.0e-16))
-    {
       lHaveStrains = true;
-      // Scale the shear strain components by 0.5 to convert from engineering
-      // strains gamma_ij = eps_ij + eps_ji to the tensor components eps_ij
-      // which are needed for consistent calculation of principal directions
-      for (unsigned short int i = 1; i <= nsd; i++)
-        for (unsigned short int j = i+1; j <= nsd; j++)
-          eps(i,j) *= 0.5;
-    }
+
 #if INT_DEBUG > 3
     std::cout <<"\nFractureElasticity::evalInt(X = "<< X <<")\nBmat ="<< Bmat;
 #endif
@@ -290,6 +283,13 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
       double lambda, mu;
       if (!material->evaluate(lambda,mu,fe,X))
         return false;
+
+      // Scale the shear strain components by 0.5 to convert from engineering
+      // strains gamma_ij = eps_ij + eps_ji to the tensor components eps_ij
+      // which are needed for consistent calculation of principal directions
+      for (unsigned short int i = 1; i <= nsd; i++)
+        for (unsigned short int j = i+1; j <= nsd; j++)
+          eps(i,j) *= 0.5;
 
 #if INT_DEBUG > 3
       std::cout <<"lambda = "<< lambda <<" mu = "<< mu <<" G(c) = "<< Gc <<"\n";
