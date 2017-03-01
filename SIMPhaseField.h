@@ -35,7 +35,7 @@ template<class Dim> class SIMPhaseField : public Dim
 {
 public:
   //! \brief Default constructor.
-  SIMPhaseField(Dim* gridOwner = nullptr) : Dim(1)
+  SIMPhaseField(Dim* gridOwner = nullptr, size_t n = 2) : Dim(1), phasefield(n)
   {
     Dim::myHeading = "Cahn-Hilliard solver";
     if (gridOwner && gridOwner->createFEMmodel())
@@ -67,18 +67,19 @@ public:
   {
     exporter.registerField("c","phase field",DataExporter::SIM,
                            DataExporter::PRIMARY);
-    exporter.setFieldValue("c",this,&phasefield);
+    exporter.setFieldValue("c",this,&phasefield.front());
   }
 
   //! \brief Initializes the problem.
-  bool init(const TimeStep&)
+  bool init(const TimeStep& tp)
   {
     this->setMode(SIM::INIT);
     this->setQuadratureRule(Dim::opt.nGauss[0],true);
-    this->registerField("phasefield",phasefield);
+    this->registerField("phasefield",phasefield.front());
     if (this->hasIC("phasefield"))
-      phasefield.resize(this->getNoDOFs(),1.0);
-    return this->setInitialConditions();
+      for (size_t i = 0; i < phasefield.size(); i++)
+        phasefield[i].resize(this->getNoDOFs(),1.0);
+    return this->setInitialConditions() && this->advanceStep(tp);
   }
 
   //! \brief Opens a new VTF-file and writes the model geometry to it.
@@ -102,13 +103,13 @@ public:
 
     double old = utl::zero_print_tol;
     utl::zero_print_tol = 1e-16;
-    bool ok = this->savePoints(phasefield,tp.time.t,tp.step);
+    bool ok = this->savePoints(phasefield.front(),tp.time.t,tp.step);
     utl::zero_print_tol = old;
     if (!ok) return false;
 
     if (tp.step%Dim::opt.saveInc == 0 && Dim::opt.format >= 0)
     {
-      int iBlck = this->writeGlvS1(phasefield,++vtfStep,nBlock,
+      int iBlck = this->writeGlvS1(phasefield.front(),++vtfStep,nBlock,
                                    tp.time.t,"phase",6);
       if (iBlck < 0) return false;
 
@@ -131,13 +132,18 @@ public:
     }
 
     if (!projSol.empty()) // Replace the phase field solution by its projection
-      phasefield = projSol.getRow(1);
+      phasefield.front() = projSol.getRow(1);
 
     return true;
   }
 
-  //! \brief Dummy method.
-  bool advanceStep(TimeStep&) { return true; }
+  //! \brief Advances the time step one step forward.
+  bool advanceStep(const TimeStep&)
+  {
+    if (phasefield.size() > 1)
+      phasefield.back() = phasefield.front();
+    return true;
+  }
 
   //! \brief Computes the solution for the current time step.
   bool solveStep(TimeStep& tp, bool standalone = true)
@@ -155,10 +161,11 @@ public:
     if (!this->setMode(SIM::STATIC))
       return false;
 
-    if (!this->assembleSystem(tp.time,Vectors(1,phasefield)))
+    if (!this->assembleSystem(tp.time,phasefield))
       return false;
 
-    if (!this->solveSystem(phasefield, standalone ? 0 : 1, nullptr, nullptr))
+    if (!this->solveSystem(phasefield.front(),
+                           standalone ? 0 : 1, nullptr, nullptr))
       return false;
 
     if (tp.step == 1)
@@ -170,18 +177,19 @@ public:
   //! \brief Computes solution norms, etc. on the converged solution.
   bool postSolve(TimeStep& tp)
   {
-    this->printSolutionSummary(phasefield,1,
+    this->printSolutionSummary(phasefield.front(),1,
                                Dim::msgLevel > 1 ? "phasefield  " : nullptr);
     this->setMode(SIM::RECOVERY);
 
     // Project the phase field onto the geometry basis
     if (!Dim::opt.project.empty())
-      if (!this->project(projSol,phasefield,Dim::opt.project.begin()->first))
+      if (!this->project(projSol,phasefield.front(),
+                         Dim::opt.project.begin()->first))
         return false;
 
     Vectors gNorm;
     this->setQuadratureRule(Dim::opt.nGauss[1]);
-    if (!this->solutionNorms(tp.time,Vectors(1,phasefield),gNorm,&eNorm))
+    if (!this->solutionNorms(tp.time,phasefield,gNorm,&eNorm))
       return false;
     else if (!gNorm.empty())
     {
@@ -255,10 +263,10 @@ public:
   const Vector& getGlobalNorms() const { return norm; }
 
   //! \brief Returns a const reference to the current solution.
-  const Vector& getSolution(int = 0) const { return phasefield; }
+  const Vector& getSolution(int i = 0) const { return phasefield[i]; }
 
   //! \brief Updates the solution vector.
-  void setSolution(const Vector& vec) { phasefield = vec; }
+  void setSolution(const Vector& vec) { phasefield.front() = vec; }
 
   //! \brief Returns the maximum number of iterations (unlimited).
   int getMaxit() const { return 9999; }
@@ -386,15 +394,15 @@ protected:
   }
 
 private:
-  Vector phasefield; //!< Current phase field solution
-  Matrix projSol;    //!< Projected solution fields
-  Matrix eNorm;      //!< Element norm values
-  Vector norm;       //!< Global norm values
-  double eps_d0;     //!< Initial eps_d value, subtracted from following values
-  int    vtfStep;    //!< VTF file step counter
-  int    Lnorm;      //!< Which L-norm to use to guide mesh refinement
-  int    irefine;    //!< Number of initial refinement cycles
-  double refTol;     //!< Initial refinement threshold
+  Vectors phasefield; //!< Current (and previous) phase field solution
+  Matrix  projSol;    //!< Projected solution fields
+  Matrix  eNorm;      //!< Element norm values
+  Vector  norm;       //!< Global norm values
+  double  eps_d0;     //!< Initial eps_d value, subtracted from following values
+  int     vtfStep;    //!< VTF file step counter
+  int     Lnorm;      //!< Which L-norm to use to guide mesh refinement
+  int     irefine;    //!< Number of initial refinement cycles
+  double  refTol;     //!< Initial refinement threshold
 };
 
 #endif

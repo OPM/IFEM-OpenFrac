@@ -30,8 +30,6 @@ CahnHilliard::CahnHilliard (unsigned short int n) : IntegrandBase(n),
   maxCrack = 1.0e-3;
   scale2nd = 4.0;
   stabk = gammaInv = pthresh = 0.0;
-
-  primsol.resize(1);
 }
 
 
@@ -92,7 +90,7 @@ void CahnHilliard::printLog () const
 void CahnHilliard::setMode (SIM::SolutionMode mode)
 {
   m_mode = mode;
-  primsol.resize(mode >= SIM::RHS_ONLY || gammaInv > 0.0 ? 1 : 0);
+  primsol.resize(mode >= SIM::RHS_ONLY || gammaInv > 0.0 ? 2 : 0);
 }
 
 
@@ -132,14 +130,23 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
     if (gammaInv > 0.0 || Psi > H) H = Psi;
   }
 
-  // Evaluate the current phase field, if provided
-  double C = elmInt.vec.front().empty() ? 1.0 : fe.N.dot(elmInt.vec.front());
+  // Evaluate the previous phase field, if provided
+  double C = elmInt.vec.back().empty() ? 1.0 : fe.N.dot(elmInt.vec.back());
+  bool inCrack = gammaInv > 0.0 && C < pthresh;
+#if INT_DEBUG > 3
+  std::cout <<"\nCahnHilliard::evalInt(X = "<< X <<"): C = "<< C;
+#endif
 
   double scale = 1.0 + 4.0*(1.0-stabk)*H/GcOell;
-  if (gammaInv > 0.0 && C < pthresh)
+  if (inCrack)
     scale += gammaInv/GcOell;
   double s1JxW = scale*fe.detJxW;
   double s2JxW = scale2nd*smearing*smearing*fe.detJxW;
+#if INT_DEBUG > 3
+  if (inCrack)
+    std::cout <<"\n\tIn crack: scale "<< scale-gammaInv/GcOell <<" -> "<< scale;
+  std::cout << std::endl;
+#endif
 
   if (m_mode == SIM::STATIC)
   {
@@ -153,7 +160,26 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
   else if (m_mode == SIM::INT_FORCES && !elmInt.vec.front().empty())
   {
     Vector& R = static_cast<ElmMats&>(elmInt).b.front();
-    double& D = static_cast<ElmMats&>(elmInt).c.front();
+    double& E = static_cast<ElmMats&>(elmInt).c.front();
+
+    // Evaluate the current phase field
+    C = fe.N.dot(elmInt.vec.front());
+
+    Vector gradC; // Compute the phase field gradient gradC = dNdX^t*eC
+    if (!fe.dNdX.multiply(elmInt.vec.front(),gradC,true))
+      return false;
+
+    // Integrate the dissipated energy.
+    // Note that the penalty term is also included here,
+    // in contrast to for the CahnHilliardNorm integrand.
+    // Therefore the values will appear different.
+    E += (0.25*GcOell*(1.0-C)*(1.0-C) + Gc*smearing*gradC.dot(gradC))*fe.detJxW;
+    if (inCrack)
+      E += 0.5*gammaInv*C*C*fe.detJxW;
+
+#if INT_DEBUG > 3
+    std::cout <<"\tC = "<< C <<"  E = "<< E << std::endl;
+#endif
 
     // Integrate the residual force vector.
     // Apply scaling Gc/ell compared to the STATIC mode, such that
@@ -163,15 +189,6 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
     s2JxW *= GcOell;
 
     R.add(fe.N,s1JxW); // R += N*s1JxW
-
-    Vector gradC; // Compute the phase field gradient gradC = dNdX^t*eC
-    if (!fe.dNdX.multiply(elmInt.vec.front(),gradC,true))
-      return false;
-
-    // Dissipated energy
-    D += Gc*(pow(C-1.0,2.0)/smearing/4.0 + smearing*gradC.dot(gradC))*fe.detJxW;
-    if (gammaInv > 0.0 && C < pthresh)
-      D += 0.5*gammaInv*C*C*fe.detJxW;
 
     gradC *= -s2JxW;
     return fe.dNdX.multiply(gradC,R,false,true); // R -= dNdX*gradC*s2JxW
