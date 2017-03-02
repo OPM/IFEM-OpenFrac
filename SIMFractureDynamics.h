@@ -51,14 +51,14 @@ public:
   }
 
   //! \brief Computes the solution for the current time step.
-  virtual bool solveStep(TimeStep& tp)
+  virtual bool solveStep(TimeStep& tp, bool firstS1 = true)
   {
     if (tp.step == 1 && this->S1.haveCrackPressure())
       // Start the initial step by solving the phase-field first
       if (!this->S2.solveStep(tp,false))
         return false;
 
-    return this->Coupling<SolidSolver,PhaseSolver>::solveStep(tp);
+    return this->Coupling<SolidSolver,PhaseSolver>::solveStep(tp,firstS1);
   }
 
   //! \brief Saves the converged results to VTF-file of a given time step.
@@ -280,14 +280,14 @@ public:
   }
 
   //! \brief Computes the solution for the current time step.
-  virtual bool solveStep(TimeStep& tp)
+  virtual bool solveStep(TimeStep& tp, bool firstS1 = true)
   {
     if (tp.step == 1 && this->S1.haveCrackPressure() && rHistory.empty())
       // Start the initial step by solving the phase-field first
       if (!this->S2.solveStep(tp,false))
         return false;
 
-    return this->SIMCoupledSI<SolidSlv,PhaseSlv>::solveStep(tp);
+    return this->SIMCoupledSI<SolidSlv,PhaseSlv>::solveStep(tp,firstS1);
   }
 
   //! \brief Checks if the coupled simulator has converged.
