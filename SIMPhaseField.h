@@ -171,6 +171,11 @@ public:
     if (tp.step == 1)
       static_cast<CahnHilliard*>(Dim::myProblem)->clearInitialCrack();
 
+    // If we solve for d as the primary phase-field variable,
+    // transform it to c = 1-d here
+    if (static_cast<CahnHilliard*>(Dim::myProblem)->useDformulation())
+      for (double& c : phasefield.front()) c = 1.0 - c;
+
     return standalone ? this->postSolve(tp) : true;
   }
 

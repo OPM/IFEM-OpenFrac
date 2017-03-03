@@ -72,13 +72,13 @@ void CahnHilliard::printLog () const
              <<"\n\tMax value in crack: "<< maxCrack;
   if (stabk != 0.0)
     IFEM::cout <<"\n\tStabilization parameter: "<< stabk;
-  if (initial_crack && gammaInv <= 0.0)
+  if (initial_crack && gammaInv == 0.0)
     IFEM::cout <<"\n\tInitial crack specified as a function.";
   if (scale2nd == 2.0)
     IFEM::cout <<"\n\tUsing fourth-order phase field.";
-  if (gammaInv > 0.0)
+  if (gammaInv != 0.0)
     IFEM::cout <<"\n\tEnforcing crack irreversibility using penalty formulation"
-               <<"\n\t  gamma="<< 1.0/gammaInv
+               <<"\n\t  gamma="<< 1.0/(gammaInv > 0.0 ? gammaInv : -gammaInv)
                <<" threshold="<< pthresh << std::endl;
   else
     IFEM::cout <<"\n\tEnforcing crack irreversibility using history buffer.";
@@ -90,7 +90,7 @@ void CahnHilliard::printLog () const
 void CahnHilliard::setMode (SIM::SolutionMode mode)
 {
   m_mode = mode;
-  primsol.resize(mode >= SIM::RHS_ONLY || gammaInv > 0.0 ? 2 : 0);
+  primsol.resize(mode < SIM::RHS_ONLY && gammaInv == 0.0 ? 0 : 2);
 }
 
 
@@ -111,17 +111,100 @@ LocalIntegral* CahnHilliard::getLocalIntegral (size_t nen, size_t,
 }
 
 
+bool CahnHilliard::evalIntD (ElmMats& elm, const FiniteElement& fe) const
+{
+  // Store the tensile energy density in the history buffer
+  historyField[fe.iGP] = (*tensileEnergy)[fe.iGP];
+
+  // Evaluate the previous phase field, if provided
+  double C = elm.vec.back().empty() ? 1.0 : fe.N.dot(elm.vec.back());
+  bool inCrack = C < pthresh;
+#if INT_DEBUG > 3
+  std::cout <<"\nCahnHilliard::evalIntD("<< fe.iGP <<"): C = "<< C;
+#endif
+
+  double GcOell = 0.5*Gc/smearing; // Note: ell = 2*smearing
+  double scale = GcOell + 2.0*(1.0-stabk)*historyField[fe.iGP];
+  if (inCrack) scale -= gammaInv; // Note: gammaInv is assumed negative here
+  double s1JxW = scale*fe.detJxW;
+  double s2JxW = scale2nd*0.5*Gc*smearing*fe.detJxW;
+#if INT_DEBUG > 3
+  if (inCrack)
+    std::cout <<"\n\tIn crack: scale "<< scale+gammaInv <<" --> "<< scale;
+  std::cout << std::endl;
+#endif
+
+  if (m_mode == SIM::STATIC)
+  {
+    Matrix& A = elm.A.front();
+
+    A.outer_product(fe.N,fe.N,true,s1JxW);             // A +=  N  * N^t  *s1JxW
+    A.multiply(fe.dNdX,fe.dNdX,false,true,true,s2JxW); // A += dNdX*dNdX^t*s2JxW
+
+    double s3JxW = (scale - GcOell)*fe.detJxW;
+    elm.b.front().add(fe.N,s3JxW); // R += N*s3JxW
+  }
+  else if (m_mode == SIM::INT_FORCES && !elm.vec.front().empty())
+  {
+    Vector& R = elm.b.front();
+    double& E = elm.c.front();
+
+    // Evaluate the current phase field, and ensure it is within the [0,1] range
+    C = fe.N.dot(elm.vec.front());
+    if (C < 0.0)
+      C = 0.0;
+    else if (C > 1.0)
+      C = 1.0;
+
+    Vector gradC; // Evaluate the phase field gradient gradC = dNdX^t*eC
+    if (!fe.dNdX.multiply(elm.vec.front(),gradC,true))
+      return false;
+
+    // Integrate the dissipated energy.
+    // Note that the penalty term is also included here,
+    // in contrast to for the CahnHilliardNorm integrand.
+    // Therefore the values will appear different.
+    E += (0.5*GcOell*(1.0-C)*(1.0-C) + Gc*smearing*gradC.dot(gradC))*fe.detJxW;
+    if (inCrack)
+      E -= 0.5*gammaInv*C*C*fe.detJxW;
+
+#if INT_DEBUG > 3
+    std::cout <<"\tC = "<< C <<"  E = "<< E << std::endl;
+#endif
+
+    // Integrate the residual force vector
+    double s3JxW = (GcOell - scale*C)*fe.detJxW;
+
+    R.add(fe.N,s3JxW); // R += N*s3JxW
+
+    gradC *= s2JxW;
+    return fe.dNdX.multiply(gradC,R,false,true); // R += dNdX*gradC*s2JxW
+  }
+  else
+  {
+    std::cerr <<" *** CahnHilliard::evalIntD: Invalid simulation mode "
+              << m_mode << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
+
 bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
                             const Vec3& X) const
 {
+  if (this->useDformulation()) // d=1-c is to be the primary unknown
+    return this->evalIntD(static_cast<ElmMats&>(elmInt),fe);
+
   double& H = historyField[fe.iGP];
-  double GcOell = Gc/smearing;
+  double GcOell = 0.5*Gc/smearing; // Note: ell = 2*smearing
 
   if (initial_crack && !(tensileEnergy && gammaInv > 0.0)) {
     // Initialize the history field using the specified initial crack function
     double dist = (*initial_crack)(X);
     if (dist < smearing)
-      H = (0.25*GcOell) * (1.0/maxCrack-1.0) * (1.0-dist/smearing);
+      H = (0.5*GcOell) * (1.0/maxCrack-1.0) * (1.0-dist/smearing);
   }
 
   // Update history field
@@ -137,7 +220,7 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
   std::cout <<"\nCahnHilliard::evalInt(X = "<< X <<"): C = "<< C;
 #endif
 
-  double scale = 1.0 + 4.0*(1.0-stabk)*H/GcOell;
+  double scale = 1.0 + 2.0*(1.0-stabk)*H/GcOell;
   if (inCrack)
     scale += gammaInv/GcOell;
   double s1JxW = scale*fe.detJxW;
@@ -162,8 +245,12 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
     Vector& R = static_cast<ElmMats&>(elmInt).b.front();
     double& E = static_cast<ElmMats&>(elmInt).c.front();
 
-    // Evaluate the current phase field
+    // Evaluate the current phase field, and ensure it is within the [0,1] range
     C = fe.N.dot(elmInt.vec.front());
+    if (C < 0.0)
+      C = 0.0;
+    else if (C > 1.0)
+      C = 1.0;
 
     Vector gradC; // Compute the phase field gradient gradC = dNdX^t*eC
     if (!fe.dNdX.multiply(elmInt.vec.front(),gradC,true))
@@ -173,7 +260,7 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
     // Note that the penalty term is also included here,
     // in contrast to for the CahnHilliardNorm integrand.
     // Therefore the values will appear different.
-    E += (0.25*GcOell*(1.0-C)*(1.0-C) + Gc*smearing*gradC.dot(gradC))*fe.detJxW;
+    E += (0.5*GcOell*(1.0-C)*(1.0-C) + Gc*smearing*gradC.dot(gradC))*fe.detJxW;
     if (inCrack)
       E += 0.5*gammaInv*C*C*fe.detJxW;
 
@@ -310,13 +397,17 @@ bool CahnHilliardNorm::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
     if (!fe.dNdX.multiply(pvec,gradC,true))
       return false;
 
-    if (Lnorm == 1)
-      pnorm[k] += fabs(C)*fe.detJxW; // L1-norm, |c|
-    else if (Lnorm == 2)
-      pnorm[k] += C*C*fe.detJxW; // L2-norm, |c|
-    else if (Lnorm == -1 && C > 0.0)
-      if (pnorm[k] == 0.0 || C < pnorm[k])
+    if (C >= 1.0 && Lnorm > 0)
+      pnorm[k] += fe.detJxW;
+    else if (C > 0.0)
+    {
+      if (Lnorm == 1)
+        pnorm[k] += fabs(C)*fe.detJxW; // L1-norm, |c|
+      else if (Lnorm == 2)
+        pnorm[k] += C*C*fe.detJxW; // L2-norm, |c|
+      else if (Lnorm == -1 && (pnorm[k] == 0.0 || C < pnorm[k]))
         pnorm[k] = C; // Smallest-value norm
+    }
 
     if (Lnorm > 0)
       k += 2; // Make space for the volume-specific norm |c|/V
@@ -324,7 +415,11 @@ bool CahnHilliardNorm::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
       k ++;
 
     // Dissipated energy, eps_d
-    pnorm[k++] += Gc*(pow(C-1.0,2.0)/(4.0*l0) + l0*gradC.dot(gradC))*fe.detJxW;
+    if (C <= 0.0)
+      pnorm[k] += 0.25*(Gc/l0)*fe.detJxW;
+    else if (C < 1.0)
+      pnorm[k] += 0.25*(Gc/l0)*(1.0-C)*(1.0-C)*fe.detJxW;
+    pnorm[k++] += Gc*l0*gradC.dot(gradC)*fe.detJxW;
 
     if (aSol && i == 0)
     {

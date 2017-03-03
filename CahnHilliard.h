@@ -16,6 +16,10 @@
 
 #include "IntegrandBase.h"
 
+class ElmMats;
+class RealFunc;
+class VecFunc;
+
 
 /*!
   \brief Class representing the integrand of a 2nd order Cahn Hilliard problem.
@@ -110,6 +114,16 @@ public:
   double getSmearingFactor() const { return smearing; }
   //! \brief Scale the smearing factor, for use during initial refinement cycle.
   double scaleSmearing(double s) { return smearing *= s; }
+  //! \brief Returns \e true if d=1-c is to be the primary unknown (and not c).
+  bool useDformulation() const { return gammaInv < 0.0 && tensileEnergy; }
+
+private:
+  //! \brief Evaluates the integrand at an interior point.
+  //! \param elm The element matrix object to receive the contributions
+  //! \param[in] fe Finite element data of current integration point
+  //!
+  //! \details This method is used when d=1-c is the primary unknown.
+  bool evalIntD(ElmMats& elm, const FiniteElement& fe) const;
 
 protected:
   double Gc;       //!< Fracture energy density
@@ -117,7 +131,7 @@ protected:
   double maxCrack; //!< Maximum value in initial crack
   double stabk;    //!< Stabilization parameter
   double scale2nd; //!< Scaling factor in front of second order term
-  double gammaInv; //!< Penalty factor (if positive) for crack irreversibility
+  double gammaInv; //!< Penalty factor (if non-zero) for crack irreversibility
   double pthresh;  //!< Penalty formulation phase field threshold
 
 private:
