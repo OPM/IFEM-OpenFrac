@@ -93,7 +93,7 @@ public:
   virtual size_t getNoFields(int fld) const;
   //! \brief Returns the name of a secondary solution field component.
   //! \param[in] i Field component index
-  //! \param[in] prefix Name prefix for all components
+  //! \param[in] pfx Name prefix for all components
   virtual std::string getField2Name(size_t i, const char* pfx) const;
 
   //! \brief Returns a pointer to an Integrand for solution norm evaluation.

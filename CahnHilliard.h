@@ -70,12 +70,13 @@ public:
 
   //! \brief Returns the number of primary/secondary solution field components.
   virtual size_t getNoFields(int fld) const { return fld > 1 ? 2 : 1; }
-  //! \brief Returns the name of the primary solution field.
+  //! \brief Returns the name of the primary solution field component.
   //! \param[in] prefix Name prefix
   virtual std::string getField1Name(size_t, const char* prefix) const;
-  //! \brief Returns the name of the secondary solution field.
+  //! \brief Returns the name of the secondary solution field component.
+  //! \param[in] idx Field component index
   //! \param[in] prefix Name prefix
-  virtual std::string getField2Name(size_t, const char* prefix) const;
+  virtual std::string getField2Name(size_t idx, const char* prefix) const;
 
   //! \brief Sets the pointer to the tensile energy buffer.
   void setTensileEnergy(const RealArray* tens) { tensileEnergy = tens; }

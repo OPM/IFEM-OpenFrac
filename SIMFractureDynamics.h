@@ -1,7 +1,7 @@
 // $Id$
 //==============================================================================
 //!
-//! \file SIMFactureDynamics.h
+//! \file SIMFractureDynamics.h
 //!
 //! \date Jul 13 2015
 //!

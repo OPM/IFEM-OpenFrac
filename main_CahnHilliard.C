@@ -20,6 +20,11 @@
 #include "AppCommon.h"
 
 
+/*!
+  \brief Creates the Cahn-Hilliard simulator and launches the simulation.
+  \param[in] infile The input file to parse
+*/
+
 template<class Dim> int runSimulator (char* infile)
 {
   typedef SIMPhaseField<Dim> PhaseFieldDriver;
@@ -64,6 +69,10 @@ template<class Dim> int runSimulator (char* infile)
   return res;
 }
 
+
+/*!
+  \brief Main program for the isogeometric Cahn-Hilliard solver.
+*/
 
 int main (int argc, char** argv)
 {
