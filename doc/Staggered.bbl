@@ -1,0 +1,16 @@
+\begin{thebibliography}{1}
+
+\bibitem{Borden:2012}
+M.~J. Borden, C.~V. Verhoosel, M.~A. Scott, T.~J.~R. Hughes, and C.~M. Landis.
+\newblock {A Phase-field Description of Dynamic Brittle Fracture}.
+\newblock {\em Computer Methods in Applied Mechanics and Engineering},
+  217--220:77--95, 2012.
+
+\bibitem{Gerasimov:2016}
+T.~Gerasimov and L.~De Lorenzis.
+\newblock {A Line Search Assisted Monolithic Approach for Phase-field Computing
+  of Brittle Fracture}.
+\newblock {\em Computer Methods in Applied Mechanics and Engineering},
+  312:276--303, 2016.
+
+\end{thebibliography}

@@ -1,0 +1,555 @@
+\documentclass{article}
+\usepackage{eqalign}
+\usepackage{bm}
+\topmargin    -13mm
+\oddsidemargin  0mm
+\evensidemargin 0mm
+\textheight   247mm
+\textwidth    160mm
+\def\deriv#1#2{\frac{\partial#1}{\partial#2}}
+\def\dderiv#1#2{\frac{\partial^2#1}{\partial#2^2}}
+\def\dV{\:{\rm d}V}
+\title{Staggered fracture-elasticity solver}
+\author{Knut Morten Okstad}
+
+\begin{document}
+\maketitle
+
+%===============================================================================
+\section{Introduction}
+%===============================================================================
+
+This document describes the weak form and associated linearized equations
+for the staggered fracture-elasticity solver implemented in {\sl IFEM},
+based on the papers by Borden~{\it et~al}.~\cite{Borden:2012},
+and Gerasimov and De~Lorenzis~\cite{Gerasimov:2016}.
+
+%===============================================================================
+\section{Energy functionals}
+%===============================================================================
+
+The energy functional for the quasi-static brittle fracture problem,
+using a phase-field to represent the crack geometry is in~\cite{Borden:2012}
+given as follows (see Equation~(17) therein):
+%
+\begin{equation}
+\label{eq:Ec}
+\eqalign{
+  E_c(\bm{u},c) \;=&\; \int\limits_\Omega
+  \left[
+    g(c)\Psi_0^+(\bm{\epsilon}(\bm{u})) + \Psi_0^-(\bm{\epsilon}(\bm{u}))
+  \right]\dV \cr +&\;
+  G_c\int\limits_\Omega\left(
+  \frac{1}{4\ell_0}(1-c)^2 + \ell_0\bm{\nabla}c\cdot\bm{\nabla}c
+  \right) \dV}
+\end{equation}
+%
+where $c$ is the phase field describing the crack, i.e., it has the value 1.0
+where the material is undamaged and equal to 0.0 for fully cracked material.
+$g(c)=(1-k)c^2+k$ is the stress degradation function used to scale down the
+tensile part of the strain energy density in the elasticity equation.
+$k\ge0.0$ is a (small) stability parameter that can be used to improve the
+conditioning of the resulting linear equation system.
+
+In~\cite{Gerasimov:2016}, an alternative formulation is used, where $d=1-c$ is
+used as the unknown phase field instead of $c$, i.e., it has the value 0.0 in
+the undamaged material and 1.0 in the fully cracked material.
+Moreover, a penalty term is introduced to ensure crack irreversibility,
+and the length scale parameter $\ell_0$ is replaced by $\ell=2\ell_0$.
+The energy functional therefore reads as follows (see also Equation~(3)
+in~\cite{Gerasimov:2016}):
+%
+\begin{equation}
+\label{eq:Ed}
+\eqalign{
+  E_d(\bm{u},d) \;=&\; \int\limits_\Omega
+  \left[
+    g(d)\Psi_0^+(\bm{\epsilon}(\bm{u})) + \Psi_0^-(\bm{\epsilon}(\bm{u}))
+  \right]\dV \cr +&\;
+  G_c\int\limits_\Omega\left(
+  \frac{1}{2\ell}d^2 + \frac{\ell}{2}\bm{\nabla}d\cdot\bm{\nabla}d
+  \right) \dV + \frac{1}{2\gamma}\int\limits_{{\rm CR}_{l-1}}(1-d)^2 \dV}
+\end{equation}
+%
+where the stress degradation function now reads $g(d)=(1-k)(1-d)^2+k$.
+
+The directional derivatives of $E_c$ and $E_d$ read, respectively:
+%
+\begin{equation}
+\label{eq:Ecprime}
+\eqalign{
+  E_c'(\bm{u},c;\bm{v},w) \;:=&\;
+  \deriv{E_c}{\bm{u}}\cdot\bm{v} \;+\; \deriv{E_c}{c}w \cr =&\;
+  \int\limits_\Omega \left[
+    g(c)\deriv{\Psi_0^+}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u})) +
+    \deriv{\Psi_0^-}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u}))
+  \right] : \bm{\epsilon}(\bm{v})\dV \cr +&\;
+  \int\limits_\Omega g'(c)\Psi_0^+(\bm{\epsilon}(\bm{u}))w \dV \;+\;
+  G_c\int\limits_\Omega\left(
+    \frac{1}{2\ell_0}(c-1)w + 2\ell_0\bm{\nabla}c\cdot\bm{\nabla}w
+  \right) \dV}
+\end{equation}
+%
+with $g'(c)=2(1-k)c$, and
+%
+\begin{equation}
+\label{eq:Edprime}
+\eqalign{
+  E_d'(\bm{u},d;\bm{v},w) \;:=&\;
+  \deriv{E_d}{\bm{u}}\cdot\bm{v} \;+\; \deriv{E_d}{d}w \cr =&\;
+  \int\limits_\Omega \left[
+    g(d)\deriv{\Psi_0^+}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u})) +
+    \deriv{\Psi_0^-}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u}))
+  \right] : \bm{\epsilon}(\bm{v})\dV \cr +&\;
+  \int\limits_\Omega g'(d)\Psi_0^+(\bm{\epsilon}(\bm{u}))w \dV \;+\;
+  G_c\int\limits_\Omega\left(
+  \frac{1}{\ell}dw + \ell\bm{\nabla}d\cdot\bm{\nabla}w
+  \right) \dV + \frac{1}{\gamma}\int\limits_{{\rm CR}_{l-1}}(d-1)w \dV}
+\end{equation}
+%
+with $g'(d)=2(1-k)(d-1)$.
+The problem is then solved by seeking a solution
+$(\bm{u},c)\in\bm{V}_1\times H^1(\Omega,[0,1])$, such that
+%
+\begin{equation}
+\label{eq:Ecproblem}
+  E_c'(\bm{u},c;\bm{v},w) = 0 \quad\forall\;
+  (\bm{v},w)\in\bm{V}_0\times H^1(\Omega,[0,1])
+\end{equation}
+%
+or alternatively, a solution
+$(\bm{u},d)\in\bm{V}_1\times H^1(\Omega,[0,1])$, such that
+%
+\begin{equation}
+\label{eq:Edproblem}
+  E_d'(\bm{u},d;\bm{v},w) = 0 \quad\forall\;
+  (\bm{v},w)\in\bm{V}_0\times H^1(\Omega,[0,1])
+\end{equation}
+
+%===============================================================================
+\section{Residual and tangent for the $c$-formulation}
+%===============================================================================
+
+Equation~(\ref{eq:Ecproblem}) is rewritten into a system of coupled equations:
+%
+\begin{eqnarray}
+  \label{eq:Q1c}
+  Q_1(\bm{u},c;\bm{v}) &=& \int\limits_\Omega \left[
+    g(c)\deriv{\Psi_0^+}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u})) +
+        \deriv{\Psi_0^-}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u}))
+    \right] : \bm{\epsilon}(\bm{v})\dV = 0 \\
+  \label{eq:Q2c}
+  Q_2(\bm{u},c;w) &=& \int\limits_\Omega \left[
+    g'(c)\Psi_0^+(\bm{\epsilon}(\bm{u}))w + G_c\left(
+    \frac{1}{2\ell_0}(c-1)w + 2\ell_0\bm{\nabla}c\cdot\bm{\nabla}w
+    \right)\right] \dV \;=\; 0
+\end{eqnarray}
+%
+To ensure crack irreversibility, the tensile strain energy density $\Psi_0^+$
+in Equation~(\ref{eq:Q2c}) is replaced by a history field ${\cal H}(\bm{x},t)$,
+with the property
+%
+\begin{eqnarray}
+  \label{eq:initial-crack}
+  {\cal H}(\bm{x},t_0) &=& \frac{G_c}{4\ell_0}\left(\frac{1}{C}-1\right)
+  \left(1-\max\left\{\frac{\delta(\bm{x},\Gamma)}{\ell_0},1\right\}\right) \\
+  \label{eq:history-field}
+  {\cal H}(\bm{x},t_n) &=& \max\left\{{\cal H}(\bm{x},t_{n-1}),
+  \Psi_0^+(\bm{\epsilon}(\bm{u}(\bm{x},t_n)))\right\}\;,\; n > 0
+\end{eqnarray}
+%
+where $C$ is a constant and $\delta(\bm{x},\Gamma)$ denotes the shortest
+distance from the point $\bm{x}$ to the initial crack $\Gamma$.
+Moreover, Equation~(\ref{eq:Q2c}) is scaled by
+$\frac{\ell}{G_c}=\frac{2\ell_0}{G_c}$ to obtain
+%
+\begin{equation}
+\label{eq:Q2c-mod}
+  Q_2(\bm{u},c;w) \;=\; \int\limits_\Omega \left[
+    \frac{g'(c)\ell}{G_c}{\cal H}(\bm{x},t)w +
+    (c-1)w + \ell^2\bm{\nabla}c\cdot\bm{\nabla}w \right] \dV \;=\; 0
+\end{equation}
+
+The Equations~(\ref{eq:Q1c}) and~(\ref{eq:Q2c-mod}) are solved in a
+staggered manner, where in the former the phase field $c$ is assumed known and
+in the latter the displacement field $\bm{u}$ is assumed known.
+We then do a linearization of the functionals $Q_1$ and $Q_2$ about a certain
+known configuration $(\bm{u}_0,c_0)$ for the unknown variables, i.e.
+%
+\begin{eqnarray}
+  \label{eq:Q1clinearized}
+  Q_1(\bm{u}_0+\Delta\bm{u},c_0;\bm{v}) &\approx&
+  Q_1(\bm{u}_0,c_0;\bm{v}) \;+\; \deriv{Q_1}{\bm{u}}\cdot\Delta\bm{u} \;=\; 0 \\
+  \label{eq:Q2clinearized}
+  Q_2(\bm{u}_0,c_0+\Delta c;w) &\approx&
+  Q_2(\bm{u}_0,c_0;\bm{v}) \;+\; \deriv{Q_2}{c}\Delta c\;=\; 0
+\end{eqnarray}
+%
+from which we obtain the tangent operators
+%
+\begin{eqnarray}
+  \label{eq:Q1ctangent}
+  \deriv{Q_1}{\bm{u}}\cdot\Delta\bm{u} &=&
+  \int\limits_\Omega \bm{\epsilon}(\Delta\bm{u}) : \left[
+    g(c)\dderiv{\Psi_0^+}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u})) +
+        \dderiv{\Psi_0^-}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u}))
+    \right] : \bm{\epsilon}(\bm{v})\dV \\
+  \label{eq:Q2ctangent}
+  \deriv{Q_2}{c}\Delta c &=&
+  \int\limits_\Omega \left[ \Delta c \left(
+    \frac{g''(c)\ell}{G_c}{\cal H}(\bm{x},t) + 1 \right) w \;+\;
+    \ell^2\bm{\nabla}(\Delta c)\cdot\bm{\nabla}w \right] \dV
+\end{eqnarray}
+%
+Since $g''(c)=2(1-k)$ is a constant, the latter is linear in $\Delta c$ and $w$,
+and independent of $c$, hence a linear solve is sufficient for
+Equation~(\ref{eq:Q2clinearized}).
+In the {\sl IFEM} implementation, we introduce the following variables
+%
+\begin{equation}
+  s_1 = 1 + 2(1-k){\cal H}(\bm{x},t)\frac{\ell}{G_c} \quad\mbox{and}\quad
+  s_2 = \ell^2 = 4\ell_0^2
+\end{equation}
+%
+with which Equation~(\ref{eq:Q2c-mod}) can be written
+%
+\begin{equation}
+  \label{eq:Q2c-IFEM}
+  Q_2(\bm{u},c;w) \;=\; \int\limits_\Omega \left[
+    (s_1c-1)w + s_2\bm{\nabla}c\cdot\bm{\nabla}w \right] \dV \;=\; 0
+\end{equation}
+
+Alternatively to using the history field, we may include a penalty term to
+enforce the crack irreversibility as in Equation~(\ref{eq:Ed}), i.e.:
+%
+\begin{equation}
+\label{eq:Ec+penaly}
+\eqalign{
+  E_c(\bm{u},c) \;=&\; \int\limits_\Omega
+  \left[
+    g(c)\Psi_0^+(\bm{\epsilon}(\bm{u})) + \Psi_0^-(\bm{\epsilon}(\bm{u}))
+  \right]\dV \cr +&\;
+  G_c\int\limits_\Omega\left(
+  \frac{1}{4\ell_0}(1-c)^2 + \ell_0\bm{\nabla}c\cdot\bm{\nabla}c
+  \right) \dV \;+\; \frac{1}{2\gamma}\int\limits_{{\rm CR}_{l-1}}c^2 \dV}
+\end{equation}
+%
+such that the alternatives to Equations~(\ref{eq:Q2c-mod})
+and~(\ref{eq:Q2ctangent}) become, respectively
+%
+\begin{equation}
+  \label{eq:Q2c+pen}
+  Q_2(\bm{u},c;w) \;=\; \int\limits_\Omega \left[
+    \frac{g'(c)\ell}{G_c}\Psi_0^+(\bm{\epsilon}(\bm{u}))w +
+    (c-1)w + \ell^2\bm{\nabla}c\cdot\bm{\nabla}w \right] \dV \;+\;
+  \frac{1}{\gamma}\int\limits_{{\rm CR}_{l-1}}\frac{\ell}{G_c}cw \dV \;=\; 0
+\end{equation}
+%
+and
+%
+\begin{equation}
+  \label{eq:Q2ctangent+pen}
+  \deriv{Q_2}{c}\Delta c \;=\;
+  \int\limits_\Omega \left[ \Delta c \left(
+    \frac{g''(c)\ell}{G_c}\Psi_0^+(\bm{\epsilon}(\bm{u})) + 1 \right) w \;+\;
+    \ell^2\bm{\nabla}(\Delta c)\cdot\bm{\nabla}w \right] \dV \;+\;
+  \frac{1}{\gamma}\int\limits_{{\rm CR}_{l-1}}\Delta c\frac{\ell}{G_c}w \dV
+\end{equation}
+%
+Equation~(\ref{eq:Q2c+pen}) can be rewritten as Equation~(\ref{eq:Q2c-IFEM})
+where the parameter $s_1$ now reads
+%
+\begin{equation}
+  s_1 = 1 + 2(1-k)\Psi_0^+(\bm{\epsilon}(\bm{u}))\frac{\ell}{G_c} +
+  \left\{\begin{array}{ll}
+  \frac{\ell}{\gamma G_c} & \forall\,\bm{x}\in{\rm CR}_{l-1} \\[1mm]
+  0 & \forall\,\bm{x}\notin{\rm CR}_{l-1}
+  \end{array}\right.
+\end{equation}
+
+%===============================================================================
+\section{Residual and tangent for the $d$-formulation}
+%===============================================================================
+
+Equation~(\ref{eq:Edproblem}) is rewritten into a system of coupled equations:
+%
+\begin{eqnarray}
+  \label{eq:Q1d}
+  Q_1(\bm{u},d;\bm{v})\! &=& \!\!\int\limits_\Omega \left[
+    g(d)\deriv{\Psi_0^+}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u})) +
+        \deriv{\Psi_0^-}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u}))
+        \right] : \bm{\epsilon}(\bm{v})\dV \;=\; 0 \\
+  \label{eq:Q2d}
+  Q_2(\bm{u},d;w)\! &=& \!\!\int\limits_\Omega \left[
+    g'(d)\Psi_0^+(\bm{\epsilon}(\bm{u}))w + G_c\left(
+    \frac{1}{\ell}dw + \ell\bm{\nabla}d\cdot\bm{\nabla}w
+    \right)\right]\!\dV + \frac{1}{\gamma}\int\limits_{{\rm CR}_{l-1}}\!\!(d-1)w \dV
+  \;=\; 0
+\end{eqnarray}
+%
+These two equations are solved in a staggered manner,
+where in Equation~(\ref{eq:Q1d}) the phase field $d$ is assumed known and in
+Equation~(\ref{eq:Q2d}) the displacement field $\bm{u}$ is assumed known.
+We then do a linearization of the functionals $Q_1$ and $Q_2$ about a certain
+known configuration $(\bm{u}_0,d_0)$ for the unknown variables, i.e.
+%
+\begin{eqnarray}
+  \label{eq:Q1dlinearized}
+  Q_1(\bm{u}_0+\Delta\bm{u},d_0;\bm{v}) &\approx&
+  Q_1(\bm{u}_0,d_0;\bm{v}) \;+\; \deriv{Q_1}{\bm{u}}\cdot\Delta\bm{u} \;=\; 0 \\
+  \label{eq:Q2dlinearized}
+  Q_2(\bm{u}_0,d_0+\Delta d;w) &\approx&
+  Q_2(\bm{u}_0,d_0;\bm{v}) \;+\; \deriv{Q_2}{d}\Delta d\;=\; 0
+\end{eqnarray}
+%
+from which we obtain the tangent operators
+%
+\begin{eqnarray}
+  \label{eq:Q1dtangent}
+  \deriv{Q_1}{\bm{u}}\cdot\Delta\bm{u} &=&
+  \int\limits_\Omega \bm{\epsilon}(\Delta\bm{u}) : \left[
+    g(d)\dderiv{\Psi_0^+}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u})) +
+        \dderiv{\Psi_0^-}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u}))
+    \right] : \bm{\epsilon}(\bm{v})\dV \\
+  \label{eq:Q2dtangent}
+  \deriv{Q_2}{d}\Delta d &=&
+  \int\limits_\Omega \left[ \Delta d \left(
+    g''(d)\Psi_0^+(\bm{\epsilon}(\bm{u})) + \frac{G_c}{\ell} \right) w \;+\;
+    G_c\ell\bm{\nabla}(\Delta d)\cdot\bm{\nabla}w \right] \dV \;+\;
+    \frac{1}{\gamma}\int\limits_{{\rm CR}_{l-1}}\!\!\Delta dw \dV
+\end{eqnarray}
+%
+Since $g''(d)=2(1-k)$ is a constant, the latter is linear in $\Delta d$ and $w$,
+and independent of $d$, hence a linear solve is sufficient for
+Equation~(\ref{eq:Q2dlinearized}).
+
+\bibliographystyle{unsrt}
+\bibliography{/home/kmo/LaTeX/bib/article}
+\end{document}
+
+This nonlinear equation is solved by Newton-Rapson iterations at each load step,
+that is, starting from a known solution $(\bm{u}_i,d_i)$ at iteration $i\ge0$,
+we do the linearization
+%
+\begin{equation}
+\label{eq:linearization}
+  E'(\bm{u}_i+\Delta\bm{u}_i,d_i+\Delta d_i;\bm{v},w) \;\approx\;
+  E'(\bm{u}_i,d_i;\bm{v},w) \;+\;
+  \Phi(\Delta\bm{u}_i,\Delta d_i;\bm{u}_i,d_i;\bm{v},w) \;=\; 0
+\end{equation}
+%
+where $\Phi$ is a functional which is linear in the unknowns
+$(\Delta\bm{u}_i,\Delta d_i)$ and the test functions $(\bm{v},w)$.
+
+A scalar function $f(\alpha)$ is then introduced for the line search
+at iteration $i$
+%
+\begin{equation}
+\label{eq:f}
+  f(\alpha) := E(\bm{u}_i+\alpha\Delta\bm{u}_i,d+\alpha\Delta d_i)
+\end{equation}
+%
+such that
+%
+\begin{equation}
+\label{eq:fprime}
+  f'(\alpha) := E'(\bm{u}_i+\alpha\Delta\bm{u}_i,d+\alpha\Delta d_i;
+                   \Delta\bm{u}_i,\Delta d_i)
+\end{equation}
+%
+The essense of the line search is then to evaluate the Equations~(\ref{eq:f})
+and~(\ref{eq:fprime}) at a given number (say 10) of equally distributed points
+$\alpha_k\in[-1,1]$ through which a cubic polynomial function $\tilde f(\alpha)$
+is fitted. Then we calculate the minimum value
+$\alpha^*={\rm argmin}_{\alpha\in[-1,1]} \tilde f(\alpha)$
+and the solution at iteration $i+1$ as
+$\bm{u}_{i+1} = \bm{u}_i+\alpha^*\Delta\bm{u}_i$ and
+$d_{i+1} := d_i+\alpha^*\Delta d_i$.
+
+In the {\sl IFEM} implementation, we use $c=1-d$ as free phase-field variable
+instead of $d$, and therefore evaluate $f(\alpha)$ and $f'(\alpha)$ as follows,
+with $\bm{u}_\ipa := \bm{u}_i+\alpha\Delta\bm{u}_i$
+and $c_\ipa := c_i+\alpha\Delta c_i$:
+%
+\begin{equation}
+\label{eq:fIFEM}
+\eqalign{
+  f(\alpha) = E(\bm{u}_\ipa,c_\ipa) \;=&\;
+  \int\limits_\Omega \left[
+    c_\ipa^2\Psi_0^+(\bm{\epsilon}(\bm{u}_\ipa)) +
+           \Psi_0^-(\bm{\epsilon}(\bm{u}_\ipa))
+  \right]\dV \cr +&\;
+  G_c\int\limits_\Omega\left(
+  \frac{1}{2\ell}(1-c_\ipa)^2 + \frac{\ell}{2}|\nabla c_\ipa|^2
+  \right) \dV + \frac{1}{2\gamma}\int\limits_{{\rm CR}_{l-1}}c_\ipa^2 \dV}
+%
+\end{equation}
+%
+\begin{equation}
+\label{eq:fprimeIFEM}
+\eqalign{
+  f'(\alpha) = E'(\bm{u}_\ipa,c_\ipa;\Delta\bm{u}_i,\Delta c_i) \;=&\;
+  \int\limits_\Omega \left[
+    c_\ipa^2\deriv{\Psi_0^+}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u}_\ipa)) +
+    \deriv{\Psi_0^-}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u}_\ipa))
+  \right] : \bm{\epsilon}(\Delta\bm{u}_i)\dV \cr +&\;
+  \int\limits_\Omega
+    2c_\ipa\Psi_0^+(\bm{\epsilon}(\bm{u}_\ipa)) \Delta c_i \dV \cr -&\;
+  G_c\int\limits_\Omega\left(
+  \frac{1}{\ell}(1-c_\ipa)\Delta c_i - \ell\nabla c_\ipa\cdot\nabla(\Delta c_i)
+  \right) \dV \cr +&\;
+  \frac{1}{\gamma}\int\limits_{{\rm CR}_{l-1}}c_\ipa\Delta c_i \dV}
+\end{equation}
+%
+Notice the change of sign of the three last terms of
+Equation~(\ref{eq:fprimeIFEM}) compared to Equation~(\ref{eq:Eprime}),
+which results from $\deriv{c_\ipa}{\alpha}=\Delta c_i=-\Delta d_i$.
+The evaluation of Equation~(\ref{eq:fprimeIFEM}) can be carried out as a
+dot-product between the internal (residual) force vector and the iterative
+solution vector, i.e.
+%
+\begin{equation}
+  f'(\alpha) = {\bf R}_u(\bm{u}_\ipa,c_\ipa)\cdot\Delta{\bf r}^u_i
+             + {\bf R}_c(\bm{u}_\ipa,c_\ipa)\cdot\Delta{\bf r}^c_i
+\end{equation}
+%
+where
+%
+\begin{equation}
+  {\bf R}_u(\bm{u},c) := \int\limits_\Omega
+     {\bf B}^T\cdot\bm{\sigma}(\bm{\epsilon}(\bm{u}),c) \dV
+\end{equation}
+%
+and
+%
+\begin{equation}
+  {\bf R}_c(\bm{u},c) := \int\limits_\Omega\left[\left(
+    2c\Psi^+(\bm{\epsilon}(\bm{u})) - \frac{G_c}{\ell}(1-c)\right){\bf N} +
+    G_c\ell\nabla c\cdot\deriv{\bf N}{\bm{x}}
+    \right] \dV + \int\limits_{{\rm CR}_{l-1}} \frac{c}{\gamma}{\bf N} \dV
+\end{equation}
+%
+where ${\bf B}$ is the strain-displacement matrix
+(i.e., $\bm{\epsilon}(\bm{u})={\bf B}{\bf r}^u$) and
+${\bf N}=\{N_1,N_2,\ldots,N_{n_{\rm nod}}\}^T$
+denotes the vector of nodal basis functions (i.e., $c={\bf N}^T{\bf r}^c$),
+and ${\bf r}^u$ and ${\bf r}^c$ denote vectors of nodal variables for the
+respective solution fields $\bm{u}$ and $c$.
+
+In order to solve Equation~(\ref{eq:linearization}) for the unknowns
+$\Delta\bm{u}_i$ and $\Delta c_i=1-\Delta d_i$ we first need to develop
+the functional $\Phi$.
+With $c=1-d$ as the free phase-field variable, we write
+%
+\begin{equation}
+\label{eq:linearizationIFEM}
+  E'(\bm{u}_i,c_i;\bm{v},w) \;+\;
+  \Phi(\Delta\bm{u}_i,\Delta c_i;\bm{u}_i,c_i;\bm{v},w) \;=\; 0
+\end{equation}
+%
+where
+%
+\begin{equation}
+\label{eq:EIFEM}
+\eqalign{
+  E(\bm{u},c) \;=&\;
+  \int\limits_\Omega \left[
+    c^2\Psi_0^+(\bm{\epsilon}(\bm{u})) + \Psi_0^-(\bm{\epsilon}(\bm{u}))
+  \right]\dV \cr +&\;
+  G_c\int\limits_\Omega\left(
+  \frac{1}{2\ell}(1-c)^2 + \frac{\ell}{2}|\nabla c|^2
+  \right) \dV + \frac{1}{2\gamma}\int\limits_{{\rm CR}_{l-1}}c^2 \dV}
+\end{equation}
+%
+\begin{equation}
+\label{eq:EprimeIFEM}
+\eqalign{
+  E'(\bm{u},c;\bm{v},w) \;=&\;
+  \int\limits_\Omega \left[
+    c^2\deriv{\Psi_0^+}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u})) +
+    \deriv{\Psi_0^-}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u}))
+  \right] : \bm{\epsilon}(\bm{v})\dV \;+\;
+  \int\limits_\Omega
+    2c\Psi_0^+(\bm{\epsilon}(\bm{u})) w \dV \cr -&\;
+  G_c\int\limits_\Omega\left(
+  \frac{1}{\ell}(1-c)w - \ell\nabla c\cdot\nabla w
+  \right) \dV \;+\;
+  \frac{1}{\gamma}\int\limits_{{\rm CR}_{l-1}}cw \dV}
+\end{equation}
+%
+and
+%
+\begin{equation}
+\label{eq:tangent}
+  \Phi(\Delta\bm{u},\Delta c;\bm{u},c;\bm{v},w) \;=\;
+  \deriv{E'}{\bm{u}}\Delta\bm{u} \;+\; \deriv{E'}{c}\Delta c
+\end{equation}
+%
+Using the chain rule, and that $\deriv{\bm{\epsilon}}{\bm{u}}\cdot\Delta\bm{u}
+\equiv\bm{\epsilon}(\Delta\bm{u})$ and $\deriv{\nabla c}{c}\Delta c
+\equiv\nabla(\Delta c)$, we obtain
+%
+\begin{equation}
+\label{eq:tangentU}
+\eqalign{
+  \deriv{E'}{\bm{u}}\Delta\bm{u} \;=&\;
+  \int\limits_\Omega \bm{\epsilon}(\Delta\bm{u}) : \left[
+  c^2\dderiv{\Psi_0^+}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u})) +
+  \dderiv{\Psi_0^-}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u}))
+  \right] : \bm{\epsilon}(\bm{v}) \dV \cr +&\;
+  \int\limits_\Omega \bm{\epsilon}(\Delta\bm{u}) :
+  2c\deriv{\Psi_0^+}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u})) w \dV \cr =&\;
+  \Delta{\bf r}^u\left[ \int\limits_\Omega
+  {\bf B}^T\deriv{\bm{\sigma}(\bm{\epsilon}(\bm{u}),c)}{\bm{\epsilon}}{\bf B}
+  \dV \right] {\bf r}^v \;+\;
+  \Delta{\bf r}^u\left[ \int\limits_\Omega
+  {\bf B}^T\bm{\sigma}^+(\bm{\epsilon}(\bm{u}),c)
+  \dV \right] {\bf r}^w \cr =&\;
+  \Delta{\bf r}^u\hskip49pt{\bf K}_{uu}\hskip49pt{\bf r}^v\hskip4pt +\;
+  \Delta{\bf r}^u\hskip48pt{\bf K}_{uc}\hskip42pt{\bf r}^w}
+\end{equation}
+%
+and
+%
+\begin{equation}
+\label{eq:tangentC}
+\eqalign{
+  \deriv{E'}{c}\Delta c \;=&\;
+  \int\limits_\Omega
+  2c\Delta c\deriv{\Psi_0^+}{\bm{\epsilon}}(\bm{\epsilon}(\bm{u})) :
+  \bm{\epsilon}(\bm{v})\dV \;+\;
+  \int\limits_\Omega
+    2\Delta c\Psi_0^+(\bm{\epsilon}(\bm{u})) w \dV \cr +&\;
+  G_c\int\limits_\Omega\left(
+  \frac{1}{\ell}\Delta cw + \ell\nabla(\Delta c)\cdot\nabla w
+  \right) \dV \;+\;
+  \frac{1}{\gamma}\int\limits_{{\rm CR}_{l-1}}\Delta cw \dV \cr =&\;
+  \Delta{\bf r}^c\left[ \int\limits_\Omega
+  \bm{\sigma}^+(\bm{\epsilon}(\bm{u}),c){\bf B}
+  \dV \right] {\bf r}^v \;+\; \Delta{\bf r}^c
+  \left[
+    \begin{array}{c}\ldots\\\mbox{(fill in content here)}\\\ldots\end{array}
+  \right]
+  {\bf r}^w \cr =&\;
+  \Delta{\bf r}^c\hskip42pt{\bf K}_{uc}^T\hskip42pt{\bf r}^v\hskip4pt +\;
+  \Delta{\bf r}^c\hskip50pt{\bf K}_{cc}\hskip45pt{\bf r}^w
+}
+\end{equation}
+%
+So then the Equation~(\ref{eq:linearizationIFEM}) is transformed into the
+linear system of equations
+%
+\begin{equation}
+  \left\{\begin{array}{c} {\bf R}_u \\ {\bf R}_c \end{array}\right\} \;+\;
+  \left[\begin{array}{cc}
+  {\bf K}_{uu} & {\bf K}_{uc} \\ {\bf K}_{uc}^T & {\bf K}_{cc}
+  \end{array}\right]
+  \left\{\begin{array}{c}
+  \Delta{\bf r}_u \\ \Delta{\bf r}_c
+  \end{array}\right\} \;=\;
+  \left\{\begin{array}{c} {\bf 0} \\ {\bf 0} \end{array}\right\}
+\end{equation}
+
+\bibliographystyle{unsrt}
+\bibliography{/home/kmo/LaTeX/bib/article}
+\end{document}
