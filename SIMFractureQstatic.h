@@ -92,7 +92,6 @@ public:
     if (!this->S1.assembleSystem(tp.time,this->S1.getSolutions(),false))
       return SIM::FAILURE;
 
-    Vector residual;
     if (!this->S1.extractLoadVec(residual))
       return SIM::FAILURE;
 
@@ -138,12 +137,20 @@ public:
     return SIM::DIVERGED;
   }
 
+  //! \brief Saves the converged results to VTF-file of a given time step.
+  virtual bool saveStep(const TimeStep& tp, int& nBlock)
+  {
+    return (this->CoupledSIM::saveStep(tp,nBlock) &&
+            this->S2.saveResidual(tp,residual,nBlock));
+  }
+
 private:
   int&   maxCycle; //!< Maximum number of staggering cycles
   double cycleTol; //!< Residual norm tolerance for the staggering cycles
   double E0;       //!< Energy norm of initial staggering cycle
   double Ec;       //!< Energy norm of current staggering cycle
   double Ep;       //!< Energy norm of previous staggering cycle
+  Vector residual; //!< Residual force vector (of the phase field equation)
 };
 
 #endif

@@ -96,7 +96,7 @@ public:
 
   //! \brief Saves the converged results of a given time step to VTF file.
   //! \param[in] tp Time stepping parameters
-  //! \param[in] nBlock Running VTF block counter
+  //! \param nBlock Running VTF block counter
   bool saveStep(const TimeStep& tp, int& nBlock)
   {
     PROFILE1("SIMPhaseField::saveStep");
@@ -135,6 +135,18 @@ public:
       phasefield.front() = projSol.getRow(1);
 
     return true;
+  }
+
+  //! \brief Saves the force residual of a given time step to VTF file.
+  //! \param[in] tp Time stepping parameters
+  //! \param[in] residual Residual force vector
+  //! \param nBlock Running VTF block counter
+  bool saveResidual(const TimeStep& tp, const Vector& residual, int& nBlock)
+  {
+    if (tp.step%Dim::opt.saveInc == 0 && Dim::opt.format >= 0)
+      return this->writeGlvS(residual,"phase residual",vtfStep,nBlock,110);
+    else
+      return true;
   }
 
   //! \brief Advances the time step one step forward.
