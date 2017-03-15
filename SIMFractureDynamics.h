@@ -15,6 +15,7 @@
 #define _SIM_FRACTURE_DYNAMICS_H_
 
 #include "SIMCoupledSI.h"
+#include "ProcessAdm.h"
 #ifdef HAS_LRSPLINE
 #include "ASMu2D.h"
 #include "LRSpline/LRSplineSurface.h"
@@ -33,10 +34,13 @@ template<class SolidSolver, class PhaseSolver,
          template<class S1, class S2> class Coupling=SIMCoupled>
 class SIMFracture : public Coupling<SolidSolver,PhaseSolver>
 {
+  //! Convenience type
+  typedef Coupling<SolidSolver,PhaseSolver> CoupledSIM;
+
 public:
   //! \brief The constructor initializes the references to the two solvers.
   SIMFracture(SolidSolver& s1, PhaseSolver& s2, const std::string& inputfile)
-    : Coupling<SolidSolver,PhaseSolver>(s1,s2), infile(inputfile), aMin(0.0) {}
+    : CoupledSIM(s1,s2), infile(inputfile), aMin(0.0) {}
   //! \brief Empty destructor.
   virtual ~SIMFracture() {}
 
@@ -58,7 +62,7 @@ public:
       if (!this->S2.solveStep(tp,false))
         return false;
 
-    return this->Coupling<SolidSolver,PhaseSolver>::solveStep(tp,firstS1);
+    return this->CoupledSIM::solveStep(tp,firstS1);
   }
 
   //! \brief Saves the converged results to VTF-file of a given time step.
@@ -212,8 +216,8 @@ public:
     if (!this->init(TimeStep()))
       return -5;
 
-    if (!this->S1.initSystem(this->S1.opt.solver) ||
-        !this->S2.initSystem(this->S2.opt.solver,1,1,false))
+    if (!this->S1.initSystem(this->S1.opt.solver,1,1,0,true) ||
+        !this->S2.initSystem(this->S2.opt.solver))
       return -6;
 
     // Transfer solution variables onto the new mesh
@@ -259,11 +263,13 @@ private:
 template<class SolidSlv, class PhaseSlv>
 class SIMFractureQstatic : public SIMFracture<SolidSlv,PhaseSlv,SIMCoupledSI>
 {
+  //! Convenience type
+  typedef SIMFracture<SolidSlv,PhaseSlv,SIMCoupledSI> CoupledSIM;
+
 public:
   //! \brief The constructor forwards to the parent class contructor.
   SIMFractureQstatic(SolidSlv& s1, PhaseSlv& s2, const std::string& input)
-    : SIMFracture<SolidSlv,PhaseSlv,SIMCoupledSI>(s1,s2,input),
-      maxCycle(this->maxIter)
+    : CoupledSIM(s1,s2,input), maxCycle(this->maxIter)
   {
     maxCycle = 50;
     cycleTol = 1.0e-4;
