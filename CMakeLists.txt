@@ -26,12 +26,18 @@ if(NOT WIN32)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 endif(NOT WIN32)
 
+set(EXTRA_DOXY_PATHS "${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR}")
+
 if(EXISTS ${PROJECT_SOURCE_DIR}/../IFEM-Elasticity)
+  set(EXTRA_DOXY_PATHS "${EXTRA_DOXY_PATHS} \\
+                        ${PROJECT_SOURCE_DIR}/../IFEM-Elasticity")
   if(NOT TARGET Elasticity)
     add_subdirectory(../IFEM-Elasticity Elasticity)
   endif()
   include_directories(../IFEM-Elasticity)
 elseif(EXISTS ${PROJECT_SOURCE_DIR}/../Elasticity)
+  set(EXTRA_DOXY_PATHS "${EXTRA_DOXY_PATHS} \\
+                        ${PROJECT_SOURCE_DIR}/../Elasticity")
   if(NOT TARGET Elasticity)
     add_subdirectory(../Elasticity Elasticity)
   endif()
@@ -52,9 +58,6 @@ target_link_libraries(FractureDynamics CommonFrac Elasticity ${IFEM_LIBRARIES})
 install(TARGETS CahnHilliard FractureDynamics DESTINATION bin)
 
 # For generating the doxy
-set(EXTRA_DOXY_PATHS "${PROJECT_SOURCE_DIR} \\
-                      ${PROJECT_BINARY_DIR} \\
-                      ${PROJECT_SOURCE_DIR}/../IFEM-Elasticity")
 add_doc_target(OpenFrac FractureDynamics)
 
 # Testing
