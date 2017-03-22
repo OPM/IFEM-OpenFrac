@@ -61,7 +61,7 @@ template<class Dim> int runSimulator (char* infile)
   DataExporter* exporter = nullptr;
   if (phaseSim.opt.dumpHDF5(infile))
     exporter = SIM::handleDataOutput(phaseSim,solver,phaseSim.opt.hdf5,
-                                     false,1,1);
+                                     false,phaseSim.opt.saveInc,phaseSim.opt.restartInc);
 
   int res = solver.solveProblem(infile,exporter,"100. Starting the simulation");
 
