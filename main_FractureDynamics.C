@@ -25,7 +25,6 @@
 #include "NewmarkNLSIM.h"
 #include "NonLinSIM.h"
 #include "ASMstruct.h"
-#include "AppCommon.h"
 
 
 //! \brief A struct collecting the command-line argument values.
@@ -130,25 +129,20 @@ int runCombined (char* infile, const char* context)
     return 2;
 
   // Initialize the linear solvers
-  if (!elastoSim.initSystem(elastoSim.opt.solver) ||
-      !phaseSim.initSystem(phaseSim.opt.solver,1,1,false))
+  if (!elastoSim.initSystem(elastoSim.opt.solver,1,1,0,true) ||
+      !phaseSim.initSystem(phaseSim.opt.solver))
     return 2;
 
-  // Time-step loop
+  // Initialize the solution fields
   frac.init(TimeStep());
 
-  DataExporter* exporter = nullptr;
   if (elastoSim.opt.dumpHDF5(infile))
-    exporter = SIM::handleDataOutput(frac,solver,elastoSim.opt.hdf5,
-                                     false,elastoSim.opt.saveInc,elastoSim.opt.restartInc);
+    solver.handleDataOutput(elastoSim.opt.hdf5,elastoSim.opt.saveInc);
 
   frac.setupDependencies();
 
-  int res = solver.solveProblem(infile,exporter,"100. Starting the simulation",
-                                phaseSim.getInitRefine() < 1);
-
-  delete exporter;
-  return res;
+  return solver.solveProblem(infile,"100. Starting the simulation",
+                             phaseSim.getInitRefine() < 1);
 }
 
 
@@ -215,18 +209,13 @@ int runStandAlone (char* infile, const char* context)
   if (!elastoSim.initSystem(elastoSim.opt.solver))
     return 2;
 
-  // Time-step loop
+  // Initialize the solution fields
   elastoSim.init(TimeStep());
 
-  DataExporter* exporter = nullptr;
   if (elastoSim.opt.dumpHDF5(infile))
-    exporter = SIM::handleDataOutput(elastoSim,solver,elastoSim.opt.hdf5,
-                                     false,elastoSim.opt.saveInc,elastoSim.opt.restartInc);
+    solver.handleDataOutput(elastoSim.opt.hdf5,elastoSim.opt.saveInc);
 
-  int res = solver.solveProblem(infile,exporter,"100. Starting the simulation");
-
-  delete exporter;
-  return res;
+  return solver.solveProblem(infile,"100. Starting the simulation");
 }
 
 
@@ -353,7 +342,7 @@ int main (int argc, char** argv)
               <<"       [-lag|-spec|-LR] [-2D] [-nGauss <n>]\n       "
               <<"[-nocrack|-semiimplicit] [-[l|q]static|-GA|-HHT] [-adaptive]\n"
               <<"       [-vtf <format> [-nviz <nviz>] [-nu <nu>] [-nv <nv]"
-              <<" [-nw <nw>]] [-hdf5] [-principal]\n"<< std::endl;
+              <<" [-nw <nw>]] [-hdf5] [-principal]\n";
     return 0;
   }
 

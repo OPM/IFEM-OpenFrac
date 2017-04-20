@@ -17,7 +17,6 @@
 #include "SIM3D.h"
 #include "SIMPhaseField.h"
 #include "SIMSolver.h"
-#include "AppCommon.h"
 
 
 /*!
@@ -52,21 +51,16 @@ template<class Dim> int runSimulator (char* infile)
     return 2;
 
   // Initialize the linear solvers
-  if (!phaseSim.initSystem(phaseSim.opt.solver,1,1,false))
+  if (!phaseSim.initSystem(phaseSim.opt.solver))
     return 2;
 
-  // Time-step loop
+  // Initialize the solution field
   phaseSim.init(TimeStep());
 
-  DataExporter* exporter = nullptr;
   if (phaseSim.opt.dumpHDF5(infile))
-    exporter = SIM::handleDataOutput(phaseSim,solver,phaseSim.opt.hdf5,
-                                     false,phaseSim.opt.saveInc,phaseSim.opt.restartInc);
+    solver.handleDataOutput(phaseSim.opt.hdf5,phaseSim.opt.saveInc);
 
-  int res = solver.solveProblem(infile,exporter,"100. Starting the simulation");
-
-  delete exporter;
-  return res;
+  return solver.solveProblem(infile,"100. Starting the simulation");
 }
 
 
