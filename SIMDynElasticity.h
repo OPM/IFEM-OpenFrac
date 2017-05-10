@@ -232,6 +232,7 @@ protected:
   }
 
   //! \brief Parses a data section from an XML element.
+  using SIMElasticity<Dim>::parse;
   virtual bool parse(const TiXmlElement* elem)
   {
     bool result = true;

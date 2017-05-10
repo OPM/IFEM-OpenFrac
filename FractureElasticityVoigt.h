@@ -38,6 +38,7 @@ public:
   //! \brief Empty destructor.
   virtual ~FractureElasticityVoigt() {}
 
+  using FractureElasticity::evalInt;
   //! \brief Evaluates the integrand at an interior point.
   //! \param elmInt The local integral object to receive the contributions
   //! \param[in] fe Finite element data of current integration point
@@ -80,6 +81,7 @@ public:
   //! \brief Empty destructor.
   virtual ~FractureElasticNorm() {}
 
+  using ElasticityNorm::evalInt;
   //! \brief Evaluates the integrand at an interior point.
   //! \param elmInt The local integral object to receive the contributions
   //! \param[in] fe Finite element data of current integration point
