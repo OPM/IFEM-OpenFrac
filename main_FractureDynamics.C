@@ -62,6 +62,7 @@ public:
   virtual ~SIMDriver() {}
 
 protected:
+  using Solver<T>::parse;
   //! \brief Parses a data section from an XML element.
   virtual bool parse(const TiXmlElement* elem)
   {
