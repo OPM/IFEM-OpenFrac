@@ -46,6 +46,8 @@ add_executable(FractureDynamics main_FractureDynamics.C)
 target_link_libraries(CahnHilliard CommonFrac Elasticity ${IFEM_LIBRARIES})
 target_link_libraries(FractureDynamics CommonFrac Elasticity ${IFEM_LIBRARIES})
 
+list(APPEND CHECK_SOURCES main_CahnHilliard.C main_FractureDynamics.C ${FracEl_SRCS})
+
 # Installation
 install(TARGETS CahnHilliard FractureDynamics DESTINATION bin)
 
@@ -55,9 +57,6 @@ add_doc_target(OpenFrac FractureDynamics)
 # Testing
 enable_testing()
 include(IFEMTesting)
-
-# Generate regtest script with correct paths
-configure_file(${IFEM_REGTEST_SCRIPT} regtest.sh)
 
 # Regression tests
 if(MPI_FOUND)
