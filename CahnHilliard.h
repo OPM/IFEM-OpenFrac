@@ -30,7 +30,7 @@ class CahnHilliard : public IntegrandBase
 public:
   //! \brief The constructor initializes all pointers to zero.
   //! \param[in] n Number of spatial dimensions
-  CahnHilliard(unsigned short int n);
+  explicit CahnHilliard(unsigned short int n);
   //! \brief Empty destructor.
   virtual ~CahnHilliard() {}
 
@@ -156,7 +156,7 @@ class CahnHilliard4 : public CahnHilliard
 {
 public:
   //! \brief The constructor forwards to the parent class constructor.
-  CahnHilliard4(unsigned short int n) : CahnHilliard(n) { scale2nd = 2.0; }
+  explicit CahnHilliard4(unsigned short int n) : CahnHilliard(n) { scale2nd = 2.0; }
   //! \brief Empty destructor.
   virtual ~CahnHilliard4() {}
 

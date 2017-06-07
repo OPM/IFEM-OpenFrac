@@ -51,7 +51,7 @@ template<class Dim> class SIMPhaseField : public Dim
 
 public:
   //! \brief Default constructor.
-  SIMPhaseField(Dim* gridOwner = nullptr, size_t n = 2) : Dim(1), phasefield(n)
+  explicit SIMPhaseField(Dim* gridOwner = nullptr, size_t n = 2) : Dim(1)
   {
     Dim::myHeading = "Cahn-Hilliard solver";
     if (gridOwner && gridOwner->createFEMmodel())
@@ -62,6 +62,8 @@ public:
     transferOp = 'L';
     chp = nullptr;
     spln = nullptr;
+
+    phasefield.resize(n);
   }
 
   //! \brief The destructor deletes the stop plane.

@@ -29,7 +29,7 @@ class FractureElasticityVoigt : public FractureElasticity
 public:
   //! \brief The constructor invokes the parent class constructor only.
   //! \param[in] n Number of spatial dimensions
-  FractureElasticityVoigt(unsigned short int n) : FractureElasticity(n) {}
+  explicit FractureElasticityVoigt(unsigned short int n) : FractureElasticity(n) {}
   //! \brief Constructor for integrands with a parent integrand.
   //! \param parent The parent integrand of this one
   //! \param[in] n Number of spatial dimensions
@@ -76,7 +76,7 @@ class FractureElasticNorm : public ElasticityNorm
 public:
   //! \brief The constructor invokes the parent class constructor only.
   //! \param[in] p The elasticity problem to evaluate norms for
-  FractureElasticNorm(FractureElasticityVoigt& p);
+  explicit FractureElasticNorm(FractureElasticityVoigt& p);
   //! \brief Empty destructor.
   virtual ~FractureElasticNorm() {}
 
