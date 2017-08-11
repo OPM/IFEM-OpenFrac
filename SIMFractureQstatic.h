@@ -127,10 +127,12 @@ public:
     }
     IFEM::cout << std::endl;
 
-    if (rConv < cycleTol)
+    if (rConv < fabs(cycleTol))
       return SIM::CONVERGED;
     else if (tp.iter < maxCycle)
       return SIM::OK;
+    else if (cycleTol < 0.0)
+      return SIM::CONVERGED; // Continue after maximum number of cycles
 
     std::cerr <<"SIMFractureQstatic::checkConvergence: Did not converge in "
               << maxCycle <<" staggering cycles, bailing.."<< std::endl;
