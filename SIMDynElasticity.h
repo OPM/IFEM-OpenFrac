@@ -3,12 +3,11 @@
 //!
 //! \file SIMDynElasticity.h
 //!
-//! \date Jul 13 2015
+//! \date Dec 04 2015
 //!
-//! \author Arne Morten Kvarving / SINTEF
+//! \author Knut Morten Okstad / SINTEF
 //!
-//! \brief Wrapper equipping the elasticity solver with
-//! time-stepping support and phase field coupling.
+//! \brief Dynamic simulation driver for elasticity problems with fracture.
 //!
 //==============================================================================
 
@@ -19,10 +18,11 @@
 #include "SIMElasticity.h"
 #include "FractureElasticityVoigt.h"
 #include "DataExporter.h"
+#include <fstream>
 
 
 /*!
-  \brief Driver wrapping an elasticity solver with an ISolver interface.
+  \brief Driver class for dynamic elasticity problems with fracture.
 */
 
 template<class Dim, class DynSIM=NewmarkSIM>
@@ -93,9 +93,37 @@ public:
     bool ok = this->savePoints(dSim.getSolution(),tp.time.t,tp.step);
     utl::zero_print_tol = old;
 
+    if (!energFile.empty() && tp.step > 0 && Dim::adm.getProcId() == 0)
+    {
+      std::ofstream os(energFile, tp.step == 1 ? std::ios::out : std::ios::app);
+
+      Vector Bforce, Rforce;
+      this->getBoundaryForce(Bforce,dSim.getSolutions(),tp);
+      this->getBoundaryReactions(Rforce);
+
+      if (tp.step == 1)
+      {
+        size_t i;
+        os <<"#t eps_e external_energy eps+ eps- eps_b";
+        for (i = 0; i < Bforce.size(); i++)
+          os <<" load_"<< char('X'+i);
+        for (i = 0; i < Rforce.size(); i++)
+          os <<" react_"<< char('X'+i);
+        os << std::endl;
+      }
+
+      os << std::setprecision(11) << std::setw(6) << std::scientific
+         << tp.time.t;
+      for (double n : gNorm)  os <<" "<< n;
+      for (double f : Bforce) os <<" "<< utl::trunc(f);
+      for (double f : Rforce) os <<" "<< utl::trunc(f);
+      os << std::endl;
+    }
+
     if (tp.step%Dim::opt.saveInc > 0 || Dim::opt.format < 0 || !ok)
       return ok;
 
+    // Write primary and secondary (of requested) solution fields to VTF-file
     if (!dSim.saveStep(++vtfStep,nBlock,tp.time.t))
       return false;
     else if (tp.step < 1)
@@ -169,7 +197,8 @@ public:
                    << gNorm(3) <<" "<< gNorm(4) << std::endl;
       if (gNorm.size() > 1 && utl::trunc(gNorm(2)) != 0.0)
         IFEM::cout <<"  External energy: ((f,u^h)+(t,u^h))^0.5 : "
-                   << sqrt(gNorm(2)) << std::endl;
+                   << (gNorm(2) < 0.0 ? -sqrt(-gNorm(2)) : sqrt(gNorm(2)))
+                   << std::endl;
     }
 
     return true;
@@ -178,7 +207,7 @@ public:
   //! \brief Returns the tensile energy in gauss points.
   const RealArray* getTensileEnergy() const
   {
-    return static_cast<FractureElasticity*>(Dim::myProblem)->getTensileEnergy();
+    return static_cast<Elasticity*>(Dim::myProblem)->getTensileEnergy();
   }
 
   //! \brief Returns a const reference to the global norms.
@@ -187,8 +216,15 @@ public:
   //! \brief Dummy method.
   void parseStaggering(const TiXmlElement*) {}
 
-  //! \brief Dummy method.
-  void setEnergyFile(const std::string&) {}
+  //! \brief Assigns the file name for global energy output.
+  void setEnergyFile(const char* fName)
+  {
+    if (fName)
+    {
+      energFile = fName;
+      IFEM::cout <<"\tFile for global energy output: "<< energFile << std::endl;
+    }
+  }
 
   //! \brief Returns a const reference to current solution vector.
   const Vector& getSolution(int idx = 0) const { return dSim.getSolution(idx); }
@@ -231,8 +267,8 @@ protected:
     return static_cast<Elasticity*>(Dim::myProblem);
   }
 
-  //! \brief Parses a data section from an XML element.
   using SIMElasticity<Dim>::parse;
+  //! \brief Parses a data section from an XML element.
   virtual bool parse(const TiXmlElement* elem)
   {
     bool result = true;
@@ -253,6 +289,8 @@ protected:
   }
 
 private:
+  std::string energFile; //!< File name for global energy output
+
   DynSIM dSim;    //!< Dynamic solution driver
   Matrix projSol; //!< Projected secondary solution fields
   Matrix eNorm;   //!< Element norm values

@@ -73,13 +73,13 @@ public:
     {
       std::ofstream os(energFile, tp.step == 1 ? std::ios::out : std::ios::app);
 
-      size_t i;
       Vector BF, RF;
       this->S1.getBoundaryForce(BF,this->S1.getSolutions(),tp);
       this->S1.getBoundaryReactions(RF);
 
       if (tp.step == 1)
       {
+        size_t i;
         os <<"#t eps_e external_energy eps+ eps- eps_b |c|"
            <<" eps_d-eps_d(0) eps_d";
         for (i = 0; i < BF.size(); i++)
@@ -89,19 +89,15 @@ public:
         os << std::endl;
       }
 
-      const Vector& n1 = this->S1.getGlobalNorms();
-      const Vector& n2 = this->S2.getGlobalNorms();
-
       os << std::setprecision(11) << std::setw(6) << std::scientific
          << tp.time.t;
-      for (size_t i = 0; i < n1.size(); i++) os <<" "<< n1[i];
+      for (double n1 : this->S1.getGlobalNorms()) os <<" "<< n1;
+      const Vector& n2 = this->S2.getGlobalNorms();
       os <<" "<< (n2.size() > 2 ? n2[1] : 0.0);
       os <<" "<< (n2.size() > 1 ? n2[n2.size()-2] : 0.0);
       os <<" "<< (n2.size() > 0 ? n2.back() : 0.0);
-      for (i = 0; i < BF.size(); i++)
-        os <<" "<< utl::trunc(BF[i]);
-      for (i = 0; i < RF.size(); i++)
-        os <<" "<< utl::trunc(RF[i]);
+      for (double f : BF) os <<" "<< utl::trunc(f);
+      for (double f : RF) os <<" "<< utl::trunc(f);
       os << std::endl;
     }
 
@@ -180,11 +176,12 @@ public:
                <<"\n  Minimum element area: "<< aMin << std::endl;
 
     IntVec elements; // Find the elements to refine
-    for (size_t i = 0; i < idx.size() && elements.size() < eMax; i++)
-      if (eNorm[idx[i]] > eMin)
+    elements.reserve(eMax);
+    for (int eid : idx)
+      if (eNorm[eid] > eMin || elements.size() >= eMax)
         break;
-      else if (pch->getBasis()->getElement(idx[i])->area() > aMin+1.0e-12)
-        elements.push_back(idx[i]);
+      else if (pch->getBasis()->getElement(eid)->area() > aMin+1.0e-12)
+        elements.push_back(eid);
 
     if (elements.empty())
       return 0;
