@@ -170,8 +170,7 @@ public:
     }
 
     // Update strain energy density for the converged solution
-    this->setMode(SIM::RECOVERY);
-    if (!this->assembleSystem(tp.time,dSim.getSolutions()))
+    if (!this->updateStrainEnergyDensity(tp))
       return false;
 
     // Project the secondary solution field onto the geometry basis
@@ -202,6 +201,13 @@ public:
     }
 
     return true;
+  }
+
+  //! \brief Updates the strain energy density for the current solution.
+  bool updateStrainEnergyDensity(const TimeStep& tp)
+  {
+    this->setMode(SIM::RECOVERY);
+    return this->assembleSystem(tp.time,dSim.getSolutions());
   }
 
   //! \brief Returns the tensile energy in gauss points.
@@ -241,10 +247,33 @@ public:
 
   //! \brief Solves the linearized system of current iteration.
   //! \param[in] tp Time stepping parameters
-  SIM::ConvStatus solveIteration(TimeStep& tp)
+  //! \param[in] stage Option, 1: solve only the first iteration,
+  //! 2: solve for the remaining iterations, else: solve the whole time step
+  SIM::ConvStatus solveIteration(TimeStep& tp, char stage = 0)
   {
-    TimeStep myTp(tp); // Make a copy to avoid destroying the iteration counter
+    if (Dim::msgLevel == 1 && tp.iter == 0 && stage == 1)
+      IFEM::cout <<"\n  step="<< tp.step <<"  time="<< tp.time.t << std::endl;
     dSim.setSubIteration(tp.iter == 0 ? DynSIM::FIRST : DynSIM::ITER);
+
+    if (tp.iter == 0 && stage == 1)
+      return dSim.solveIteration(tp);
+    else if (tp.iter > 0 && stage == 2)
+    {
+      SIM::ConvStatus status = SIM::OK;
+      while (tp.iter <= dSim.getMaxit())
+        switch ((status = dSim.solveIteration(tp))) {
+        case SIM::OK:
+        case SIM::SLOW:
+          tp.iter++;
+          break;
+        default:
+          return status;
+	}
+      return SIM::DIVERGED; // No convergence in maxit iterations
+    }
+
+    // Solve the whole time step
+    TimeStep myTp(tp); // Make a copy to avoid destroying the iteration counter
     return dSim.solveStep(myTp);
   }
 
@@ -281,6 +310,11 @@ protected:
       if (utl::getAttribute(elem,"formulation",form,true) && form != "voigt")
         Dim::myProblem = new FractureElasticity(Dim::dimension);
       result = this->SIMElasticity<Dim>::parse(elem);
+
+      const TiXmlElement* child = elem->FirstChildElement();
+      for (; child; child = child->NextSiblingElement())
+        if (!strcasecmp(child->Value(),"noGeometricStiffness"))
+          this->setIntegrationPrm(3,1); // Disable geometric stiffness
     }
     else
       result = this->SIMElasticity<Dim>::parse(elem);

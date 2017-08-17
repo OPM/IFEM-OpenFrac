@@ -135,7 +135,8 @@ int runCombined (char* infile, const char* context)
     return 2;
 
   // Initialize the solution fields
-  frac.init(TimeStep());
+  if (!frac.init(TimeStep()))
+    return 2;
 
   if (elastoSim.opt.dumpHDF5(infile))
     solver.handleDataOutput(elastoSim.opt.hdf5,elastoSim.opt.saveInc);
@@ -163,6 +164,11 @@ int runSimulator3 (const FDargs& args)
   if (args.integrator == 3 && args.coupling == 2)
   {
     typedef SIMFractureQstatic<ElSolver,PhaseSolver> Coupler;
+    return runCombined<ElSolver,PhaseSolver,Coupler,Solver>(args.inpfile,contx);
+  }
+  else if (args.integrator == 3 && args.coupling == 3)
+  {
+    typedef SIMFractureMiehe<ElSolver,PhaseSolver> Coupler;
     return runCombined<ElSolver,PhaseSolver,Coupler,Solver>(args.inpfile,contx);
   }
   else
@@ -211,7 +217,8 @@ int runStandAlone (char* infile, const char* context)
     return 2;
 
   // Initialize the solution fields
-  elastoSim.init(TimeStep());
+  if (!elastoSim.init(TimeStep()))
+    return 2;
 
   if (elastoSim.opt.dumpHDF5(infile))
     solver.handleDataOutput(elastoSim.opt.hdf5,elastoSim.opt.saveInc);
@@ -243,6 +250,7 @@ int runSimulator1 (const FDargs& args)
 {
   switch (args.coupling) {
   case 1:
+  case 3:
     return runSimulator2<Dim,Integrator,SIMCoupled>(args);
   case 2:
     return runSimulator2<Dim,Integrator,SIMCoupledSI>(args);
@@ -321,6 +329,8 @@ int main (int argc, char** argv)
       args.integrator = 2;
     else if (!strcmp(argv[i],"-qstatic"))
       args.integrator = 3;
+    else if (!strcmp(argv[i],"-Miehe"))
+      args.integrator = args.coupling = 3;
     else if (!strcmp(argv[i],"-HHT"))
       args.integrator = 4;
     else if (!strcmp(argv[i],"-oldHHT"))
@@ -343,7 +353,7 @@ int main (int argc, char** argv)
               <<"       [-lag|-spec|-LR] [-2D] [-nGauss <n>]\n       "
               <<"[-nocrack|-semiimplicit] [-[l|q]static|-GA|-HHT] [-adaptive]\n"
               <<"       [-vtf <format> [-nviz <nviz>] [-nu <nu>] [-nv <nv]"
-              <<" [-nw <nw>]] [-hdf5] [-principal]\n";
+              <<" [-nw <nw>]]\n       [-hdf5] [-principal]\n";
     return 0;
   }
 

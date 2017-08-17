@@ -87,6 +87,9 @@ void FractureElasticity::printLog () const
 {
   this->Elasticity::printLog();
 
+  if (intPrm[3] > 0.0)
+    IFEM::cout <<"\tNo geometric stiffness."<< std::endl;
+
   if (alpha != 0.0)
     IFEM::cout <<"\tStabilization parameter: "<< alpha << std::endl;
 
