@@ -73,13 +73,13 @@ public:
   //! \brief Initializes the problem.
   bool init(const TimeStep& tp)
   {
-    this->setMode(SIM::INIT);
+    bool ok = this->setMode(SIM::INIT);
     this->setQuadratureRule(Dim::opt.nGauss[0],true);
     this->registerField("phasefield",phasefield.front());
     if (this->hasIC("phasefield"))
-      for (size_t i = 0; i < phasefield.size(); i++)
-        phasefield[i].resize(this->getNoDOFs(),1.0);
-    return this->setInitialConditions() && this->advanceStep(tp);
+      for (Vector& solvec : phasefield)
+        solvec.resize(this->getNoDOFs(),1.0);
+    return this->setInitialConditions() && ok && this->advanceStep(tp);
   }
 
   //! \brief Opens a new VTF-file and writes the model geometry to it.
@@ -244,6 +244,37 @@ public:
     }
 
     return true;
+  }
+
+  //! \brief Prints a summary of the calculated solution to console.
+  //! \param[in] solution The solution vector
+  //! \param[in] printSol Print solution only if size is less than this value
+  //! \param[in] compName Solution name to be used in norm output
+  virtual void printSolutionSummary (const Vector& solution, int printSol,
+                                     const char* compName, std::streamsize = 0)
+  {
+    this->Dim::printSolutionSummary(solution,printSol,compName);
+
+    // Also print the smallest phase field value and the range
+    int inod = 0, minNod = 0;
+    double minVal = 1.0, maxVal = 1.0;
+    for (double v : phasefield.front())
+    {
+      ++inod;
+      if (v < minVal)
+      {
+        minVal = v;
+        minNod = inod;
+      }
+      else if (v > maxVal)
+        maxVal = v;
+    }
+
+    if (minNod > 0)
+      IFEM::cout <<"                            Min value    : "
+                 << minVal <<" node "<< minNod
+                 <<"\n                            Range        : "
+                 << maxVal-minVal << std::endl;
   }
 
   //! \brief Sets the tensile energy vector from the elasticity problem.
