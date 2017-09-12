@@ -55,8 +55,7 @@ public:
   }
 
   //! \brief Computes the solution for the current time step.
-  using Coupling<SolidSolver,PhaseSolver>::solveStep;
-  virtual bool solveStep(TimeStep& tp, bool firstS1)
+  virtual bool solveStep(TimeStep& tp, bool firstS1 = true)
   {
     if (tp.step == 1 && this->S1.haveCrackPressure())
       // Start the initial step by solving the phase-field first
@@ -287,8 +286,7 @@ public:
   }
 
   //! \brief Computes the solution for the current time step.
-  using SIMFracture<SolidSlv,PhaseSlv,SIMCoupledSI>::solveStep;
-  virtual bool solveStep(TimeStep& tp, bool firstS1)
+  virtual bool solveStep(TimeStep& tp, bool firstS1 = true)
   {
     if (tp.step == 1 && this->S1.haveCrackPressure() && rHistory.empty())
       // Start the initial step by solving the phase-field first
