@@ -276,13 +276,15 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
       // Degrade the stresses and strain energy isotropically
       dSdE *= Gc;
       sigma *= Gc;
-      myPhi[fe.iGP] = (U *= Gc);
+      U *= Gc;
+      if (m_mode != SIM::RHS_ONLY)
+        myPhi[fe.iGP] = U;
 
 #if INT_DEBUG > 3
       std::cout <<"G(c) = "<< Gc <<"\n";
       if (lHaveStrains)
         std::cout <<"eps =\n"<< eps <<"sigma =\n"<< sigma
-                  <<"Phi = "<< myPhi[fe.iGP] << std::endl;
+                  <<"Phi = "<< U << std::endl;
 #endif
     }
     else
@@ -310,7 +312,8 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
                             eKm ? &dSdE : nullptr))
         return false;
 
-      myPhi[fe.iGP] = Phi[0];
+      if (m_mode != SIM::RHS_ONLY)
+        myPhi[fe.iGP] = Phi[0];
       U = Phi[2];
     }
   }

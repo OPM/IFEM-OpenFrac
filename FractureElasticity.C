@@ -396,8 +396,9 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
 #endif
 
     // Evaluate the stress state at this point
-    if (!this->evalStress(lambda,mu,Gc,eps,&myPhi[fe.iGP],sigma,
-                          eKm ? &dSdE : nullptr))
+    if (!this->evalStress(lambda, mu, Gc, eps,
+                          m_mode == SIM::RHS_ONLY ? &mu : &myPhi[fe.iGP],
+                          sigma, eKm ? &dSdE : nullptr))
       return false;
   }
 
