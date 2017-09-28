@@ -129,7 +129,9 @@ public:
   bool initialRefine(double beta, double min_frac, int nrefinements)
   {
     if (this->S2.getInitRefine() >= nrefinements)
-      return true; // Grid is sufficiently refined during input parsing
+      return true; // Mesh was sufficiently refined during input file parsing
+    else if (this->S2.hasIC("phasefield"))
+      return true; // No initial refinement when specified initial phase field
 
     TimeStep step0;
     int newElements = 1;
@@ -146,9 +148,9 @@ public:
   int adaptMesh(double beta, double min_frac, int nrefinements)
   {
 #ifdef HAS_LRSPLINE
+    // TODO: Add multi-patch support
     ASMu2D* pch = dynamic_cast<ASMu2D*>(this->S1.getPatch(1));
-    if (!pch)
-      return -1;
+    if (!pch) return -999; // Logic error, should not happen
 
     if (aMin <= 0.0) // maximum refinements per element
     {
@@ -159,6 +161,12 @@ public:
     // Fetch element norms to use as refinement criteria
     Vector eNorm;
     double gNorm = this->S2.getNorm(eNorm,3);
+    if (eNorm.empty())
+    {
+      std::cerr <<" *** SIMFractureDynamics:adaptMesh: Missing refinement"
+                <<" indicators, expected as the 3rd element norm."<< std::endl;
+      return -1;
+    }
 
     // Sort element indices based on comparing values in eNorm
     IntVec idx(eNorm.size());
