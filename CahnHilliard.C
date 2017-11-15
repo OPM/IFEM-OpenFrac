@@ -90,7 +90,7 @@ void CahnHilliard::printLog () const
 void CahnHilliard::setMode (SIM::SolutionMode mode)
 {
   m_mode = mode;
-  primsol.resize(mode < SIM::RHS_ONLY && gammaInv == 0.0 ? 0 : 2);
+  primsol.resize(gammaInv != 0.0 ? 2 : (mode < SIM::RHS_ONLY ? 0 : 1));
 }
 
 
@@ -149,12 +149,10 @@ bool CahnHilliard::evalIntD (ElmMats& elm, const FiniteElement& fe) const
     Vector& R = elm.b.front();
     double& E = elm.c.front();
 
-    // Evaluate the current phase field, and ensure it is within the [0,1] range
+    // Evaluate the current phase field.
+    // Note that we do not cap the value to fit within the range [0,1] here,
+    // because it needs to be consistent with the solution itself.
     C = fe.N.dot(elm.vec.front());
-    if (C < 0.0)
-      C = 0.0;
-    else if (C > 1.0)
-      C = 1.0;
 
     Vector gradC; // Evaluate the phase field gradient gradC = dNdX^t*eC
     if (!fe.dNdX.multiply(elm.vec.front(),gradC,true))
@@ -245,12 +243,10 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
     Vector& R = static_cast<ElmMats&>(elmInt).b.front();
     double& E = static_cast<ElmMats&>(elmInt).c.front();
 
-    // Evaluate the current phase field, and ensure it is within the [0,1] range
+    // Evaluate the current phase field.
+    // Note that we do not cap the value to fit within the range [0,1] here,
+    // because it needs to be consistent with the solution itself.
     C = fe.N.dot(elmInt.vec.front());
-    if (C < 0.0)
-      C = 0.0;
-    else if (C > 1.0)
-      C = 1.0;
 
     Vector gradC; // Compute the phase field gradient gradC = dNdX^t*eC
     if (!fe.dNdX.multiply(elmInt.vec.front(),gradC,true))
