@@ -39,7 +39,13 @@ class SIMFracture : public Coupling<SolidSolver,PhaseSolver>
 public:
   //! \brief The constructor initializes the references to the two solvers.
   SIMFracture(SolidSolver& s1, PhaseSolver& s2, const std::string& inputfile)
-    : CoupledSIM(s1,s2), infile(inputfile), aMin(0.0) { E0 = Ec = Ep = 0.0; }
+    : CoupledSIM(s1,s2), infile(inputfile), aMin(0.0)
+  {
+    doStop = false;
+    irfStop = 0;
+    E0 = Ec = Ep = stopVal = 0.0;
+  }
+
   //! \brief Empty destructor.
   virtual ~SIMFracture() {}
 
@@ -51,6 +57,14 @@ public:
     // It is a global buffer array across all patches in the model.
     // Use an explicit call instead of normal couplings for this.
     this->S2.setTensileEnergy(this->S1.getTensileEnergy());
+  }
+
+  //! \brief Advances the time step one step forward.
+  virtual bool advanceStep(TimeStep& tp)
+  {
+    if (doStop && tp.stopTime > tp.time.t)
+      tp.stopTime = tp.time.t; // Update stop time due to other stop criteria
+    return this->CoupledSIM::advanceStep(tp);
   }
 
   //! \brief Computes the solution for the current time step.
@@ -68,14 +82,16 @@ public:
   //! \details It also writes global energy quantities to file for plotting.
   virtual bool saveStep(const TimeStep& tp, int& nBlock)
   {
+    Vector RF;
+    this->S1.getBoundaryReactions(RF);
+
     if (!energFile.empty() && tp.step > 0 &&
         this->S1.getProcessAdm().getProcId() == 0)
     {
       std::ofstream os(energFile, tp.step == 1 ? std::ios::out : std::ios::app);
 
-      Vector BF, RF;
+      Vector BF;
       this->S1.getBoundaryForce(BF,this->S1.getSolutions(),tp);
-      this->S1.getBoundaryReactions(RF);
 
       if (tp.step == 1)
       {
@@ -101,12 +117,27 @@ public:
       os << std::endl;
     }
 
+    // Check stop criterion
+    if (tp.step > 1 && irfStop > 0 && irfStop <= RF.size())
+      if ((doStop = fabs(RF(irfStop)) < stopVal))
+        IFEM::cout <<"\n >>> Terminating simulation due to stop criterion |RF("
+                   << irfStop <<")| = "<< fabs(RF(irfStop)) <<" < "<< stopVal
+                   << std::endl;
+
     return (this->S2.saveStep(tp,nBlock) && this->S1.saveStep(tp,nBlock) &&
             this->S2.saveResidual(tp,residual,nBlock));
   }
 
   //! \brief Parses staggering parameters from an XML element.
-  virtual void parseStaggering(const TiXmlElement*) {}
+  virtual void parseStaggering(const TiXmlElement* elem)
+  {
+    const TiXmlElement* child = elem->FirstChildElement("stop");
+    if (child)
+    {
+      utl::getAttribute(child,"rcomp",irfStop);
+      utl::getAttribute(child,"force",stopVal);
+    }
+  }
 
   //! \brief Assigns the file name for global energy output.
   void setEnergyFile(const char* fName)
@@ -322,6 +353,10 @@ private:
   double    aMin; //!< Minimum element area
   Vectors   sols; //!< Solution state to transfer onto refined mesh
   RealArray hsol; //!< History field to transfer onto refined mesh
+
+  size_t irfStop; //!< Reaction force component to use as stop criterion
+  double stopVal; //!< Stop simulation when less that this value
+  bool   doStop;  //!< If \e true, terminate simulation due to stop criterion
 
   double E0; //!< Energy norm of initial staggering cycle
   double Ec; //!< Energy norm of current staggering cycle

@@ -43,6 +43,7 @@ public:
   //! \brief Parses staggering parameters from an XML element.
   virtual void parseStaggering(const TiXmlElement* elem)
   {
+    this->CoupledSIM::parseStaggering(elem);
     utl::getAttribute(elem,"tol",cycleTol);
     utl::getAttribute(elem,"max",maxCycle);
     maxIt = maxCycle;
@@ -146,6 +147,7 @@ public:
   //! \brief Parses staggering parameters from an XML element.
   virtual void parseStaggering(const TiXmlElement* elem)
   {
+    this->CoupledSIM::parseStaggering(elem);
     utl::getAttribute(elem,"tol",cycleTol);
     utl::getAttribute(elem,"max",numCycle);
     if (cycleTol < 0.0) cycleTol = -cycleTol;
