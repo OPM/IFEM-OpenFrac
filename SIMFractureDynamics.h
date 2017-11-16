@@ -136,6 +136,10 @@ public:
     if (this->S2.getInitRefine() >= nrefinements)
       return true; // Grid is sufficiently refined during input parsing
 
+    // scale such that the final smearing factor is the one given by user
+    const CahnHilliard* cch = static_cast<const CahnHilliard*>(this->S2.getProblem());
+    const_cast<CahnHilliard*>(cch)->scaleSmearing(1 << nrefinements);
+
     TimeStep step0;
     int newElements = 1;
     for (step0.iter = 0; newElements > 0; step0.iter++)
