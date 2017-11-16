@@ -43,6 +43,7 @@ public:
 
     eps_d0 = refTol = 0.0;
     vtfStep = Lnorm = irefine = 0;
+    transferOp = 'L';
   }
 
   //! \brief Empty destructor.
@@ -131,7 +132,7 @@ public:
         return false;
     }
 
-    if (!projSol.empty()) // Replace the phase field solution by its projection
+    if (transferOp == 'P') // Replace the phase field solution by its projection
       phasefield.front() = projSol.getRow(1);
 
     return true;
@@ -337,7 +338,7 @@ public:
   //! are returned, otherwise the Gauss point values are returned.
   Vector getHistoryField() const
   {
-    if (projSol.rows() > 1)
+    if (transferOp == 'P' && projSol.rows() > 1)
       return projSol.getRow(2);
 
     Vector v;
@@ -355,10 +356,14 @@ public:
     if (!pch) return false;
 
     RealArray& newH = static_cast<CahnHilliard*>(Dim::myProblem)->historyField;
-    if (projSol.empty())
-      return pch->transferGaussPtVars(oldBasis,oldH,newH,Dim::opt.nGauss[0]);
-    else
+    switch (transferOp) {
+    case 'P':
       return pch->transferCntrlPtVars(oldBasis,oldH,newH,Dim::opt.nGauss[0]);
+    case 'N':
+      return pch->transferGaussPtVarsN(oldBasis,oldH,newH,Dim::opt.nGauss[0]);
+    default:
+      return pch->transferGaussPtVars(oldBasis,oldH,newH,Dim::opt.nGauss[0]);
+    }
   }
 #endif
 
@@ -390,9 +395,26 @@ protected:
           IFEM::cout <<"\tFiltering phase field using "
                      << Dim::opt.project.begin()->second <<"."<< std::endl;
       }
+      else if (!strncasecmp(child->Value(),"use_project",11) &&
+               !Dim::opt.project.empty())
+      {
+        transferOp = 'P';
+        IFEM::cout <<"\tUsing projected solution transfer."<< std::endl;
+      }
+      else if (!strcasecmp(child->Value(),"use_NNtransfer"))
+      {
+        transferOp = 'N';
+        IFEM::cout <<"\tUsing nearest-neighbour solution transfer."<< std::endl;
+      }
       else if (!strcasecmp(child->Value(),"anasol"))
       {
-        IFEM::cout <<"\tAnalytical solution: Expression"<< std::endl;
+        std::string type;
+        utl::getAttribute(child,"type",type,true);
+        if (type.empty())
+          type = "Expression";
+        else
+          type[0] = toupper(type[0]);
+        IFEM::cout <<"\tAnalytical solution: "<< type << std::endl;
         if (!Dim::mySol)
           Dim::mySol = new AnaSol(child,true);
       }
@@ -451,6 +473,7 @@ private:
   int     Lnorm;      //!< Which L-norm to use to guide mesh refinement
   int     irefine;    //!< Number of initial refinement cycles
   double  refTol;     //!< Initial refinement threshold
+  char    transferOp; //!< Solution transfer option
 };
 
 #endif
