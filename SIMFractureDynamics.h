@@ -39,7 +39,7 @@ class SIMFracture : public Coupling<SolidSolver,PhaseSolver>
 public:
   //! \brief The constructor initializes the references to the two solvers.
   SIMFracture(SolidSolver& s1, PhaseSolver& s2, const std::string& inputfile)
-    : CoupledSIM(s1,s2), infile(inputfile), aMin(0.0) {}
+    : CoupledSIM(s1,s2), infile(inputfile), aMin(0.0) { E0 = Ec = Ep = 0.0; }
   //! \brief Empty destructor.
   virtual ~SIMFracture() {}
 
@@ -101,7 +101,8 @@ public:
       os << std::endl;
     }
 
-    return this->S2.saveStep(tp,nBlock) && this->S1.saveStep(tp,nBlock);
+    return (this->S2.saveStep(tp,nBlock) && this->S1.saveStep(tp,nBlock) &&
+            this->S2.saveResidual(tp,residual,nBlock));
   }
 
   //! \brief Parses staggering parameters from an XML element.
@@ -250,6 +251,70 @@ public:
 #endif
   }
 
+  //! \brief Dumps current mesh to the specified file.
+  bool dumpMesh(const char* fileName)
+  {
+    std::ofstream os(fileName);
+    return this->S2.dumpGeometry(os);
+  }
+
+protected:
+  //! \brief Calculates and prints the solution and residual norms.
+  double calcResidual(const TimeStep& tp, bool cycles = false)
+  {
+    // Compute residual of the elasticity equation
+    this->S1.setMode(SIM::RHS_ONLY);
+    if (!this->S1.assembleSystem(tp.time,this->S1.getSolutions(),false))
+      return -1.0;
+
+    if (!this->S1.extractLoadVec(residual))
+      return -1.0;
+
+    double rNorm1 = residual.norm2();
+    double eNorm1 = this->S1.extractScalar();
+
+    // Compute residual of the phase-field equation
+    if (!this->S2.setMode(SIM::INT_FORCES))
+      return -2.0;
+
+    Vectors sol2(1,this->S2.getSolution());
+    if (!this->S2.assembleSystem(tp.time,sol2,false))
+      return -2.0;
+
+    if (!this->S2.extractLoadVec(residual))
+      return -2.0;
+
+    double rNorm2 = residual.norm2();
+    double eNorm2 = this->S2.extractScalar();
+
+    double rConv = rNorm1 + rNorm2;
+    double eConv = eNorm1 + eNorm2;
+    if (cycles)
+    {
+      IFEM::cout <<"  cycle "<< tp.iter
+                 <<": Res = "<< rNorm1 <<" + "<< rNorm2 <<" = "<< rConv;
+      if (eConv > 0.0)
+        IFEM::cout <<"  E = "<< eNorm1 <<" + "<< eNorm2 <<" = "<< eConv;
+      if (tp.iter == 0)
+        E0 = eConv;
+      else
+      {
+        Ep = tp.iter > 1 ? Ec : E0;
+        Ec = eConv;
+        if (eConv > 0.0)
+          IFEM::cout <<"  beta="<< atan2(tp.iter*(Ep-Ec),E0-Ec) * 180.0/M_PI;
+      }
+    }
+    else
+    {
+      IFEM::cout <<"  Res = "<< rNorm1 <<" + "<< rNorm2 <<" = "<< rConv;
+      if (eConv > 0)
+        IFEM::cout <<"\n    E = "<< eNorm1 <<" + "<< eNorm2 <<" = "<< eConv;
+    }
+    IFEM::cout << std::endl;
+    return rConv;
+  }
+
 private:
   std::string energFile; //!< File name for global energy output
   std::string infile;    //!< Input file parsed
@@ -257,6 +322,12 @@ private:
   double    aMin; //!< Minimum element area
   Vectors   sols; //!< Solution state to transfer onto refined mesh
   RealArray hsol; //!< History field to transfer onto refined mesh
+
+  double E0; //!< Energy norm of initial staggering cycle
+  double Ec; //!< Energy norm of current staggering cycle
+  double Ep; //!< Energy norm of previous staggering cycle
+
+  Vector residual; //!< Residual force vector (of the phase field equation)
 };
 
 #endif

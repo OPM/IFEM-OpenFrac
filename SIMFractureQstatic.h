@@ -33,9 +33,8 @@ public:
   SIMFractureQstatic(SolidSlv& s1, PhaseSlv& s2, const std::string& input)
     : CoupledSIM(s1,s2,input), maxCycle(this->maxIter)
   {
-    maxCycle = 50;
+    maxCycle = maxIt = 50;
     cycleTol = 1.0e-4;
-    E0 = Ec = Ep = 0.0;
   }
 
   //! \brief Empty destructor.
@@ -46,7 +45,11 @@ public:
   {
     utl::getAttribute(elem,"tol",cycleTol);
     utl::getAttribute(elem,"max",maxCycle);
+    maxIt = maxCycle;
   }
+
+  //! \brief Enable/disable the staggering iteration cycles.
+  virtual void enableStaggering(bool enable) { maxCycle = enable ? maxIt : 0; }
 
   //! \brief Computes the solution for the current time step.
   virtual bool solveStep(TimeStep& tp, bool firstS1 = true)
@@ -64,7 +67,11 @@ public:
         if (!this->S1.solveStep(myTp))
           return false;
 
-        return this->checkConvergence(tp,SIM::OK,SIM::CONVERGED) >= SIM::OK;
+        if (this->calcResidual(tp) < 0.0)
+          return false;
+
+        tp.time.first = false;
+        return true;
       }
       else if (this->S1.haveCrackPressure())
         // Start the initial step by solving the phase-field first
@@ -87,51 +94,15 @@ public:
     else if (status1 == SIM::DIVERGED || status2 == SIM::DIVERGED)
       return SIM::DIVERGED;
 
-    // Compute residual of the elasticity equation
-    this->S1.setMode(SIM::RHS_ONLY);
-    if (!this->S1.assembleSystem(tp.time,this->S1.getSolutions(),false))
+    //! \brief Calculate and print solution and residual norms
+    double conv = this->calcResidual(tp,true);
+    if (conv < 0.0)
       return SIM::FAILURE;
-
-    if (!this->S1.extractLoadVec(residual))
-      return SIM::FAILURE;
-
-    double rNorm1 = residual.norm2();
-    double eNorm1 = this->S1.extractScalar();
-
-    // Compute residual of the phase-field equation
-    if (!this->S2.setMode(SIM::INT_FORCES))
-      return SIM::FAILURE;
-
-    Vectors sol2(1,this->S2.getSolution());
-    if (!this->S2.assembleSystem(tp.time,sol2,false))
-      return SIM::FAILURE;
-
-    if (!this->S2.extractLoadVec(residual))
-      return SIM::FAILURE;
-
-    double rNorm2 = residual.norm2();
-    double eNorm2 = this->S2.extractScalar();
-
-    double rConv = rNorm1 + rNorm2;
-    double eConv = eNorm1 + eNorm2;
-    IFEM::cout <<"  cycle "<< tp.iter <<": Res = "<< rNorm1 <<" + "<< rNorm2
-               <<" = "<< rConv <<"  E = "<< eNorm1 <<" + "<< eNorm2
-               <<" = "<< eConv;
-    if (tp.iter == 0)
-      E0 = eConv;
-    else
-    {
-      Ep = tp.iter > 1 ? Ec : E0;
-      Ec = eConv;
-      IFEM::cout <<"  beta="<< atan2(tp.iter*(Ep-Ec),E0-Ec) * 180.0/M_PI;
-    }
-    IFEM::cout << std::endl;
-
-    if (rConv < fabs(cycleTol))
+    else if (conv < fabs(cycleTol))
       return SIM::CONVERGED;
     else if (tp.iter < maxCycle)
       return SIM::OK;
-    else if (cycleTol < 0.0)
+    else if (cycleTol < 0.0 || maxCycle == 0)
       return SIM::CONVERGED; // Continue after maximum number of cycles
 
     std::cerr <<"SIMFractureQstatic::checkConvergence: Did not converge in "
@@ -139,20 +110,13 @@ public:
     return SIM::DIVERGED;
   }
 
-  //! \brief Saves the converged results to VTF-file of a given time step.
-  virtual bool saveStep(const TimeStep& tp, int& nBlock)
-  {
-    return (this->CoupledSIM::saveStep(tp,nBlock) &&
-            this->S2.saveResidual(tp,residual,nBlock));
-  }
-
 private:
   int&   maxCycle; //!< Maximum number of staggering cycles
+  int    maxIt;    //!< Copy of \a maxCycle
   double cycleTol; //!< Residual norm tolerance for the staggering cycles
   double E0;       //!< Energy norm of initial staggering cycle
   double Ec;       //!< Energy norm of current staggering cycle
   double Ep;       //!< Energy norm of previous staggering cycle
-  Vector residual; //!< Residual force vector (of the phase field equation)
 };
 
 
@@ -171,7 +135,9 @@ public:
   SIMFractureMiehe(SolidSlv& s1, PhaseSlv& s2, const std::string& input)
     : CoupledSIM(s1,s2,input)
   {
+    doStg = true;
     numCycle = 2;
+    cycleTol = 1.0e-4;
   }
 
   //! \brief Empty destructor.
@@ -180,8 +146,13 @@ public:
   //! \brief Parses staggering parameters from an XML element.
   virtual void parseStaggering(const TiXmlElement* elem)
   {
+    utl::getAttribute(elem,"tol",cycleTol);
     utl::getAttribute(elem,"max",numCycle);
+    if (cycleTol < 0.0) cycleTol = -cycleTol;
   }
+
+  //! \brief Enable/disable the staggering iteration cycles.
+  virtual void enableStaggering(bool enable = true) { doStg = enable; }
 
   //! \brief Computes the solution for the current time step.
   virtual bool solveStep(TimeStep& tp, bool = true)
@@ -195,94 +166,67 @@ public:
         if (!this->S2.postSolve(tp))
           return false;
 
-        if (!this->S1.solveStep(tp))
+        TimeStep myTp(tp); // Make a copy to avoid changing the cycle counter
+        if (!this->S1.solveStep(myTp))
+          return false;
+
+        if (cycleTol > 0.0 && this->calcResidual(tp) < 0.0)
           return false;
 
         tp.time.first = false;
+        return true;
       }
       else if (this->S1.haveCrackPressure())
-      {
         // Start the initial step by solving the phase-field first
         if (!this->S2.solveStep(tp,false))
           return false;
-      }
     }
 
-    if (tp.step > 1 || !this->S2.hasIC("phasefield"))
+    tp.iter = 0; // Solve the predictor step for the elasticity problem
+    if (this->S1.solveIteration(tp,1) <= SIM::DIVERGED)
+      return false;
+
+    // Update strain energy density for the predictor step
+    if (!this->S1.updateStrainEnergyDensity(tp))
+      return false;
+
+    // Solve the phase-field problem
+    if (!this->S2.solveStep(tp,false))
+      return false;
+
+    TimeStep myTp(tp); // Make a copy to avoid changing the cycle counter
+    ++myTp.iter; // Iterate the elasticity problem (corrector steps)
+    if (this->S1.solveIteration(myTp,2) <= SIM::DIVERGED)
+      return false;
+
+    double conv = cycleTol > 0.0 ? this->calcResidual(tp,true) : 1.0;
+    for (tp.iter = 1; tp.iter < numCycle && conv > cycleTol && doStg; tp.iter++)
     {
-      tp.iter = 0; // Solve the predictor step for the elasticity problem
-      if (this->S1.solveIteration(tp,1) <= SIM::DIVERGED)
-        return false;
-
-      // Update strain energy density for the predictor step
-      if (!this->S1.updateStrainEnergyDensity(tp))
-        return false;
-
       // Solve the phase-field problem
       if (!this->S2.solveStep(tp,false))
         return false;
 
-      ++tp.iter; // Iterate the elasticity problem (corrector steps)
-      if (this->S1.solveIteration(tp,2) <= SIM::DIVERGED)
+      // Solve the elasticity problem
+      if (this->S1.solveIteration(tp,3) <= SIM::DIVERGED)
         return false;
 
-      for (tp.iter = 1; tp.iter < numCycle; tp.iter++)
-      {
-        // Solve the phase-field problem
-        if (!this->S2.solveStep(tp,false))
-          return false;
-
-        // Solve the elasticity problem
-        if (this->S1.solveIteration(tp,3) <= SIM::DIVERGED)
-          return false;
-      }
-
-      tp.time.first = false;
-      this->S1.postSolve(tp);
-      this->S2.postSolve(tp);
+      // Check if the staggering cycles have converged
+      if (cycleTol > 0.0)
+        conv = this->calcResidual(tp,true);
     }
+    if (conv < 0.0) return false;
 
-    // Compute residual of the elasticity equation
-    this->S1.setMode(SIM::RHS_ONLY);
-    if (!this->S1.assembleSystem(tp.time,this->S1.getSolutions(),false))
-      return false;
+    tp.time.first = false;
+    this->S1.postSolve(tp);
+    this->S2.postSolve(tp);
 
-    if (!this->S1.extractLoadVec(residual))
-      return false;
-
-    double rNorm1 = residual.norm2();
-    double eNorm1 = this->S1.extractScalar();
-
-    // Compute residual of the phase-field equation
-    if (!this->S2.setMode(SIM::INT_FORCES))
-      return false;
-
-    Vectors sol2(1,this->S2.getSolution());
-    if (!this->S2.assembleSystem(tp.time,sol2,false))
-      return false;
-
-    if (!this->S2.extractLoadVec(residual))
-      return false;
-
-    double rNorm2 = residual.norm2();
-    double eNorm2 = this->S2.extractScalar();
-
-    IFEM::cout <<"  Res = "<< rNorm1 <<" + "<< rNorm2 <<" = "<< rNorm1+rNorm2
-               <<"\n    E = "<< eNorm1 <<" + "<< eNorm2 <<" = "<< eNorm1+eNorm2
-               << std::endl;
-    return true;
-  }
-
-  //! \brief Saves the converged results to VTF-file of a given time step.
-  virtual bool saveStep(const TimeStep& tp, int& nBlock)
-  {
-    return (this->CoupledSIM::saveStep(tp,nBlock) &&
-            this->S2.saveResidual(tp,residual,nBlock));
+    return cycleTol == 0.0 ? this->calcResidual(tp) >= 0.0 : true;
   }
 
 private:
+  bool   doStg;    //!< Toggle for enabling/disabling staggering cycles
   int    numCycle; //!< Number of staggering cycles
-  Vector residual; //!< Residual force vector (of the phase field equation)
+  double cycleTol; //!< Residual norm tolerance for the staggering cycles
 };
 
 #endif
