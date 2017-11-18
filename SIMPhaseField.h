@@ -163,13 +163,16 @@ public:
   {
     PROFILE1("SIMPhaseField::solveStep");
 
+    CahnHilliard* chp = static_cast<CahnHilliard*>(Dim::myProblem);
+
     if (Dim::msgLevel == 1 && standalone)
       IFEM::cout <<"\n  Solving crack phase field at step="<< tp.step
                  <<" time="<< tp.time.t << std::endl;
 
     if (tp.step == 0 && tp.iter > 0) // Hack: Reduce the smearing factor
       // by a factor of 1/2 after each initial mesh refinement (at step=0)
-      static_cast<CahnHilliard*>(Dim::myProblem)->scaleSmearing(0.5);
+      IFEM::cout <<"  - using smearing factor "<< chp->scaleSmearing(0.5)
+                 <<"\n"<< std::endl;
 
     if (!this->setMode(SIM::STATIC))
       return false;
@@ -182,11 +185,11 @@ public:
       return false;
 
     if (tp.step == 1)
-      static_cast<CahnHilliard*>(Dim::myProblem)->clearInitialCrack();
+      chp->clearInitialCrack();
 
     // If we solve for d as the primary phase-field variable,
     // transform it to c = 1-d here
-    if (static_cast<CahnHilliard*>(Dim::myProblem)->useDformulation())
+    if (chp->useDformulation())
       for (double& c : phasefield.front()) c = 1.0 - c;
 
     return standalone ? this->postSolve(tp) : true;

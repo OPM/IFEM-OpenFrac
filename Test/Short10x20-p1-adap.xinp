@@ -13,7 +13,7 @@
 
   <cahnhilliard>
     <Gc>3.0</Gc>
-    <smearing>0.001</smearing>
+    <smearing l0="0.0005">0.001</smearing>
     <Lnorm>-1</Lnorm>
     <initial_crack type="expression">
       if(below(x,0.0),abs(y),sqrt(x*x+y*y))

@@ -113,7 +113,7 @@ public:
   //! \brief Returns the smearing factor.
   double getSmearingFactor() const { return smearing; }
   //! \brief Scale the smearing factor, for use during initial refinement cycle.
-  double scaleSmearing(double s) { return smearing *= s; }
+  double scaleSmearing(double s) { return smearing *= smearing > l0 ? s : 1.0; }
   //! \brief Returns \e true if d=1-c is to be the primary unknown (and not c).
   bool useDformulation() const { return gammaInv < 0.0 && tensileEnergy; }
 
@@ -128,6 +128,7 @@ private:
 protected:
   double Gc;       //!< Fracture energy density
   double smearing; //!< Smearing factor in crack
+  double l0;       //!< Length scale parameter for the crack
   double maxCrack; //!< Maximum value in initial crack
   double stabk;    //!< Stabilization parameter
   double scale2nd; //!< Scaling factor in front of second order term

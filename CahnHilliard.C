@@ -26,7 +26,7 @@
 CahnHilliard::CahnHilliard (unsigned short int n) : IntegrandBase(n),
   initial_crack(nullptr), flux(nullptr), tensileEnergy(nullptr), Lnorm(0)
 {
-  Gc = smearing = 1.0;
+  Gc = smearing = l0 = 1.0;
   maxCrack = 1.0e-3;
   scale2nd = 4.0;
   stabk = gammaInv = pthresh = 0.0;
@@ -39,7 +39,11 @@ bool CahnHilliard::parse (const TiXmlElement* elem)
   if (value)
     Gc = atof(value);
   else if ((value = utl::getValue(elem,"smearing")))
+  {
     smearing = atof(value);
+    utl::getAttribute(elem,"l0",l0);
+    if (l0 > smearing) l0 = smearing;
+  }
   else if ((value = utl::getValue(elem,"maxcrack")))
     maxCrack = atof(value);
   else if ((value = utl::getValue(elem,"stabilization")))
