@@ -34,6 +34,7 @@ public:
     : CoupledSIM(s1,s2,input), maxCycle(this->maxIter)
   {
     maxCycle = maxIt = 50;
+    maxInc   = 0;
     cycleTol = 1.0e-4;
   }
 
@@ -46,6 +47,7 @@ public:
     this->CoupledSIM::parseStaggering(elem);
     utl::getAttribute(elem,"tol",cycleTol);
     utl::getAttribute(elem,"max",maxCycle);
+    utl::getAttribute(elem,"maxInc",maxInc);
     maxIt = maxCycle;
   }
 
@@ -101,9 +103,23 @@ public:
       return SIM::FAILURE;
     else if (conv < fabs(cycleTol))
       return SIM::CONVERGED;
+
+    static int numIncr = 0;
+    if (conv <= lastConv || tp.iter == 0)
+      numIncr = 0;
+    else
+      numIncr++;
+
+    lastConv = conv;
+    if (numIncr > maxInc && maxInc > 0)
+    {
+      std::cout <<"  ** The residual increases in more than "<< maxInc
+                <<" cycles, giving up and continuing..."<< std::endl;
+      return SIM::CONVERGED; // Abort cycles and continue with next step
+    }
     else if (tp.iter < maxCycle)
-      return SIM::OK;
-    else if (cycleTol < 0.0 || maxCycle == 0)
+      return SIM::OK; // Continue with next cycle
+    else if (cycleTol < 0.0 || maxCycle == 0 || maxInc > 0)
       return SIM::CONVERGED; // Continue after maximum number of cycles
 
     std::cerr <<"SIMFractureQstatic::checkConvergence: Did not converge in "
@@ -114,6 +130,8 @@ public:
 private:
   int&   maxCycle; //!< Maximum number of staggering cycles
   int    maxIt;    //!< Copy of \a maxCycle
+  int    maxInc;   //!< Max number of cycles with increasing convergence norm
+  double lastConv; //!< Previous convergence norm value
   double cycleTol; //!< Residual norm tolerance for the staggering cycles
   double E0;       //!< Energy norm of initial staggering cycle
   double Ec;       //!< Energy norm of current staggering cycle
