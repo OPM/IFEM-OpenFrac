@@ -236,15 +236,19 @@ public:
     }
     if (gNorm.size() > 1)
     {
-      const Vector& nrm = gNorm.back(); // Don't overwrite 'norm' here
-      IFEM::cout <<  "  L2-norm: |c^h| = (c^h,c^h)^0.5  : "<< sqrt(nrm(1))
-                 <<"\n  H1-norm: |c^h| = a(c^h,c^h)^0.5 : "<< sqrt(nrm(2))
-                 <<"\n  L2-norm: |c|   = (c,c)^0.5      : "<< sqrt(nrm(3))
-                 <<"\n  H1-norm: |c|   = a(c,c)^0.5     : "<< sqrt(nrm(4))
-                 <<"\n  L2-norm: |e|   = (e,e)^0.5      : "
-                 << sqrt(nrm(5)/nrm(3))
-                 <<"\n  H1-norm: |e|   = a(e,e)^0.5     : "
-                 << sqrt(nrm(6)/nrm(4)) << std::endl;
+      static const char* norms[] = {
+        "L2-norm: |c^h| = (c^h,c^h)^0.5  : ",
+        "L2-norm: |c|   = (c,c)^0.5      : ",
+        "L2-norm: |e|   = (e,e)^0.5      : ",
+        "H1-norm: |c^h| = a(c^h,c^h)^0.5 : ",
+        "H1-norm: |c|   = a(c,c)^0.5     : ",
+        "H1-norm: |e|   = a(e,e)^0.5     : ",
+        nullptr };
+      const Vector& nrm = gNorm.back();
+      for (size_t i = 0; i < nrm.size() && norms[i]; i++)
+        if (utl::trunc(sqrt(nrm[i])) != 0.0)
+          IFEM::cout <<"\n  "<< norms[i] << sqrt(nrm[i]);
+      IFEM::cout << std::endl;
     }
 
     return true;

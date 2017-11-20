@@ -424,17 +424,21 @@ bool CahnHilliardNorm::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
     if (aSol && i == 0)
     {
       // Add final norm group when an analytical solution is provided
-      double   CA = (*aSol->getScalarSol())(X);
-      Vec3 gradCA = (*aSol->getScalarSecSol())(X);
-      size_t ip = pnorm.size() - 6;
-      pnorm[ip++] += C*C*fe.detJxW;
-      pnorm[ip++] += gradC.dot(gradC)*fe.detJxW;
-      pnorm[ip++] += CA*CA*fe.detJxW;
-      pnorm[ip++] += gradCA*gradCA*fe.detJxW;
-      CA     -= C;
-      gradCA -= gradC;
-      pnorm[ip++] += CA*CA*fe.detJxW;
-      pnorm[ip++] += gradCA*gradCA*fe.detJxW;
+      size_t ip = pnorm.size();
+      if (aSol->getScalarSecSol() && ip > k+2)
+      {
+        Vec3 gradCA = (*aSol->getScalarSecSol())(X);
+        pnorm[--ip] += (gradCA-gradC).length2()*fe.detJxW;
+        pnorm[--ip] += gradCA.length2()*fe.detJxW;
+        pnorm[--ip] += gradC*gradC*fe.detJxW;
+      }
+      if (aSol->getScalarSol() && ip > k+2)
+      {
+        double CA = (*aSol->getScalarSol())(X);
+        pnorm[--ip] += (CA-C)*(CA-C)*fe.detJxW;
+        pnorm[--ip] += CA*CA*fe.detJxW;
+        pnorm[--ip] += C*C*fe.detJxW;
+      }
     }
   }
 
@@ -448,7 +452,11 @@ bool CahnHilliardNorm::finalizeElement (LocalIntegral& elmInt)
 
   ElmNorm& pnorm = static_cast<ElmNorm&>(elmInt);
   size_t nNorm = pnorm.size();
-  if (aSol) nNorm -= 6;
+  if (aSol)
+  {
+    if (aSol->getScalarSol()) nNorm -= 3;
+    if (aSol->getScalarSecSol()) nNorm -= 3;
+  }
 
   // Evaluate the volume-specific norm |c|/V
   for (size_t ip = 1; ip < nNorm; ip += 3)
@@ -461,9 +469,8 @@ bool CahnHilliardNorm::finalizeElement (LocalIntegral& elmInt)
 std::string CahnHilliardNorm::getName (size_t i, size_t j,
                                        const char* prefix) const
 {
-  static const char* errorNorms[] = { "||c^h||_L2", "||c^h||_H1",
-                                      "||c||_L2"  , "||c||_H1"  ,
-                                      "||e^h||_L2", "||e^h||_H1" };
+  static const char* errorNorms[] = { "||c^h||_L2", "||c||_L2", "||e^h||_L2",
+                                      "||c^h||_H1", "||c||_H1", "||e^h||_H1" };
   std::string name;
 
   if (aSol && i == this->getNoFields(0))
@@ -501,11 +508,16 @@ std::string CahnHilliardNorm::getName (size_t i, size_t j,
 
 size_t CahnHilliardNorm::getNoFields (int group) const
 {
-  size_t nNorm = this->NormBase::getNoFields();
+  size_t nNorm = this->NormBase::getNoFields(0);
   if (group < 1)
     return aSol ? nNorm+1 : nNorm;
   else if (group == (int)(nNorm+1))
-    return 6;
+  {
+    size_t n = 0;
+    if (aSol->getScalarSol()) n += 3;
+    if (aSol->getScalarSecSol()) n += 3;
+    return n;
+  }
   else if (Lnorm == 0)
     return 2;
   else if (group == 1 && Lnorm > 0)

@@ -29,5 +29,4 @@ Max phasefield     : 1
   H1-norm: |c^h| = a(c^h,c^h)^0.5 : 1.58114
   L2-norm: |c|   = (c,c)^0.5      : 3.11448
   H1-norm: |c|   = a(c,c)^0.5     : 1.58114
-  L2-norm: |e|   = (e,e)^0.5      : 6.11151e-08
-  H1-norm: |e|   = a(e,e)^0.5     : 9.31832e-05
+  H1-norm: |e|   = a(e,e)^0.5     : 0.000147336
