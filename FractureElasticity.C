@@ -13,6 +13,7 @@
 
 #include "FractureElasticity.h"
 #include "FiniteElement.h"
+#include "TimeDomain.h"
 #include "MaterialBase.h"
 #include "ElmMats.h"
 #include "Functions.h"
@@ -34,7 +35,7 @@ FractureElasticity::FractureElasticity (unsigned short int n)
   : Elasticity(n), mySol(primsol)
 {
   crackP = nullptr;
-  sigmaC = alpha = tSplit = 0.0;
+  sigmaC = alpha = alpha1 = alpha0 = tSplit = 0.0;
   zeta = 1.0;
   this->registerVector("phasefield",&myCVec);
   eC = 1; // Assuming second vector is phase field
@@ -46,7 +47,7 @@ FractureElasticity::FractureElasticity (IntegrandBase* parent,
   : Elasticity(n), mySol(parent->getSolutions())
 {
   crackP = nullptr;
-  sigmaC = alpha = tSplit = 0.0;
+  sigmaC = alpha = alpha1 = alpha0 = tSplit = 0.0;
   zeta = 1.0;
   parent->registerVector("phasefield",&myCVec);
   // Assuming second vector is pressure, third vector is pressure velocity
@@ -58,7 +59,10 @@ bool FractureElasticity::parse (const TiXmlElement* elem)
 {
   const char* value = utl::getValue(elem,"stabilization");
   if (value)
-    alpha = atof(value);
+  {
+    alpha0 = alpha1 = atof(value);
+    utl::getAttribute(elem,"initial",alpha0);
+  }
   else if ((value = utl::getValue(elem,"crackpressure")))
   {
     std::string type;
@@ -90,8 +94,12 @@ void FractureElasticity::printLog () const
   if (intPrm[3] > 0.0)
     IFEM::cout <<"\tNo geometric stiffness."<< std::endl;
 
-  if (alpha != 0.0)
-    IFEM::cout <<"\tStabilization parameter: "<< alpha << std::endl;
+  if (alpha1 != 0.0)
+  {
+    IFEM::cout <<"\tStabilization parameter: "<< alpha1;
+    if (alpha0 > alpha1) IFEM::cout <<" ("<< alpha0 <<")";
+    IFEM::cout << std::endl;
+  }
 
   if (sigmaC > 0.0)
     IFEM::cout <<"\tCritical stress: "<< sigmaC
@@ -113,6 +121,13 @@ void FractureElasticity::initIntegration (size_t nGp, size_t)
 {
   // Initialize internal tensile energy buffer
   myPhi.resize(nGp);
+}
+
+
+void FractureElasticity::initIntegration (const TimeDomain& prm,
+                                          const Vector&, bool)
+{
+  alpha = prm.first && alpha0 > alpha1 ? alpha0 : alpha1;
 }
 
 

@@ -48,10 +48,12 @@ public:
   //! \brief Returns whether this norm has explicit boundary contributions.
   virtual bool hasBoundaryTerms() const { return m_mode != SIM::RECOVERY; }
 
-  using Elasticity::initIntegration;
   //! \brief Initializes the integrand with the number of integration points.
   //! \param[in] nGp Total number of interior integration points
   virtual void initIntegration(size_t nGp, size_t);
+  //! \brief Initializes the integrand for a new integration loop.
+  //! \param[in] prm Nonlinear solution algorithm parameters
+  virtual void initIntegration(const TimeDomain& prm, const Vector&, bool);
 
   using Elasticity::initElement;
   //! \brief Initializes current element for numerical integration.
@@ -136,6 +138,8 @@ private:
   RealFunc* crackP; //!< Applied pressure in the crack
 
   double alpha;  //!< Relaxation factor for the crack phase field
+  double alpha0; //!< Initial relaxation factor
+  double alpha1; //!< Relaxation factor for all steps except the first one
   Vector myCVec; //!< Crack phase field values at control (nodal) points
 
 protected:
