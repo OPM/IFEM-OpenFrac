@@ -95,6 +95,8 @@ Number of unknowns    231
   Solving crack phase field at step=0 time=0
   Primary solution summary: L2-norm      : 0.943323
                             Max value    : 0.999976
+                            Min value    : -0.177109
+                            Range        : 1.17711
   Dissipated energy:               eps_d : 0.0501758
   Lowest element:       92    |c| = 0.00299945
   Highest element:     ...    |c| = 0.999964
@@ -138,6 +140,7 @@ Parsing input file succeeded.
 Problem definition:
 Elasticity: 2D, gravity = 0 0
 LinIsotropic: E = 3.2e+10, nu = 0.2, rho = 2450, alpha = 1.2e-07
+	No geometric stiffness.
 	Degrading of tensile strain energy density.
 Newmark predictor/multicorrector: beta = 0.444444 gamma = 0.833333
  using zero acceleration predictor
@@ -162,8 +165,11 @@ Number of nodes       308
 Number of dofs        308
 Number of unknowns    308
   Solving crack phase field at step=0 time=0
+ using smearing factor 0.0005
   Primary solution summary: L2-norm      : 0.929409
                             Max value    : 1
+                            Min value    : -0.177123
+                            Range        : 1.17712
   Dissipated energy:               eps_d : 0.0453309
   Lowest element:      213    |c| = 0.00299941
   Highest element:     ...    |c| = 1
@@ -186,6 +192,8 @@ Number of unknowns    308
   Solving crack phase field at step=1 time=5e-07
   Primary solution summary: L2-norm      : 0.929004
                             Max value    : 1
+                            Min value    : -0.177123
+                            Range        : 1.17712
   Dissipated energy:               eps_d : 0.045332
   Solving the elasto-dynamics problem...
   step=2  time=1e-06
@@ -204,6 +212,8 @@ Number of unknowns    308
   Solving crack phase field at step=2 time=1e-06
   Primary solution summary: L2-norm      : 0.927703
                             Max value    : 0.999999
+                            Min value    : -0.177123
+                            Range        : 1.17712
   Dissipated energy:               eps_d : 0.0453489
   >>> Paused for mesh refinement at time=1e-06
   Lowest element:      213    |c| = 0.00299941
@@ -228,6 +238,8 @@ Number of unknowns    308
   Solving crack phase field at step=3 time=1.5e-06
   Primary solution summary: L2-norm      : 0.926864
                             Max value    : 0.999998
+                            Min value    : -0.177123
+                            Range        : 1.17712
   Dissipated energy:               eps_d : 0.0453648
   Solving the elasto-dynamics problem...
   step=4  time=2e-06
@@ -246,6 +258,8 @@ Number of unknowns    308
   Solving crack phase field at step=4 time=2e-06
   Primary solution summary: L2-norm      : 0.926072
                             Max value    : 0.999998
+                            Min value    : -0.177123
+                            Range        : 1.17712
   Dissipated energy:               eps_d : 0.0453795
   >>> Paused for mesh refinement at time=2e-06
   Lowest element:      213    |c| = 0.00299941
@@ -270,6 +284,8 @@ Number of unknowns    308
   Solving crack phase field at step=5 time=2.5e-06
   Primary solution summary: L2-norm      : 0.925189
                             Max value    : 0.999997
+                            Min value    : -0.177123
+                            Range        : 1.17712
   Dissipated energy:               eps_d : 0.0453973
   Solving the elasto-dynamics problem...
   step=6  time=3e-06
@@ -288,6 +304,8 @@ Number of unknowns    308
   Solving crack phase field at step=6 time=3e-06
   Primary solution summary: L2-norm      : 0.924289
                             Max value    : 0.999996
+                            Min value    : -0.177123
+                            Range        : 1.17712
   Dissipated energy:               eps_d : 0.0454157
   >>> Paused for mesh refinement at time=3e-06
   Lowest element:      213    |c| = 0.00299941
@@ -312,6 +330,8 @@ Number of unknowns    308
   Solving crack phase field at step=7 time=3.5e-06
   Primary solution summary: L2-norm      : 0.923413
                             Max value    : 0.999995
+                            Min value    : -0.177122
+                            Range        : 1.17712
   Dissipated energy:               eps_d : 0.0454328
   Solving the elasto-dynamics problem...
   step=8  time=4e-06
@@ -330,6 +350,8 @@ Number of unknowns    308
   Solving crack phase field at step=8 time=4e-06
   Primary solution summary: L2-norm      : 0.922562
                             Max value    : 0.999975
+                            Min value    : -0.177113
+                            Range        : 1.17711
   Dissipated energy:               eps_d : 0.0454479
   >>> Paused for mesh refinement at time=4e-06
   Lowest element:      213    |c| = 0.00299931
@@ -355,6 +377,8 @@ Number of unknowns    308
   Solving crack phase field at step=9 time=4.5e-06
   Primary solution summary: L2-norm      : 0.921623
                             Max value    : 0.999776
+                            Min value    : -0.177059
+                            Range        : 1.17706
   Dissipated energy:               eps_d : 0.0454632
   Solving the elasto-dynamics problem...
   step=10  time=5e-06
@@ -374,6 +398,8 @@ Number of unknowns    308
   Solving crack phase field at step=10 time=5e-06
   Primary solution summary: L2-norm      : 0.920451
                             Max value    : 0.998483
+                            Min value    : -0.176816
+                            Range        : 1.17682
   Dissipated energy:               eps_d : 0.0454812
   >>> Paused for mesh refinement at time=5e-06
   Lowest element:      213    |c| = 0.00299736
@@ -399,6 +425,8 @@ Number of unknowns    308
   Solving crack phase field at step=11 time=5.5e-06
   Primary solution summary: L2-norm      : 0.919009
                             Max value    : 0.993066
+                            Min value    : -0.175971
+                            Range        : 1.17597
   Dissipated energy:               eps_d : 0.0455092
   Solving the elasto-dynamics problem...
   step=12  time=6e-06
@@ -418,6 +446,8 @@ Number of unknowns    308
   Solving crack phase field at step=12 time=6e-06
   Primary solution summary: L2-norm      : 0.917241
                             Max value    : 0.988749
+                            Min value    : -0.173734
+                            Range        : 1.17373
   Dissipated energy:               eps_d : 0.0455773
   >>> Paused for mesh refinement at time=6e-06
   Lowest element:      213    |c| = 0.00297706
@@ -443,6 +473,8 @@ Number of unknowns    308
   Solving crack phase field at step=13 time=6.5e-06
   Primary solution summary: L2-norm      : 0.914908
                             Max value    : 0.988745
+                            Min value    : -0.169496
+                            Range        : 1.1695
   Dissipated energy:               eps_d : 0.0457371
   Solving the elasto-dynamics problem...
   step=14  time=7e-06
@@ -462,6 +494,8 @@ Number of unknowns    308
   Solving crack phase field at step=14 time=7e-06
   Primary solution summary: L2-norm      : 0.91223
                             Max value    : 0.988739
+                            Min value    : -0.164361
+                            Range        : 1.16436
   Dissipated energy:               eps_d : 0.0460018
   >>> Paused for mesh refinement at time=7e-06
   Lowest element:      213    |c| = 0.00280995
@@ -487,6 +521,8 @@ Number of unknowns    308
   Solving crack phase field at step=15 time=7.5e-06
   Primary solution summary: L2-norm      : 0.909599
                             Max value    : 0.988712
+                            Min value    : -0.160902
+                            Range        : 1.1609
   Dissipated energy:               eps_d : 0.0463286
   Solving the elasto-dynamics problem...
   step=16  time=8e-06
@@ -506,6 +542,8 @@ Number of unknowns    308
   Solving crack phase field at step=16 time=8e-06
   Primary solution summary: L2-norm      : 0.906983
                             Max value    : 0.988672
+                            Min value    : -0.159547
+                            Range        : 1.15955
   Dissipated energy:               eps_d : 0.0466782
   >>> Paused for mesh refinement at time=8e-06
   Lowest element:      213    |c| = 0.00258142
@@ -531,6 +569,8 @@ Number of unknowns    308
   Solving crack phase field at step=17 time=8.5e-06
   Primary solution summary: L2-norm      : 0.904186
                             Max value    : 0.988642
+                            Min value    : -0.158197
+                            Range        : 1.1582
   Dissipated energy:               eps_d : 0.0470605
   Solving the elasto-dynamics problem...
   step=18  time=9e-06
@@ -550,6 +590,8 @@ Number of unknowns    308
   Solving crack phase field at step=18 time=9e-06
   Primary solution summary: L2-norm      : 0.901379
                             Max value    : 0.988574
+                            Min value    : -0.155362
+                            Range        : 1.15536
   Dissipated energy:               eps_d : 0.0475407
   >>> Paused for mesh refinement at time=9e-06
   Lowest element:      213    |c| = 0.00246352
@@ -575,6 +617,8 @@ Number of unknowns    308
   Solving crack phase field at step=19 time=9.5e-06
   Primary solution summary: L2-norm      : 0.898638
                             Max value    : 0.988422
+                            Min value    : -0.150489
+                            Range        : 1.15049
   Dissipated energy:               eps_d : 0.0481416
   Solving the elasto-dynamics problem...
   step=20  time=1e-05
@@ -594,6 +638,8 @@ Number of unknowns    308
   Solving crack phase field at step=20 time=1e-05
   Primary solution summary: L2-norm      : 0.895802
                             Max value    : 0.988059
+                            Min value    : -0.144559
+                            Range        : 1.14456
   Dissipated energy:               eps_d : 0.0488367
   >>> Paused for mesh refinement at time=1e-05
   Lowest element:      213    |c| = 0.00228939
@@ -619,6 +665,8 @@ Number of unknowns    308
   Solving crack phase field at step=21 time=1.05e-05
   Primary solution summary: L2-norm      : 0.893105
                             Max value    : 0.987892
+                            Min value    : -0.139026
+                            Range        : 1.13903
   Dissipated energy:               eps_d : 0.0495453
   Solving the elasto-dynamics problem...
   step=22  time=1.1e-05
@@ -638,6 +686,8 @@ Number of unknowns    308
   Solving crack phase field at step=22 time=1.1e-05
   Primary solution summary: L2-norm      : 0.890523
                             Max value    : 0.987878
+                            Min value    : -0.134266
+                            Range        : 1.13427
   Dissipated energy:               eps_d : 0.0502809
   >>> Paused for mesh refinement at time=1.1e-05
   Lowest element:      213    |c| = 0.00207839
@@ -663,6 +713,8 @@ Number of unknowns    308
   Solving crack phase field at step=23 time=1.15e-05
   Primary solution summary: L2-norm      : 0.888129
                             Max value    : 0.987807
+                            Min value    : -0.129965
+                            Range        : 1.12996
   Dissipated energy:               eps_d : 0.0510635
   Solving the elasto-dynamics problem...
   step=24  time=1.2e-05
@@ -682,6 +734,8 @@ Number of unknowns    308
   Solving crack phase field at step=24 time=1.2e-05
   Primary solution summary: L2-norm      : 0.885971
                             Max value    : 0.987776
+                            Min value    : -0.125979
+                            Range        : 1.12598
   Dissipated energy:               eps_d : 0.0518867
   >>> Paused for mesh refinement at time=1.2e-05
   Lowest element:      213    |c| = 0.00189721
@@ -707,6 +761,8 @@ Number of unknowns    308
   Solving crack phase field at step=25 time=1.25e-05
   Primary solution summary: L2-norm      : 0.883968
                             Max value    : 0.987767
+                            Min value    : -0.122206
+                            Range        : 1.12221
   Dissipated energy:               eps_d : 0.052729
   Solving the elasto-dynamics problem...
   step=26  time=1.3e-05
@@ -726,6 +782,8 @@ Number of unknowns    308
   Solving crack phase field at step=26 time=1.3e-05
   Primary solution summary: L2-norm      : 0.882199
                             Max value    : 0.987644
+                            Min value    : -0.1186
+                            Range        : 1.1186
   Dissipated energy:               eps_d : 0.0535803
   >>> Paused for mesh refinement at time=1.3e-05
   Lowest element:      213    |c| = 0.0018
@@ -751,6 +809,8 @@ Number of unknowns    308
   Solving crack phase field at step=27 time=1.35e-05
   Primary solution summary: L2-norm      : 0.880562
                             Max value    : 0.987464
+                            Min value    : -0.1152
+                            Range        : 1.1152
   Dissipated energy:               eps_d : 0.05444
   Solving the elasto-dynamics problem...
   step=28  time=1.4e-05
@@ -770,6 +830,8 @@ Number of unknowns    308
   Solving crack phase field at step=28 time=1.4e-05
   Primary solution summary: L2-norm      : 0.879136
                             Max value    : 0.987398
+                            Min value    : -0.112063
+                            Range        : 1.11206
   Dissipated energy:               eps_d : 0.0552833
   >>> Paused for mesh refinement at time=1.4e-05
   Lowest element:      213    |c| = 0.00172533
@@ -795,6 +857,8 @@ Number of unknowns    308
   Solving crack phase field at step=29 time=1.45e-05
   Primary solution summary: L2-norm      : 0.877934
                             Max value    : 0.987395
+                            Min value    : -0.109075
+                            Range        : 1.10908
   Dissipated energy:               eps_d : 0.0560946
   Solving the elasto-dynamics problem...
   step=30  time=1.5e-05
@@ -814,6 +878,8 @@ Number of unknowns    308
   Solving crack phase field at step=30 time=1.5e-05
   Primary solution summary: L2-norm      : 0.876915
                             Max value    : 0.987392
+                            Min value    : -0.106126
+                            Range        : 1.10613
   Dissipated energy:               eps_d : 0.0568693
   >>> Paused for mesh refinement at time=1.5e-05
   Lowest element:      213    |c| = 0.00162902
@@ -839,6 +905,8 @@ Number of unknowns    308
   Solving crack phase field at step=31 time=1.55e-05
   Primary solution summary: L2-norm      : 0.876044
                             Max value    : 0.98739
+                            Min value    : -0.103214
+                            Range        : 1.10321
   Dissipated energy:               eps_d : 0.0576135
   Solving the elasto-dynamics problem...
   step=32  time=1.6e-05
@@ -858,6 +926,8 @@ Number of unknowns    308
   Solving crack phase field at step=32 time=1.6e-05
   Primary solution summary: L2-norm      : 0.875307
                             Max value    : 0.987388
+                            Min value    : -0.100439
+                            Range        : 1.10044
   Dissipated energy:               eps_d : 0.0583302
   >>> Paused for mesh refinement at time=1.6e-05
   Lowest element:      202    |c| = 0.00142375
@@ -883,6 +953,8 @@ Number of unknowns    308
   Solving crack phase field at step=33 time=1.65e-05
   Primary solution summary: L2-norm      : 0.874669
                             Max value    : 0.987386
+                            Min value    : -0.0978692
+                            Range        : 1.09787
   Dissipated energy:               eps_d : 0.0590226
   Solving the elasto-dynamics problem...
   step=34  time=1.7e-05
@@ -902,6 +974,8 @@ Number of unknowns    308
   Solving crack phase field at step=34 time=1.7e-05
   Primary solution summary: L2-norm      : 0.874117
                             Max value    : 0.987384
+                            Min value    : -0.0954936
+                            Range        : 1.09549
   Dissipated energy:               eps_d : 0.0596814
   >>> Paused for mesh refinement at time=1.7e-05
   Lowest element:      202    |c| = 0.00123841
@@ -927,6 +1001,8 @@ Number of unknowns    308
   Solving crack phase field at step=35 time=1.75e-05
   Primary solution summary: L2-norm      : 0.873664
                             Max value    : 0.987383
+                            Min value    : -0.0933517
+                            Range        : 1.09335
   Dissipated energy:               eps_d : 0.0602793
   Solving the elasto-dynamics problem...
   step=36  time=1.8e-05
@@ -946,6 +1022,8 @@ Number of unknowns    308
   Solving crack phase field at step=36 time=1.8e-05
   Primary solution summary: L2-norm      : 0.87331
                             Max value    : 0.987381
+                            Min value    : -0.0915932
+                            Range        : 1.09159
   Dissipated energy:               eps_d : 0.0607857
   >>> Paused for mesh refinement at time=1.8e-05
   Lowest element:      202    |c| = 0.00112821
@@ -971,6 +1049,8 @@ Number of unknowns    308
   Solving crack phase field at step=37 time=1.85e-05
   Primary solution summary: L2-norm      : 0.873052
                             Max value    : 0.98738
+                            Min value    : -0.0904599
+                            Range        : 1.09046
   Dissipated energy:               eps_d : 0.0611792
   Solving the elasto-dynamics problem...
   step=38  time=1.9e-05
@@ -990,6 +1070,8 @@ Number of unknowns    308
   Solving crack phase field at step=38 time=1.9e-05
   Primary solution summary: L2-norm      : 0.872865
                             Max value    : 0.987379
+                            Min value    : -0.0898853
+                            Range        : 1.08989
   Dissipated energy:               eps_d : 0.0614719
   >>> Paused for mesh refinement at time=1.9e-05
   Lowest element:      202    |c| = 0.00106902
@@ -1015,6 +1097,8 @@ Number of unknowns    308
   Solving crack phase field at step=39 time=1.95e-05
   Primary solution summary: L2-norm      : 0.872708
                             Max value    : 0.987378
+                            Min value    : -0.089614
+                            Range        : 1.08961
   Dissipated energy:               eps_d : 0.0617034
   Solving the elasto-dynamics problem...
   step=40  time=2e-05
@@ -1034,6 +1118,8 @@ Number of unknowns    308
   Solving crack phase field at step=40 time=2e-05
   Primary solution summary: L2-norm      : 0.872547
                             Max value    : 0.987378
+                            Min value    : -0.0893635
+                            Range        : 1.08936
   Dissipated energy:               eps_d : 0.0619232
   >>> Paused for mesh refinement at time=2e-05
   Lowest element:      202    |c| = 0.00100364
@@ -1059,6 +1145,8 @@ Number of unknowns    308
   Solving crack phase field at step=41 time=2.05e-05
   Primary solution summary: L2-norm      : 0.872391
                             Max value    : 0.987377
+                            Min value    : -0.0888993
+                            Range        : 1.0889
   Dissipated energy:               eps_d : 0.0621709
   Solving the elasto-dynamics problem...
   step=42  time=2.1e-05
@@ -1078,6 +1166,8 @@ Number of unknowns    308
   Solving crack phase field at step=42 time=2.1e-05
   Primary solution summary: L2-norm      : 0.872181
                             Max value    : 0.987376
+                            Min value    : -0.0872721
+                            Range        : 1.08727
   Dissipated energy:               eps_d : 0.0625011
   >>> Paused for mesh refinement at time=2.1e-05
   Lowest element:      202    |c| = 0.000907549
@@ -1103,6 +1193,8 @@ Number of unknowns    308
   Solving crack phase field at step=43 time=2.15e-05
   Primary solution summary: L2-norm      : 0.871855
                             Max value    : 0.987375
+                            Min value    : -0.0845186
+                            Range        : 1.08452
   Dissipated energy:               eps_d : 0.0629408
   Solving the elasto-dynamics problem...
   step=44  time=2.2e-05
@@ -1122,6 +1214,8 @@ Number of unknowns    308
   Solving crack phase field at step=44 time=2.2e-05
   Primary solution summary: L2-norm      : 0.871505
                             Max value    : 0.987374
+                            Min value    : -0.0816105
+                            Range        : 1.08161
   Dissipated energy:               eps_d : 0.0633933
   >>> Paused for mesh refinement at time=2.2e-05
   Lowest element:      202    |c| = 0.000819117
@@ -1147,6 +1241,8 @@ Number of unknowns    308
   Solving crack phase field at step=45 time=2.25e-05
   Primary solution summary: L2-norm      : 0.871194
                             Max value    : 0.987373
+                            Min value    : -0.0791157
+                            Range        : 1.07912
   Dissipated energy:               eps_d : 0.0637955
   Solving the elasto-dynamics problem...
   step=46  time=2.3e-05
@@ -1166,6 +1262,8 @@ Number of unknowns    308
   Solving crack phase field at step=46 time=2.3e-05
   Primary solution summary: L2-norm      : 0.870919
                             Max value    : 0.987373
+                            Min value    : -0.0771512
+                            Range        : 1.07715
   Dissipated energy:               eps_d : 0.0641489
   >>> Paused for mesh refinement at time=2.3e-05
   Lowest element:      202    |c| = 0.000773884
@@ -1191,6 +1289,8 @@ Number of unknowns    308
   Solving crack phase field at step=47 time=2.35e-05
   Primary solution summary: L2-norm      : 0.870643
                             Max value    : 0.987372
+                            Min value    : -0.0754128
+                            Range        : 1.07541
   Dissipated energy:               eps_d : 0.0644938
   Solving the elasto-dynamics problem...
   step=48  time=2.4e-05
@@ -1210,6 +1310,8 @@ Number of unknowns    308
   Solving crack phase field at step=48 time=2.4e-05
   Primary solution summary: L2-norm      : 0.87034
                             Max value    : 0.987371
+                            Min value    : -0.0736288
+                            Range        : 1.07363
   Dissipated energy:               eps_d : 0.064868
   >>> Paused for mesh refinement at time=2.4e-05
   Lowest element:      202    |c| = 0.000740564
@@ -1235,6 +1337,8 @@ Number of unknowns    308
   Solving crack phase field at step=49 time=2.45e-05
   Primary solution summary: L2-norm      : 0.87002
                             Max value    : 0.98737
+                            Min value    : -0.0715657
+                            Range        : 1.07157
   Dissipated energy:               eps_d : 0.0652842
   Solving the elasto-dynamics problem...
   step=50  time=2.5e-05
@@ -1254,6 +1358,8 @@ Number of unknowns    308
   Solving crack phase field at step=50 time=2.5e-05
   Primary solution summary: L2-norm      : 0.869688
                             Max value    : 0.987369
+                            Min value    : -0.0691367
+                            Range        : 1.06914
   Dissipated energy:               eps_d : 0.0657335
   >>> Paused for mesh refinement at time=2.5e-05
   Lowest element:      202    |c| = 0.000705314
@@ -1279,6 +1385,8 @@ Number of unknowns    308
   Solving crack phase field at step=51 time=2.55e-05
   Primary solution summary: L2-norm      : 0.869343
                             Max value    : 0.987368
+                            Min value    : -0.0663452
+                            Range        : 1.06635
   Dissipated energy:               eps_d : 0.0661992
   Solving the elasto-dynamics problem...
   step=52  time=2.6e-05
@@ -1298,6 +1406,8 @@ Number of unknowns    308
   Solving crack phase field at step=52 time=2.6e-05
   Primary solution summary: L2-norm      : 0.868954
                             Max value    : 0.987367
+                            Min value    : -0.0632643
+                            Range        : 1.06326
   Dissipated energy:               eps_d : 0.0666748
   >>> Paused for mesh refinement at time=2.6e-05
   Lowest element:      202    |c| = 0.000671908
@@ -1323,6 +1433,8 @@ Number of unknowns    308
   Solving crack phase field at step=53 time=2.65e-05
   Primary solution summary: L2-norm      : 0.868489
                             Max value    : 0.987366
+                            Min value    : -0.0600055
+                            Range        : 1.06001
   Dissipated energy:               eps_d : 0.0671693
   Solving the elasto-dynamics problem...
   step=54  time=2.7e-05
@@ -1342,6 +1454,8 @@ Number of unknowns    308
   Solving crack phase field at step=54 time=2.7e-05
   Primary solution summary: L2-norm      : 0.867911
                             Max value    : 0.987365
+                            Min value    : -0.0566663
+                            Range        : 1.05667
   Dissipated energy:               eps_d : 0.0677028
   >>> Paused for mesh refinement at time=2.7e-05
   Lowest element:      202    |c| = 0.000645436
@@ -1367,6 +1481,8 @@ Number of unknowns    308
   Solving crack phase field at step=55 time=2.75e-05
   Primary solution summary: L2-norm      : 0.867249
                             Max value    : 0.987365
+                            Min value    : -0.0533018
+                            Range        : 1.0533
   Dissipated energy:               eps_d : 0.0682842
   Solving the elasto-dynamics problem...
   step=56  time=2.8e-05
@@ -1386,6 +1502,8 @@ Number of unknowns    308
   Solving crack phase field at step=56 time=2.8e-05
   Primary solution summary: L2-norm      : 0.86652
                             Max value    : 0.987364
+                            Min value    : -0.0500171
+                            Range        : 1.05002
   Dissipated energy:               eps_d : 0.0689315
   >>> Paused for mesh refinement at time=2.8e-05
   Lowest element:      202    |c| = 0.000622427
@@ -1411,6 +1529,8 @@ Number of unknowns    308
   Solving crack phase field at step=57 time=2.85e-05
   Primary solution summary: L2-norm      : 0.865767
                             Max value    : 0.987364
+                            Min value    : -0.0467588
+                            Range        : 1.04676
   Dissipated energy:               eps_d : 0.0696518
   Solving the elasto-dynamics problem...
   step=58  time=2.9e-05
@@ -1430,6 +1550,8 @@ Number of unknowns    308
   Solving crack phase field at step=58 time=2.9e-05
   Primary solution summary: L2-norm      : 0.864982
                             Max value    : 0.987363
+                            Min value    : -0.0432462
+                            Range        : 1.04325
   Dissipated energy:               eps_d : 0.0704714
   >>> Paused for mesh refinement at time=2.9e-05
   Lowest element:      202    |c| = 0.00059923
@@ -1455,6 +1577,8 @@ Number of unknowns    308
   Solving crack phase field at step=59 time=2.95e-05
   Primary solution summary: L2-norm      : 0.864209
                             Max value    : 0.987363
+                            Min value    : -0.0394823
+                            Range        : 1.03948
   Dissipated energy:               eps_d : 0.0713807
   Solving the elasto-dynamics problem...
   step=60  time=3e-05
@@ -1474,6 +1598,8 @@ Number of unknowns    308
   Solving crack phase field at step=60 time=3e-05
   Primary solution summary: L2-norm      : 0.863413
                             Max value    : 0.987362
+                            Min value    : -0.0357845
+                            Range        : 1.03578
   Dissipated energy:               eps_d : 0.0723823
   >>> Paused for mesh refinement at time=3e-05
   Lowest element:      202    |c| = 0.000576552
@@ -1499,6 +1625,8 @@ Number of unknowns    308
   Solving crack phase field at step=61 time=3.05e-05
   Primary solution summary: L2-norm      : 0.862572
                             Max value    : 0.987361
+                            Min value    : -0.0325113
+                            Range        : 1.03251
   Dissipated energy:               eps_d : 0.0734624
   Solving the elasto-dynamics problem...
   step=62  time=3.1e-05
@@ -1518,6 +1646,8 @@ Number of unknowns    308
   Solving crack phase field at step=62 time=3.1e-05
   Primary solution summary: L2-norm      : 0.8617
                             Max value    : 0.987361
+                            Min value    : -0.0296735
+                            Range        : 1.02967
   Dissipated energy:               eps_d : 0.0746072
   >>> Paused for mesh refinement at time=3.1e-05
   Lowest element:      202    |c| = 0.000556957
@@ -1543,6 +1673,8 @@ Number of unknowns    308
   Solving crack phase field at step=63 time=3.15e-05
   Primary solution summary: L2-norm      : 0.860813
                             Max value    : 0.98736
+                            Min value    : -0.0270981
+                            Range        : 1.0271
   Dissipated energy:               eps_d : 0.0758147
   Solving the elasto-dynamics problem...
   step=64  time=3.2e-05
@@ -1562,6 +1694,8 @@ Number of unknowns    308
   Solving crack phase field at step=64 time=3.2e-05
   Primary solution summary: L2-norm      : 0.859929
                             Max value    : 0.98736
+                            Min value    : -0.0246659
+                            Range        : 1.02467
   Dissipated energy:               eps_d : 0.0770861
   >>> Paused for mesh refinement at time=3.2e-05
   Lowest element:      202    |c| = 0.000539556
@@ -1587,6 +1721,8 @@ Number of unknowns    308
   Solving crack phase field at step=65 time=3.25e-05
   Primary solution summary: L2-norm      : 0.859046
                             Max value    : 0.987359
+                            Min value    : -0.0223134
+                            Range        : 1.02231
   Dissipated energy:               eps_d : 0.0784267
   Solving the elasto-dynamics problem...
   step=66  time=3.3e-05
@@ -1606,6 +1742,8 @@ Number of unknowns    308
   Solving crack phase field at step=66 time=3.3e-05
   Primary solution summary: L2-norm      : 0.85815
                             Max value    : 0.987359
+                            Min value    : -0.0200827
+                            Range        : 1.02008
   Dissipated energy:               eps_d : 0.0798304
   >>> Paused for mesh refinement at time=3.3e-05
   Lowest element:      230    |c| = 2.4023e-05
@@ -1631,6 +1769,8 @@ Number of unknowns    308
   Solving crack phase field at step=67 time=3.35e-05
   Primary solution summary: L2-norm      : 0.857275
                             Max value    : 0.987358
+                            Min value    : -0.0180638
+                            Range        : 1.01806
   Dissipated energy:               eps_d : 0.0812622
   Solving the elasto-dynamics problem...
   step=68  time=3.4e-05
@@ -1650,6 +1790,8 @@ Number of unknowns    308
   Solving crack phase field at step=68 time=3.4e-05
   Primary solution summary: L2-norm      : 0.856427
                             Max value    : 0.987358
+                            Min value    : -0.0162857
+                            Range        : 1.01629
   Dissipated energy:               eps_d : 0.0827119
   >>> Paused for mesh refinement at time=3.4e-05
   Lowest element:      230    |c| = 0.000284978
@@ -1675,6 +1817,8 @@ Number of unknowns    308
   Solving crack phase field at step=69 time=3.45e-05
   Primary solution summary: L2-norm      : 0.855599
                             Max value    : 0.987357
+                            Min value    : -0.0147542
+                            Range        : 1.01475
   Dissipated energy:               eps_d : 0.084184
   Solving the elasto-dynamics problem...
   step=70  time=3.5e-05
@@ -1694,6 +1838,8 @@ Number of unknowns    308
   Solving crack phase field at step=70 time=3.5e-05
   Primary solution summary: L2-norm      : 0.85475
                             Max value    : 0.987357
+                            Min value    : -0.0134368
+                            Range        : 1.01344
   Dissipated energy:               eps_d : 0.0857119
   >>> Paused for mesh refinement at time=3.5e-05
   Lowest element:      230    |c| = 0.000435934
@@ -1719,6 +1865,8 @@ Number of unknowns    308
   Solving crack phase field at step=71 time=3.55e-05
   Primary solution summary: L2-norm      : 0.853879
                             Max value    : 0.987357
+                            Min value    : -0.0122719
+                            Range        : 1.01227
   Dissipated energy:               eps_d : 0.0873034
   Solving the elasto-dynamics problem...
   step=72  time=3.6e-05
@@ -1738,6 +1886,8 @@ Number of unknowns    308
   Solving crack phase field at step=72 time=3.6e-05
   Primary solution summary: L2-norm      : 0.853045
                             Max value    : 0.987356
+                            Min value    : -0.0112038
+                            Range        : 1.0112
   Dissipated energy:               eps_d : 0.088921
   >>> Paused for mesh refinement at time=3.6e-05
   Lowest element:      202    |c| = 0.00046233
@@ -1763,6 +1913,8 @@ Number of unknowns    308
   Solving crack phase field at step=73 time=3.65e-05
   Primary solution summary: L2-norm      : 0.852239
                             Max value    : 0.987356
+                            Min value    : -0.0102091
+                            Range        : 1.01021
   Dissipated energy:               eps_d : 0.0905612
   Solving the elasto-dynamics problem...
   step=74  time=3.7e-05
@@ -1782,6 +1934,8 @@ Number of unknowns    308
   Solving crack phase field at step=74 time=3.7e-05
   Primary solution summary: L2-norm      : 0.851476
                             Max value    : 0.987356
+                            Min value    : -0.00930039
+                            Range        : 1.0093
   Dissipated energy:               eps_d : 0.0922166
   >>> Paused for mesh refinement at time=3.7e-05
   Lowest element:      202    |c| = 0.000410396
@@ -1807,6 +1961,8 @@ Number of unknowns    308
   Solving crack phase field at step=75 time=3.75e-05
   Primary solution summary: L2-norm      : 0.850725
                             Max value    : 0.987356
+                            Min value    : -0.00848646
+                            Range        : 1.00849
   Dissipated energy:               eps_d : 0.0938734
   Solving the elasto-dynamics problem...
   step=76  time=3.8e-05
@@ -1826,6 +1982,8 @@ Number of unknowns    308
   Solving crack phase field at step=76 time=3.8e-05
   Primary solution summary: L2-norm      : 0.850022
                             Max value    : 0.987355
+                            Min value    : -0.00775838
+                            Range        : 1.00776
   Dissipated energy:               eps_d : 0.0954992
   >>> Paused for mesh refinement at time=3.8e-05
   Lowest element:      202    |c| = 0.000362744
@@ -1870,6 +2028,7 @@ Parsing input file succeeded.
 Problem definition:
 Elasticity: 2D, gravity = 0 0
 LinIsotropic: E = 3.2e+10, nu = 0.2, rho = 2450, alpha = 1.2e-07
+	No geometric stiffness.
 	Degrading of tensile strain energy density.
 Newmark predictor/multicorrector: beta = 0.444444 gamma = 0.833333
  using zero acceleration predictor
@@ -1892,8 +2051,8 @@ Number of elements    308
 Number of nodes       330
 Number of dofs        330
 Number of unknowns    330
-Transferring 3x660 solution variables to new mesh for Elasticity
-Transferring 330 solution variables to new mesh for CahnHilliard
+Transferring 3x616 solution variables to new mesh for Elasticity
+Transferring 308 solution variables to new mesh for CahnHilliard
 Transferring 1136 history variables to new mesh for CahnHilliard
   >>> Resuming simulation from time=3.7e-05 on the new mesh.
   Solving the elasto-dynamics problem...
@@ -1914,6 +2073,8 @@ Transferring 1136 history variables to new mesh for CahnHilliard
   Solving crack phase field at step=75 time=3.75e-05
   Primary solution summary: L2-norm      : 0.834479
                             Max value    : 0.987356
+                            Min value    : -0.00843614
+                            Range        : 1.00844
   Dissipated energy:               eps_d : 0.096336
   Solving the elasto-dynamics problem...
   step=76  time=3.8e-05
@@ -1933,6 +2094,8 @@ Transferring 1136 history variables to new mesh for CahnHilliard
   Solving crack phase field at step=76 time=3.8e-05
   Primary solution summary: L2-norm      : 0.833256
                             Max value    : 0.987356
+                            Min value    : -0.00770084
+                            Range        : 1.0077
   Dissipated energy:               eps_d : 0.0977915
   Solving the elasto-dynamics problem...
   step=77  time=3.85e-05
@@ -1952,6 +2115,8 @@ Transferring 1136 history variables to new mesh for CahnHilliard
   Solving crack phase field at step=77 time=3.85e-05
   Primary solution summary: L2-norm      : 0.832189
                             Max value    : 0.987356
+                            Min value    : -0.00708479
+                            Range        : 1.00708
   Dissipated energy:               eps_d : 0.0992772
   >>> Paused for mesh refinement at time=3.85e-05
   Lowest element:      202    |c| = 0.000341245
@@ -1977,6 +2142,8 @@ Transferring 1136 history variables to new mesh for CahnHilliard
   Solving crack phase field at step=78 time=3.9e-05
   Primary solution summary: L2-norm      : 0.831138
                             Max value    : 0.987356
+                            Min value    : -0.00656956
+                            Range        : 1.00657
   Dissipated energy:               eps_d : 0.100793
   Solving the elasto-dynamics problem...
   step=79  time=3.95e-05
@@ -1996,6 +2163,8 @@ Transferring 1136 history variables to new mesh for CahnHilliard
   Solving crack phase field at step=79 time=3.95e-05
   Primary solution summary: L2-norm      : 0.830086
                             Max value    : 0.987356
+                            Min value    : -0.00611588
+                            Range        : 1.00612
   Dissipated energy:               eps_d : 0.102098
   >>> Paused for mesh refinement at time=3.95e-05
   Lowest element:      202    |c| = 0.000303939
@@ -2021,5 +2190,7 @@ Transferring 1136 history variables to new mesh for CahnHilliard
   Solving crack phase field at step=80 time=4e-05
   Primary solution summary: L2-norm      : 0.828983
                             Max value    : 0.987356
+                            Min value    : -0.00570331
+                            Range        : 1.0057
   Dissipated energy:               eps_d : 0.10348
   Time integration completed.

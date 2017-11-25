@@ -17,6 +17,9 @@
 #include "CahnHilliard.h"
 #ifdef HAS_LRSPLINE
 #include "ASMu2D.h"
+#include <LRSpline/LRSplineSurface.h>
+#else
+namespace LR { class LRSpline; }
 #endif
 #include "TimeStep.h"
 #include "Profiler.h"
@@ -28,7 +31,7 @@
 
 
 /*!
-  \brief Driver class for an Cahn-Hilliard phase-field simulator.
+  \brief Driver class for a Cahn-Hilliard phase-field simulator.
 */
 
 template<class Dim> class SIMPhaseField : public Dim
@@ -353,26 +356,65 @@ public:
     return v;
   }
 
+  //! \brief Extracts the LR-spline basis for the phase field
+  void getBasis(std::vector<LR::LRSpline*>& basis)
+  {
 #ifdef HAS_LRSPLINE
+    ASMu2D* pch2;
+    for (ASMbase* patch : Dim::myModel)
+      if ((pch2 = dynamic_cast<ASMu2D*>(patch)))
+        basis.push_back(pch2->getBasis()->copy());
+#endif
+  }
+
   //! \brief Transfers history variables at Gauss/control points to new mesh.
   //! \param[in] oldH History variables associated with Gauss- or control points
   //! \param[in] oldBasis The LR-spline basis \a oldH is referring to
-  bool transferHistory2D(const RealArray& oldH, LR::LRSplineSurface* oldBasis)
+  bool transferHistory(const RealArray& oldH,
+                       std::vector<LR::LRSpline*>& oldBasis)
   {
-    const ASMu2D* pch = dynamic_cast<ASMu2D*>(this->getPatch(1));
-    if (!pch) return false;
-
     RealArray& newH = static_cast<CahnHilliard*>(Dim::myProblem)->historyField;
-    switch (transferOp) {
-    case 'P':
-      return pch->transferCntrlPtVars(oldBasis,oldH,newH,Dim::opt.nGauss[0]);
-    case 'N':
-      return pch->transferGaussPtVarsN(oldBasis,oldH,newH,Dim::opt.nGauss[0]);
-    default:
-      return pch->transferGaussPtVars(oldBasis,oldH,newH,Dim::opt.nGauss[0]);
+    newH.clear();
+
+#ifdef HAS_LRSPLINE
+    bool ok = true;
+    int idx = 0;
+    int nGp = Dim::opt.nGauss[0];
+    RealArray::const_iterator itH = oldH.begin(), jtH;
+    RealArray newHp, oldHn;
+    for (LR::LRSpline* basis : oldBasis)
+    {
+      const ASMu2D* pch = dynamic_cast<ASMu2D*>(this->getPatch(++idx));
+      if (pch && (size_t)idx <= oldBasis.size())
+      {
+        LR::LRSplineSurface* surf = dynamic_cast<LR::LRSplineSurface*>(basis);
+        switch (transferOp) {
+        case 'P':
+          oldHn.resize(pch->getNoNodes());
+          for (size_t i = 0; i < oldHn.size(); i++)
+            oldHn[i] = oldH[pch->getNodeID(1+i)-1];
+          ok &= pch->transferCntrlPtVars(surf,oldHn,newHp,nGp);
+          break;
+        case 'N':
+          jtH = itH + basis->nElements()*nGp*nGp;
+          ok &= pch->transferGaussPtVarsN(surf,RealArray(itH,jtH),newHp,nGp);
+          itH = jtH;
+          break;
+        default:
+          jtH = itH + basis->nElements()*nGp*nGp;
+          ok &= pch->transferGaussPtVars(surf,RealArray(itH,jtH),newHp,nGp);
+          itH = jtH;
+        }
+        newH.insert(newH.end(),newHp.begin(),newHp.end());
+      }
+      delete basis;
     }
-  }
+
+    return ok;
+#else
+    return false;
 #endif
+  }
 
 protected:
   using Dim::parse;
@@ -449,7 +491,7 @@ protected:
     // Perform initial refinement around the crack
     RealFunc* refC = static_cast<CahnHilliard*>(Dim::myProblem)->initCrack();
     ASMu2D* patch1 = dynamic_cast<ASMu2D*>(this->getPatch(1));
-    if (refC && patch1)
+    if (refC && patch1 && this->getNoPatches() == 1)
       for (int i = 0; i < irefine; i++, refTol *= 0.5)
         if (!patch1->refine(*refC,refTol))
           return false;
