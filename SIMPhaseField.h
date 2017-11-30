@@ -17,7 +17,9 @@
 #include "CahnHilliard.h"
 #ifdef HAS_LRSPLINE
 #include "ASMu2D.h"
-#include <LRSpline/LRSplineSurface.h>
+#include "ASMu3D.h"
+#include "LRSpline/LRSplineSurface.h"
+#include "LRSpline/LRSplineVolume.h"
 #else
 namespace LR { class LRSpline; }
 #endif
@@ -367,9 +369,12 @@ public:
   {
 #ifdef HAS_LRSPLINE
     ASMu2D* pch2;
+    ASMu3D* pch3;
     for (ASMbase* patch : Dim::myModel)
       if ((pch2 = dynamic_cast<ASMu2D*>(patch)))
         basis.push_back(pch2->getBasis()->copy());
+      else if ((pch3 = dynamic_cast<ASMu3D*>(patch)))
+        basis.push_back(pch3->getBasis()->copy());
 #endif
   }
 
@@ -390,25 +395,24 @@ public:
     RealArray newHp, oldHn;
     for (LR::LRSpline* basis : oldBasis)
     {
-      const ASMu2D* pch = dynamic_cast<ASMu2D*>(this->getPatch(++idx));
+      ASMunstruct* pch = dynamic_cast<ASMunstruct*>(this->getPatch(++idx));
       if (pch && (size_t)idx <= oldBasis.size())
       {
-        LR::LRSplineSurface* surf = dynamic_cast<LR::LRSplineSurface*>(basis);
         switch (transferOp) {
         case 'P':
           oldHn.resize(pch->getNoNodes());
           for (size_t i = 0; i < oldHn.size(); i++)
             oldHn[i] = oldH[pch->getNodeID(1+i)-1];
-          ok &= pch->transferCntrlPtVars(surf,oldHn,newHp,nGp);
+          ok &= pch->transferCntrlPtVars(basis,oldHn,newHp,nGp);
           break;
         case 'N':
-          jtH = itH + basis->nElements()*nGp*nGp;
-          ok &= pch->transferGaussPtVarsN(surf,RealArray(itH,jtH),newHp,nGp);
+          jtH = itH + basis->nElements()*pow(nGp,Dim::dimension);
+          ok &= pch->transferGaussPtVarsN(basis,RealArray(itH,jtH),newHp,nGp);
           itH = jtH;
           break;
         default:
-          jtH = itH + basis->nElements()*nGp*nGp;
-          ok &= pch->transferGaussPtVars(surf,RealArray(itH,jtH),newHp,nGp);
+          jtH = itH + basis->nElements()*pow(nGp,Dim::dimension);
+          ok &= pch->transferGaussPtVars(basis,RealArray(itH,jtH),newHp,nGp);
           itH = jtH;
         }
         newH.insert(newH.end(),newHp.begin(),newHp.end());
@@ -494,9 +498,9 @@ protected:
     if (Dim::isRefined || !result)
       return result;
 
-    // Perform initial refinement around the crack
+    // Perform initial refinement around the crack (single-patch only)
     RealFunc* refC = static_cast<CahnHilliard*>(Dim::myProblem)->initCrack();
-    ASMu2D* patch1 = dynamic_cast<ASMu2D*>(this->getPatch(1));
+    ASMunstruct* patch1 = dynamic_cast<ASMunstruct*>(this->getPatch(1));
     if (refC && patch1 && this->getNoPatches() == 1)
       for (int i = 0; i < irefine; i++, refTol *= 0.5)
         if (!patch1->refine(*refC,refTol))
