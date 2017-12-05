@@ -154,6 +154,14 @@ public:
     hsol = this->S2.getHistoryField();
   }
 
+  //! \brief Restores the solution state from the internal buffer.
+  void restoreState()
+  {
+    this->S1.setSolutions(Vectors(sols.begin(),sols.begin()+sols.size()-1));
+    this->S2.setSolution(sols.back());
+    this->S2.setHistoryField(hsol);
+  }
+
   //! \brief Refines the mesh on the initial configuration.
   bool initialRefine(double beta, double min_frac, int nrefinements)
   {

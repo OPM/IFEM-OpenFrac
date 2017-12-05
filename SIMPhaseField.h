@@ -346,14 +346,20 @@ public:
   //! \brief Returns the current history field.
   //! \details If projection has been done, the resulting control point values
   //! are returned, otherwise the Gauss point values are returned.
-  Vector getHistoryField() const
+  RealArray getHistoryField() const
   {
     if (transferOp == 'P' && projSol.rows() > 1)
       return projSol.getRow(2);
 
-    Vector v;
-    v = static_cast<const CahnHilliard*>(Dim::myProblem)->historyField;
-    return v;
+    return static_cast<const CahnHilliard*>(Dim::myProblem)->historyField;
+  }
+
+  //! \brief Resets the history field from the provided array.
+  void setHistoryField(const RealArray& hfield)
+  {
+    RealArray& hist = static_cast<CahnHilliard*>(Dim::myProblem)->historyField;
+    if (transferOp != 'P' && hist.size() == hfield.size())
+      std::copy(hfield.begin(),hfield.end(),hist.begin());
   }
 
   //! \brief Extracts the LR-spline basis for the phase field
