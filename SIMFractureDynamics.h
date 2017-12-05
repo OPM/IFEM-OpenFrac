@@ -263,8 +263,12 @@ public:
     // Transfer solution variables onto the new mesh
     if (!sols.empty())
     {
-      IFEM::cout <<"\nTransferring "<< nsol-1 <<"x"<< nsv1
-                 <<" solution variables to new mesh for "<< this->S1.getName();
+      IFEM::cout <<"\nTransferring ";
+      if (nsol > 2)
+        IFEM::cout << nsol-1 <<"x"<< nsv1;
+      else
+        IFEM::cout << nsv1;
+      IFEM::cout <<" solution variables to new mesh for "<< this->S1.getName();
       Vectors soli(nsol-1,Vector(this->S1.getNoDOFs()));
       for (size_t i = 0; i < nsol-1; i++)
         for (int p = 0; p < this->S1.getNoPatches(); p++)
