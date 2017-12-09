@@ -38,13 +38,6 @@ public:
   //! \brief Empty destructor.
   virtual ~FractureElasticityVoigt() {}
 
-  using FractureElasticity::getLocalIntegral;
-  //! \brief Returns a local integral container for the given element.
-  //! \param[in] nen Number of nodes on element
-  //! \param[in] neumann Whether or not we are assembling Neumann BC's
-  virtual LocalIntegral* getLocalIntegral(size_t nen, size_t,
-                                          bool neumann) const;
-
   using FractureElasticity::evalInt;
   //! \brief Evaluates the integrand at an interior point.
   //! \param elmInt The local integral object to receive the contributions
@@ -62,14 +55,13 @@ public:
 protected:
   //! \brief Evaluates the stress tensor and tensile energy at current point.
   virtual bool evalStress(double lambda, double mu, double Gc,
-                          const SymmTensor& epsilon,
-                          double* Phi, SymmTensor& sigma) const;
+                          const SymmTensor& epsil, double* Phi,
+                          SymmTensor& sigma) const;
 
   //! \brief Evaluates the stress tensor and its derivative w.r.t. the strains.
   bool evalStress(double lambda, double mu, double Gc,
-                  const SymmTensor& epsilon, double* Phi,
-                  SymmTensor* sigma, Matrix* dSdE,
-                  bool postProc = false, bool printElm = false) const;
+                  const SymmTensor& epsil, double* Phi,
+                  SymmTensor* sigma, Matrix* dSdE, bool printElm = false) const;
 
   friend class FractureElasticNorm;
 };

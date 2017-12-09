@@ -26,20 +26,18 @@
 #endif
 
 
-LocalIntegral* FractureElasticityVoigt::getLocalIntegral (size_t nen, size_t,
-                                                          bool neumann) const
+bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
+                                          const SymmTensor& epsil, double* Phi,
+                                          SymmTensor& sigma) const
 {
-  LocalIntegral* li = this->FractureElasticity::getLocalIntegral(nen,0,neumann);
-  if (m_mode >= SIM::RHS_ONLY && !neumann)
-    static_cast<ElmMats*>(li)->c.resize(1); // Total strain energy
-  return li;
+  return this->evalStress(lambda,mu,Gc,epsil,Phi,&sigma,nullptr);
 }
 
 
 bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
                                           const SymmTensor& epsil, double* Phi,
                                           SymmTensor* sigma, Matrix* dSdE,
-                                          bool postProc, bool printElm) const
+                                          bool printElm) const
 {
   PROFILE3("FractureEl::evalStress");
 
@@ -67,9 +65,7 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
   if (trEps >= -epsZ && trEps <= epsZ)
   {
     // No strains, stress free configuration
-    Phi[0] = 0.0;
-    if (postProc)
-      Phi[1] = Phi[2] = Phi[3] = 0.0;
+    Phi[0] = Phi[1] = Phi[2] = Phi[3] = 0.0;
     if (sigma)
       *sigma = 0.0;
     if (dSdE)
@@ -109,32 +105,29 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
   if (trEps < 0.0) Phi[1] += 0.5*lambda*trEps*trEps;
   // Evaluate the total strain energy
   Phi[2] = Gc*Phi[0] + Phi[1];
-  if (postProc) // Evaluate the bulk energy
-    Phi[3] = Gc*(Phi[0] + Phi[1]);
-  else if (sigmaC > 0.0) // Evaluate the crack driving function
+  // Evaluate the bulk energy
+  Phi[3] = Gc*(Phi[0] + Phi[1]);
+
+  if (sigmaC > 0.0) // Evaluate the Miehe crack driving function
     Phi[0] = this->MieheCrit56(eps,lambda,mu);
 
 #if INT_DEBUG > 4
   std::cout <<"eps_p = "<< eps <<"\n";
   for (a = 0; a < nsd; a++)
     std::cout <<"M("<< 1+a <<") =\n"<< M[a];
-  std::cout <<"ePos =\n"<< ePos <<"eNeg =\n"<< eNeg;
-  if (sigma) std::cout <<"sigma =\n"<< *sigma;
-  std::cout <<"Phi = "<< Phi[0] <<" "<< Phi[1] <<" "<< Phi[2];
-  if (postProc) std::cout <<" "<< Phi[3];
-  std::cout << std::endl;
+  printElm = true;
 #else
   if (printElm)
-  {
     std::cout <<"g(c) = "<< Gc
-              <<"\nepsilon =\n"<< epsil <<"eps_p = "<< eps
-              <<"\nePos =\n"<< ePos <<"eNeg =\n"<< eNeg;
+              <<"\nepsilon =\n"<< epsil <<"eps_p = "<< eps <<"\n";
+#endif
+  if (printElm)
+  {
+    std::cout <<"ePos =\n"<< ePos <<"eNeg =\n"<< eNeg;
     if (sigma) std::cout <<"sigma =\n"<< *sigma;
-    std::cout <<"Phi = "<< Phi[0] <<" "<< Phi[1] <<" "<< Phi[2];
-    if (postProc) std::cout <<" "<< Phi[3];
+    std::cout <<"Phi = "<< Phi[0] <<" "<< Phi[1] <<" "<< Phi[2] <<" "<< Phi[3];
     std::cout << std::endl;
   }
-#endif
 
   if (!dSdE)
     return true;
@@ -157,27 +150,23 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
       return Ma(i,j)*Ma(k,l);
     };
 
-    s_ind i, j, k, l, is, js;
+    s_ind i, j;
 
     // Normal stresses and strains
     for (i = 1; i <= nsd; i++)
       for (j = 1; j <= i; j++)
         Q(i,j) += C*Mult(i,i,j,j);
 
-    is = nsd+1;
-    for (i = 1; i < nsd; i++)
-      for (j = i+1; j <= nsd; j++, is++)
-      {
-        // Shear stress coupled to normal strain
-        for (k = 1; k <= nsd; k++)
-          Q(is,k) += C*Mult(i,j,k,k);
+    for (i = 1; nsd+i <= Q.rows(); i++)
+    {
+      // Shear stress coupled to normal strain
+      for (j = 1; j <= nsd; j++)
+        Q(nsd+i,j) += C*Mult(i,i%nsd+1,j,j);
 
-        // Shear stress coupled to shear strain
-        js = nsd+1;
-        for (k = 1; k < nsd; k++)
-          for (l = k+1; js <= is; l++, js++)
-            Q(is,js) += C*Mult(i,j,k,l);
-      }
+      // Shear stress and strain
+      for (j = 1; j <= i; j++)
+        Q(nsd+i,nsd+j) += C*Mult(i,i%nsd+1,j,j%nsd+1);
+    }
   };
 
   // Define a Lambda-function to calculate (lower triangle of) the matrix Gab
@@ -192,27 +181,23 @@ bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
              Mb(i,k)*Ma(j,l) + Mb(i,l)*Ma(j,k);
     };
 
-    s_ind i, j, k, l, is, js;
+    s_ind i, j;
 
     // Normal stresses and strains
     for (i = 1; i <= nsd; i++)
       for (j = 1; j <= i; j++)
         G(i,j) += C*Mult(i,i,j,j);
 
-    is = nsd+1;
-    for (i = 1; i < nsd; i++)
-      for (j = i+1; j <= nsd; j++, is++)
-      {
-        // Shear stress coupled to normal strain
-        for (k = 1; k <= nsd; k++)
-          G(is,k) += C*Mult(i,j,k,k);
+    for (i = 1; nsd+i <= G.rows(); i++)
+    {
+      // Shear stress coupled to normal strain
+      for (j = 1; j <= nsd; j++)
+        G(nsd+i,j) += C*Mult(i,i%nsd+1,j,j);
 
-        // Shear stress coupled to shear strain
-        js = nsd+1;
-        for (k = 1; k < nsd; k++)
-          for (l = k+1; js <= is; l++, js++)
-            G(is,js) += C*Mult(i,j,k,l);
-      }
+      // Shear stress and strain
+      for (j = 1; j <= i; j++)
+        G(nsd+i,nsd+j) += C*Mult(i,i%nsd+1,j,j%nsd+1);
+    }
   };
 
   // Evaluate the stress tangent assuming Voigt notation and symmetry
@@ -307,7 +292,7 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
 #endif
 
       // Evaluate the stress state at this point, with degraded tensile part
-      double Phi[3];
+      double Phi[4];
       if (!this->evalStress(lambda,mu,Gc,eps,Phi,&sigma,
                             eKm ? &dSdE : nullptr))
         return false;
@@ -356,14 +341,6 @@ bool FractureElasticityVoigt::evalInt (LocalIntegral& elmInt,
     elMat.c.front() += U*fe.detJxW;
 
   return true;
-}
-
-
-bool FractureElasticityVoigt::evalStress (double lambda, double mu, double Gc,
-                                          const SymmTensor& epsilon,
-                                          double* Phi, SymmTensor& sigma) const
-{
-  return this->evalStress(lambda,mu,Gc,epsilon,Phi,&sigma,nullptr,true);
 }
 
 
@@ -450,7 +427,7 @@ bool FractureElasticNorm::evalInt (LocalIntegral& elmInt,
     if (!p.material->evaluate(lambda,mu,fe,X))
       return false;
     // Evaluate the tensile-degraded strain energy
-    if (!p.evalStress(lambda,mu,Gc,eps,Phi,nullptr,nullptr,true,printElm))
+    if (!p.evalStress(lambda,mu,Gc,eps,Phi,nullptr,nullptr,printElm))
       return false;
   }
 

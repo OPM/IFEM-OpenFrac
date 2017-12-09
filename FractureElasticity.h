@@ -17,6 +17,7 @@
 #include "Elasticity.h"
 
 class Tensor4;
+class RealFunc;
 
 
 /*!
@@ -60,6 +61,13 @@ public:
   //! \param[in] MNPC Matrix of nodal point correspondance for current element
   //! \param elmInt Local integral for element
   virtual bool initElement(const std::vector<int>& MNPC, LocalIntegral& elmInt);
+
+  using Elasticity::getLocalIntegral;
+  //! \brief Returns a local integral container for the given element.
+  //! \param[in] nen Number of nodes on element
+  //! \param[in] neumann Whether or not we are assembling Neumann BCs
+  virtual LocalIntegral* getLocalIntegral(size_t nen, size_t,
+                                          bool neumann) const;
 
   using Elasticity::evalInt;
   //! \brief Evaluates the integrand at an interior point.
@@ -109,14 +117,13 @@ public:
 protected:
   //! \brief Evaluates the stress tensor and tensile energy at current point.
   virtual bool evalStress(double lambda, double mu, double Gc,
-                          const SymmTensor& epsilon,
-                          double* Phi, SymmTensor& sigma) const;
+                          const SymmTensor& epsilon, double* Phi,
+                          SymmTensor& sigma) const;
 
   //! \brief Evaluates the stress tensor and its derivative w.r.t. the strains.
   bool evalStress(double lambda, double mu, double Gc,
                   const SymmTensor& epsilon, double* Phi,
-                  SymmTensor& sigma, Tensor4* dSdE,
-                  bool postProc = false) const;
+                  SymmTensor& sigma, Tensor4* dSdE) const;
 
   //! \brief Evaluates the stress degradation function \a g(c) at current point.
   double getStressDegradation(const Vector& N, const Vectors& eV) const;
@@ -145,7 +152,7 @@ private:
 protected:
   double sigmaC; //!< Critical fracture tensile stress
   double zeta;   //!< Slope parameter for the driving crack force
-  double tSplit; //!< No strain energy split before this time (<0.0: always)
+  double tSplit; //!< No strain energy split before this time (< 0.0: always)
 
   mutable RealArray myPhi; //!< Tensile energy density at integration points
   Vectors&          mySol; //!< Primary solution vectors for current patch

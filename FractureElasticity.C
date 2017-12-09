@@ -175,6 +175,16 @@ bool FractureElasticity::initElement (const std::vector<int>& MNPC,
 }
 
 
+LocalIntegral* FractureElasticity::getLocalIntegral (size_t nen, size_t,
+                                                     bool neumann) const
+{
+  LocalIntegral* li = this->Elasticity::getLocalIntegral(nen,0,neumann);
+  if (m_mode >= SIM::RHS_ONLY && !neumann)
+    static_cast<ElmMats*>(li)->c.resize(1); // Total strain energy
+  return li;
+}
+
+
 double FractureElasticity::MieheCrit56 (const Vec3& eps,
                                         double lambda, double mu) const
 {
@@ -194,9 +204,16 @@ double FractureElasticity::MieheCrit56 (const Vec3& eps,
 
 
 bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
+                                     const SymmTensor& epsilon,
+                                     double* Phi, SymmTensor& sigma) const
+{
+  return this->evalStress(lambda,mu,Gc,epsilon,Phi,sigma,nullptr);
+}
+
+
+bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
                                      const SymmTensor& epsilon, double* Phi,
-                                     SymmTensor& sigma, Tensor4* dSdE,
-                                     bool postProc) const
+                                     SymmTensor& sigma, Tensor4* dSdE) const
 {
   PROFILE3("FractureEl::evalStress");
 
@@ -224,9 +241,7 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
   if (trEps >= -epsZ && trEps <= epsZ)
   {
     // No strains, stress free configuration
-    sigma = Phi[0] = 0.0;
-    if (postProc)
-      Phi[1] = Phi[2] = 0.0;
+    sigma = Phi[0] = Phi[1] = Phi[2] = 0.0;
     if (dSdE)
       setIsotropic(*dSdE,Cp);
     return true;
@@ -256,16 +271,13 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
   // Evaluate the tensile energy
   Phi[0] = mu*(ePos*ePos).trace();
   if (trEps > 0.0) Phi[0] += 0.5*lambda*trEps*trEps;
+  // Evaluate the compressive energy
+  Phi[1] = mu*(eNeg*eNeg).trace();
+  if (trEps < 0.0) Phi[1] += 0.5*lambda*trEps*trEps;
+  // Evaluate the total strain energy
+  Phi[2] = Gc*Phi[0] + Phi[1];
 
-  if (postProc)
-  {
-    // Evaluate the compressive energy
-    Phi[1] = mu*(eNeg*eNeg).trace();
-    if (trEps < 0.0) Phi[1] += 0.5*lambda*trEps*trEps;
-    // Evaluate the total strain energy
-    Phi[2] = Gc*Phi[0] + Phi[1];
-  }
-  else if (sigmaC > 0.0) // Evaluate the crack driving function
+  if (sigmaC > 0.0) // Evaluate the Miehe crack driving function
     Phi[0] = this->MieheCrit56(eps,lambda,mu);
 
 #if INT_DEBUG > 4
@@ -273,14 +285,12 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
   for (a = 0; a < nsd; a++)
     std::cout <<"M("<< 1+a <<") =\n"<< M[a];
   std::cout <<"ePos =\n"<< ePos <<"eNeg =\n"<< eNeg <<"sigma =\n"<< sigma
-            <<"Phi = "<< Phi[0];
-  if (postProc) std::cout <<" "<< Phi[1] <<" "<< Phi[2];
-  std::cout << std::endl;
+            <<"Phi = "<< Phi[0] <<" "<< Phi[1] <<" "<< Phi[2] << std::endl;
 #endif
 
-  if (!dSdE) return true;
-
-  if (eps[0] == eps[nsd-1])
+  if (!dSdE)
+    return true;
+  else if (eps[0] == eps[nsd-1])
   {
     // Hydrostatic pressure
     setIsotropic(*dSdE, eps.x > 0.0 ? Cp : mu);
@@ -330,14 +340,6 @@ bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
 }
 
 
-bool FractureElasticity::evalStress (double lambda, double mu, double Gc,
-                                     const SymmTensor& epsilon,
-                                     double* Phi, SymmTensor& sigma) const
-{
-  return this->evalStress(lambda,mu,Gc,epsilon,Phi,sigma,nullptr,true);
-}
-
-
 double FractureElasticity::getStressDegradation (const Vector& N,
                                                  const Vectors& eV) const
 {
@@ -381,6 +383,7 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
   Tensor4 dSdE(nsd);
   SymmTensor eps(nsd), sigma(nsd);
   bool lHaveStrains = false;
+  double U = 0.0;
 
   if (eKm || eKg || iS || m_mode == SIM::RECOVERY)
   {
@@ -411,10 +414,13 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
 #endif
 
     // Evaluate the stress state at this point
-    if (!this->evalStress(lambda, mu, Gc, eps,
-                          m_mode == SIM::RHS_ONLY ? &mu : &myPhi[fe.iGP],
-                          sigma, eKm ? &dSdE : nullptr))
+    double Phi[3];
+    if (!this->evalStress(lambda,mu,Gc,eps,Phi,sigma, eKm ? &dSdE : nullptr))
       return false;
+
+    if (m_mode != SIM::RHS_ONLY)
+      myPhi[fe.iGP] = Phi[0];
+    U = Phi[2];
   }
 
   // Define a Lambda-function to extract a symmetric tensor from the B-matrix
@@ -432,7 +438,6 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
 #if INT_DEBUG > 3
     std::cout <<"dSdE ="<< dSdE;
 #endif
-
     // Integrate the material stiffness matrix
     SymmTensor dEpsAi(nsd), dEpsBj(nsd);
     Matrix& Km = elMat.A[eKm-1];
@@ -479,6 +484,10 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
     // Integrate the load vector due to internal crack pressure
     this->formCrackForce(elMat.b[eS-1],elMat.vec,fe,X);
   }
+
+  if (lHaveStrains && !elMat.c.empty())
+    // Integrate the total strain energy
+    elMat.c.front() += U*fe.detJxW;
 
   return true;
 }
