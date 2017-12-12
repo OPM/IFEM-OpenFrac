@@ -201,25 +201,32 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
 
   double& H = historyField[fe.iGP];
   double GcOell = 0.5*Gc/smearing; // Note: ell = 2*smearing
+  double dist = 0.0, Psi = 0.0;
 
-  if (initial_crack && !(tensileEnergy && gammaInv > 0.0)) {
-    // Initialize the history field using the specified initial crack function
-    double dist = (*initial_crack)(X);
-    if (dist < smearing)
+  // Initialize the history field using the specified initial crack function
+  if (initial_crack && !(tensileEnergy && gammaInv > 0.0))
+    if ((dist = (*initial_crack)(X)) < smearing)
       H = (0.5*GcOell) * (1.0/maxCrack-1.0) * (1.0-dist/smearing);
-  }
 
   // Update history field
-  if (tensileEnergy) {
-    double Psi = (*tensileEnergy)[fe.iGP];
-    if (gammaInv > 0.0 || Psi > H) H = Psi;
-  }
+  if (tensileEnergy && tensileEnergy->size() == historyField.size())
+    if ((Psi = (*tensileEnergy)[fe.iGP]) > H || gammaInv > 0.0)
+      H = Psi;
 
   // Evaluate the previous phase field, if provided
   double C = elmInt.vec.back().empty() ? 1.0 : fe.N.dot(elmInt.vec.back());
   bool inCrack = gammaInv > 0.0 && C < pthresh;
 #if INT_DEBUG > 3
   std::cout <<"\nCahnHilliard::evalInt(X = "<< X <<"): C = "<< C;
+  if (Psi > 0.0 || (dist > 0.0 && dist < smearing))
+  {
+    std::cout <<"\n\tHistory field, iGp="<< fe.iGP;
+    if (Psi > 0.0)
+      std::cout <<": (from tensile energy = "<< Psi;
+    else
+      std::cout <<": (from initial crack = "<< dist;
+    std::cout <<") "<< H;
+  }
 #endif
 
   double scale = 1.0 + 2.0*(1.0-stabk)*H/GcOell;

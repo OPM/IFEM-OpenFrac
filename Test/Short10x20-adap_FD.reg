@@ -104,25 +104,7 @@ Number of unknowns    231
   Minimum element area: 0.00125
   Elements to refine: 12 (|c| = \[0.00299945,0.0468035])
 Refined mesh: 284 elements 308 nodes.
-4. Elasticity solver
-Parsing input file Short10x20-p1-adap.xinp
-Parsing <discretization>
-Parsing <geometry>
-  Parsing <refine>
-  Parsing <topologysets>
-	Topology sets: Loaded (1,3,1D) (1,4,1D)
-  Parsing <refine>
-  Parsing <topologysets>
-Parsing <cahnhilliard>
-Parsing <elasticity>
-  Parsing <isotropic>
-	Material code 0: 3.2e+10 0.2 2450
-  Parsing <neumann>
-	Neumann code 1000000 direction 0: 1e+06
-Parsing <newmarksolver>
-Parsing <adaptive>
-Parsing input file succeeded.
-5. Cahn-Hilliard solver
+4. Cahn-Hilliard solver
 Parsing input file Short10x20-p1-adap.xinp
 Parsing <discretization>
 Parsing <geometry>
@@ -136,21 +118,7 @@ Parsing <elasticity>
 Parsing <newmarksolver>
 Parsing <adaptive>
 Parsing input file succeeded.
-13. Elasticity solver
-Problem definition:
-Elasticity: 2D, gravity = 0 0
-LinIsotropic: E = 3.2e+10, nu = 0.2, rho = 2450, alpha = 1.2e-07
-	No geometric stiffness.
-	Degrading of tensile strain energy density.
-Newmark predictor/multicorrector: beta = 0.444444 gamma = 0.833333
- using zero acceleration predictor
-Resolving Dirichlet boundary conditions
- >>> SAM model summary <<<
-Number of elements    284
-Number of nodes       308
-Number of dofs        616
-Number of unknowns    616
-14. Cahn-Hilliard solver
+13. Cahn-Hilliard solver
 Problem definition:
 Cahn-Hilliard: 2D
 	Critical fracture energy density: 3
@@ -175,6 +143,38 @@ Number of unknowns    308
   Highest element:     ...    |c| = 1
   Minimum |c|-value for refinement: 0.2
   Minimum element area: 0.00125
+5. Elasticity solver
+Parsing input file Short10x20-p1-adap.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Loaded (1,3,1D) (1,4,1D)
+  Parsing <refine>
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+Parsing <elasticity>
+  Parsing <isotropic>
+	Material code 0: 3.2e+10 0.2 2450
+  Parsing <neumann>
+	Neumann code 1000000 direction 0: 1e+06
+Parsing <newmarksolver>
+Parsing <adaptive>
+Parsing input file succeeded.
+14. Elasticity solver
+Problem definition:
+Elasticity: 2D, gravity = 0 0
+LinIsotropic: E = 3.2e+10, nu = 0.2, rho = 2450, alpha = 1.2e-07
+	No geometric stiffness.
+	Degrading of tensile strain energy density.
+Newmark predictor/multicorrector: beta = 0.444444 gamma = 0.833333
+ using zero acceleration predictor
+Resolving Dirichlet boundary conditions
+ >>> SAM model summary <<<
+Number of elements    284
+Number of nodes       308
+Number of dofs        616
+Number of unknowns    616
 100. Starting the simulation
   Solving the elasto-dynamics problem...
   step=1  time=5e-07

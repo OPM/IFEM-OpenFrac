@@ -173,16 +173,46 @@ public:
     TimeStep step0;
     int newElements = 1;
     for (step0.iter = 0; newElements > 0; step0.iter++)
+    {
+      if (step0.iter > 0)
+      {
+        // Reinitialize the phase field solver (S2) on the refined mesh
+        if (!this->S2.read(infile.c_str()))
+          return false;
+        if (!this->S1.createFEMmodel()) // Because S2 shares the mesh with S1
+          return false;
+        if (!this->S2.preprocess())
+          return false;
+        if (!this->S2.init(step0))
+          return false;
+        if (!this->S2.initSystem(this->S2.opt.solver))
+          return false;
+      }
       if (!this->S2.solveStep(step0))
         return false;
-      else
-        newElements = this->adaptMesh(beta,min_frac,nrefinements);
+      if ((newElements = this->adaptMesh(beta,min_frac,nrefinements,true)) < 0)
+        return false;
+    }
 
-    return newElements == 0;
+    if (step0.iter > 1)
+    {
+      // Reinitialize the elasticity solver (S1) on the refined mesh
+      if (!this->S1.read(infile.c_str()))
+        return false;
+      if (!this->S1.preprocess())
+        return false;
+      if (!this->S1.init(step0))
+        return false;
+      if (!this->S1.initSystem(this->S1.opt.solver,1,1,0,true))
+        return false;
+    }
+
+    return true;
   }
 
   //! \brief Refines the mesh with transfer of solution onto the new mesh.
-  int adaptMesh(double beta, double min_frac, int nrefinements)
+  int adaptMesh(double beta, double min_frac, int nrefinements,
+                bool remeshOnly = false)
   {
     // Define maximum refinements per element
     RealArray sMin;
@@ -255,6 +285,9 @@ public:
     // Re-initialize the simulators for the new mesh
     this->S1.clearProperties();
     this->S2.clearProperties();
+    if (remeshOnly)
+      return elements.size();
+
     if (!this->S1.read(infile.c_str()) || !this->S2.read(infile.c_str()))
       return -3;
 
