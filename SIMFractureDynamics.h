@@ -322,13 +322,13 @@ public:
     this->S1.iterationNorms(Vector(), residual, dummy, rNorm, dummy);
     rHistory.push_back(rNorm);
 
-    double beta = 10.0, rConv = rNorm/rHistory.front();
+    double rConv = rNorm/rHistory.front();
     IFEM::cout <<"  cycle="<< cycle <<"  conv="<< rConv;
     if (cycle > 0)
     {
       double r0 = rHistory.front();
       double r2 = rHistory[cycle-1];
-      beta = atan2(cycle*(r2-rNorm),r0-rNorm) * 180.0/M_PI;
+      double beta = atan2(cycle*(r2-rNorm),r0-rNorm) * 180.0/M_PI;
       IFEM::cout <<"  beta="<< beta;
     }
     IFEM::cout << std::endl;

@@ -35,7 +35,7 @@ template<class Dim> class SIMPhaseField : public Dim
 {
 public:
   //! \brief Default constructor.
-  SIMPhaseField(Dim* gridOwner = nullptr) : Dim(1)
+  explicit SIMPhaseField(Dim* gridOwner = nullptr) : Dim(1)
   {
     Dim::myHeading = "Cahn-Hilliard solver";
     if (gridOwner && gridOwner->createFEMmodel())
