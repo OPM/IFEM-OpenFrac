@@ -1,0 +1,433 @@
+ts1-50x40.xinp -2D -Miehe
+
+Input file: ts1-50x40.xinp
+Equation solver: 2
+Number of Gauss points: 4
+0. Parsing input file(s).
+1. Elasticity solver
+Parsing input file ts1-50x40.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Generating linear geometry on unit parameter domain \[0,1]^2
+  Parsing <refine>
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Bottom (1,3,1D)
+	               Fixed (1,1,0D)
+	               Top (1,4,1D)
+  Parsing <refine>
+	Refining P1 49 0
+  Parsing <refine>
+	Refining P1 dir=2 with grading C5 39 0.01 2.0:
+	0.0503688 0.10071 0.150005 0.197402 0.242202 0.283857 0.321955 0.356211 0.386463 0.412656
+	0.434838 0.453149 0.467809 0.479115 0.487427 0.493158 0.496771 0.498762 0.499658 0.5
+	0.500342 0.501238 0.503229 0.506842 0.512573 0.520885 0.532191 0.546851 0.565162 0.587344
+	0.613537 0.643789 0.678045 0.716143 0.757798 0.802598 0.849995 0.89929 0.949631
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+Parsing <elasticity>
+  Parsing <isotropic>
+	Material code 0: 210 0.3
+  Parsing <dirichlet>
+	Dirichlet code -2 (linear): 0.01\*t
+  Parsing <dirichlet>
+	Dirichlet code 1000002: (fixed)
+  Parsing <dirichlet>
+	Dirichlet code 1: (fixed)
+  Parsing <boundaryforce>
+	Boundary force "Top" code 1000000
+Parsing <nonlinearsolver>
+Parsing input file succeeded.
+Equation solver: 2
+Number of Gauss points: 2
+2. Cahn-Hilliard solver
+Parsing input file ts1-50x40.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Parsing <refine>
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Bottom (1,3,1D)
+	               Fixed (1,1,0D)
+	               Top (1,4,1D)
+  Parsing <refine>
+	Refining P1 49 0
+  Parsing <refine>
+	Refining P1 dir=2 with grading C5 39 0.01 2.0:
+	0.0503688 0.10071 0.150005 0.197402 0.242202 0.283857 0.321955 0.356211 0.386463 0.412656
+	0.434838 0.453149 0.467809 0.479115 0.487427 0.493158 0.496771 0.498762 0.499658 0.5
+	0.500342 0.501238 0.503229 0.506842 0.512573 0.520885 0.532191 0.546851 0.565162 0.587344
+	0.613537 0.643789 0.678045 0.716143 0.757798 0.802598 0.849995 0.89929 0.949631
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+	Initial condition expression function: dX=x-0.5; dY=y-0.5; ell=0.015; d=if(below(dX,0.0),abs(dY),sqrt(dX\*dX+dY\*dY)); 1.0-exp(-d/ell)
+	Field name: "phasefield" on basis 1 (component 1)
+Parsing <elasticity>
+Parsing <nonlinearsolver>
+Parsing input file succeeded.
+Equation solver: 2
+Number of Gauss points: 2
+3. Time integration driver
+Parsing input file ts1-50x40.xinp
+Parsing <geometry>
+Parsing <cahnhilliard>
+Parsing <elasticity>
+Parsing <discretization>
+Parsing <nonlinearsolver>
+Parsing input file succeeded.
+10. Preprocessing the finite element model:
+11. Elasticity solver
+Problem definition:
+Elasticity: 2D, gravity = 0 0
+LinIsotropic: E = 210, nu = 0.3, rho = 7850, alpha = 1.2e-07
+	No geometric stiffness.
+	Stabilization parameter: 1e-06
+	Degrading of tensile strain energy density.
+Resolving Dirichlet boundary conditions
+	Constraining P1 V1 in direction(s) 1
+	Constraining P1 E4 in direction(s) 2 code = 2
+	Constraining P1 E3 in direction(s) 2
+ >>> SAM model summary <<<
+Number of elements    2000
+Number of nodes       2091
+Number of dofs        4182
+Number of constraints 51
+Number of unknowns    4079
+12. Cahn-Hilliard solver
+Problem definition:
+Cahn-Hilliard: 2D
+	Critical fracture energy density: 0.0027
+	Smearing factor: 0.0075
+	Max value in crack: 0.001
+	Stabilization parameter: 1e-06
+	Enforcing crack irreversibility using history buffer.
+Initial phase field specified.
+Resolving Dirichlet boundary conditions
+ >>> SAM model summary <<<
+Number of elements    2000
+Number of nodes       2091
+Number of dofs        2091
+Number of unknowns    2091
+Loading initial condition for "phasefield" component 1
+from expression function: dX=x-0.5; dY=y-0.5; ell=0.015; d=if(below(dX,0.0),abs(dY),sqrt(dX\*dX+dY\*dY)); 1.0-exp(-d/ell)
+100. Starting the simulation
+  Initial phase field...
+  Primary solution summary: L2-norm      : 0.92325
+                            Max value    : 1
+                            Min value    : 0 node 1021
+                            Range        : 1
+  Dissipated energy:               eps_d : 0.00139208
+  Solving the elasto-dynamics problem...
+  step=1  time=0.01
+  Primary solution summary: L2-norm         : 4.42828e-05
+                            Max X-component : 3.53817e-05
+                            Max Y-component : 0.0001
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -1.48401e-06
+  Res = .*e-1. + 0.000539492 = 0.000539492
+    E = 7.42007e-07 + 0.00139208 = 0.00139283
+  step=2  time=0.2
+  Primary solution summary: L2-norm      : 0.922844
+                            Max value    : 0.99999
+                            Min value    : 0.00135326 node 1045
+                            Range        : 0.998647
+  Primary solution summary: L2-norm         : 0.000897138
+                            Max X-component : 0.000713512
+                            Max Y-component : 0.00204655
+  cycle 0: Res = .*e-1. + 0.000120912 = 0.000120912  E = 0.00028641 + 0.00134996 = 0.00163637
+  Primary solution summary: L2-norm      : 0.922681
+                            Max value    : 0.99999
+                            Min value    : -0.000704127 node 1045
+                            Range        : 1.0007
+  step=2  time=0.2
+  Primary solution summary: L2-norm         : 0.000901882
+                            Max X-component : 0.000710166
+                            Max Y-component : 0.00208052
+  cycle 1: Res = .*e-1. + 4.74519e-05 = 4.74519e-05  E = 0.000280293 + 0.00135528 = 0.00163557  beta=45
+  Primary solution summary: L2-norm      : 0.922655
+                            Max value    : 0.999986
+                            Min value    : -0.000855338 node 1045
+                            Range        : 1.00086
+  step=2  time=0.2
+  Primary solution summary: L2-norm         : 0.00090328
+                            Max X-component : 0.000708608
+                            Max Y-component : 0.00209011
+  cycle 2: Res = .*e-1. + 1.53583e-05 = 1.53583e-05  E = 0.000278356 + 0.00135712 = 0.00163548  beta=11.9855
+  Primary solution summary: L2-norm      : 0.922647
+                            Max value    : 0.999984
+                            Min value    : -0.00088328 node 1045
+                            Range        : 1.00088
+  step=2  time=0.2
+  Primary solution summary: L2-norm         : 0.000903675
+                            Max X-component : 0.000707891
+                            Max Y-component : 0.00209249
+  cycle 3: Res = .*e-1. + 5.70787e-06 = 5.70787e-06  E = 0.000277713 + 0.00135777 = 0.00163549  beta=-1.1105
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -0.000555426
+  Elastic strain energy:           eps_e : 0.000277713
+  Bulk energy:                     eps_b : 0.000277141
+  Tensile & compressive energies         : 0.237321 3.54944e-05
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0166647
+  Primary solution summary: L2-norm      : 0.922647
+                            Max value    : 0.999984
+                            Min value    : -0.00088328 node 1045
+                            Range        : 1.00088
+  Dissipated energy:               eps_d : 0.00135777
+  step=3  time=0.25
+  Primary solution summary: L2-norm      : 0.921145
+                            Max value    : 0.999977
+                            Min value    : -0.0021619 node 1045
+                            Range        : 1.00216
+  Primary solution summary: L2-norm         : 0.00113277
+                            Max X-component : 0.000875928
+                            Max Y-component : 0.00263462
+  cycle 0: Res = .*e-1. + 4.82763e-05 = 4.82763e-05  E = 0.000424781 + 0.00136532 = 0.0017901
+  Primary solution summary: L2-norm      : 0.921092
+                            Max value    : 0.999973
+                            Min value    : -0.00240675 node 1045
+                            Range        : 1.00241
+  step=3  time=0.25
+  Primary solution summary: L2-norm         : 0.00113343
+                            Max X-component : 0.000873376
+                            Max Y-component : 0.00263726
+  cycle 1: Res = .*e-1. + 1.83533e-05 = 1.83533e-05  E = 0.000422796 + 0.00136719 = 0.00178999  beta=45
+  Primary solution summary: L2-norm      : 0.921074
+                            Max value    : 0.999972
+                            Min value    : -0.00250282 node 1045
+                            Range        : 1.0025
+  step=3  time=0.25
+  Primary solution summary: L2-norm         : 0.00113361
+                            Max X-component : 0.000872397
+                            Max Y-component : 0.00263774
+  cycle 2: Res = .*e-1. + 8.32701e-06 = 8.32701e-06  E = 0.000422111 + 0.00136788 = 0.00178999  beta=-6.49945
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -0.000844222
+  Elastic strain energy:           eps_e : 0.000422111
+  Bulk energy:                     eps_b : 0.000420925
+  Tensile & compressive energies         : 0.426224 5.5369e-05
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0205453
+  Primary solution summary: L2-norm      : 0.921074
+                            Max value    : 0.999972
+                            Min value    : -0.00250282 node 1045
+                            Range        : 1.0025
+  Dissipated energy:               eps_d : 0.00136788
+  step=4  time=0.3
+  Primary solution summary: L2-norm      : 0.91914
+                            Max value    : 0.999964
+                            Min value    : -0.00382993 node 1045
+                            Range        : 1.00383
+  Primary solution summary: L2-norm         : 0.00136183
+                            Max X-component : 0.00103949
+                            Max Y-component : 0.00317386
+  cycle 0: Res = .*e-1. + 3.23015e-05 = 3.23015e-05  E = 0.000599406 + 0.00137548 = 0.00197488
+  Primary solution summary: L2-norm      : 0.919063
+                            Max value    : 0.999963
+                            Min value    : -0.00344822 node 1045
+                            Range        : 1.00345
+  step=4  time=0.3
+  Primary solution summary: L2-norm         : 0.0013621
+                            Max X-component : 0.00103775
+                            Max Y-component : 0.00317449
+  cycle 1: Res = .*e-1. + 1.52447e-05 = 1.52447e-05  E = 0.000597956 + 0.00137696 = 0.00197491  beta=-135
+  Primary solution summary: L2-norm      : 0.919036
+                            Max value    : 0.999962
+                            Min value    : -0.00269664 node 1045
+                            Range        : 1.0027
+  step=4  time=0.3
+  Primary solution summary: L2-norm         : 0.0013622
+                            Max X-component : 0.00103697
+                            Max Y-component : 0.0031746
+  cycle 2: Res = .*e-1. + 8.67694e-06 = 8.67694e-06  E = 0.000597341 + 0.00137759 = 0.00197493  beta=-144.569
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -0.00119468
+  Elastic strain energy:           eps_e : 0.000597341
+  Bulk energy:                     eps_b : 0.000595119
+  Tensile & compressive energies         : 0.65132 7.92594e-05
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0244406
+  Primary solution summary: L2-norm      : 0.919036
+                            Max value    : 0.999962
+                            Min value    : -0.00269664 node 1045
+                            Range        : 1.0027
+  Dissipated energy:               eps_d : 0.00137759
+  step=5  time=0.35
+  Primary solution summary: L2-norm      : 0.916732
+                            Max value    : 0.999953
+                            Min value    : -0.00253685 node 1045
+                            Range        : 1.00254
+  Primary solution summary: L2-norm         : 0.00159004
+                            Max X-component : 0.00120252
+                            Max Y-component : 0.00370837
+  cycle 0: Res = .*e-1. + 2.97084e-05 = 2.97084e-05  E = 0.000803439 + 0.00138659 = 0.00219003
+  Primary solution summary: L2-norm      : 0.916616
+                            Max value    : 0.999952
+                            Min value    : -0.00200873 node 1045
+                            Range        : 1.00201
+  step=5  time=0.35
+  Primary solution summary: L2-norm         : 0.0015902
+                            Max X-component : 0.00120106
+                            Max Y-component : 0.00370858
+  cycle 1: Res = .*e-1. + 1.41593e-05 = 1.41593e-05  E = 0.000802065 + 0.00138813 = 0.00219019  beta=-135
+  Primary solution summary: L2-norm      : 0.916577
+                            Max value    : 0.999952
+                            Min value    : -0.00185092 node 1045
+                            Range        : 1.00185
+  step=5  time=0.35
+  Primary solution summary: L2-norm         : 0.00159025
+                            Max X-component : 0.00120054
+                            Max Y-component : 0.00370861
+  cycle 2: Res = .*e-1. + 4.62494e-06 = 4.62494e-06  E = 0.000801598 + 0.00138871 = 0.00219031  beta=-140.146
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -0.0016032
+  Elastic strain energy:           eps_e : 0.000801598
+  Bulk energy:                     eps_b : 0.000797785
+  Tensile & compressive energies         : 0.915837 0.000106859
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0283125
+  Primary solution summary: L2-norm      : 0.916577
+                            Max value    : 0.999952
+                            Min value    : -0.00185092 node 1045
+                            Range        : 1.00185
+  Dissipated energy:               eps_d : 0.00138871
+  step=6  time=0.4
+  Primary solution summary: L2-norm      : 0.913937
+                            Max value    : 0.999946
+                            Min value    : -0.00199172 node 1045
+                            Range        : 1.00199
+  Primary solution summary: L2-norm         : 0.0018178
+                            Max X-component : 0.00136484
+                            Max Y-component : 0.00424113
+  cycle 0: Res = .*e-1. + 8.82416e-06 = 8.82416e-06  E = 0.00103564 + 0.00139965 = 0.00243529
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -0.00207129
+  Elastic strain energy:           eps_e : 0.00103564
+  Bulk energy:                     eps_b : 0.00102965
+  Tensile & compressive energies         : 1.213 0.000138003
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0321814
+  Primary solution summary: L2-norm      : 0.913937
+                            Max value    : 0.999946
+                            Min value    : -0.00199172 node 1045
+                            Range        : 1.00199
+  Dissipated energy:               eps_d : 0.00139965
+  step=7  time=0.45
+  Primary solution summary: L2-norm      : 0.910837
+                            Max value    : 0.999937
+                            Min value    : -0.00253538 node 1045
+                            Range        : 1.00254
+  Primary solution summary: L2-norm         : 0.00204524
+                            Max X-component : 0.00152595
+                            Max Y-component : 0.00477282
+  cycle 0: Res = .*e-1. + 8.36674e-06 = 8.36674e-06  E = 0.00129449 + 0.001415 = 0.00270949
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -0.00258898
+  Elastic strain energy:           eps_e : 0.00129449
+  Bulk energy:                     eps_b : 0.0012855
+  Tensile & compressive energies         : 1.55291 0.000172179
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.035979
+  Primary solution summary: L2-norm      : 0.910837
+                            Max value    : 0.999937
+                            Min value    : -0.00253538 node 1045
+                            Range        : 1.00254
+  Dissipated energy:               eps_d : 0.00141499
+  step=8  time=0.5
+  Primary solution summary: L2-norm      : 0.907358
+                            Max value    : 0.999928
+                            Min value    : -0.00268675 node 1045
+                            Range        : 1.00269
+  Primary solution summary: L2-norm         : 0.00227262
+                            Max X-component : 0.00168351
+                            Max Y-component : 0.00530372
+  cycle 0: Res = .*e-1. + 9.64691e-06 = 9.64691e-06  E = 0.0015758 + 0.0014354 = 0.0030112
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -0.0031516
+  Elastic strain energy:           eps_e : 0.0015758
+  Bulk energy:                     eps_b : 0.00156287
+  Tensile & compressive energies         : 1.93673 0.000208987
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0396964
+  Primary solution summary: L2-norm      : 0.907358
+                            Max value    : 0.999928
+                            Min value    : -0.00268675 node 1045
+                            Range        : 1.00269
+  Dissipated energy:               eps_d : 0.00143539
+  step=9  time=0.55
+  Primary solution summary: L2-norm      : 0.903502
+                            Max value    : 0.999923
+                            Min value    : -0.00224357 node 1045
+                            Range        : 1.00224
+  Primary solution summary: L2-norm         : 0.00250002
+                            Max X-component : 0.00183662
+                            Max Y-component : 0.00583387
+  cycle 0: Res = .*e-1. + 1.4392e-05 = 1.4392e-05  E = 0.0018762 + 0.00146219 = 0.00333839
+  Primary solution summary: L2-norm      : 0.902933
+                            Max value    : 0.999923
+                            Min value    : -0.00220966 node 1045
+                            Range        : 1.00221
+  step=9  time=0.55
+  Primary solution summary: L2-norm         : 0.00250032
+                            Max X-component : 0.00183089
+                            Max Y-component : 0.00583315
+  cycle 1: Res = .*e-1. + 1.5347e-05 = 1.5347e-05  E = 0.00186749 + 0.00146964 = 0.00333713  beta=45
+  Primary solution summary: L2-norm      : 0.902544
+                            Max value    : 0.999923
+                            Min value    : -0.00240679 node 1045
+                            Range        : 1.00241
+  step=9  time=0.55
+  Primary solution summary: L2-norm         : 0.00250064
+                            Max X-component : 0.00182563
+                            Max Y-component : 0.00583255
+  cycle 2: Res = .*e-1. + 1.81744e-05 = 1.81744e-05  E = 0.00185983 + 0.00147609 = 0.00333591  beta=44.5125
+  Primary solution summary: L2-norm      : 0.902197
+                            Max value    : 0.999923
+                            Min value    : -0.0023895 node 1045
+                            Range        : 1.00239
+  step=9  time=0.55
+  Primary solution summary: L2-norm         : 0.00250097
+                            Max X-component : 0.00182061
+                            Max Y-component : 0.00583197
+  cycle 3: Res = .*e-1. + 2.39856e-05 = 2.39856e-05  E = 0.00185254 + 0.00148215 = 0.00333469  beta=44.7539
+  Primary solution summary: L2-norm      : 0.901863
+                            Max value    : 0.999923
+                            Min value    : -0.00239694 node 1045
+                            Range        : 1.0024
+  step=9  time=0.55
+  Primary solution summary: L2-norm         : 0.00250131
+                            Max X-component : 0.00181582
+                            Max Y-component : 0.0058314
+  cycle 4: Res = .*e-1. + 2.61322e-05 = 2.61322e-05  E = 0.00184554 + 0.001488 = 0.00333354  beta=43.4433
+  Primary solution summary: L2-norm      : 0.901535
+                            Max value    : 0.999923
+                            Min value    : -0.00207796 node 1045
+                            Range        : 1.00208
+  step=9  time=0.55
+  Primary solution summary: L2-norm         : 0.00250161
+                            Max X-component : 0.0018115
+                            Max Y-component : 0.00583079
+  cycle 5: Res = .*e-1. + 1.95031e-05 = 1.95031e-05  E = 0.00183913 + 0.00149351 = 0.00333265  beta=37.9814
+  Primary solution summary: L2-norm      : 0.901221
+                            Max value    : 0.999923
+                            Min value    : -0.00161361 node 1045
+                            Range        : 1.00161
+  step=9  time=0.55
+  Primary solution summary: L2-norm         : 0.00250185
+                            Max X-component : 0.00180778
+                            Max Y-component : 0.0058302
+  cycle 6: Res = .*e-1. + 1.02255e-05 = 1.02255e-05  E = 0.00183353 + 0.00149851 = 0.00333205  beta=29.5319
+  Primary solution summary: L2-norm      : 0.900934
+                            Max value    : 0.999923
+                            Min value    : -0.00125108 node 1045
+                            Range        : 1.00125
+  step=9  time=0.55
+  Primary solution summary: L2-norm         : 0.00250205
+                            Max X-component : 0.00180454
+                            Max Y-component : 0.00582964
+  cycle 7: Res = .*e-1. + 7.2386e-06 = 7.2386e-06  E = 0.00182861 + 0.001503 = 0.0033316  beta=24.5994
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -0.00365721
+  Elastic strain energy:           eps_e : 0.00182861
+  Bulk energy:                     eps_b : 0.00181035
+  Tensile & compressive energies         : 2.45433 0.000241694
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0427622
+  Primary solution summary: L2-norm      : 0.900934
+                            Max value    : 0.999923
+                            Min value    : -0.00125108 node 1045
+                            Range        : 1.00125
+  Dissipated energy:               eps_d : 0.00150299
+  Time integration completed.

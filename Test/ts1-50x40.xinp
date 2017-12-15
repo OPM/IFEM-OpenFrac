@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<simulation>
+
+  <!-- Test 5.1 in Miehe2010apf: Single edge notched tension.
+       First order Tensor spline grid (ts1), using an initial
+       phase field to describe the initial slit in the domain.
+       One patch with 50x40 rectangular elements, graded
+       in the Y-direction towards the central crack line. -->
+
+  <geometry>
+    <refine u="49"/>
+    <refine dir="2">C5 39 0.01 2.0</refine>
+    <topologysets>
+      <set name="Fixed" type="vertex">
+        <item patch="1">1</item>
+      </set>
+      <set name="Bottom" type="edge">
+        <item patch="1">3</item>
+      </set>
+      <set name="Top" type="edge">
+        <item patch="1">4</item>
+      </set>
+    </topologysets>
+  </geometry>
+
+  <cahnhilliard>
+    <Gc>0.0027</Gc>
+    <smearing>0.0075</smearing>
+    <stabilization>1.0e-6</stabilization>
+    <initialcondition field="phasefield" type="expression" comp="1">
+      dX=x-0.5; dY=y-0.5; ell=0.015;
+      d=if(below(dX,0.0),abs(dY),sqrt(dX*dX+dY*dY));
+      1.0-exp(-d/ell)
+    </initialcondition>
+  </cahnhilliard>
+
+  <elasticity>
+    <isotropic E="210.0" nu="0.3"/>
+    <stabilization>1.0e-6</stabilization>
+    <noGeometricStiffness/>
+    <boundaryconditions>
+      <dirichlet set="Top" comp="-2" type="linear">0.01</dirichlet>
+      <dirichlet set="Bottom" comp="2"/>
+      <dirichlet set="Fixed" comp="1"/>
+    </boundaryconditions>
+    <boundaryforce set="Top"/>
+  </elasticity>
+
+  <discretization>
+    <nGauss>2</nGauss>
+  </discretization>
+
+  <nonlinearsolver>
+    <convnorm>residual</convnorm>
+    <referencenorm>all</referencenorm>
+    <atol>1.0e-8</atol>
+    <rtol>0.0</rtol>
+    <staggering tol="1.0e-5" max="100"/>
+    <timestepping>
+      <step start="0.0" end="0.01">1</step>
+      <step start="0.01" end="0.2">1</step>
+      <step start="0.2" end="0.55">0.05</step>
+    </timestepping>
+  </nonlinearsolver>
+
+</simulation>
