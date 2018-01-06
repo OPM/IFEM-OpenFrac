@@ -36,7 +36,7 @@ FractureElasticity::FractureElasticity (unsigned short int n)
 {
   crackP = nullptr;
   sigmaC = alpha = alpha1 = alpha0 = tSplit = 0.0;
-  zeta = 1.0;
+  crpCut = zeta = 1.0;
   this->registerVector("phasefield",&myCVec);
   eC = 1; // Assuming second vector is phase field
 }
@@ -48,7 +48,7 @@ FractureElasticity::FractureElasticity (IntegrandBase* parent,
 {
   crackP = nullptr;
   sigmaC = alpha = alpha1 = alpha0 = tSplit = 0.0;
-  zeta = 1.0;
+  crpCut = zeta = 1.0;
   parent->registerVector("phasefield",&myCVec);
   // Assuming second vector is pressure, third vector is pressure velocity
   eC = 3; // and fourth vector is the phase field
@@ -67,6 +67,7 @@ bool FractureElasticity::parse (const TiXmlElement* elem)
   {
     std::string type;
     utl::getAttribute(elem,"type",type);
+    utl::getAttribute(elem,"cutoff",crpCut);
     IFEM::cout <<"\tCrack pressure";
     crackP = utl::parseRealFunc(value,type);
     IFEM::cout << std::endl;
@@ -90,6 +91,9 @@ bool FractureElasticity::parse (const TiXmlElement* elem)
 void FractureElasticity::printLog () const
 {
   this->Elasticity::printLog();
+
+  if (crackP && crpCut < 1.0)
+    IFEM::cout <<"\tCrack pressure cut-off value: "<< crpCut << std::endl;
 
   if (intPrm[3] > 0.0)
     IFEM::cout <<"\tNo geometric stiffness."<< std::endl;
@@ -351,17 +355,27 @@ double FractureElasticity::getStressDegradation (const Vector& N,
 }
 
 
-void FractureElasticity::formCrackForce (Vector& ES, const Vectors& eV,
+bool FractureElasticity::formCrackForce (Vector& ES, const Vectors& eV,
                                          const FiniteElement& fe,
                                          const Vec3& X) const
 {
-  if (!crackP) return;
+  if (!crackP)
+    return true; // No crack pressure function, silently ignore
+
+  if (crpCut < 1.0 && eV[eC].dot(fe.N) > crpCut)
+    return true; // No crack pressure in the undamaged material
+
+  Vector gradC; // Evaluate the phase field gradient, gradC = dNdX^t*eC
+  if (!fe.dNdX.multiply(eV[eC],gradC,true))
+    return false;
 
   // Integrate the load vector due to internal crack pressure
-  double cpLoad = (*crackP)(X) * eV[eC].dot(fe.N) * fe.detJxW;
-  for (size_t i = 0; i < fe.N.size(); i++)
-    for (size_t j = 0; j < nsd; j++)
-      ES[i*nsd+j] += fe.dNdX(i+1,j+1) * cpLoad;
+  double cpJW = (*crackP)(X) * fe.detJxW;
+  for (size_t a = 1; a <= fe.N.size(); a++)
+    for (unsigned short int i = 1; i <= nsd; i++)
+      ES(nsd*(a-1)+i) += fe.N(a)*gradC(i)*cpJW;
+
+  return true;
 }
 
 
@@ -482,7 +496,8 @@ bool FractureElasticity::evalInt (LocalIntegral& elmInt,
     // Integrate the load vector due to gravitation and other body forces
     this->formBodyForce(elMat.b[eS-1],fe.N,X,fe.detJxW);
     // Integrate the load vector due to internal crack pressure
-    this->formCrackForce(elMat.b[eS-1],elMat.vec,fe,X);
+    if (!this->formCrackForce(elMat.b[eS-1],elMat.vec,fe,X))
+      return false;
   }
 
   if (lHaveStrains && !elMat.c.empty())

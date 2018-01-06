@@ -284,7 +284,7 @@ public:
   bool haveCrackPressure() const
   {
     FractureElasticity* fel = dynamic_cast<FractureElasticity*>(Dim::myProblem);
-    return fel ? fel->getCrackPressure() != 0.0 : false;
+    return fel ? fel->getCrackPressure() != nullptr : false;
   }
 
 protected:

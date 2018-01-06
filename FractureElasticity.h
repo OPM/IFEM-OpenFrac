@@ -112,7 +112,7 @@ public:
   virtual NormBase* getNormIntegrand(AnaSol*) const { return nullptr; }
 
   //! \brief Returns the applied pressure in the crack.
-  bool getCrackPressure() const { return crackP; }
+  RealFunc* getCrackPressure() const { return crackP; }
 
 protected:
   //! \brief Evaluates the stress tensor and tensile energy at current point.
@@ -136,13 +136,14 @@ protected:
   //! \param[in] eV Element solution vectors
   //! \param[in] fe Finite element data at current point
   //! \param[in] X Cartesian coordinates of current point
-  void formCrackForce(Vector& ES, const Vectors& eV,
+  bool formCrackForce(Vector& ES, const Vectors& eV,
                       const FiniteElement& fe, const Vec3& X) const;
 
 private:
   unsigned short int eC; //!< Zero-based index to element phase field vector
 
   RealFunc* crackP; //!< Applied pressure in the crack
+  double    crpCut; //!< Phase-field cut-off for the applied crack pressure
 
   double alpha;  //!< Relaxation factor for the crack phase field
   double alpha0; //!< Initial relaxation factor

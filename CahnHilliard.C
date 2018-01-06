@@ -91,6 +91,13 @@ void CahnHilliard::printLog () const
 }
 
 
+void CahnHilliard::clearInitialCrack ()
+{
+  delete initial_crack;
+  initial_crack = nullptr;
+}
+
+
 void CahnHilliard::setMode (SIM::SolutionMode mode)
 {
   m_mode = mode;

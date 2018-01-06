@@ -100,7 +100,7 @@ public:
   //! \brief Returns the initial crack function.
   RealFunc* initCrack() { return initial_crack; }
   //! \brief Clears the initial crack function (used after first time step).
-  void clearInitialCrack() { delete initial_crack; initial_crack = nullptr; }
+  void clearInitialCrack();
 
   //! \brief Returns a pointer to an Integrand for solution norm evaluation.
   //! \note The Integrand object is allocated dynamically and has to be deleted
