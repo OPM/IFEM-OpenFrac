@@ -20,28 +20,12 @@
 #include "SIMCoupledSI.h"
 #include "SIMSolver.h"
 #include "SIMSolverTS.h"
+#include "FractureArgs.h"
 #include "HHTSIM.h"
 #include "GenAlphaSIM.h"
 #include "NewmarkNLSIM.h"
 #include "NonLinSIM.h"
 #include "ASMstruct.h"
-
-
-//! \brief A struct collecting the command-line argument values.
-struct FDargs
-{
-  //! Time integrator to use (0=linear quasi-static, no phase-field coupling,
-  //! 1=linear Newmark, 2=linear generalized alpha, 3=nonlinear quasi-static,
-  //! 4=nonlinear Hilber-Hughes-Taylor)
-  char integrator;
-  char coupling;  //!< Coupling flag (0: none, 1: staggered, 2: semi-implicit)
-  bool adaptive;  //!< If \e true, use the time-slab adaptive solver
-  char* inpfile;  //!< The input file to parse
-
-  //! \brief Default constructor.
-  FDargs() : inpfile(nullptr)
-  { coupling = integrator = 1; adaptive = false; }
-};
 
 
 /*!
@@ -155,7 +139,7 @@ int runCombined (char* infile, const char* context)
 template<class Dim, class Integrator,
          template<class T1, class T2> class Cpl,
          template<class T1> class Solver=SIMSolver>
-int runSimulator3 (const FDargs& args)
+int runSimulator3 (const FractureArgs& args)
 {
   typedef SIMDynElasticity<Dim,Integrator> ElSolver;
   typedef SIMPhaseField<Dim>               PhaseSolver;
@@ -232,9 +216,9 @@ int runStandAlone (char* infile, const char* context)
 */
 
 template<class Dim, class Integrator, template<class T1, class T2> class Cpl>
-int runSimulator2 (const FDargs& args)
+int runSimulator2 (const FractureArgs& args)
 {
-  if (args.adaptive)
+  if (args.adap)
     return runSimulator3<Dim,Integrator,Cpl,SIMSolverTS>(args);
 
   return runSimulator3<Dim,Integrator,Cpl>(args);
@@ -246,7 +230,7 @@ int runSimulator2 (const FDargs& args)
 */
 
 template<class Dim, class Integrator>
-int runSimulator1 (const FDargs& args)
+int runSimulator1 (const FractureArgs& args)
 {
   switch (args.coupling) {
   case 1:
@@ -279,7 +263,7 @@ public:
 */
 
 template<class Dim>
-int runSimulator (const FDargs& args)
+int runSimulator (const FractureArgs& args)
 {
   switch (args.integrator) {
   case 0:
@@ -309,40 +293,21 @@ int main (int argc, char** argv)
 {
   Profiler prof(argv[0]);
 
-  FDargs args;
-  bool twoD = false;
-
+  FractureArgs args;
+  SIMElasticity<SIM2D>::planeStrain = true;
   IFEM::Init(argc,argv,"Fracture dynamics solver");
 
   for (int i = 1; i < argc; i++)
-    if (SIMoptions::ignoreOldOptions(argc,argv,i))
+    if (argv[i] == args.inpfile || args.parseArg(argv[i]))
+      ; // ignore the input file on the second pass
+    else if (SIMoptions::ignoreOldOptions(argc,argv,i))
       ; // ignore the obsolete option
-    else if (!strcmp(argv[i],"-2D"))
-      twoD = SIMElasticity<SIM2D>::planeStrain = true;
-    else if (!strcmp(argv[i],"-nocrack"))
-      args.coupling = 0;
-    else if (!strcmp(argv[i],"-semiimplicit"))
-      args.coupling = 2;
-    else if (!strcmp(argv[i],"-lstatic"))
-      args.integrator = 0;
-    else if (!strcmp(argv[i],"-GA"))
-      args.integrator = 2;
-    else if (!strcmp(argv[i],"-qstatic"))
-      args.integrator = 3;
-    else if (!strcmp(argv[i],"-Miehe"))
-      args.integrator = args.coupling = 3;
-    else if (!strcmp(argv[i],"-HHT"))
-      args.integrator = 4;
-    else if (!strcmp(argv[i],"-oldHHT"))
-      args.integrator = 5;
     else if (!strcmp(argv[i],"-principal"))
       Elasticity::wantPrincipalStress = true;
     else if (!strcmp(argv[i],"-dbgElm") && i < argc-1)
       FractureElasticNorm::dbgElm = atoi(argv[++i]);
-    else if (!strncmp(argv[i],"-adap",5))
-      args.adaptive = true;
     else if (!args.inpfile)
-      args.inpfile = argv[i];
+      args.parseFile(argv[i],i);
     else
       std::cerr <<"  ** Unknown option ignored: "<< argv[i] << std::endl;
 
@@ -357,14 +322,16 @@ int main (int argc, char** argv)
     return 0;
   }
 
-  if (args.adaptive)
+  if (args.adap)
     IFEM::getOptions().discretization = ASM::LRSpline;
 
   IFEM::cout <<"\nInput file: "<< args.inpfile;
   IFEM::getOptions().print(IFEM::cout) << std::endl;
 
-  if (twoD)
+  if (args.dim == 2)
     return runSimulator<SIM2D>(args);
-  else
+  else if (args.dim == 3)
     return runSimulator<SIM3D>(args);
+
+  return 1; // No 1D solution
 }

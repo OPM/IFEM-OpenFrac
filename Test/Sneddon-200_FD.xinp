@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<simulation>
+
+  <geometry dim="2" Lx="4.0" Ly="4.0">
+    <refine patch="1" u="199" v="199"/>
+    <topologysets>
+      <set name="all" type="edge">
+        <item patch="1">1 2 3 4</item>
+      </set>
+    </topologysets>
+  </geometry>
+
+  <cahnhilliard>
+    <Gc>1.0</Gc>
+    <smearing>0.01</smearing>
+    <initial_crack type="expression">
+      xmin=1.8; xmax=2.2; yline=2.0;
+      x0=x-xmin; x1=x-xmax; y0=y-yline;
+      if(below(x,xmin),sqrt(x0*x0+y0*y0),
+        if(below(x,xmax),abs(y0),sqrt(x1*x1+y0*y0)))
+    </initial_crack>
+  </cahnhilliard>
+
+  <elasticity>
+    <isotropic E="1.0" nu="0.2"/>
+    <crackpressure>0.001</crackpressure>
+    <boundaryconditions>
+      <dirichlet set="all" comp="12"/>
+    </boundaryconditions>
+  </elasticity>
+
+  <discretization>
+    <nGauss>2</nGauss>
+  </discretization>
+
+  <fracturedynamics>
+    <semiimplicit/>
+    <quasistatic/>
+  </fracturedynamics>
+
+</simulation>

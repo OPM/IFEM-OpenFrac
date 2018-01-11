@@ -1,0 +1,97 @@
+Sneddon-200_FD.xinp
+
+Input file: Sneddon-200_FD.xinp
+Equation solver: 2
+Number of Gauss points: 4
+0. Parsing input file(s).
+1. Elasticity solver
+Parsing input file Sneddon-200_FD.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Generating linear geometry on unit parameter domain \[0,1]^2
+	Length in X = 4
+	Length in Y = 4
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: all (1,1,1D) (1,2,1D) (1,3,1D) (1,4,1D)
+  Parsing <refine>
+	Refining P1 199 199
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+Parsing <elasticity>
+  Parsing <isotropic>
+	Material code 0: 1 0.2
+	Crack pressure: 0.001
+  Parsing <dirichlet>
+	Dirichlet code 12: (fixed)
+Parsing <fracturedynamics>
+Parsing input file succeeded.
+Equation solver: 2
+Number of Gauss points: 2
+2. Cahn-Hilliard solver
+Parsing input file Sneddon-200_FD.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: all (1,1,1D) (1,2,1D) (1,3,1D) (1,4,1D)
+  Parsing <refine>
+	Refining P1 199 199
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+	Initial crack function: xmin=1.8; xmax=2.2; yline=2.0; x0=x-xmin; x1=x-xmax; y0=y-yline; if(below(x,xmin),sqrt(x0\*x0+y0\*y0), if(below(x,xmax),abs(y0),sqrt(x1\*x1+y0\*y0)))
+Parsing <elasticity>
+Parsing <fracturedynamics>
+Parsing input file succeeded.
+Equation solver: 2
+Number of Gauss points: 2
+3. Time integration driver
+Parsing input file Sneddon-200_FD.xinp
+Parsing <geometry>
+Parsing <cahnhilliard>
+Parsing <elasticity>
+Parsing <discretization>
+Parsing <fracturedynamics>
+Parsing input file succeeded.
+10. Preprocessing the finite element model:
+11. Elasticity solver
+Problem definition:
+Elasticity: 2D, gravity = 0 0
+LinIsotropic: E = 1, nu = 0.2, rho = 7850, alpha = 1.2e-07
+	Degrading of tensile strain energy density.
+Resolving Dirichlet boundary conditions
+	Constraining P1 E1 in direction(s) 12
+	Constraining P1 E2 in direction(s) 12
+	Constraining P1 E3 in direction(s) 12
+	Constraining P1 E4 in direction(s) 12
+ >>> SAM model summary <<<
+Number of elements    40000
+Number of nodes       40401
+Number of dofs        80802
+Number of unknowns    79202
+12. Cahn-Hilliard solver
+Problem definition:
+Cahn-Hilliard: 2D
+	Critical fracture energy density: 1
+	Smearing factor: 0.01
+	Max value in crack: 0.001
+	Initial crack specified as a function.
+	Enforcing crack irreversibility using history buffer.
+Resolving Dirichlet boundary conditions
+ >>> SAM model summary <<<
+Number of elements    40000
+Number of nodes       40401
+Number of dofs        40401
+Number of unknowns    40401
+100. Starting the simulation
+  step=1  time=1
+  Primary solution summary: L2-norm         : 1.1981e-05
+                            Max X-component : 1.80544e-05
+                            Max Y-component : 0.000140278
+  Total reaction forces:          Sum(R) : 0 0
+  Primary solution summary: L2-norm      : 0.998975
+                            Max value    : 1
+                            Min value    : -0.177113
+                            Range        : 1.17711
+  Dissipated energy:               eps_d : 0.604389
+  Time integration completed.
