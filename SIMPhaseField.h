@@ -47,8 +47,9 @@ public:
       this->clonePatches(gridOwner->getFEModel(),gridOwner->getGlob2LocMap());
 
     eps_d0 = refTol = 0.0;
-    vtfStep = Lnorm = irefine = 0;
+    vtfStep = irefine = 0;
     transferOp = 'L';
+    chp = nullptr;
   }
 
   //! \brief Empty destructor.
@@ -61,7 +62,7 @@ public:
   virtual void preprocessA()
   {
     if (!Dim::myProblem)
-      Dim::myProblem = new CahnHilliard(Dim::dimension);
+      Dim::myProblem = chp = new CahnHilliard(Dim::dimension);
 
     this->printProblem();
     if (this->hasIC("phasefield"))
@@ -120,17 +121,18 @@ public:
       if (iBlck < 0) return false;
 
       // Write projected solution fields to VTF-file
-      std::vector<const char*> prefix(Dim::opt.project.size(),nullptr);
       if (!Dim::opt.project.empty())
-      {
-        prefix.front() = Dim::opt.project.begin()->second.c_str();
-        if (!this->writeGlvP(projSol,vtfStep,nBlock,iBlck,prefix.front()))
+        if (!this->writeGlvP(projSol,vtfStep,nBlock,iBlck,
+                             Dim::opt.project.begin()->second.c_str()))
           return false;
-      }
+
+      if (chp->getRefinementNorm() == 2 && eNorm.rows() > 3)
+        // We are using L2-norms, but the dissipated energy is not
+        for (size_t i = 1; i <= eNorm.cols(); i++)
+          eNorm(4,i) = eNorm(4,i)*eNorm(4,i);
 
       // Write element norms to VTF-file
-      const char** pfxs = prefix.empty() ? nullptr : prefix.data();
-      if (!this->writeGlvN(eNorm,vtfStep,nBlock,pfxs,210))
+      if (!this->writeGlvN(eNorm,vtfStep,nBlock,nullptr,210))
         return false;
 
       if (!this->writeGlvStep(vtfStep,tp.time.t))
@@ -167,8 +169,6 @@ public:
   bool solveStep(TimeStep& tp, bool standalone = true)
   {
     PROFILE1("SIMPhaseField::solveStep");
-
-    CahnHilliard* chp = static_cast<CahnHilliard*>(Dim::myProblem);
 
     if (Dim::msgLevel == 1 && standalone)
       IFEM::cout <<"\n  Solving crack phase field at step="<< tp.step
@@ -217,9 +217,12 @@ public:
     this->setQuadratureRule(Dim::opt.nGauss[1]);
     if (!this->solutionNorms(tp.time,phasefield,gNorm,&eNorm))
       return false;
-    else if (!gNorm.empty())
+
+    if (!gNorm.empty())
     {
       norm = gNorm.front();
+      if (chp->getRefinementNorm() == 2)
+        norm.back() = norm.back()*norm.back();
       norm.push_back(norm.back());
       if (tp.step == 1)
         eps_d0 = norm.back();
@@ -227,17 +230,20 @@ public:
       if (norm.size() > 1 && utl::trunc(norm.back()) != 0.0)
         IFEM::cout <<"  Dissipated energy:               eps_d : "
                    << norm.back() << std::endl;
-      if (norm.size() > 3 && utl::trunc(norm(2)) != 0.0)
-      {
-        if (Lnorm == 1)
-          IFEM::cout <<"  L1-norm: |c^h| = (|c^h|)        : "<< norm(2)
-                     <<"\n  Normalized L1-norm: |c^h|/V     : "
-                     << norm(2)/norm(1) << std::endl;
-        else if (Lnorm == 2)
-          IFEM::cout <<"  L2-norm: |c^h| = (c^h,c^h)^0.5  : "<< sqrt(norm(2))
-                     <<"\n  Normalized L2-norm: |c^h|/V^0.5 : "
-                     << sqrt(norm(2)/norm(1)) << std::endl;
-      }
+      if (norm.size() > 2 && utl::trunc(norm(2)) != 0.0)
+        switch (chp->getRefinementNorm())
+          {
+          case 1:
+            IFEM::cout <<"  L1-norm: |c^h| = (|c^h|)        : "<< norm(2)
+                       <<"\n  Normalized L1-norm: |c^h|/V     : "
+                       << norm(2)/norm(1) << std::endl;
+            break;
+          case 2:
+            IFEM::cout <<"  L2-norm: |c^h| = (c^h,c^h)^0.5  : "<< norm(2)
+                       <<"\n  Normalized L2-norm: |c^h|/V^0.5 : "
+                       << norm(2)/norm(1) << std::endl;
+            break;
+          }
     }
     if (gNorm.size() > 1)
     {
@@ -251,8 +257,8 @@ public:
         nullptr };
       const Vector& nrm = gNorm.back();
       for (size_t i = 0; i < nrm.size() && norms[i]; i++)
-        if (utl::trunc(sqrt(nrm[i])) != 0.0)
-          IFEM::cout <<"\n  "<< norms[i] << sqrt(nrm[i]);
+        if (utl::trunc(nrm[i]) != 0.0)
+          IFEM::cout <<"\n  "<< norms[i] << nrm[i];
       IFEM::cout << std::endl;
     }
 
@@ -291,33 +297,21 @@ public:
   }
 
   //! \brief Sets the tensile energy vector from the elasticity problem.
-  void setTensileEnergy(const RealArray* te)
-  {
-    static_cast<CahnHilliard*>(Dim::myProblem)->setTensileEnergy(te);
-  }
+  void setTensileEnergy(const RealArray* te) { chp->setTensileEnergy(te); }
 
   //! \brief Returns a list of element norm values.
   double getNorm(Vector& values, size_t idx = 1) const
   {
-    if (idx > eNorm.rows())
+    if (idx < 1 || idx > eNorm.rows())
     {
       values.clear();
       return 0.0;
     }
-    else if (idx == 1 || idx > 3 || Lnorm < 2)
+    else
     {
-      if (Lnorm < 0 && idx > 2)
-        idx--; // hack for non-present volume-specific norm
       values = eNorm.getRow(idx);
       return norm(idx);
     }
-
-    // Apply sqrt() on the element values of the L2-norm
-    values.resize(eNorm.cols());
-    for (size_t i = 1; i <= values.size(); i++)
-      values(i) = sqrt(eNorm(idx,i));
-
-    return sqrt(norm(idx));
   }
 
   //! \brief Returns a const reference to the global norms.
@@ -353,13 +347,13 @@ public:
     if (transferOp == 'P' && projSol.rows() > 1)
       return projSol.getRow(2);
 
-    return static_cast<const CahnHilliard*>(Dim::myProblem)->historyField;
+    return chp->historyField;
   }
 
   //! \brief Resets the history field from the provided array.
   void setHistoryField(const RealArray& hfield)
   {
-    RealArray& hist = static_cast<CahnHilliard*>(Dim::myProblem)->historyField;
+    RealArray& hist = chp->historyField;
     if (transferOp != 'P' && hist.size() == hfield.size())
       std::copy(hfield.begin(),hfield.end(),hist.begin());
   }
@@ -384,19 +378,19 @@ public:
   bool transferHistory(const RealArray& oldH,
                        std::vector<LR::LRSpline*>& oldBasis)
   {
-    RealArray& newH = static_cast<CahnHilliard*>(Dim::myProblem)->historyField;
+    RealArray& newH = chp->historyField;
     newH.clear();
 
 #ifdef HAS_LRSPLINE
     bool ok = true;
-    int idx = 0;
     int nGp = Dim::opt.nGauss[0];
     RealArray::const_iterator itH = oldH.begin(), jtH;
     RealArray newHp, oldHn;
+    size_t idx = 0;
     for (LR::LRSpline* basis : oldBasis)
     {
       ASMunstruct* pch = dynamic_cast<ASMunstruct*>(this->getPatch(++idx));
-      if (pch && (size_t)idx <= oldBasis.size())
+      if (pch && idx <= oldBasis.size())
       {
         switch (transferOp) {
         case 'P':
@@ -439,9 +433,9 @@ protected:
       int order = 2;
       utl::getAttribute(elem,"order",order);
       if (order == 4)
-        Dim::myProblem = new CahnHilliard4(Dim::dimension);
+        Dim::myProblem = chp = new CahnHilliard4(Dim::dimension);
       else
-        Dim::myProblem = new CahnHilliard(Dim::dimension);
+        Dim::myProblem = chp = new CahnHilliard(Dim::dimension);
     }
 
     bool result = true;
@@ -483,10 +477,8 @@ protected:
         // Read problem parameters (including initial crack defintition)
         if (!Dim::isRefined) // but only for the initial grid when adaptive
         {
-          const char* value = utl::getValue(child,"Lnorm");
+          const char* value = utl::getValue(child,"initial_refine");
           if (value)
-            Lnorm = atoi(value);
-          else if ((value = utl::getValue(child,"initial_refine")))
             irefine = atoi(value);
           else if ((value = utl::getValue(child,"refine_limit")))
             refTol = atof(value);
@@ -499,7 +491,7 @@ protected:
       return result;
 
     // Perform initial refinement around the crack (single-patch only)
-    RealFunc* refC = static_cast<CahnHilliard*>(Dim::myProblem)->initCrack();
+    RealFunc* refC = chp->initCrack();
     ASMunstruct* patch1 = dynamic_cast<ASMunstruct*>(this->getPatch(1));
     if (refC && patch1 && this->getNoPatches() == 1)
       for (int i = 0; i < irefine; i++, refTol *= 0.5)
@@ -517,19 +509,20 @@ protected:
     typename Dim::VecFuncMap::const_iterator tit = Dim::myVectors.find(propInd);
     if (tit == Dim::myVectors.end()) return false;
 
-    static_cast<CahnHilliard*>(Dim::myProblem)->setFlux(tit->second);
+    chp->setFlux(tit->second);
 
     return true;
   }
 
 private:
+  CahnHilliard* chp;  //!< The Cahn-Hilliard integrand
+
   Vectors phasefield; //!< Current (and previous) phase field solution
   Matrix  projSol;    //!< Projected solution fields
   Matrix  eNorm;      //!< Element norm values
   Vector  norm;       //!< Global norm values
   double  eps_d0;     //!< Initial eps_d value, subtracted from following values
   int     vtfStep;    //!< VTF file step counter
-  int     Lnorm;      //!< Which L-norm to use to guide mesh refinement
   int     irefine;    //!< Number of initial refinement cycles
   double  refTol;     //!< Initial refinement threshold
   char    transferOp; //!< Solution transfer option

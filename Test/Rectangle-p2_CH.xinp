@@ -20,14 +20,15 @@
     <smearing>0.1</smearing>
     <boundaryconditions>
       <dirichlet set="Left" comp="1"/>
-      <neumann set="Right" direction="-1" type="expression">exp(-x/(2*0.1))/(2*0.1) | 0</neumann>
+      <neumann set="Right" direction="-1" type="expression">
+        exp(-x/0.2)/0.2 | 0
+      </neumann>
     </boundaryconditions>
     <anasol type="expression">
-      <variables>l0=0.1</variables>
-      <primary>1 - exp(-x/(2*l0))</primary>
-      <secondary>exp(-x/(2*l0))/(2*l0)</secondary>
+      <primary>1.0-exp(-x/0.2)</primary>
+      <secondary>exp(-x/0.2)/0.2</secondary>
     </anasol>
-    <Lnorm>1</Lnorm>
+    <Lnorm>2</Lnorm>
   </cahnhilliard>
 
   <discretization>

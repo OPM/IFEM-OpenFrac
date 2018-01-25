@@ -116,6 +116,8 @@ public:
   double scaleSmearing(double s) { return smearing *= smearing > l0 ? s : 1.0; }
   //! \brief Returns \e true if d=1-c is to be the primary unknown (and not c).
   bool useDformulation() const { return gammaInv < 0.0 && tensileEnergy; }
+  //! \brief Returns the L-norm type to be integrated.
+  int getRefinementNorm() const { return Lnorm; }
 
 private:
   //! \brief Evaluates the integrand at an interior point.

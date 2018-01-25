@@ -6,11 +6,10 @@ Rectangle-p2_CH.xinp -2D
 	Raising order of P1 1 1
 	Refining P1 999 0
 	Dirichlet code 1: (fixed)
-	Neumann code 1000000 direction -1 (expression): exp(-x/(2\*0.1))/(2\*0.1) \| 0
+	Neumann code 1000000 direction -1 (expression): exp(-x/0.2)/0.2 \| 0
 	Analytical solution: Expression
-	Variables=l0=0.1;
-	Primary=1 - exp(-x/(2\*l0))
-	Secondary=exp(-x/(2\*l0))/(2\*l0)
+	Primary=1.0-exp(-x/0.2)
+	Secondary=exp(-x/0.2)/0.2
 	Critical fracture energy density: 3
 	Smearing factor: 0.1
 	Max value in crack: 0.001
@@ -23,10 +22,9 @@ Number of unknowns    3003
 L2-norm            : 0.984413
 Max phasefield     : 1
   Dissipated energy:               eps_d : 1.5
-  L1-norm: |c^h| = (|c^h|)        : 9.8
-  Normalized L1-norm: |c^h|/V     : 0.98
   L2-norm: |c^h| = (c^h,c^h)^0.5  : 3.11448
-  H1-norm: |c^h| = a(c^h,c^h)^0.5 : 1.58114
+  Normalized L2-norm: |c^h|/V^0.5 : 0.984886
   L2-norm: |c|   = (c,c)^0.5      : 3.11448
+  H1-norm: |c^h| = a(c^h,c^h)^0.5 : 1.58114
   H1-norm: |c|   = a(c,c)^0.5     : 1.58114
   H1-norm: |e|   = a(e,e)^0.5     : 0.000147336

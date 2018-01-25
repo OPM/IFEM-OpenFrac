@@ -358,6 +358,7 @@ std::string CahnHilliard::getField2Name (size_t idx, const char* prefix) const
 
 NormBase* CahnHilliard::getNormIntegrand (AnaSol* a) const
 {
+  if (a) const_cast<CahnHilliard*>(this)->Lnorm = 2;
   return new CahnHilliardNorm(*const_cast<CahnHilliard*>(this),Lnorm,a);
 }
 
@@ -387,7 +388,7 @@ bool CahnHilliard4::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
 CahnHilliardNorm::CahnHilliardNorm (CahnHilliard& p, int Ln, const AnaSol* a)
   : NormBase(p), aSol(a)
 {
-  finalOp = ASM::NONE;
+  finalOp = Ln == 2 ? ASM::SQRT : ASM::NONE;
   Lnorm   = Ln;
 }
 
@@ -411,22 +412,21 @@ bool CahnHilliardNorm::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
     if (!fe.dNdX.multiply(pvec,gradC,true))
       return false;
 
-    if (C >= 1.0 && Lnorm > 0)
-      pnorm[k] += fe.detJxW;
-    else if (C > 0.0)
+    if (Lnorm)
     {
-      if (Lnorm == 1)
-        pnorm[k] += fabs(C)*fe.detJxW; // L1-norm, |c|
-      else if (Lnorm == 2)
-        pnorm[k] += C*C*fe.detJxW; // L2-norm, |c|
-      else if (Lnorm == -1 && (pnorm[k] == 0.0 || C < pnorm[k]))
-        pnorm[k] = C; // Smallest-value norm
-    }
-
-    if (Lnorm > 0)
+      if (C >= 1.0 && (Lnorm == 1 || Lnorm == 2))
+        pnorm[k] += fe.detJxW;
+      else if (C > 0.0)
+      {
+        if (Lnorm == 1)
+          pnorm[k] += fabs(C)*fe.detJxW; // L1-norm, |c|
+        else if (Lnorm == 2)
+          pnorm[k] += C*C*fe.detJxW; // L2-norm, |c|
+        else if (pnorm[k] == 0.0 || C < pnorm[k])
+          pnorm[k] = C; // Smallest-value norm
+      }
       k += 2; // Make space for the volume-specific norm |c|/V
-    else if (Lnorm < 0)
-      k ++;
+    }
 
     // Dissipated energy, eps_d
     if (C <= 0.0)
@@ -462,7 +462,7 @@ bool CahnHilliardNorm::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
 
 bool CahnHilliardNorm::finalizeElement (LocalIntegral& elmInt)
 {
-  if (Lnorm < 1) return true;
+  if (Lnorm == 0) return true;
 
   ElmNorm& pnorm = static_cast<ElmNorm&>(elmInt);
   size_t nNorm = pnorm.size();
@@ -474,7 +474,7 @@ bool CahnHilliardNorm::finalizeElement (LocalIntegral& elmInt)
 
   // Evaluate the volume-specific norm |c|/V
   for (size_t ip = 1; ip < nNorm; ip += 3)
-    pnorm[ip+1] = pnorm[ip] / pnorm[0];
+    pnorm[ip+1] = pnorm[ip] / (Lnorm > 0 ? pnorm[0] : 1.0);
 
   return true;
 }
@@ -500,8 +500,6 @@ std::string CahnHilliardNorm::getName (size_t i, size_t j,
       j --;
     if (Lnorm == 0)
       j += 2;
-    else if (Lnorm < 0 && j > 1)
-      j ++;
 
     if (j == 1)
       name = "|c|";
@@ -532,10 +530,8 @@ size_t CahnHilliardNorm::getNoFields (int group) const
     if (aSol->getScalarSecSol()) n += 3;
     return n;
   }
-  else if (Lnorm == 0)
-    return 2;
-  else if (group == 1 && Lnorm > 0)
-    return 4;
+  else if (group == 1)
+    return Lnorm == 0 ? 2 : 4;
   else
-    return 3;
+    return Lnorm == 0 ? 1 : 3;
 }
