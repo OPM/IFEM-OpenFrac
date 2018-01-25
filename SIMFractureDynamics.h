@@ -16,6 +16,7 @@
 
 #include "ASMunstruct.h"
 #include "ProcessAdm.h"
+#include "Functions.h"
 #include "Profiler.h"
 #include <fstream>
 #include <numeric>
@@ -53,6 +54,7 @@ public:
     doStop = false;
     irfStop = 0;
     E0 = Ec = Ep = stopVal = 0.0;
+    refFunc = nullptr;
   }
 
   //! \brief Empty destructor.
@@ -144,6 +146,19 @@ public:
             this->S2.saveResidual(tp,residual,nBlock));
   }
 
+  //! \brief Parses pre-refinement parameters from an XML element.
+  void parsePreref(const TiXmlElement* elem)
+  {
+    std::string type;
+    const char* value = utl::getValue(elem,elem->Value());
+    if (value && utl::getAttribute(elem,"type",type))
+    {
+      IFEM::cout <<"\tInitial refinement function";
+      refFunc = utl::parseRealFunc(value,type);
+      IFEM::cout << std::endl;
+    }
+  }
+
   //! \brief Parses staggering parameters from an XML element.
   virtual void parseStaggering(const TiXmlElement* elem)
   {
@@ -181,12 +196,42 @@ public:
     this->S2.setHistoryField(hsol);
   }
 
+  //! \brief Refines the mesh based on a mesh density function.
+  bool preRefine(int nrefinements, int irefine, double refTol)
+  {
+    // Define the initial element size on the patches
+    for (const ASMbase* patch : this->S1.getFEModel())
+      patch->getMinimumSize(nrefinements);
+
+    RealFunc* refC = refFunc ? refFunc : this->S2.getInitCrack();
+    if (!refC) return true; // No mesh density function defined
+
+    int istat = 0, nRefine = 0;
+    for (int i = 0; i < irefine && i < nrefinements; i++, refTol *= 0.5)
+      if ((istat = this->S1.refine(*refC,refTol)) < 0)
+        return false;
+      else if (istat == 0)
+        break;
+      else if (this->S2.refine(LR::RefineData()) < 0)
+        return false;
+      else
+        ++nRefine;
+
+    delete refFunc;
+    refFunc = nullptr;
+    if (nRefine == 0) return true; // No refinement
+
+    this->S1.clearProperties();
+    this->S2.clearProperties();
+
+    // Reinitialize the solvers on the refined mesh
+    return this->S1.read(infile.c_str()) && this->S2.read(infile.c_str());
+  }
+
   //! \brief Refines the mesh on the initial configuration.
   bool initialRefine(double beta, double min_frac, int nrefinements)
   {
-    if (this->S2.getInitRefine() >= nrefinements)
-      return true; // Mesh was sufficiently refined during input file parsing
-    else if (this->S2.hasIC("phasefield"))
+    if (this->S2.hasIC("phasefield"))
       return true; // No initial refinement when specified initial phase field
 
     TimeStep step0;
@@ -421,6 +466,8 @@ protected:
 private:
   std::string energFile; //!< File name for global energy output
   std::string infile;    //!< Input file parsed
+
+  RealFunc* refFunc; //!< Pre-refinement function
 
   Vectors   sols; //!< Solution state to transfer onto refined mesh
   RealArray hsol; //!< History field to transfer onto refined mesh

@@ -22,7 +22,6 @@
 #include "LRSpline/LRSplineVolume.h"
 #else
 #include "ASMbase.h"
-#include "ASMunstruct.h"
 namespace LR { class LRSpline; }
 #endif
 #include "TimeStep.h"
@@ -59,8 +58,8 @@ public:
     if (gridOwner && gridOwner->createFEMmodel())
       this->clonePatches(gridOwner->getFEModel(),gridOwner->getGlob2LocMap());
 
-    eps_d0 = refTol = 0.0;
-    vtfStep = irefine = 0;
+    eps_d0 = 0.0;
+    vtfStep = 0;
     transferOp = 'L';
     chp = nullptr;
     spln = nullptr;
@@ -372,6 +371,9 @@ public:
     return false;
   }
 
+  //! \brief Returns the initial crack function.
+  RealFunc* getInitCrack() const { return chp->initCrack(); }
+
   //! \brief Sets the tensile energy vector from the elasticity problem.
   void setTensileEnergy(const RealArray* te) { chp->setTensileEnergy(te); }
 
@@ -400,8 +402,6 @@ public:
 
   //! \brief Returns the maximum number of iterations (unlimited).
   int getMaxit() const { return 9999; }
-  //! \brief Returns the number of initial refinement cycles.
-  int getInitRefine() const { return irefine; }
 
   //! \brief Solves the linearized system of current iteration.
   //! \param[in] tp Time stepping parameters
@@ -573,26 +573,8 @@ protected:
         result &= this->Dim::parse(child);
         // Read problem parameters (including initial crack defintition)
         if (!Dim::isRefined) // but only for the initial grid when adaptive
-        {
-          const char* value = utl::getValue(child,"initial_refine");
-          if (value)
-            irefine = atoi(value);
-          else if ((value = utl::getValue(child,"refine_limit")))
-            refTol = atof(value);
           Dim::myProblem->parse(child);
-        }
       }
-
-    if (Dim::isRefined || !result)
-      return result;
-
-    // Perform initial refinement around the crack (single-patch only)
-    RealFunc* refC = chp->initCrack();
-    ASMunstruct* patch1 = dynamic_cast<ASMunstruct*>(this->getPatch(1));
-    if (refC && patch1 && this->getNoPatches() == 1)
-      for (int i = 0; i < irefine; i++, refTol *= 0.5)
-        if (!patch1->refine(*refC,refTol))
-          return false;
 
     return result;
   }
@@ -619,8 +601,6 @@ private:
   Vector  norm;       //!< Global norm values
   double  eps_d0;     //!< Initial eps_d value, subtracted from following values
   int     vtfStep;    //!< VTF file step counter
-  int     irefine;    //!< Number of initial refinement cycles
-  double  refTol;     //!< Initial refinement threshold
   char    transferOp; //!< Solution transfer option
 };
 

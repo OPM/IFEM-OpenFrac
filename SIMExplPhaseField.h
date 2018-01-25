@@ -49,6 +49,9 @@ public:
   //! \brief Computes the solution for the current time step.
   bool solveStep(TimeStep& tp, bool = true);
 
+  //! \brief Returns the initial crack function.
+  RealFunc* getInitCrack() const { return phaseFunc; }
+
   //! \brief Dummy method.
   bool postSolve(TimeStep&) { return true; }
   //! \brief Dummy method.
@@ -76,8 +79,6 @@ public:
   //! \brief Returns the maximum number of iterations (unlimited).
   int getMaxit() const { return 9999; }
   //! \brief Dummy method.
-  int getInitRefine() const { return 0; }
-  //! \brief Dummy method.
   SIM::ConvStatus solveIteration(TimeStep&) { return SIM::CONVERGED; }
   //! \brief Dummy method.
   Vector getHistoryField() const { return Vector(); }
@@ -85,8 +86,6 @@ public:
   void setHistoryField(const RealArray&) {}
   //! \brief Dummy method.
   bool refine(const LR::RefineData&) { return false; }
-  //! \brief Dummy method.
-  bool refine(const LR::RefineData&,Vector&) { return false; }
   //! \brief Dummy method.
   void getBasis(std::vector<LR::LRSpline*>&) {}
   //! \brief Dummy method.

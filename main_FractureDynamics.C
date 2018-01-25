@@ -137,8 +137,7 @@ int runCombined (char* infile, double stopTime, const char* context)
 
   frac.setupDependencies();
 
-  return solver.solveProblem(infile,"100. Starting the simulation",
-                             phaseSim.getInitRefine() < 1);
+  return solver.solveProblem(infile,"100. Starting the simulation");
 }
 
 
