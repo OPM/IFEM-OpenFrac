@@ -48,7 +48,7 @@ public:
   virtual ~SIMDynElasticity() {}
 
   //! \brief Prints out problem-specific data to the log stream.
-  virtual void printProblem() const
+  void printProblem() const override
   {
     static short int ncall = 0;
     if (++ncall == 1) // Avoiding infinite recursive calls
@@ -59,7 +59,7 @@ public:
   }
 
   //! \brief Initializes the problem.
-  virtual bool init(const TimeStep&)
+  bool init(const TimeStep&, bool = false) override
   {
     dSim.initPrm();
     dSim.initSol(dynamic_cast<NewmarkSIM*>(&dSim) ? 3 : 1);
@@ -73,7 +73,7 @@ public:
   //! \brief Saves the converged results of a given time step to VTF file.
   //! \param[in] tp Time stepping parameters
   //! \param nBlock Running result block counter
-  virtual bool saveStep(const TimeStep& tp, int& nBlock)
+  bool saveStep(const TimeStep& tp, int& nBlock) override
   {
     double old = utl::zero_print_tol;
     utl::zero_print_tol = 1e-16;
@@ -127,12 +127,12 @@ public:
   }
 
   //! \brief Advances the time step one step forward.
-  virtual bool advanceStep(TimeStep& tp) { return dSim.advanceStep(tp,false); }
+  bool advanceStep(TimeStep& tp) override { return dSim.advanceStep(tp,false); }
 
   //! \brief Prints out time step identification.
   //! \param[in] istep Time step counter
   //! \param[in] time Parameters for time-dependent simulations
-  virtual void printStep(int istep, const TimeDomain& time) const
+  void printStep(int istep, const TimeDomain& time) const override
   {
     Dim::adm.cout <<"\n  step="<< istep <<"  time="<< time.t;
     RealFunc* p = this->haveCrackPressure();
@@ -143,7 +143,7 @@ public:
   }
 
   //! \brief Computes the solution for the current time step.
-  virtual bool solveStep(TimeStep& tp)
+  bool solveStep(TimeStep& tp) override
   {
     if (Dim::msgLevel >= 1)
       IFEM::cout <<"\n  Solving the elasto-dynamics problem...";
@@ -233,9 +233,9 @@ public:
   }
 
   //! \brief Returns a const reference to current solution vector.
-  virtual const Vector& getSolution(int i) const { return dSim.getSolution(i); }
+  const Vector& getSolution(int i) const override { return dSim.getSolution(i);}
   //! \brief Returns a const reference to the solution vectors.
-  const Vectors& getSolutions() const { return dSim.getSolutions(); }
+  const Vectors& getSolutions() const override { return dSim.getSolutions(); }
 
   //! \brief Updates the solution vectors.
   void setSolutions(const Vectors& dvec)
@@ -289,16 +289,16 @@ public:
 
 protected:
   //! \brief Returns the actual integrand.
-  virtual Elasticity* getIntegrand()
+  Elasticity* getIntegrand() override
   {
     if (!Dim::myProblem) // Using the Voigt formulation by default
       Dim::myProblem = new FractureElasticityVoigt(Dim::dimension);
     return static_cast<Elasticity*>(Dim::myProblem);
   }
 
-  using SIMElasticity<Dim>::parse;
+  using SIMElasticityWrap<Dim>::parse;
   //! \brief Parses a data section from an XML element.
-  virtual bool parse(const TiXmlElement* elem)
+  bool parse(const TiXmlElement* elem) override
   {
     bool result = true;
     static short int ncall = 0;
@@ -310,7 +310,8 @@ protected:
       {
         if (this->getName() == "PoroElasticity")
 #ifdef IFEM_HAS_POROELASTIC
-          Dim::myProblem = new PoroFracture(Dim::dimension);
+          Dim::myProblem = new PoroFracture(Dim::dimension,
+                                            this->mixedProblem());
 #else
           return false;
 #endif

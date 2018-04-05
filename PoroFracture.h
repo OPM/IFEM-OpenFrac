@@ -30,7 +30,8 @@ class PoroFracture : public PoroElasticity
 public:
   //! \brief The constructor allocates the internal FractureElasticy object.
   //! \param[in] n Number of spatial dimensions
-  PoroFracture(unsigned short int n);
+  //! \param[in] m If \e true, a mixed formulation is used
+  explicit PoroFracture(unsigned short int n, bool m = false);
   //! \brief The destructor deletes the internal FractureElasticy object.
   virtual ~PoroFracture();
 
@@ -52,17 +53,6 @@ public:
   //! \param[in] nGp Total number of interior integration points
   //! \param[in] nBp Total number of boundary integration points
   virtual void initIntegration(size_t nGp, size_t nBp);
-
-  //! \brief Returns a local integral contribution object for the given element.
-  //! \param[in] nen Number of nodes on element
-  //! \param[in] neumann Whether or not we are assembling Neumann BCs
-  virtual LocalIntegral* getLocalIntegral(size_t nen,
-                                          size_t, bool neumann) const;
-  //! \brief Returns a local integral contribution object for the given element.
-  //! \param[in] nen Number of nodes on element for each basis
-  //! \param[in] neumann Whether or not we are assembling Neumann BCs
-  virtual LocalIntegral* getLocalIntegral(const std::vector<size_t>& nen,
-                                          size_t, bool neumann) const;
 
   using PoroElasticity::initElement;
   //! \brief Initializes current element for numerical integration.

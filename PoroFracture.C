@@ -35,9 +35,11 @@ class PoroFractureElasticity : public FractureElasticityVoigt
 public:
   //! \brief Constructor for integrands with a parent integrand.
   //! \param parent The parent integrand of this one
-  //! \param[in] n Number of spatial dimensions
-  PoroFractureElasticity(IntegrandBase* parent, unsigned short int n)
-    : FractureElasticityVoigt(parent,n) {}
+  //! \param[in] nd Number of spatial dimensions
+  //! \param[in] nv Number of primary solution variables per node
+  PoroFractureElasticity(IntegrandBase* parent,
+                         unsigned short int nd, unsigned short int nv)
+    : FractureElasticityVoigt(parent,nd) { npv = nv; }
   //! \brief Empty destructor.
   virtual ~PoroFractureElasticity() {}
 
@@ -68,9 +70,9 @@ public:
 };
 
 
-PoroFracture::PoroFracture (unsigned short int n) : PoroElasticity(n)
+PoroFracture::PoroFracture (unsigned short int n, bool m) : PoroElasticity(n,m)
 {
-  fracEl = new PoroFractureElasticity(this,n);
+  fracEl = new PoroFractureElasticity(this, n, m ? n : n+1);
 
   L_per = 0.01;
   d_min = 0.1;
@@ -131,24 +133,6 @@ void PoroFracture::setMode (SIM::SolutionMode mode)
 void PoroFracture::initIntegration (size_t nGp, size_t nBp)
 {
   fracEl->initIntegration(nGp,nBp);
-}
-
-
-LocalIntegral* PoroFracture::getLocalIntegral (size_t nen,
-                                               size_t, bool neumann) const
-{
-  LocalIntegral* elmInt = this->PoroElasticity::getLocalIntegral(nen,0,neumann);
-  fracEl->setVar(nsd+1);
-  return elmInt;
-}
-
-
-LocalIntegral* PoroFracture::getLocalIntegral (const std::vector<size_t>& nen,
-                                               size_t, bool neumann) const
-{
-  LocalIntegral* elmInt = this->PoroElasticity::getLocalIntegral(nen,0,neumann);
-  fracEl->setVar(nsd);
-  return elmInt;
 }
 
 
