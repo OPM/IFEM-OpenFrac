@@ -84,7 +84,11 @@ public:
     else // solve the phase-field equation first, if an initial field is given
       firstS1 = !this->S2.hasIC("phasefield");
 
-    return this->SIMCoupledSI<SolidSlv,PhaseSlv>::solveStep(tp,firstS1);
+    if (!this->SIMCoupledSI<SolidSlv,PhaseSlv>::solveStep(tp,firstS1))
+      return false;
+
+    CoupledSIM::doStop = this->S2.checkStopCriterion();
+    return true;
   }
 
   //! \brief Checks if the coupled simulator has converged.
@@ -239,8 +243,11 @@ public:
     tp.time.first = false;
     this->S1.postSolve(tp);
     this->S2.postSolve(tp);
+    if (cycleTol == 0.0 && this->calcResidual(tp) < 0.0)
+      return false;
 
-    return cycleTol == 0.0 ? this->calcResidual(tp) >= 0.0 : true;
+    CoupledSIM::doStop = this->S2.checkStopCriterion();
+    return true;
   }
 
 private:

@@ -56,12 +56,15 @@ public:
     this->S2.setTensileEnergy(this->S1.getTensileEnergy());
   }
 
+  //! \brief Returns \e true if the user-defined stop criterion has been met.
+  bool stopped() const { return doStop; }
+
   //! \brief Advances the time step one step forward.
   virtual bool advanceStep(TimeStep& tp)
   {
     if (doStop && tp.stopTime > tp.time.t)
       tp.stopTime = tp.time.t; // Update stop time due to other stop criteria
-    return this->CoupledSIM::advanceStep(tp);
+    return this->CoupledSIM::advanceStep(tp) && !doStop;
   }
 
   //! \brief Computes the solution for the current time step.
@@ -72,7 +75,11 @@ public:
       if (!this->S2.solveStep(tp,false))
         return false;
 
-    return this->CoupledSIM::solveStep(tp,firstS1);
+    if (!this->CoupledSIM::solveStep(tp,firstS1))
+      return false;
+
+    doStop = this->S2.checkStopCriterion();
+    return true;
   }
 
   //! \brief Saves the converged results to VTF-file of a given time step.
@@ -406,13 +413,15 @@ private:
 
   size_t irfStop; //!< Reaction force component to use as stop criterion
   double stopVal; //!< Stop simulation when less that this value
-  bool   doStop;  //!< If \e true, terminate simulation due to stop criterion
 
   double E0; //!< Energy norm of initial staggering cycle
   double Ec; //!< Energy norm of current staggering cycle
   double Ep; //!< Energy norm of previous staggering cycle
 
   Vector residual; //!< Residual force vector (of the phase field equation)
+
+protected:
+  bool doStop; //!< If \e true, terminate due to user-defined stop criterion
 };
 
 #endif

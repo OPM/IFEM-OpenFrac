@@ -26,6 +26,7 @@ namespace LR { class LRSpline; }
 #include "TimeStep.h"
 #include "Profiler.h"
 #include "Utilities.h"
+#include "Vec3Oper.h"
 #include "AnaSol.h"
 #include "DataExporter.h"
 #include "IFEM.h"
@@ -38,6 +39,16 @@ namespace LR { class LRSpline; }
 
 template<class Dim> class SIMPhaseField : public Dim
 {
+  //! \brief Struct defining a user-specified plane for stopping the simulation.
+  struct StopPlane
+  {
+    Vec3             normal; //!< Normal vector of the stop plane
+    double           d;      //!< Distance offset of plane origin
+    double           eps;    //!< Zero tolerance for nodes being on the plane
+    std::vector<int> nodes;  //!< Nodal (control) points on the plane
+    double           cstop;  //!< Stop when phase field value lower that this
+  };
+
 public:
   //! \brief Default constructor.
   SIMPhaseField(Dim* gridOwner = nullptr, size_t n = 2) : Dim(1), phasefield(n)
@@ -50,10 +61,11 @@ public:
     vtfStep = irefine = 0;
     transferOp = 'L';
     chp = nullptr;
+    spln = nullptr;
   }
 
-  //! \brief Empty destructor.
-  virtual ~SIMPhaseField() {}
+  //! \brief The destructor deletes the stop plane.
+  virtual ~SIMPhaseField() { delete spln; }
 
   //! \brief Returns the name of this simulator (for use in the HDF5 export).
   virtual std::string getName() const { return "CahnHilliard"; }
@@ -67,6 +79,31 @@ public:
     this->printProblem();
     if (this->hasIC("phasefield"))
       IFEM::cout <<"Initial phase field specified."<< std::endl;
+  }
+
+  //! \brief Preprocessing performed after the FEM model generation.
+  virtual bool preprocessB()
+  {
+    if (!spln) return true;
+
+    spln->nodes.clear();
+    size_t nnod = this->getNoNodes();
+    for (size_t inod = 1; inod <= nnod; inod++)
+    {
+      double dist = this->getNodeCoord(inod)*spln->normal + spln->d;
+      if (fabs(dist) <= spln->eps) spln->nodes.push_back(inod);
+    }
+
+    IFEM::cout <<"\nSearching for nodal points on the stop plane:";
+#ifdef INT_DEBUG
+    for (int inod : spln->nodes)
+      IFEM::cout <<"\n\t"<< inod <<"\t: "<< this->getNodeCoord(inod);
+#else
+    IFEM::cout <<" "<< spln->nodes.size() <<" nodes found.";
+#endif
+    IFEM::cout << std::endl;
+
+    return true;
   }
 
   //! \brief Registers fields for data output.
@@ -296,6 +333,33 @@ public:
                  << maxVal-minVal << std::endl;
   }
 
+  //! \brief Returns \true if terminating due to user-defined criteria.
+  bool checkStopCriterion () const
+  {
+    if (!spln || spln->nodes.empty())
+      return false;
+
+    int imin = 0;
+    double c = 0.0, cmin = 1.0;
+    for (int inod : spln->nodes)
+      if ((c = phasefield.front()[inod-1]) < spln->cstop)
+      {
+        IFEM::cout <<"\n >>> Terminating simulation due to stop criterion c("
+                   << this->getNodeCoord(inod) <<") = "<< c <<" < "
+                   << spln->cstop << std::endl;
+        return true;
+      }
+      else if (c < cmin)
+      {
+        cmin = c;
+        imin = inod;
+      }
+
+    IFEM::cout <<"  Minimum phase field value on plane: "<< cmin <<" at node "
+               << imin <<" (X = "<< this->getNodeCoord(imin) <<")"<< std::endl;
+    return false;
+  }
+
   //! \brief Sets the tensile energy vector from the elasticity problem.
   void setTensileEnergy(const RealArray* te) { chp->setTensileEnergy(te); }
 
@@ -471,6 +535,20 @@ protected:
         if (!Dim::mySol)
           Dim::mySol = new AnaSol(child,true);
       }
+      else if (!strcasecmp(child->Value(),"stop_plane"))
+      {
+        if (!spln) spln = new StopPlane();
+        utl::getAttribute(child,"nx",spln->normal.x);
+        utl::getAttribute(child,"ny",spln->normal.y);
+        utl::getAttribute(child,"nz",spln->normal.z);
+        utl::getAttribute(child,"d",spln->d);
+        utl::getAttribute(child,"eps",spln->eps);
+        utl::getAttribute(child,"stop",spln->cstop);
+        IFEM::cout <<"\tStop plane: normal="<< spln->normal
+                   <<" d="<< spln->d
+                   <<"\n\t            eps="<< spln->eps <<" stop="<< spln->cstop
+                   << std::endl;
+      }
       else
       {
         result &= this->Dim::parse(child);
@@ -516,6 +594,7 @@ protected:
 
 private:
   CahnHilliard* chp;  //!< The Cahn-Hilliard integrand
+  StopPlane*    spln; //!< Stop simulation when crack penetrates this plane
 
   Vectors phasefield; //!< Current (and previous) phase field solution
   Matrix  projSol;    //!< Projected solution fields
