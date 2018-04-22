@@ -382,8 +382,7 @@ public:
   const Vector& getGlobalNorms() const { return norm; }
 
   //! \brief Returns a const reference to the current solution.
-  const Vector& getSolution(int i = 0) const { return phasefield[i]; }
-
+  const Vector& getSolution() const { return phasefield.front(); }
   //! \brief Updates the solution vector.
   void setSolution(const Vector& vec) { phasefield.front() = vec; }
 

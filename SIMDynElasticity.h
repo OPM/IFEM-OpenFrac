@@ -142,6 +142,19 @@ public:
   //! \brief Advances the time step one step forward.
   virtual bool advanceStep(TimeStep& tp) { return dSim.advanceStep(tp,false); }
 
+  //! \brief Prints out time step identification.
+  //! \param[in] istep Time step counter
+  //! \param[in] time Parameters for time-dependent simulations
+  virtual void printStep(int istep, const TimeDomain& time) const
+  {
+    Dim::adm.cout <<"\n  step="<< istep <<"  time="<< time.t;
+    RealFunc* p = this->haveCrackPressure();
+    if (p && !p->isConstant())
+      Dim::adm.cout <<"  crack pressure: "
+                    << (*p)(Vec4(0.0,0.0,0.0,time.t));
+    Dim::adm.cout << std::endl;
+  }
+
   //! \brief Computes the solution for the current time step.
   bool solveStep(TimeStep& tp)
   {
@@ -232,8 +245,6 @@ public:
     }
   }
 
-  //! \brief Returns a const reference to current solution vector.
-  const Vector& getSolution(int idx = 0) const { return dSim.getSolution(idx); }
   //! \brief Returns a const reference to the solution vectors.
   const Vectors& getSolutions() const { return dSim.getSolutions(); }
 
@@ -252,7 +263,7 @@ public:
   SIM::ConvStatus solveIteration(TimeStep& tp, char stage = 0)
   {
     if (Dim::msgLevel == 1 && tp.iter == 0 && stage == 1)
-      IFEM::cout <<"\n  step="<< tp.step <<"  time="<< tp.time.t << std::endl;
+      this->printStep(tp.step,tp.time);
     dSim.setSubIteration(tp.iter == 0 ? DynSIM::FIRST : DynSIM::ITER);
 
     if (tp.iter == 0 && stage == 1)
@@ -268,7 +279,7 @@ public:
           break;
         default:
           return status;
-	}
+        }
       return SIM::DIVERGED; // No convergence in maxit iterations
     }
 
@@ -281,10 +292,10 @@ public:
   int getMaxit() const { return dSim.getMaxit(); }
 
   //! \brief Checks whether an internal crack pressure has been specified.
-  bool haveCrackPressure() const
+  RealFunc* haveCrackPressure() const
   {
     FractureElasticity* fel = dynamic_cast<FractureElasticity*>(Dim::myProblem);
-    return fel ? fel->getCrackPressure() != nullptr : false;
+    return fel ? fel->getCrackPressure() : nullptr;
   }
 
 protected:
