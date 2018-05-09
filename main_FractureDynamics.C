@@ -83,29 +83,27 @@ template<class ElSolver, class PhaseSolver, class SIMFractureDynamics,
          template<class T1> class Solver=SIMSolver>
 int runCombined (char* infile, const char* context)
 {
-  utl::profiler->start("Model input");
   IFEM::cout <<"\n\n0. Parsing input file(s)."
              <<"\n========================="<< std::endl;
 
   ElSolver elastoSim;
   ASMstruct::resetNumbering();
-  if (!elastoSim.read(infile))
+  if (!readModel(elastoSim,infile))
     return 1;
 
   elastoSim.opt.print(IFEM::cout) << std::endl;
 
   PhaseSolver phaseSim(&elastoSim);
-  if (!phaseSim.read(infile))
+  if (!readModel(phaseSim,infile))
     return 1;
 
   phaseSim.opt.print(IFEM::cout) << std::endl;
 
   SIMFractureDynamics frac(elastoSim,phaseSim,infile);
   SIMDriver<SIMFractureDynamics,Solver> solver(frac,context);
-  if (!solver.read(infile))
+  if (!readModel(solver,infile))
     return 1;
 
-  utl::profiler->stop("Model input");
   IFEM::cout <<"\n\n10. Preprocessing the finite element model:"
              <<"\n==========================================="<< std::endl;
 
@@ -174,21 +172,19 @@ int runStandAlone (char* infile, const char* context)
 {
   typedef SIMDynElasticity<Dim,Integrator> SIMElastoDynamics;
 
-  utl::profiler->start("Model input");
   IFEM::cout <<"\n\n0. Parsing input file(s)."
              <<"\n========================="<< std::endl;
 
   SIMElastoDynamics elastoSim;
-  if (!elastoSim.read(infile))
+  if (!readModel(elastoSim,infile))
     return 1;
 
   elastoSim.opt.print(IFEM::cout) << std::endl;
 
   SIMDriver<SIMElastoDynamics,SIMSolver> solver(elastoSim,context);
-  if (!solver.read(infile))
+  if (!readModel(solver,infile))
     return 1;
 
-  utl::profiler->stop("Model input");
   IFEM::cout <<"\n\n10. Preprocessing the finite element model:"
              <<"\n==========================================="<< std::endl;
 

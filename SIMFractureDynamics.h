@@ -16,8 +16,20 @@
 
 #include "ASMunstruct.h"
 #include "ProcessAdm.h"
+#include "Profiler.h"
 #include <fstream>
 #include <numeric>
+
+
+/*!
+  \brief Generic input file parser with profiling.
+*/
+
+inline bool readModel (SIMadmin& model, const std::string& infile)
+{
+  PROFILE("Model input");
+  return model.read(infile.c_str());
+}
 
 
 /*!
@@ -184,7 +196,7 @@ public:
       if (step0.iter > 0)
       {
         // Reinitialize the phase field solver (S2) on the refined mesh
-        if (!this->S2.read(infile.c_str()))
+        if (!readModel(this->S2,infile))
           return false;
         if (!this->S1.createFEMmodel()) // Because S2 shares the mesh with S1
           return false;
@@ -204,7 +216,7 @@ public:
     if (step0.iter > 1)
     {
       // Reinitialize the elasticity solver (S1) on the refined mesh
-      if (!this->S1.read(infile.c_str()))
+      if (!readModel(this->S1,infile))
         return false;
       if (!this->S1.preprocess())
         return false;
@@ -295,7 +307,7 @@ public:
     if (remeshOnly)
       return elements.size();
 
-    if (!this->S1.read(infile.c_str()) || !this->S2.read(infile.c_str()))
+    if (!readModel(this->S1,infile) || !readModel(this->S2,infile))
       return -3;
 
     if (!this->preprocess())
