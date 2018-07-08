@@ -333,7 +333,7 @@ public:
                  << maxVal-minVal << std::endl;
   }
 
-  //! \brief Returns \true if terminating due to user-defined criteria.
+  //! \brief Returns \e true if terminating due to user-defined criteria.
   bool checkStopCriterion () const
   {
     if (!spln || spln->nodes.empty())

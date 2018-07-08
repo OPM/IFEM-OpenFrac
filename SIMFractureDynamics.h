@@ -332,13 +332,15 @@ public:
       Vectors soli(nsol-1,Vector(this->S1.getNoDOFs()));
       for (size_t i = 0; i < nsol-1; i++)
         for (int p = 0; p < this->S1.getNoPatches(); p++)
-          this->S1.injectPatchSolution(soli[i],sols[p*nsol+i],p);
+          this->S1.injectPatchSolution(soli[i],sols[p*nsol+i],
+                                       this->S1.getPatch(p+1));
       this->S1.setSolutions(soli);
       IFEM::cout <<"\nTransferring "<< nsv2
                  <<" solution variables to new mesh for "<< this->S2.getName();
       Vector solc(this->S2.getNoDOFs());
       for (int p = 0; p < this->S2.getNoPatches(); p++)
-        this->S2.injectPatchSolution(solc,sols[p*nsol+nsol-1],p);
+        this->S2.injectPatchSolution(solc,sols[p*nsol+nsol-1],
+                                     this->S2.getPatch(p+1));
       this->S2.setSolution(solc);
     }
     if (!hsol.empty())
