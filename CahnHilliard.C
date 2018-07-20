@@ -351,7 +351,7 @@ std::string CahnHilliard::getField1Name (size_t, const char* prefix) const
 
 std::string CahnHilliard::getField2Name (size_t idx, const char* prefix) const
 {
-  std::string name(idx == 0 ? "phase" : "Max tensile energy");
+  std::string name(idx == 0 ? "projected phase" : "Max tensile energy");
   return prefix ? std::string(prefix) + " " + name : name;
 }
 

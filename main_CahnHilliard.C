@@ -38,7 +38,7 @@ template<class Dim> int runSimulator (char* infile)
 
   phaseSim.opt.print(IFEM::cout) << std::endl;
 
-  SIMSolver<PhaseFieldDriver> solver(phaseSim);
+  SIMSolverStat<PhaseFieldDriver> solver(phaseSim);
   if (!solver.read(infile))
     return 1;
 
