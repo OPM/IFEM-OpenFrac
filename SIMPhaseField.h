@@ -111,8 +111,11 @@ public:
   //! \brief Registers fields for data output.
   void registerFields(DataExporter& exporter)
   {
-    exporter.registerField("c","phase field",DataExporter::SIM,
-                           DataExporter::PRIMARY);
+    int results = DataExporter::PRIMARY;
+    if (!Dim::opt.pSolOnly)
+      results |= DataExporter::SECONDARY;
+
+    exporter.registerField("c","phase field",DataExporter::SIM, results);
     exporter.setFieldValue("c",this,&phasefield.front());
   }
 
@@ -171,7 +174,7 @@ public:
           eNorm(4,i) = eNorm(4,i)*eNorm(4,i);
 
       // Write element norms to VTF-file
-      if (!this->writeGlvN(eNorm,vtfStep,nBlock,nullptr,210))
+      if (!this->writeGlvN(eNorm,vtfStep,nBlock,{},210))
         return false;
 
       if (!this->writeGlvStep(vtfStep,tp.time.t))
