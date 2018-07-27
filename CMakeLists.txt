@@ -84,7 +84,8 @@ include(IFEMTesting)
 # Regression tests
 if(MPI_FOUND)
   # Add parallel tests here
-else()
+endif()
+if(NOT MPI_FOUND OR IFEM_SERIAL_TESTS_IN_PARALLEL)
   file(GLOB CH_TESTFILES RELATIVE ${PROJECT_SOURCE_DIR}/Test
                          ${PROJECT_SOURCE_DIR}/Test/*_CH.reg)
   file(GLOB FD_TESTFILES RELATIVE ${PROJECT_SOURCE_DIR}/Test
@@ -104,7 +105,8 @@ else()
     list(REMOVE_ITEM FD_TESTFILES Short10x20-adap_FD.reg)
   endif()
   if(LRSpline_FOUND)
-    ifem_add_vtf_test(Short10x20-adap_FD.vreg FractureDynamics)
+    ifem_add_vtf_test(Short10x20-p1-adap.vreg FractureDynamics)
+    ifem_add_hdf5_test(Short10x20-p1-adap.hreg FractureDynamics)
   else()
     list(REMOVE_ITEM FD_TESTFILES Short10x20-adap_FD.reg)
   endif()
@@ -116,6 +118,9 @@ else()
       ifem_add_test(${TESTFILE} FractureDynamics)
     endforeach()
   endif()
+
+  ifem_add_hdf5_test(Rectangle-p2_CH.hreg CahnHilliard)
+  ifem_add_hdf5_test(Sneddon-200_FD.hreg FractureDynamics)
 endif()
 list(APPEND TEST_APPS CahnHilliard FractureDynamics)
 

@@ -1,0 +1,14 @@
+Rectangle-p2_CH.xinp -2D
+
+/                        Group
+/0                       Group
+/0/CahnHilliard-1        Group
+/0/CahnHilliard-1/basis  Group
+/0/CahnHilliard-1/basis/1 Dataset {65987}
+/0/CahnHilliard-1/fields Group
+/0/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/0/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {3006}
+/0/CahnHilliard-1/fields/phase Group
+/0/CahnHilliard-1/fields/phase/1 Dataset {3006}
+/0/CahnHilliard-1/fields/projected\ phase Group
+/0/CahnHilliard-1/fields/projected\ phase/1 Dataset {3006}

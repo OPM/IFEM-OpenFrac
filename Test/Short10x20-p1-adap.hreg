@@ -1,0 +1,1397 @@
+Short10x20-p1-adap.xinp -2D -GA -adaptive
+
+/                        Group
+/0                       Group
+/0/CahnHilliard-1        Group
+/0/CahnHilliard-1/basis  Group
+/0/CahnHilliard-1/basis/1 Dataset {40624}
+/0/CahnHilliard-1/fields Group
+/0/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/0/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/0/CahnHilliard-1/fields/phase Group
+/0/CahnHilliard-1/fields/phase/1 Dataset {308}
+/0/CahnHilliard-1/fields/projected\ phase Group
+/0/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/0/Elasticity-1          Group
+/0/Elasticity-1/basis    Group
+/0/Elasticity-1/basis/1  Dataset {40624}
+/0/Elasticity-1/fields   Group
+/0/Elasticity-1/fields/Compressive\ energy\ density Group
+/0/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/0/Elasticity-1/fields/Strain\ energy\ density Group
+/0/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/0/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/0/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/0/Elasticity-1/fields/Tensile\ energy\ density Group
+/0/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/0/Elasticity-1/fields/displacement Group
+/0/Elasticity-1/fields/displacement/1 Dataset {616}
+/0/Elasticity-1/fields/s_xx Group
+/0/Elasticity-1/fields/s_xx/1 Dataset {308}
+/0/Elasticity-1/fields/s_xy Group
+/0/Elasticity-1/fields/s_xy/1 Dataset {308}
+/0/Elasticity-1/fields/s_yy Group
+/0/Elasticity-1/fields/s_yy/1 Dataset {308}
+/0/Elasticity-1/fields/s_zz Group
+/0/Elasticity-1/fields/s_zz/1 Dataset {308}
+/0/Elasticity-1/fields/von\ Mises\ stress Group
+/0/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/0/timeinfo              Group
+/0/timeinfo/level        Dataset {1}
+/1                       Group
+/1/CahnHilliard-1        Group
+/1/CahnHilliard-1/fields Group
+/1/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/1/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/1/CahnHilliard-1/fields/phase Group
+/1/CahnHilliard-1/fields/phase/1 Dataset {308}
+/1/CahnHilliard-1/fields/projected\ phase Group
+/1/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/1/Elasticity-1          Group
+/1/Elasticity-1/fields   Group
+/1/Elasticity-1/fields/Compressive\ energy\ density Group
+/1/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/1/Elasticity-1/fields/Strain\ energy\ density Group
+/1/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/1/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/1/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/1/Elasticity-1/fields/Tensile\ energy\ density Group
+/1/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/1/Elasticity-1/fields/displacement Group
+/1/Elasticity-1/fields/displacement/1 Dataset {616}
+/1/Elasticity-1/fields/s_xx Group
+/1/Elasticity-1/fields/s_xx/1 Dataset {308}
+/1/Elasticity-1/fields/s_xy Group
+/1/Elasticity-1/fields/s_xy/1 Dataset {308}
+/1/Elasticity-1/fields/s_yy Group
+/1/Elasticity-1/fields/s_yy/1 Dataset {308}
+/1/Elasticity-1/fields/s_zz Group
+/1/Elasticity-1/fields/s_zz/1 Dataset {308}
+/1/Elasticity-1/fields/von\ Mises\ stress Group
+/1/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/1/timeinfo              Group
+/1/timeinfo/level        Dataset {1}
+/10                      Group
+/10/CahnHilliard-1       Group
+/10/CahnHilliard-1/fields Group
+/10/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/10/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/10/CahnHilliard-1/fields/phase Group
+/10/CahnHilliard-1/fields/phase/1 Dataset {308}
+/10/CahnHilliard-1/fields/projected\ phase Group
+/10/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/10/Elasticity-1         Group
+/10/Elasticity-1/fields  Group
+/10/Elasticity-1/fields/Compressive\ energy\ density Group
+/10/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/10/Elasticity-1/fields/Strain\ energy\ density Group
+/10/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/10/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/10/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/10/Elasticity-1/fields/Tensile\ energy\ density Group
+/10/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/10/Elasticity-1/fields/displacement Group
+/10/Elasticity-1/fields/displacement/1 Dataset {616}
+/10/Elasticity-1/fields/s_xx Group
+/10/Elasticity-1/fields/s_xx/1 Dataset {308}
+/10/Elasticity-1/fields/s_xy Group
+/10/Elasticity-1/fields/s_xy/1 Dataset {308}
+/10/Elasticity-1/fields/s_yy Group
+/10/Elasticity-1/fields/s_yy/1 Dataset {308}
+/10/Elasticity-1/fields/s_zz Group
+/10/Elasticity-1/fields/s_zz/1 Dataset {308}
+/10/Elasticity-1/fields/von\ Mises\ stress Group
+/10/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/10/timeinfo             Group
+/10/timeinfo/level       Dataset {1}
+/11                      Group
+/11/CahnHilliard-1       Group
+/11/CahnHilliard-1/fields Group
+/11/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/11/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/11/CahnHilliard-1/fields/phase Group
+/11/CahnHilliard-1/fields/phase/1 Dataset {308}
+/11/CahnHilliard-1/fields/projected\ phase Group
+/11/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/11/Elasticity-1         Group
+/11/Elasticity-1/fields  Group
+/11/Elasticity-1/fields/Compressive\ energy\ density Group
+/11/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/11/Elasticity-1/fields/Strain\ energy\ density Group
+/11/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/11/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/11/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/11/Elasticity-1/fields/Tensile\ energy\ density Group
+/11/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/11/Elasticity-1/fields/displacement Group
+/11/Elasticity-1/fields/displacement/1 Dataset {616}
+/11/Elasticity-1/fields/s_xx Group
+/11/Elasticity-1/fields/s_xx/1 Dataset {308}
+/11/Elasticity-1/fields/s_xy Group
+/11/Elasticity-1/fields/s_xy/1 Dataset {308}
+/11/Elasticity-1/fields/s_yy Group
+/11/Elasticity-1/fields/s_yy/1 Dataset {308}
+/11/Elasticity-1/fields/s_zz Group
+/11/Elasticity-1/fields/s_zz/1 Dataset {308}
+/11/Elasticity-1/fields/von\ Mises\ stress Group
+/11/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/11/timeinfo             Group
+/11/timeinfo/level       Dataset {1}
+/12                      Group
+/12/CahnHilliard-1       Group
+/12/CahnHilliard-1/fields Group
+/12/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/12/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/12/CahnHilliard-1/fields/phase Group
+/12/CahnHilliard-1/fields/phase/1 Dataset {308}
+/12/CahnHilliard-1/fields/projected\ phase Group
+/12/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/12/Elasticity-1         Group
+/12/Elasticity-1/fields  Group
+/12/Elasticity-1/fields/Compressive\ energy\ density Group
+/12/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/12/Elasticity-1/fields/Strain\ energy\ density Group
+/12/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/12/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/12/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/12/Elasticity-1/fields/Tensile\ energy\ density Group
+/12/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/12/Elasticity-1/fields/displacement Group
+/12/Elasticity-1/fields/displacement/1 Dataset {616}
+/12/Elasticity-1/fields/s_xx Group
+/12/Elasticity-1/fields/s_xx/1 Dataset {308}
+/12/Elasticity-1/fields/s_xy Group
+/12/Elasticity-1/fields/s_xy/1 Dataset {308}
+/12/Elasticity-1/fields/s_yy Group
+/12/Elasticity-1/fields/s_yy/1 Dataset {308}
+/12/Elasticity-1/fields/s_zz Group
+/12/Elasticity-1/fields/s_zz/1 Dataset {308}
+/12/Elasticity-1/fields/von\ Mises\ stress Group
+/12/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/12/timeinfo             Group
+/12/timeinfo/level       Dataset {1}
+/13                      Group
+/13/CahnHilliard-1       Group
+/13/CahnHilliard-1/fields Group
+/13/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/13/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/13/CahnHilliard-1/fields/phase Group
+/13/CahnHilliard-1/fields/phase/1 Dataset {308}
+/13/CahnHilliard-1/fields/projected\ phase Group
+/13/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/13/Elasticity-1         Group
+/13/Elasticity-1/fields  Group
+/13/Elasticity-1/fields/Compressive\ energy\ density Group
+/13/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/13/Elasticity-1/fields/Strain\ energy\ density Group
+/13/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/13/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/13/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/13/Elasticity-1/fields/Tensile\ energy\ density Group
+/13/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/13/Elasticity-1/fields/displacement Group
+/13/Elasticity-1/fields/displacement/1 Dataset {616}
+/13/Elasticity-1/fields/s_xx Group
+/13/Elasticity-1/fields/s_xx/1 Dataset {308}
+/13/Elasticity-1/fields/s_xy Group
+/13/Elasticity-1/fields/s_xy/1 Dataset {308}
+/13/Elasticity-1/fields/s_yy Group
+/13/Elasticity-1/fields/s_yy/1 Dataset {308}
+/13/Elasticity-1/fields/s_zz Group
+/13/Elasticity-1/fields/s_zz/1 Dataset {308}
+/13/Elasticity-1/fields/von\ Mises\ stress Group
+/13/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/13/timeinfo             Group
+/13/timeinfo/level       Dataset {1}
+/14                      Group
+/14/CahnHilliard-1       Group
+/14/CahnHilliard-1/fields Group
+/14/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/14/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/14/CahnHilliard-1/fields/phase Group
+/14/CahnHilliard-1/fields/phase/1 Dataset {308}
+/14/CahnHilliard-1/fields/projected\ phase Group
+/14/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/14/Elasticity-1         Group
+/14/Elasticity-1/fields  Group
+/14/Elasticity-1/fields/Compressive\ energy\ density Group
+/14/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/14/Elasticity-1/fields/Strain\ energy\ density Group
+/14/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/14/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/14/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/14/Elasticity-1/fields/Tensile\ energy\ density Group
+/14/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/14/Elasticity-1/fields/displacement Group
+/14/Elasticity-1/fields/displacement/1 Dataset {616}
+/14/Elasticity-1/fields/s_xx Group
+/14/Elasticity-1/fields/s_xx/1 Dataset {308}
+/14/Elasticity-1/fields/s_xy Group
+/14/Elasticity-1/fields/s_xy/1 Dataset {308}
+/14/Elasticity-1/fields/s_yy Group
+/14/Elasticity-1/fields/s_yy/1 Dataset {308}
+/14/Elasticity-1/fields/s_zz Group
+/14/Elasticity-1/fields/s_zz/1 Dataset {308}
+/14/Elasticity-1/fields/von\ Mises\ stress Group
+/14/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/14/timeinfo             Group
+/14/timeinfo/level       Dataset {1}
+/15                      Group
+/15/CahnHilliard-1       Group
+/15/CahnHilliard-1/fields Group
+/15/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/15/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/15/CahnHilliard-1/fields/phase Group
+/15/CahnHilliard-1/fields/phase/1 Dataset {308}
+/15/CahnHilliard-1/fields/projected\ phase Group
+/15/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/15/Elasticity-1         Group
+/15/Elasticity-1/fields  Group
+/15/Elasticity-1/fields/Compressive\ energy\ density Group
+/15/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/15/Elasticity-1/fields/Strain\ energy\ density Group
+/15/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/15/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/15/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/15/Elasticity-1/fields/Tensile\ energy\ density Group
+/15/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/15/Elasticity-1/fields/displacement Group
+/15/Elasticity-1/fields/displacement/1 Dataset {616}
+/15/Elasticity-1/fields/s_xx Group
+/15/Elasticity-1/fields/s_xx/1 Dataset {308}
+/15/Elasticity-1/fields/s_xy Group
+/15/Elasticity-1/fields/s_xy/1 Dataset {308}
+/15/Elasticity-1/fields/s_yy Group
+/15/Elasticity-1/fields/s_yy/1 Dataset {308}
+/15/Elasticity-1/fields/s_zz Group
+/15/Elasticity-1/fields/s_zz/1 Dataset {308}
+/15/Elasticity-1/fields/von\ Mises\ stress Group
+/15/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/15/timeinfo             Group
+/15/timeinfo/level       Dataset {1}
+/16                      Group
+/16/CahnHilliard-1       Group
+/16/CahnHilliard-1/fields Group
+/16/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/16/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/16/CahnHilliard-1/fields/phase Group
+/16/CahnHilliard-1/fields/phase/1 Dataset {308}
+/16/CahnHilliard-1/fields/projected\ phase Group
+/16/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/16/Elasticity-1         Group
+/16/Elasticity-1/fields  Group
+/16/Elasticity-1/fields/Compressive\ energy\ density Group
+/16/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/16/Elasticity-1/fields/Strain\ energy\ density Group
+/16/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/16/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/16/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/16/Elasticity-1/fields/Tensile\ energy\ density Group
+/16/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/16/Elasticity-1/fields/displacement Group
+/16/Elasticity-1/fields/displacement/1 Dataset {616}
+/16/Elasticity-1/fields/s_xx Group
+/16/Elasticity-1/fields/s_xx/1 Dataset {308}
+/16/Elasticity-1/fields/s_xy Group
+/16/Elasticity-1/fields/s_xy/1 Dataset {308}
+/16/Elasticity-1/fields/s_yy Group
+/16/Elasticity-1/fields/s_yy/1 Dataset {308}
+/16/Elasticity-1/fields/s_zz Group
+/16/Elasticity-1/fields/s_zz/1 Dataset {308}
+/16/Elasticity-1/fields/von\ Mises\ stress Group
+/16/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/16/timeinfo             Group
+/16/timeinfo/level       Dataset {1}
+/17                      Group
+/17/CahnHilliard-1       Group
+/17/CahnHilliard-1/fields Group
+/17/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/17/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/17/CahnHilliard-1/fields/phase Group
+/17/CahnHilliard-1/fields/phase/1 Dataset {308}
+/17/CahnHilliard-1/fields/projected\ phase Group
+/17/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/17/Elasticity-1         Group
+/17/Elasticity-1/fields  Group
+/17/Elasticity-1/fields/Compressive\ energy\ density Group
+/17/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/17/Elasticity-1/fields/Strain\ energy\ density Group
+/17/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/17/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/17/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/17/Elasticity-1/fields/Tensile\ energy\ density Group
+/17/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/17/Elasticity-1/fields/displacement Group
+/17/Elasticity-1/fields/displacement/1 Dataset {616}
+/17/Elasticity-1/fields/s_xx Group
+/17/Elasticity-1/fields/s_xx/1 Dataset {308}
+/17/Elasticity-1/fields/s_xy Group
+/17/Elasticity-1/fields/s_xy/1 Dataset {308}
+/17/Elasticity-1/fields/s_yy Group
+/17/Elasticity-1/fields/s_yy/1 Dataset {308}
+/17/Elasticity-1/fields/s_zz Group
+/17/Elasticity-1/fields/s_zz/1 Dataset {308}
+/17/Elasticity-1/fields/von\ Mises\ stress Group
+/17/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/17/timeinfo             Group
+/17/timeinfo/level       Dataset {1}
+/18                      Group
+/18/CahnHilliard-1       Group
+/18/CahnHilliard-1/fields Group
+/18/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/18/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/18/CahnHilliard-1/fields/phase Group
+/18/CahnHilliard-1/fields/phase/1 Dataset {308}
+/18/CahnHilliard-1/fields/projected\ phase Group
+/18/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/18/Elasticity-1         Group
+/18/Elasticity-1/fields  Group
+/18/Elasticity-1/fields/Compressive\ energy\ density Group
+/18/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/18/Elasticity-1/fields/Strain\ energy\ density Group
+/18/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/18/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/18/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/18/Elasticity-1/fields/Tensile\ energy\ density Group
+/18/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/18/Elasticity-1/fields/displacement Group
+/18/Elasticity-1/fields/displacement/1 Dataset {616}
+/18/Elasticity-1/fields/s_xx Group
+/18/Elasticity-1/fields/s_xx/1 Dataset {308}
+/18/Elasticity-1/fields/s_xy Group
+/18/Elasticity-1/fields/s_xy/1 Dataset {308}
+/18/Elasticity-1/fields/s_yy Group
+/18/Elasticity-1/fields/s_yy/1 Dataset {308}
+/18/Elasticity-1/fields/s_zz Group
+/18/Elasticity-1/fields/s_zz/1 Dataset {308}
+/18/Elasticity-1/fields/von\ Mises\ stress Group
+/18/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/18/timeinfo             Group
+/18/timeinfo/level       Dataset {1}
+/19                      Group
+/19/CahnHilliard-1       Group
+/19/CahnHilliard-1/fields Group
+/19/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/19/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/19/CahnHilliard-1/fields/phase Group
+/19/CahnHilliard-1/fields/phase/1 Dataset {308}
+/19/CahnHilliard-1/fields/projected\ phase Group
+/19/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/19/Elasticity-1         Group
+/19/Elasticity-1/fields  Group
+/19/Elasticity-1/fields/Compressive\ energy\ density Group
+/19/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/19/Elasticity-1/fields/Strain\ energy\ density Group
+/19/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/19/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/19/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/19/Elasticity-1/fields/Tensile\ energy\ density Group
+/19/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/19/Elasticity-1/fields/displacement Group
+/19/Elasticity-1/fields/displacement/1 Dataset {616}
+/19/Elasticity-1/fields/s_xx Group
+/19/Elasticity-1/fields/s_xx/1 Dataset {308}
+/19/Elasticity-1/fields/s_xy Group
+/19/Elasticity-1/fields/s_xy/1 Dataset {308}
+/19/Elasticity-1/fields/s_yy Group
+/19/Elasticity-1/fields/s_yy/1 Dataset {308}
+/19/Elasticity-1/fields/s_zz Group
+/19/Elasticity-1/fields/s_zz/1 Dataset {308}
+/19/Elasticity-1/fields/von\ Mises\ stress Group
+/19/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/19/timeinfo             Group
+/19/timeinfo/level       Dataset {1}
+/2                       Group
+/2/CahnHilliard-1        Group
+/2/CahnHilliard-1/fields Group
+/2/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/2/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/2/CahnHilliard-1/fields/phase Group
+/2/CahnHilliard-1/fields/phase/1 Dataset {308}
+/2/CahnHilliard-1/fields/projected\ phase Group
+/2/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/2/Elasticity-1          Group
+/2/Elasticity-1/fields   Group
+/2/Elasticity-1/fields/Compressive\ energy\ density Group
+/2/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/2/Elasticity-1/fields/Strain\ energy\ density Group
+/2/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/2/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/2/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/2/Elasticity-1/fields/Tensile\ energy\ density Group
+/2/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/2/Elasticity-1/fields/displacement Group
+/2/Elasticity-1/fields/displacement/1 Dataset {616}
+/2/Elasticity-1/fields/s_xx Group
+/2/Elasticity-1/fields/s_xx/1 Dataset {308}
+/2/Elasticity-1/fields/s_xy Group
+/2/Elasticity-1/fields/s_xy/1 Dataset {308}
+/2/Elasticity-1/fields/s_yy Group
+/2/Elasticity-1/fields/s_yy/1 Dataset {308}
+/2/Elasticity-1/fields/s_zz Group
+/2/Elasticity-1/fields/s_zz/1 Dataset {308}
+/2/Elasticity-1/fields/von\ Mises\ stress Group
+/2/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/2/timeinfo              Group
+/2/timeinfo/level        Dataset {1}
+/20                      Group
+/20/CahnHilliard-1       Group
+/20/CahnHilliard-1/fields Group
+/20/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/20/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/20/CahnHilliard-1/fields/phase Group
+/20/CahnHilliard-1/fields/phase/1 Dataset {308}
+/20/CahnHilliard-1/fields/projected\ phase Group
+/20/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/20/Elasticity-1         Group
+/20/Elasticity-1/fields  Group
+/20/Elasticity-1/fields/Compressive\ energy\ density Group
+/20/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/20/Elasticity-1/fields/Strain\ energy\ density Group
+/20/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/20/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/20/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/20/Elasticity-1/fields/Tensile\ energy\ density Group
+/20/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/20/Elasticity-1/fields/displacement Group
+/20/Elasticity-1/fields/displacement/1 Dataset {616}
+/20/Elasticity-1/fields/s_xx Group
+/20/Elasticity-1/fields/s_xx/1 Dataset {308}
+/20/Elasticity-1/fields/s_xy Group
+/20/Elasticity-1/fields/s_xy/1 Dataset {308}
+/20/Elasticity-1/fields/s_yy Group
+/20/Elasticity-1/fields/s_yy/1 Dataset {308}
+/20/Elasticity-1/fields/s_zz Group
+/20/Elasticity-1/fields/s_zz/1 Dataset {308}
+/20/Elasticity-1/fields/von\ Mises\ stress Group
+/20/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/20/timeinfo             Group
+/20/timeinfo/level       Dataset {1}
+/21                      Group
+/21/CahnHilliard-1       Group
+/21/CahnHilliard-1/fields Group
+/21/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/21/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/21/CahnHilliard-1/fields/phase Group
+/21/CahnHilliard-1/fields/phase/1 Dataset {308}
+/21/CahnHilliard-1/fields/projected\ phase Group
+/21/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/21/Elasticity-1         Group
+/21/Elasticity-1/fields  Group
+/21/Elasticity-1/fields/Compressive\ energy\ density Group
+/21/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/21/Elasticity-1/fields/Strain\ energy\ density Group
+/21/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/21/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/21/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/21/Elasticity-1/fields/Tensile\ energy\ density Group
+/21/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/21/Elasticity-1/fields/displacement Group
+/21/Elasticity-1/fields/displacement/1 Dataset {616}
+/21/Elasticity-1/fields/s_xx Group
+/21/Elasticity-1/fields/s_xx/1 Dataset {308}
+/21/Elasticity-1/fields/s_xy Group
+/21/Elasticity-1/fields/s_xy/1 Dataset {308}
+/21/Elasticity-1/fields/s_yy Group
+/21/Elasticity-1/fields/s_yy/1 Dataset {308}
+/21/Elasticity-1/fields/s_zz Group
+/21/Elasticity-1/fields/s_zz/1 Dataset {308}
+/21/Elasticity-1/fields/von\ Mises\ stress Group
+/21/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/21/timeinfo             Group
+/21/timeinfo/level       Dataset {1}
+/22                      Group
+/22/CahnHilliard-1       Group
+/22/CahnHilliard-1/fields Group
+/22/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/22/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/22/CahnHilliard-1/fields/phase Group
+/22/CahnHilliard-1/fields/phase/1 Dataset {308}
+/22/CahnHilliard-1/fields/projected\ phase Group
+/22/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/22/Elasticity-1         Group
+/22/Elasticity-1/fields  Group
+/22/Elasticity-1/fields/Compressive\ energy\ density Group
+/22/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/22/Elasticity-1/fields/Strain\ energy\ density Group
+/22/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/22/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/22/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/22/Elasticity-1/fields/Tensile\ energy\ density Group
+/22/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/22/Elasticity-1/fields/displacement Group
+/22/Elasticity-1/fields/displacement/1 Dataset {616}
+/22/Elasticity-1/fields/s_xx Group
+/22/Elasticity-1/fields/s_xx/1 Dataset {308}
+/22/Elasticity-1/fields/s_xy Group
+/22/Elasticity-1/fields/s_xy/1 Dataset {308}
+/22/Elasticity-1/fields/s_yy Group
+/22/Elasticity-1/fields/s_yy/1 Dataset {308}
+/22/Elasticity-1/fields/s_zz Group
+/22/Elasticity-1/fields/s_zz/1 Dataset {308}
+/22/Elasticity-1/fields/von\ Mises\ stress Group
+/22/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/22/timeinfo             Group
+/22/timeinfo/level       Dataset {1}
+/23                      Group
+/23/CahnHilliard-1       Group
+/23/CahnHilliard-1/fields Group
+/23/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/23/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/23/CahnHilliard-1/fields/phase Group
+/23/CahnHilliard-1/fields/phase/1 Dataset {308}
+/23/CahnHilliard-1/fields/projected\ phase Group
+/23/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/23/Elasticity-1         Group
+/23/Elasticity-1/fields  Group
+/23/Elasticity-1/fields/Compressive\ energy\ density Group
+/23/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/23/Elasticity-1/fields/Strain\ energy\ density Group
+/23/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/23/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/23/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/23/Elasticity-1/fields/Tensile\ energy\ density Group
+/23/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/23/Elasticity-1/fields/displacement Group
+/23/Elasticity-1/fields/displacement/1 Dataset {616}
+/23/Elasticity-1/fields/s_xx Group
+/23/Elasticity-1/fields/s_xx/1 Dataset {308}
+/23/Elasticity-1/fields/s_xy Group
+/23/Elasticity-1/fields/s_xy/1 Dataset {308}
+/23/Elasticity-1/fields/s_yy Group
+/23/Elasticity-1/fields/s_yy/1 Dataset {308}
+/23/Elasticity-1/fields/s_zz Group
+/23/Elasticity-1/fields/s_zz/1 Dataset {308}
+/23/Elasticity-1/fields/von\ Mises\ stress Group
+/23/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/23/timeinfo             Group
+/23/timeinfo/level       Dataset {1}
+/24                      Group
+/24/CahnHilliard-1       Group
+/24/CahnHilliard-1/fields Group
+/24/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/24/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/24/CahnHilliard-1/fields/phase Group
+/24/CahnHilliard-1/fields/phase/1 Dataset {308}
+/24/CahnHilliard-1/fields/projected\ phase Group
+/24/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/24/Elasticity-1         Group
+/24/Elasticity-1/fields  Group
+/24/Elasticity-1/fields/Compressive\ energy\ density Group
+/24/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/24/Elasticity-1/fields/Strain\ energy\ density Group
+/24/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/24/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/24/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/24/Elasticity-1/fields/Tensile\ energy\ density Group
+/24/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/24/Elasticity-1/fields/displacement Group
+/24/Elasticity-1/fields/displacement/1 Dataset {616}
+/24/Elasticity-1/fields/s_xx Group
+/24/Elasticity-1/fields/s_xx/1 Dataset {308}
+/24/Elasticity-1/fields/s_xy Group
+/24/Elasticity-1/fields/s_xy/1 Dataset {308}
+/24/Elasticity-1/fields/s_yy Group
+/24/Elasticity-1/fields/s_yy/1 Dataset {308}
+/24/Elasticity-1/fields/s_zz Group
+/24/Elasticity-1/fields/s_zz/1 Dataset {308}
+/24/Elasticity-1/fields/von\ Mises\ stress Group
+/24/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/24/timeinfo             Group
+/24/timeinfo/level       Dataset {1}
+/25                      Group
+/25/CahnHilliard-1       Group
+/25/CahnHilliard-1/fields Group
+/25/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/25/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/25/CahnHilliard-1/fields/phase Group
+/25/CahnHilliard-1/fields/phase/1 Dataset {308}
+/25/CahnHilliard-1/fields/projected\ phase Group
+/25/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/25/Elasticity-1         Group
+/25/Elasticity-1/fields  Group
+/25/Elasticity-1/fields/Compressive\ energy\ density Group
+/25/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/25/Elasticity-1/fields/Strain\ energy\ density Group
+/25/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/25/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/25/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/25/Elasticity-1/fields/Tensile\ energy\ density Group
+/25/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/25/Elasticity-1/fields/displacement Group
+/25/Elasticity-1/fields/displacement/1 Dataset {616}
+/25/Elasticity-1/fields/s_xx Group
+/25/Elasticity-1/fields/s_xx/1 Dataset {308}
+/25/Elasticity-1/fields/s_xy Group
+/25/Elasticity-1/fields/s_xy/1 Dataset {308}
+/25/Elasticity-1/fields/s_yy Group
+/25/Elasticity-1/fields/s_yy/1 Dataset {308}
+/25/Elasticity-1/fields/s_zz Group
+/25/Elasticity-1/fields/s_zz/1 Dataset {308}
+/25/Elasticity-1/fields/von\ Mises\ stress Group
+/25/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/25/timeinfo             Group
+/25/timeinfo/level       Dataset {1}
+/26                      Group
+/26/CahnHilliard-1       Group
+/26/CahnHilliard-1/fields Group
+/26/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/26/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/26/CahnHilliard-1/fields/phase Group
+/26/CahnHilliard-1/fields/phase/1 Dataset {308}
+/26/CahnHilliard-1/fields/projected\ phase Group
+/26/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/26/Elasticity-1         Group
+/26/Elasticity-1/fields  Group
+/26/Elasticity-1/fields/Compressive\ energy\ density Group
+/26/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/26/Elasticity-1/fields/Strain\ energy\ density Group
+/26/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/26/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/26/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/26/Elasticity-1/fields/Tensile\ energy\ density Group
+/26/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/26/Elasticity-1/fields/displacement Group
+/26/Elasticity-1/fields/displacement/1 Dataset {616}
+/26/Elasticity-1/fields/s_xx Group
+/26/Elasticity-1/fields/s_xx/1 Dataset {308}
+/26/Elasticity-1/fields/s_xy Group
+/26/Elasticity-1/fields/s_xy/1 Dataset {308}
+/26/Elasticity-1/fields/s_yy Group
+/26/Elasticity-1/fields/s_yy/1 Dataset {308}
+/26/Elasticity-1/fields/s_zz Group
+/26/Elasticity-1/fields/s_zz/1 Dataset {308}
+/26/Elasticity-1/fields/von\ Mises\ stress Group
+/26/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/26/timeinfo             Group
+/26/timeinfo/level       Dataset {1}
+/27                      Group
+/27/CahnHilliard-1       Group
+/27/CahnHilliard-1/fields Group
+/27/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/27/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/27/CahnHilliard-1/fields/phase Group
+/27/CahnHilliard-1/fields/phase/1 Dataset {308}
+/27/CahnHilliard-1/fields/projected\ phase Group
+/27/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/27/Elasticity-1         Group
+/27/Elasticity-1/fields  Group
+/27/Elasticity-1/fields/Compressive\ energy\ density Group
+/27/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/27/Elasticity-1/fields/Strain\ energy\ density Group
+/27/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/27/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/27/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/27/Elasticity-1/fields/Tensile\ energy\ density Group
+/27/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/27/Elasticity-1/fields/displacement Group
+/27/Elasticity-1/fields/displacement/1 Dataset {616}
+/27/Elasticity-1/fields/s_xx Group
+/27/Elasticity-1/fields/s_xx/1 Dataset {308}
+/27/Elasticity-1/fields/s_xy Group
+/27/Elasticity-1/fields/s_xy/1 Dataset {308}
+/27/Elasticity-1/fields/s_yy Group
+/27/Elasticity-1/fields/s_yy/1 Dataset {308}
+/27/Elasticity-1/fields/s_zz Group
+/27/Elasticity-1/fields/s_zz/1 Dataset {308}
+/27/Elasticity-1/fields/von\ Mises\ stress Group
+/27/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/27/timeinfo             Group
+/27/timeinfo/level       Dataset {1}
+/28                      Group
+/28/CahnHilliard-1       Group
+/28/CahnHilliard-1/fields Group
+/28/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/28/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/28/CahnHilliard-1/fields/phase Group
+/28/CahnHilliard-1/fields/phase/1 Dataset {308}
+/28/CahnHilliard-1/fields/projected\ phase Group
+/28/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/28/Elasticity-1         Group
+/28/Elasticity-1/fields  Group
+/28/Elasticity-1/fields/Compressive\ energy\ density Group
+/28/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/28/Elasticity-1/fields/Strain\ energy\ density Group
+/28/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/28/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/28/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/28/Elasticity-1/fields/Tensile\ energy\ density Group
+/28/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/28/Elasticity-1/fields/displacement Group
+/28/Elasticity-1/fields/displacement/1 Dataset {616}
+/28/Elasticity-1/fields/s_xx Group
+/28/Elasticity-1/fields/s_xx/1 Dataset {308}
+/28/Elasticity-1/fields/s_xy Group
+/28/Elasticity-1/fields/s_xy/1 Dataset {308}
+/28/Elasticity-1/fields/s_yy Group
+/28/Elasticity-1/fields/s_yy/1 Dataset {308}
+/28/Elasticity-1/fields/s_zz Group
+/28/Elasticity-1/fields/s_zz/1 Dataset {308}
+/28/Elasticity-1/fields/von\ Mises\ stress Group
+/28/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/28/timeinfo             Group
+/28/timeinfo/level       Dataset {1}
+/29                      Group
+/29/CahnHilliard-1       Group
+/29/CahnHilliard-1/fields Group
+/29/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/29/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/29/CahnHilliard-1/fields/phase Group
+/29/CahnHilliard-1/fields/phase/1 Dataset {308}
+/29/CahnHilliard-1/fields/projected\ phase Group
+/29/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/29/Elasticity-1         Group
+/29/Elasticity-1/fields  Group
+/29/Elasticity-1/fields/Compressive\ energy\ density Group
+/29/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/29/Elasticity-1/fields/Strain\ energy\ density Group
+/29/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/29/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/29/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/29/Elasticity-1/fields/Tensile\ energy\ density Group
+/29/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/29/Elasticity-1/fields/displacement Group
+/29/Elasticity-1/fields/displacement/1 Dataset {616}
+/29/Elasticity-1/fields/s_xx Group
+/29/Elasticity-1/fields/s_xx/1 Dataset {308}
+/29/Elasticity-1/fields/s_xy Group
+/29/Elasticity-1/fields/s_xy/1 Dataset {308}
+/29/Elasticity-1/fields/s_yy Group
+/29/Elasticity-1/fields/s_yy/1 Dataset {308}
+/29/Elasticity-1/fields/s_zz Group
+/29/Elasticity-1/fields/s_zz/1 Dataset {308}
+/29/Elasticity-1/fields/von\ Mises\ stress Group
+/29/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/29/timeinfo             Group
+/29/timeinfo/level       Dataset {1}
+/3                       Group
+/3/CahnHilliard-1        Group
+/3/CahnHilliard-1/fields Group
+/3/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/3/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/3/CahnHilliard-1/fields/phase Group
+/3/CahnHilliard-1/fields/phase/1 Dataset {308}
+/3/CahnHilliard-1/fields/projected\ phase Group
+/3/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/3/Elasticity-1          Group
+/3/Elasticity-1/fields   Group
+/3/Elasticity-1/fields/Compressive\ energy\ density Group
+/3/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/3/Elasticity-1/fields/Strain\ energy\ density Group
+/3/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/3/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/3/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/3/Elasticity-1/fields/Tensile\ energy\ density Group
+/3/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/3/Elasticity-1/fields/displacement Group
+/3/Elasticity-1/fields/displacement/1 Dataset {616}
+/3/Elasticity-1/fields/s_xx Group
+/3/Elasticity-1/fields/s_xx/1 Dataset {308}
+/3/Elasticity-1/fields/s_xy Group
+/3/Elasticity-1/fields/s_xy/1 Dataset {308}
+/3/Elasticity-1/fields/s_yy Group
+/3/Elasticity-1/fields/s_yy/1 Dataset {308}
+/3/Elasticity-1/fields/s_zz Group
+/3/Elasticity-1/fields/s_zz/1 Dataset {308}
+/3/Elasticity-1/fields/von\ Mises\ stress Group
+/3/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/3/timeinfo              Group
+/3/timeinfo/level        Dataset {1}
+/30                      Group
+/30/CahnHilliard-1       Group
+/30/CahnHilliard-1/fields Group
+/30/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/30/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/30/CahnHilliard-1/fields/phase Group
+/30/CahnHilliard-1/fields/phase/1 Dataset {308}
+/30/CahnHilliard-1/fields/projected\ phase Group
+/30/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/30/Elasticity-1         Group
+/30/Elasticity-1/fields  Group
+/30/Elasticity-1/fields/Compressive\ energy\ density Group
+/30/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/30/Elasticity-1/fields/Strain\ energy\ density Group
+/30/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/30/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/30/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/30/Elasticity-1/fields/Tensile\ energy\ density Group
+/30/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/30/Elasticity-1/fields/displacement Group
+/30/Elasticity-1/fields/displacement/1 Dataset {616}
+/30/Elasticity-1/fields/s_xx Group
+/30/Elasticity-1/fields/s_xx/1 Dataset {308}
+/30/Elasticity-1/fields/s_xy Group
+/30/Elasticity-1/fields/s_xy/1 Dataset {308}
+/30/Elasticity-1/fields/s_yy Group
+/30/Elasticity-1/fields/s_yy/1 Dataset {308}
+/30/Elasticity-1/fields/s_zz Group
+/30/Elasticity-1/fields/s_zz/1 Dataset {308}
+/30/Elasticity-1/fields/von\ Mises\ stress Group
+/30/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/30/timeinfo             Group
+/30/timeinfo/level       Dataset {1}
+/31                      Group
+/31/CahnHilliard-1       Group
+/31/CahnHilliard-1/fields Group
+/31/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/31/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/31/CahnHilliard-1/fields/phase Group
+/31/CahnHilliard-1/fields/phase/1 Dataset {308}
+/31/CahnHilliard-1/fields/projected\ phase Group
+/31/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/31/Elasticity-1         Group
+/31/Elasticity-1/fields  Group
+/31/Elasticity-1/fields/Compressive\ energy\ density Group
+/31/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/31/Elasticity-1/fields/Strain\ energy\ density Group
+/31/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/31/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/31/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/31/Elasticity-1/fields/Tensile\ energy\ density Group
+/31/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/31/Elasticity-1/fields/displacement Group
+/31/Elasticity-1/fields/displacement/1 Dataset {616}
+/31/Elasticity-1/fields/s_xx Group
+/31/Elasticity-1/fields/s_xx/1 Dataset {308}
+/31/Elasticity-1/fields/s_xy Group
+/31/Elasticity-1/fields/s_xy/1 Dataset {308}
+/31/Elasticity-1/fields/s_yy Group
+/31/Elasticity-1/fields/s_yy/1 Dataset {308}
+/31/Elasticity-1/fields/s_zz Group
+/31/Elasticity-1/fields/s_zz/1 Dataset {308}
+/31/Elasticity-1/fields/von\ Mises\ stress Group
+/31/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/31/timeinfo             Group
+/31/timeinfo/level       Dataset {1}
+/32                      Group
+/32/CahnHilliard-1       Group
+/32/CahnHilliard-1/fields Group
+/32/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/32/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/32/CahnHilliard-1/fields/phase Group
+/32/CahnHilliard-1/fields/phase/1 Dataset {308}
+/32/CahnHilliard-1/fields/projected\ phase Group
+/32/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/32/Elasticity-1         Group
+/32/Elasticity-1/fields  Group
+/32/Elasticity-1/fields/Compressive\ energy\ density Group
+/32/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/32/Elasticity-1/fields/Strain\ energy\ density Group
+/32/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/32/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/32/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/32/Elasticity-1/fields/Tensile\ energy\ density Group
+/32/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/32/Elasticity-1/fields/displacement Group
+/32/Elasticity-1/fields/displacement/1 Dataset {616}
+/32/Elasticity-1/fields/s_xx Group
+/32/Elasticity-1/fields/s_xx/1 Dataset {308}
+/32/Elasticity-1/fields/s_xy Group
+/32/Elasticity-1/fields/s_xy/1 Dataset {308}
+/32/Elasticity-1/fields/s_yy Group
+/32/Elasticity-1/fields/s_yy/1 Dataset {308}
+/32/Elasticity-1/fields/s_zz Group
+/32/Elasticity-1/fields/s_zz/1 Dataset {308}
+/32/Elasticity-1/fields/von\ Mises\ stress Group
+/32/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/32/timeinfo             Group
+/32/timeinfo/level       Dataset {1}
+/33                      Group
+/33/CahnHilliard-1       Group
+/33/CahnHilliard-1/fields Group
+/33/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/33/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/33/CahnHilliard-1/fields/phase Group
+/33/CahnHilliard-1/fields/phase/1 Dataset {308}
+/33/CahnHilliard-1/fields/projected\ phase Group
+/33/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/33/Elasticity-1         Group
+/33/Elasticity-1/fields  Group
+/33/Elasticity-1/fields/Compressive\ energy\ density Group
+/33/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/33/Elasticity-1/fields/Strain\ energy\ density Group
+/33/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/33/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/33/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/33/Elasticity-1/fields/Tensile\ energy\ density Group
+/33/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/33/Elasticity-1/fields/displacement Group
+/33/Elasticity-1/fields/displacement/1 Dataset {616}
+/33/Elasticity-1/fields/s_xx Group
+/33/Elasticity-1/fields/s_xx/1 Dataset {308}
+/33/Elasticity-1/fields/s_xy Group
+/33/Elasticity-1/fields/s_xy/1 Dataset {308}
+/33/Elasticity-1/fields/s_yy Group
+/33/Elasticity-1/fields/s_yy/1 Dataset {308}
+/33/Elasticity-1/fields/s_zz Group
+/33/Elasticity-1/fields/s_zz/1 Dataset {308}
+/33/Elasticity-1/fields/von\ Mises\ stress Group
+/33/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/33/timeinfo             Group
+/33/timeinfo/level       Dataset {1}
+/34                      Group
+/34/CahnHilliard-1       Group
+/34/CahnHilliard-1/fields Group
+/34/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/34/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/34/CahnHilliard-1/fields/phase Group
+/34/CahnHilliard-1/fields/phase/1 Dataset {308}
+/34/CahnHilliard-1/fields/projected\ phase Group
+/34/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/34/Elasticity-1         Group
+/34/Elasticity-1/fields  Group
+/34/Elasticity-1/fields/Compressive\ energy\ density Group
+/34/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/34/Elasticity-1/fields/Strain\ energy\ density Group
+/34/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/34/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/34/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/34/Elasticity-1/fields/Tensile\ energy\ density Group
+/34/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/34/Elasticity-1/fields/displacement Group
+/34/Elasticity-1/fields/displacement/1 Dataset {616}
+/34/Elasticity-1/fields/s_xx Group
+/34/Elasticity-1/fields/s_xx/1 Dataset {308}
+/34/Elasticity-1/fields/s_xy Group
+/34/Elasticity-1/fields/s_xy/1 Dataset {308}
+/34/Elasticity-1/fields/s_yy Group
+/34/Elasticity-1/fields/s_yy/1 Dataset {308}
+/34/Elasticity-1/fields/s_zz Group
+/34/Elasticity-1/fields/s_zz/1 Dataset {308}
+/34/Elasticity-1/fields/von\ Mises\ stress Group
+/34/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/34/timeinfo             Group
+/34/timeinfo/level       Dataset {1}
+/35                      Group
+/35/CahnHilliard-1       Group
+/35/CahnHilliard-1/fields Group
+/35/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/35/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/35/CahnHilliard-1/fields/phase Group
+/35/CahnHilliard-1/fields/phase/1 Dataset {308}
+/35/CahnHilliard-1/fields/projected\ phase Group
+/35/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/35/Elasticity-1         Group
+/35/Elasticity-1/fields  Group
+/35/Elasticity-1/fields/Compressive\ energy\ density Group
+/35/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/35/Elasticity-1/fields/Strain\ energy\ density Group
+/35/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/35/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/35/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/35/Elasticity-1/fields/Tensile\ energy\ density Group
+/35/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/35/Elasticity-1/fields/displacement Group
+/35/Elasticity-1/fields/displacement/1 Dataset {616}
+/35/Elasticity-1/fields/s_xx Group
+/35/Elasticity-1/fields/s_xx/1 Dataset {308}
+/35/Elasticity-1/fields/s_xy Group
+/35/Elasticity-1/fields/s_xy/1 Dataset {308}
+/35/Elasticity-1/fields/s_yy Group
+/35/Elasticity-1/fields/s_yy/1 Dataset {308}
+/35/Elasticity-1/fields/s_zz Group
+/35/Elasticity-1/fields/s_zz/1 Dataset {308}
+/35/Elasticity-1/fields/von\ Mises\ stress Group
+/35/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/35/timeinfo             Group
+/35/timeinfo/level       Dataset {1}
+/36                      Group
+/36/CahnHilliard-1       Group
+/36/CahnHilliard-1/fields Group
+/36/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/36/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/36/CahnHilliard-1/fields/phase Group
+/36/CahnHilliard-1/fields/phase/1 Dataset {308}
+/36/CahnHilliard-1/fields/projected\ phase Group
+/36/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/36/Elasticity-1         Group
+/36/Elasticity-1/fields  Group
+/36/Elasticity-1/fields/Compressive\ energy\ density Group
+/36/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/36/Elasticity-1/fields/Strain\ energy\ density Group
+/36/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/36/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/36/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/36/Elasticity-1/fields/Tensile\ energy\ density Group
+/36/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/36/Elasticity-1/fields/displacement Group
+/36/Elasticity-1/fields/displacement/1 Dataset {616}
+/36/Elasticity-1/fields/s_xx Group
+/36/Elasticity-1/fields/s_xx/1 Dataset {308}
+/36/Elasticity-1/fields/s_xy Group
+/36/Elasticity-1/fields/s_xy/1 Dataset {308}
+/36/Elasticity-1/fields/s_yy Group
+/36/Elasticity-1/fields/s_yy/1 Dataset {308}
+/36/Elasticity-1/fields/s_zz Group
+/36/Elasticity-1/fields/s_zz/1 Dataset {308}
+/36/Elasticity-1/fields/von\ Mises\ stress Group
+/36/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/36/timeinfo             Group
+/36/timeinfo/level       Dataset {1}
+/37                      Group
+/37/CahnHilliard-1       Group
+/37/CahnHilliard-1/fields Group
+/37/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/37/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/37/CahnHilliard-1/fields/phase Group
+/37/CahnHilliard-1/fields/phase/1 Dataset {308}
+/37/CahnHilliard-1/fields/projected\ phase Group
+/37/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/37/Elasticity-1         Group
+/37/Elasticity-1/fields  Group
+/37/Elasticity-1/fields/Compressive\ energy\ density Group
+/37/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/37/Elasticity-1/fields/Strain\ energy\ density Group
+/37/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/37/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/37/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/37/Elasticity-1/fields/Tensile\ energy\ density Group
+/37/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/37/Elasticity-1/fields/displacement Group
+/37/Elasticity-1/fields/displacement/1 Dataset {616}
+/37/Elasticity-1/fields/s_xx Group
+/37/Elasticity-1/fields/s_xx/1 Dataset {308}
+/37/Elasticity-1/fields/s_xy Group
+/37/Elasticity-1/fields/s_xy/1 Dataset {308}
+/37/Elasticity-1/fields/s_yy Group
+/37/Elasticity-1/fields/s_yy/1 Dataset {308}
+/37/Elasticity-1/fields/s_zz Group
+/37/Elasticity-1/fields/s_zz/1 Dataset {308}
+/37/Elasticity-1/fields/von\ Mises\ stress Group
+/37/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/37/timeinfo             Group
+/37/timeinfo/level       Dataset {1}
+/38                      Group
+/38/CahnHilliard-1       Group
+/38/CahnHilliard-1/basis Group
+/38/CahnHilliard-1/basis/1 Dataset {44662}
+/38/CahnHilliard-1/fields Group
+/38/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/38/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {330}
+/38/CahnHilliard-1/fields/phase Group
+/38/CahnHilliard-1/fields/phase/1 Dataset {330}
+/38/CahnHilliard-1/fields/projected\ phase Group
+/38/CahnHilliard-1/fields/projected\ phase/1 Dataset {330}
+/38/Elasticity-1         Group
+/38/Elasticity-1/basis   Group
+/38/Elasticity-1/basis/1 Dataset {44662}
+/38/Elasticity-1/fields  Group
+/38/Elasticity-1/fields/Compressive\ energy\ density Group
+/38/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {330}
+/38/Elasticity-1/fields/Strain\ energy\ density Group
+/38/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {330}
+/38/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/38/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {330}
+/38/Elasticity-1/fields/Tensile\ energy\ density Group
+/38/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {330}
+/38/Elasticity-1/fields/displacement Group
+/38/Elasticity-1/fields/displacement/1 Dataset {660}
+/38/Elasticity-1/fields/s_xx Group
+/38/Elasticity-1/fields/s_xx/1 Dataset {330}
+/38/Elasticity-1/fields/s_xy Group
+/38/Elasticity-1/fields/s_xy/1 Dataset {330}
+/38/Elasticity-1/fields/s_yy Group
+/38/Elasticity-1/fields/s_yy/1 Dataset {330}
+/38/Elasticity-1/fields/s_zz Group
+/38/Elasticity-1/fields/s_zz/1 Dataset {330}
+/38/Elasticity-1/fields/von\ Mises\ stress Group
+/38/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {330}
+/38/timeinfo             Group
+/38/timeinfo/level       Dataset {1}
+/39                      Group
+/39/CahnHilliard-1       Group
+/39/CahnHilliard-1/fields Group
+/39/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/39/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {330}
+/39/CahnHilliard-1/fields/phase Group
+/39/CahnHilliard-1/fields/phase/1 Dataset {330}
+/39/CahnHilliard-1/fields/projected\ phase Group
+/39/CahnHilliard-1/fields/projected\ phase/1 Dataset {330}
+/39/Elasticity-1         Group
+/39/Elasticity-1/fields  Group
+/39/Elasticity-1/fields/Compressive\ energy\ density Group
+/39/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {330}
+/39/Elasticity-1/fields/Strain\ energy\ density Group
+/39/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {330}
+/39/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/39/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {330}
+/39/Elasticity-1/fields/Tensile\ energy\ density Group
+/39/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {330}
+/39/Elasticity-1/fields/displacement Group
+/39/Elasticity-1/fields/displacement/1 Dataset {660}
+/39/Elasticity-1/fields/s_xx Group
+/39/Elasticity-1/fields/s_xx/1 Dataset {330}
+/39/Elasticity-1/fields/s_xy Group
+/39/Elasticity-1/fields/s_xy/1 Dataset {330}
+/39/Elasticity-1/fields/s_yy Group
+/39/Elasticity-1/fields/s_yy/1 Dataset {330}
+/39/Elasticity-1/fields/s_zz Group
+/39/Elasticity-1/fields/s_zz/1 Dataset {330}
+/39/Elasticity-1/fields/von\ Mises\ stress Group
+/39/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {330}
+/39/timeinfo             Group
+/39/timeinfo/level       Dataset {1}
+/4                       Group
+/4/CahnHilliard-1        Group
+/4/CahnHilliard-1/fields Group
+/4/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/4/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/4/CahnHilliard-1/fields/phase Group
+/4/CahnHilliard-1/fields/phase/1 Dataset {308}
+/4/CahnHilliard-1/fields/projected\ phase Group
+/4/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/4/Elasticity-1          Group
+/4/Elasticity-1/fields   Group
+/4/Elasticity-1/fields/Compressive\ energy\ density Group
+/4/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/4/Elasticity-1/fields/Strain\ energy\ density Group
+/4/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/4/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/4/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/4/Elasticity-1/fields/Tensile\ energy\ density Group
+/4/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/4/Elasticity-1/fields/displacement Group
+/4/Elasticity-1/fields/displacement/1 Dataset {616}
+/4/Elasticity-1/fields/s_xx Group
+/4/Elasticity-1/fields/s_xx/1 Dataset {308}
+/4/Elasticity-1/fields/s_xy Group
+/4/Elasticity-1/fields/s_xy/1 Dataset {308}
+/4/Elasticity-1/fields/s_yy Group
+/4/Elasticity-1/fields/s_yy/1 Dataset {308}
+/4/Elasticity-1/fields/s_zz Group
+/4/Elasticity-1/fields/s_zz/1 Dataset {308}
+/4/Elasticity-1/fields/von\ Mises\ stress Group
+/4/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/4/timeinfo              Group
+/4/timeinfo/level        Dataset {1}
+/40                      Group
+/40/CahnHilliard-1       Group
+/40/CahnHilliard-1/fields Group
+/40/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/40/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {330}
+/40/CahnHilliard-1/fields/phase Group
+/40/CahnHilliard-1/fields/phase/1 Dataset {330}
+/40/CahnHilliard-1/fields/projected\ phase Group
+/40/CahnHilliard-1/fields/projected\ phase/1 Dataset {330}
+/40/Elasticity-1         Group
+/40/Elasticity-1/fields  Group
+/40/Elasticity-1/fields/Compressive\ energy\ density Group
+/40/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {330}
+/40/Elasticity-1/fields/Strain\ energy\ density Group
+/40/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {330}
+/40/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/40/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {330}
+/40/Elasticity-1/fields/Tensile\ energy\ density Group
+/40/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {330}
+/40/Elasticity-1/fields/displacement Group
+/40/Elasticity-1/fields/displacement/1 Dataset {660}
+/40/Elasticity-1/fields/s_xx Group
+/40/Elasticity-1/fields/s_xx/1 Dataset {330}
+/40/Elasticity-1/fields/s_xy Group
+/40/Elasticity-1/fields/s_xy/1 Dataset {330}
+/40/Elasticity-1/fields/s_yy Group
+/40/Elasticity-1/fields/s_yy/1 Dataset {330}
+/40/Elasticity-1/fields/s_zz Group
+/40/Elasticity-1/fields/s_zz/1 Dataset {330}
+/40/Elasticity-1/fields/von\ Mises\ stress Group
+/40/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {330}
+/40/timeinfo             Group
+/40/timeinfo/level       Dataset {1}
+/41                      Group
+/41/CahnHilliard-1       Group
+/41/CahnHilliard-1/fields Group
+/41/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/41/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {330}
+/41/CahnHilliard-1/fields/phase Group
+/41/CahnHilliard-1/fields/phase/1 Dataset {330}
+/41/CahnHilliard-1/fields/projected\ phase Group
+/41/CahnHilliard-1/fields/projected\ phase/1 Dataset {330}
+/41/Elasticity-1         Group
+/41/Elasticity-1/fields  Group
+/41/Elasticity-1/fields/Compressive\ energy\ density Group
+/41/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {330}
+/41/Elasticity-1/fields/Strain\ energy\ density Group
+/41/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {330}
+/41/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/41/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {330}
+/41/Elasticity-1/fields/Tensile\ energy\ density Group
+/41/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {330}
+/41/Elasticity-1/fields/displacement Group
+/41/Elasticity-1/fields/displacement/1 Dataset {660}
+/41/Elasticity-1/fields/s_xx Group
+/41/Elasticity-1/fields/s_xx/1 Dataset {330}
+/41/Elasticity-1/fields/s_xy Group
+/41/Elasticity-1/fields/s_xy/1 Dataset {330}
+/41/Elasticity-1/fields/s_yy Group
+/41/Elasticity-1/fields/s_yy/1 Dataset {330}
+/41/Elasticity-1/fields/s_zz Group
+/41/Elasticity-1/fields/s_zz/1 Dataset {330}
+/41/Elasticity-1/fields/von\ Mises\ stress Group
+/41/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {330}
+/41/timeinfo             Group
+/41/timeinfo/level       Dataset {1}
+/5                       Group
+/5/CahnHilliard-1        Group
+/5/CahnHilliard-1/fields Group
+/5/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/5/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/5/CahnHilliard-1/fields/phase Group
+/5/CahnHilliard-1/fields/phase/1 Dataset {308}
+/5/CahnHilliard-1/fields/projected\ phase Group
+/5/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/5/Elasticity-1          Group
+/5/Elasticity-1/fields   Group
+/5/Elasticity-1/fields/Compressive\ energy\ density Group
+/5/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/5/Elasticity-1/fields/Strain\ energy\ density Group
+/5/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/5/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/5/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/5/Elasticity-1/fields/Tensile\ energy\ density Group
+/5/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/5/Elasticity-1/fields/displacement Group
+/5/Elasticity-1/fields/displacement/1 Dataset {616}
+/5/Elasticity-1/fields/s_xx Group
+/5/Elasticity-1/fields/s_xx/1 Dataset {308}
+/5/Elasticity-1/fields/s_xy Group
+/5/Elasticity-1/fields/s_xy/1 Dataset {308}
+/5/Elasticity-1/fields/s_yy Group
+/5/Elasticity-1/fields/s_yy/1 Dataset {308}
+/5/Elasticity-1/fields/s_zz Group
+/5/Elasticity-1/fields/s_zz/1 Dataset {308}
+/5/Elasticity-1/fields/von\ Mises\ stress Group
+/5/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/5/timeinfo              Group
+/5/timeinfo/level        Dataset {1}
+/6                       Group
+/6/CahnHilliard-1        Group
+/6/CahnHilliard-1/fields Group
+/6/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/6/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/6/CahnHilliard-1/fields/phase Group
+/6/CahnHilliard-1/fields/phase/1 Dataset {308}
+/6/CahnHilliard-1/fields/projected\ phase Group
+/6/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/6/Elasticity-1          Group
+/6/Elasticity-1/fields   Group
+/6/Elasticity-1/fields/Compressive\ energy\ density Group
+/6/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/6/Elasticity-1/fields/Strain\ energy\ density Group
+/6/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/6/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/6/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/6/Elasticity-1/fields/Tensile\ energy\ density Group
+/6/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/6/Elasticity-1/fields/displacement Group
+/6/Elasticity-1/fields/displacement/1 Dataset {616}
+/6/Elasticity-1/fields/s_xx Group
+/6/Elasticity-1/fields/s_xx/1 Dataset {308}
+/6/Elasticity-1/fields/s_xy Group
+/6/Elasticity-1/fields/s_xy/1 Dataset {308}
+/6/Elasticity-1/fields/s_yy Group
+/6/Elasticity-1/fields/s_yy/1 Dataset {308}
+/6/Elasticity-1/fields/s_zz Group
+/6/Elasticity-1/fields/s_zz/1 Dataset {308}
+/6/Elasticity-1/fields/von\ Mises\ stress Group
+/6/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/6/timeinfo              Group
+/6/timeinfo/level        Dataset {1}
+/7                       Group
+/7/CahnHilliard-1        Group
+/7/CahnHilliard-1/fields Group
+/7/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/7/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/7/CahnHilliard-1/fields/phase Group
+/7/CahnHilliard-1/fields/phase/1 Dataset {308}
+/7/CahnHilliard-1/fields/projected\ phase Group
+/7/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/7/Elasticity-1          Group
+/7/Elasticity-1/fields   Group
+/7/Elasticity-1/fields/Compressive\ energy\ density Group
+/7/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/7/Elasticity-1/fields/Strain\ energy\ density Group
+/7/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/7/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/7/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/7/Elasticity-1/fields/Tensile\ energy\ density Group
+/7/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/7/Elasticity-1/fields/displacement Group
+/7/Elasticity-1/fields/displacement/1 Dataset {616}
+/7/Elasticity-1/fields/s_xx Group
+/7/Elasticity-1/fields/s_xx/1 Dataset {308}
+/7/Elasticity-1/fields/s_xy Group
+/7/Elasticity-1/fields/s_xy/1 Dataset {308}
+/7/Elasticity-1/fields/s_yy Group
+/7/Elasticity-1/fields/s_yy/1 Dataset {308}
+/7/Elasticity-1/fields/s_zz Group
+/7/Elasticity-1/fields/s_zz/1 Dataset {308}
+/7/Elasticity-1/fields/von\ Mises\ stress Group
+/7/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/7/timeinfo              Group
+/7/timeinfo/level        Dataset {1}
+/8                       Group
+/8/CahnHilliard-1        Group
+/8/CahnHilliard-1/fields Group
+/8/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/8/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/8/CahnHilliard-1/fields/phase Group
+/8/CahnHilliard-1/fields/phase/1 Dataset {308}
+/8/CahnHilliard-1/fields/projected\ phase Group
+/8/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/8/Elasticity-1          Group
+/8/Elasticity-1/fields   Group
+/8/Elasticity-1/fields/Compressive\ energy\ density Group
+/8/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/8/Elasticity-1/fields/Strain\ energy\ density Group
+/8/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/8/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/8/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/8/Elasticity-1/fields/Tensile\ energy\ density Group
+/8/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/8/Elasticity-1/fields/displacement Group
+/8/Elasticity-1/fields/displacement/1 Dataset {616}
+/8/Elasticity-1/fields/s_xx Group
+/8/Elasticity-1/fields/s_xx/1 Dataset {308}
+/8/Elasticity-1/fields/s_xy Group
+/8/Elasticity-1/fields/s_xy/1 Dataset {308}
+/8/Elasticity-1/fields/s_yy Group
+/8/Elasticity-1/fields/s_yy/1 Dataset {308}
+/8/Elasticity-1/fields/s_zz Group
+/8/Elasticity-1/fields/s_zz/1 Dataset {308}
+/8/Elasticity-1/fields/von\ Mises\ stress Group
+/8/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/8/timeinfo              Group
+/8/timeinfo/level        Dataset {1}
+/9                       Group
+/9/CahnHilliard-1        Group
+/9/CahnHilliard-1/fields Group
+/9/CahnHilliard-1/fields/Max\ tensile\ energy Group
+/9/CahnHilliard-1/fields/Max\ tensile\ energy/1 Dataset {308}
+/9/CahnHilliard-1/fields/phase Group
+/9/CahnHilliard-1/fields/phase/1 Dataset {308}
+/9/CahnHilliard-1/fields/projected\ phase Group
+/9/CahnHilliard-1/fields/projected\ phase/1 Dataset {308}
+/9/Elasticity-1          Group
+/9/Elasticity-1/fields   Group
+/9/Elasticity-1/fields/Compressive\ energy\ density Group
+/9/Elasticity-1/fields/Compressive\ energy\ density/1 Dataset {308}
+/9/Elasticity-1/fields/Strain\ energy\ density Group
+/9/Elasticity-1/fields/Strain\ energy\ density/1 Dataset {308}
+/9/Elasticity-1/fields/Stress\ degradation,\ g(c) Group
+/9/Elasticity-1/fields/Stress\ degradation,\ g(c)/1 Dataset {308}
+/9/Elasticity-1/fields/Tensile\ energy\ density Group
+/9/Elasticity-1/fields/Tensile\ energy\ density/1 Dataset {308}
+/9/Elasticity-1/fields/displacement Group
+/9/Elasticity-1/fields/displacement/1 Dataset {616}
+/9/Elasticity-1/fields/s_xx Group
+/9/Elasticity-1/fields/s_xx/1 Dataset {308}
+/9/Elasticity-1/fields/s_xy Group
+/9/Elasticity-1/fields/s_xy/1 Dataset {308}
+/9/Elasticity-1/fields/s_yy Group
+/9/Elasticity-1/fields/s_yy/1 Dataset {308}
+/9/Elasticity-1/fields/s_zz Group
+/9/Elasticity-1/fields/s_zz/1 Dataset {308}
+/9/Elasticity-1/fields/von\ Mises\ stress Group
+/9/Elasticity-1/fields/von\ Mises\ stress/1 Dataset {308}
+/9/timeinfo              Group
+/9/timeinfo/level        Dataset {1}
