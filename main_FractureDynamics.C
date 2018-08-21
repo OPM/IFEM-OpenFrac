@@ -293,7 +293,7 @@ int main (int argc, char** argv)
   Profiler prof(argv[0]);
 
   FractureArgs args;
-  SIMElasticity<SIM2D>::planeStrain = true;
+  Elastic::planeStrain = true;
   IFEM::Init(argc,argv,"Fracture dynamics solver");
 
   for (int i = 1; i < argc; i++)
