@@ -61,7 +61,13 @@ public:
   //! \brief Initializes and sets up field dependencies.
   virtual void setupDependencies()
   {
-    this->S1.registerDependency(&this->S2,"phasefield",1);
+    if (this->S1.mixedProblem()) // The solid solver is mixed.
+      // Then set up the dependency to the phase field using an additional
+      // MADOF array defined for a scalar field on the first basis.
+      this->S1.registerDependency("phasefield",&this->S2);
+    else
+      this->S1.registerDependency(&this->S2,"phasefield");
+
     // The tensile energy is defined on integration points and not nodal points.
     // It is a global buffer array across all patches in the model.
     // Use an explicit call instead of normal couplings for this.

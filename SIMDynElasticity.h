@@ -336,6 +336,12 @@ protected:
     return result;
   }
 
+  //! \brief Adds an additional MADOF array if required.
+  bool preprocessB() override
+  {
+    return this->mixedProblem() ? this->addMADOF(1,1,false) : true;
+  }
+
 private:
   std::string energFile; //!< File name for global energy output
 
