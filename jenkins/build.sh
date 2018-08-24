@@ -18,10 +18,11 @@ function clone_ifem {
 
 # Upstreams and revisions
 declare -a upstream
-upstreams=(IFEM-Elasticity)
+upstreams=(IFEM-Elasticity IFEM-PoroElasticity)
 
 declare -A upstreamRev
 upstreamRev[IFEM-Elasticity]=master
+upstreamRev[IFEM-PoroElasticity]=master
 
 IFEM_REVISION=master
 if grep -qi "ifem=" <<< $ghprbCommentBody
