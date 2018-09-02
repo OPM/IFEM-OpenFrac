@@ -1,0 +1,159 @@
+Miehe71.xinp -qstatic -nocrack -poro -mixed -nGauss 3
+
+Input file: Miehe71.xinp
+Equation solver: 2
+Number of Gauss points: 3
+0. Parsing input file(s).
+1. Poroelasticity solver
+Parsing input file Miehe71.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Generating linear geometry on unit parameter domain \[0,1]^2
+	Length in X = 5
+	Length in Y = 5
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Left (1,1,1D)
+	               Right (1,2,1D)
+	               TopBottom (1,3,1D) (1,4,1D)
+  Parsing <refine>
+	Refining P1 19 19
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+Parsing <phasefield>
+Parsing <poroelasticity>
+  Parsing <isotropic>
+	Material code 0: Poroelastic material, see "Problem definition:" below.
+  Parsing <dirichlet>
+	Dirichlet code 2: (fixed)
+  Parsing <dirichlet>
+	Dirichlet code 1: (fixed)
+  Parsing <dirichlet>
+	Dirichlet code 1000001 (ramp): 3 \* Ramp(t,10)
+Parsing <elasticity>
+Parsing <newmarksolver>
+Parsing <timestepping>
+Parsing input file succeeded.
+Equation solver: 2
+Number of Gauss points: 3
+2. Time integration driver
+Parsing input file Miehe71.xinp
+Parsing <geometry>
+Parsing <cahnhilliard>
+Parsing <phasefield>
+Parsing <poroelasticity>
+Parsing <elasticity>
+Parsing <discretization>
+Parsing <newmarksolver>
+Parsing <timestepping>
+Parsing input file succeeded.
+10. Preprocessing the finite element model:
+11. Poroelasticity solver
+Problem definition:
+PoroElasticity: scaling = 0 useDynCoupling = false
+Elasticity: 2D, gravity = 0 9.81
+	Constitutive Properties:
+		Young's Modulus, E = 254.8
+		Poisson's Ratio, nu = 0.3
+	Densities:
+		Density of Fluid, rhof = 1000
+		Density of Solid, rhos = 666.67
+	Bulk Moduli:
+		Biot's coefficient, alpha = 1
+		Biot's inverse modulus, M^-1 = 0.01
+	Porosity, n = 0.1
+	Permeability, K = 2.07e-09 2.07e-09 0
+Resolving Dirichlet boundary conditions
+	Constraining P1 E3 in direction(s) 2
+	Constraining P1 E4 in direction(s) 2
+	Constraining P1 E1 in direction(s) 1
+	Constraining P1 E2 in direction(s) 1 code = 1000001
+ >>> SAM model summary <<<
+Number of elements    400
+Number of nodes       925
+Number of dofs        1409
+Number of D-dofs      968
+Number of P-dofs      441
+Number of constraints 22
+Number of unknowns    1321
+100. Starting the simulation
+  Solving the elasto-dynamics problem...
+  step=1  time=1
+  Primary solution summary: L2-norm            : 0.125193
+                   Pressure L2-norm            : 1.72664e-07
+                            Max X-displacement : 0.3
+                            Max pressure       : 1.72664e-07
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -30.87
+  Solving the elasto-dynamics problem...
+  step=2  time=2
+  Primary solution summary: L2-norm            : 0.250386
+                   Pressure L2-norm            : 3.45328e-07
+                            Max X-displacement : 0.6
+                            Max pressure       : 3.45328e-07
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -123.48
+  Solving the elasto-dynamics problem...
+  step=3  time=3
+  Primary solution summary: L2-norm            : 0.375579
+                   Pressure L2-norm            : 5.17992e-07
+                            Max X-displacement : 0.9
+                            Max pressure       : 5.17992e-07
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -277.83
+  Solving the elasto-dynamics problem...
+  step=4  time=4
+  Primary solution summary: L2-norm            : 0.500772
+                   Pressure L2-norm            : 6.90657e-07
+                            Max X-displacement : 1.2
+                            Max pressure       : 6.90657e-07
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -493.92
+  Solving the elasto-dynamics problem...
+  step=5  time=5
+  Primary solution summary: L2-norm            : 0.625965
+                   Pressure L2-norm            : 8.63321e-07
+                            Max X-displacement : 1.5
+                            Max pressure       : 8.63321e-07
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -771.75
+  Solving the elasto-dynamics problem...
+  step=6  time=6
+  Primary solution summary: L2-norm            : 0.751158
+                   Pressure L2-norm            : 1.03598e-06
+                            Max X-displacement : 1.8
+                            Max pressure       : 1.03598e-06
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -1111.32
+  Solving the elasto-dynamics problem...
+  step=7  time=7
+  Primary solution summary: L2-norm            : 0.876351
+                   Pressure L2-norm            : 1.20865e-06
+                            Max X-displacement : 2.1
+                            Max pressure       : 1.20865e-06
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -1512.63
+  Solving the elasto-dynamics problem...
+  step=8  time=8
+  Primary solution summary: L2-norm            : 1.00154
+                   Pressure L2-norm            : 1.38131e-06
+                            Max X-displacement : 2.4
+                            Max pressure       : 1.38131e-06
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -1975.68
+  Solving the elasto-dynamics problem...
+  step=9  time=9
+  Primary solution summary: L2-norm            : 1.12674
+                   Pressure L2-norm            : 1.55398e-06
+                            Max X-displacement : 2.7
+                            Max pressure       : 1.55398e-06
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -2500.47
+  Solving the elasto-dynamics problem...
+  step=10  time=10
+  Primary solution summary: L2-norm            : 1.25193
+                   Pressure L2-norm            : 1.72664e-06
+                            Max X-displacement : 3
+                            Max pressure       : 1.72664e-06
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -3087
