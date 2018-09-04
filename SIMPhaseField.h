@@ -465,12 +465,12 @@ public:
           ok &= pch->transferCntrlPtVars(basis,oldHn,newHp,nGp);
           break;
         case 'N':
-          jtH = itH + basis->nElements()*pow(nGp,Dim::dimension);
+          jtH = itH + basis->nElements()*pow(nGp, static_cast<int>(Dim::dimension));
           ok &= pch->transferGaussPtVarsN(basis,RealArray(itH,jtH),newHp,nGp);
           itH = jtH;
           break;
         default:
-          jtH = itH + basis->nElements()*pow(nGp,Dim::dimension);
+          jtH = itH + basis->nElements()*pow(nGp, static_cast<int>(Dim::dimension));
           ok &= pch->transferGaussPtVars(basis,RealArray(itH,jtH),newHp,nGp);
           itH = jtH;
         }
