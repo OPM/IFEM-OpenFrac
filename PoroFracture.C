@@ -36,10 +36,8 @@ public:
   //! \brief Constructor for integrands with a parent integrand.
   //! \param parent The parent integrand of this one
   //! \param[in] nd Number of spatial dimensions
-  //! \param[in] nv Number of primary solution variables per node
-  PoroFractureElasticity(IntegrandBase* parent,
-                         unsigned short int nd, unsigned short int nv)
-    : FractureElasticityVoigt(parent,nd) { npv = nv; }
+  PoroFractureElasticity(IntegrandBase* parent, unsigned short int nd)
+    : FractureElasticityVoigt(parent,nd) { npv = nd+1; }
   //! \brief Empty destructor.
   virtual ~PoroFractureElasticity() {}
 
@@ -53,16 +51,15 @@ public:
       return false;
 
     // Filter out the pressure components
-    // FIXME: Mixed
     size_t nen = MNPC.size();
-    if (eV.front().size() == nen*(nsd+1))
+    if (eV.front().size() == nen*npv)
     {
       Vector temp(eV.front());
       Vector& actual = eV.front();
       actual.resize(nen*nsd);
       for (size_t n = 0; n < nen; n++)
         for (unsigned short int i = 0; i < nsd; i++)
-          actual[nsd*n+i] = temp[(nsd+1)*n+i];
+          actual[nsd*n+i] = temp[npv*n+i];
     }
 
     return true;
@@ -72,7 +69,10 @@ public:
 
 PoroFracture::PoroFracture (unsigned short int n, bool m) : PoroElasticity(n,m)
 {
-  fracEl = new PoroFractureElasticity(this, n, m ? n : n+1);
+  if (m)
+    fracEl = new FractureElasticityVoigt(this,n);
+  else
+    fracEl = new PoroFractureElasticity(this,n);
 
   L_per = 0.01;
   d_min = 0.1;
@@ -204,12 +204,14 @@ double PoroFracture::formCrackedPermeabilityTensor (SymmTensor& Kcrack,
   const PoroMaterial* pmat = dynamic_cast<const PoroMaterial*>(material);
   if (!pmat)
     return -4.0;
+
   double perm = pmat->getPermeability(X)[0];
 
   Vec3 gradD; // Evaluate the phase field value and gradient
   double d = fracEl->evalPhaseField(gradD,eV,fe.N,fe.dNdX);
   if (d < 0.0)
   {
+#pragma omp critical
     std::cerr <<" *** PoroFracture::formCrackedPermeabilityTensor(X = "<< X
               <<")\n     Invalid phase field value: "<< d << std::endl;
     return d;
@@ -224,6 +226,7 @@ double PoroFracture::formCrackedPermeabilityTensor (SymmTensor& Kcrack,
   double d2 = gradD.length2();
   if (d2 <= 0.0)
   {
+#pragma omp critical
     std::cerr <<" *** PoroFracture::formCrackedPermeabilityTensor(X = "<< X
               <<")\n     Zero phase field gradient: "<< gradD << std::endl;
     return -1.0;
@@ -255,7 +258,17 @@ double PoroFracture::formCrackedPermeabilityTensor (SymmTensor& Kcrack,
 
   // Compute the perpendicular crack stretch
   // lambda = gradD*gradD / gradD*C^-1*gradD (see M&M eq. (106), F&K eq. (36))
-  double lambda = sqrt(d2 / (gradD*CigD));
+  double gDCigD = gradD*CigD;
+  if (gDCigD <= 0.0)
+  {
+#pragma omp critical
+    std::cerr <<" *** PoroFracture::formCrackedPermeabilityTensor: grad(D) = "
+              << gradD <<"\n"<< std::string(44,' ') <<" C^-1*grad(D) = "<< CigD
+              <<"\n     ==> Non-positive dot product: "<< gDCigD << std::endl;
+    return -3.5;
+  }
+
+  double lambda = sqrt(d2/gDCigD);
 #if INT_DEBUG > 3
   std::cout <<"PoroFracture::formCrackedPermeabilityTensor(X = "<< X
             <<") lambda = "<< lambda << std::endl;
@@ -317,6 +330,31 @@ bool PoroFracture::evalSol (Vector& s, const FiniteElement& fe,
 
   Vectors eV;
   if (!fracEl->getElementSolution(eV,MNPC))
+    return false;
+
+  SymmTensor Kc(nsd);
+  s.push_back(this->formCrackedPermeabilityTensor(Kc,eV,fe,X));
+  for (size_t i = 1; i <= Kc.dim(); i++)
+    s.push_back(Kc(i,i));
+
+  return true;
+}
+
+
+bool PoroFracture::evalSol (Vector& s, const MxFiniteElement& fe,
+                            const Vec3& X, const std::vector<int>& MNPC,
+                            const std::vector<size_t>& elem_sizes,
+                            const std::vector<size_t>&) const
+{
+  std::vector<int> MNPC1(MNPC.begin(),MNPC.begin()+elem_sizes.front());
+
+  Vectors eV(1);
+  utl::gather(MNPC1,nsd,primsol.front(),eV.front());
+
+  if (!this->evalSol(s,fe,X,eV.front()))
+    return false;
+
+  if (!fracEl->getElementSolution(eV,MNPC1))
     return false;
 
   SymmTensor Kc(nsd);
