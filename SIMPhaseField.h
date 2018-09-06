@@ -55,7 +55,10 @@ public:
   {
     Dim::myHeading = "Cahn-Hilliard solver";
     if (gridOwner && gridOwner->createFEMmodel())
+    {
+      Dim::nf.resize(gridOwner->getNoBasis(),0);
       this->clonePatches(gridOwner->getFEModel(),gridOwner->getGlob2LocMap());
+    }
 
     eps_d0 = refTol = 0.0;
     vtfStep = irefine = 0;

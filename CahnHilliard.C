@@ -305,6 +305,13 @@ bool CahnHilliard::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
 }
 
 
+bool CahnHilliard::evalIntMx (LocalIntegral& elmInt, const MxFiniteElement& fe,
+                              const Vec3& X) const
+{
+  return this->evalInt(elmInt,fe,X);
+}
+
+
 bool CahnHilliard::evalBou (LocalIntegral& elmInt, const FiniteElement& fe,
                             const Vec3& X, const Vec3& normal) const
 {
@@ -360,6 +367,12 @@ NormBase* CahnHilliard::getNormIntegrand (AnaSol* a) const
 {
   if (a) const_cast<CahnHilliard*>(this)->Lnorm = 2;
   return new CahnHilliardNorm(*const_cast<CahnHilliard*>(this),Lnorm,a);
+}
+
+
+CahnHilliard4::CahnHilliard4 (unsigned short int n) : CahnHilliard(n)
+{
+  scale2nd = 2.0;
 }
 
 
@@ -457,6 +470,14 @@ bool CahnHilliardNorm::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
   }
 
   return true;
+}
+
+
+bool CahnHilliardNorm::evalIntMx (LocalIntegral& elmInt,
+                                  const MxFiniteElement& fe,
+                                  const Vec3& X) const
+{
+  return this->evalInt(elmInt,fe,X);
 }
 
 
