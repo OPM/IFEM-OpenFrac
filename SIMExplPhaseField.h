@@ -34,8 +34,8 @@ class SIMExplPhaseField : public SIMdummy<SIMbase>
 public:
   //! \brief Default constructor.
   explicit SIMExplPhaseField(SIMoutput* gridOwner = nullptr);
-  //! \brief Empty destructor.
-  virtual ~SIMExplPhaseField() {}
+  //! \brief The destructor deletes the explicit phase field function.
+  virtual ~SIMExplPhaseField();
 
   //! \brief Registers fields for data output.
   void registerFields(DataExporter& exporter);

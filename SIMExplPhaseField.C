@@ -30,6 +30,12 @@ SIMExplPhaseField::SIMExplPhaseField (SIMoutput* gridOwner)
 }
 
 
+SIMExplPhaseField::~SIMExplPhaseField ()
+{
+  delete phaseFunc;
+}
+
+
 void SIMExplPhaseField::registerFields (DataExporter& exporter)
 {
   exporter.registerField("c","phase field",DataExporter::SIM,
