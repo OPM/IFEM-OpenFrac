@@ -1,4 +1,4 @@
-Miehe71.xinp -qstatic -poro -mixed -nGauss 3
+Miehe71.xinp -qstatic -poro -mixed-full -nGauss 3
 
 Input file: Miehe71.xinp
 Equation solver: 2
