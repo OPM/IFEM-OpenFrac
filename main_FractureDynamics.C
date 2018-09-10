@@ -328,10 +328,7 @@ class LinSIM : public NonLinSIM
 {
 public:
   //! \brief The constructor forwards to the parent class constructor.
-  explicit LinSIM(SIMbase& sim) : NonLinSIM(sim,NonLinSIM::NONE)
-  {
-    fromIni = false;
-  }
+  explicit LinSIM(SIMbase& sim) : NonLinSIM(sim,NonLinSIM::NONE) {}
   //! \brief Empty destructor.
   virtual ~LinSIM() {}
 };
@@ -346,6 +343,12 @@ int runSimulator (const FractureArgs& args)
 {
   switch (args.integrator) {
   case 0:
+    if (args.coupling > 0)
+    {
+      std::cerr <<" *** The linear static option is for non-cracking material"
+                <<" only."<< std::endl;;
+      return 98;
+    }
     return runSimulator4<Dim,LinSIM>(args,"staticsolver");
   case 1:
     return runSimulator1<Dim,NewmarkSIM>(args);
