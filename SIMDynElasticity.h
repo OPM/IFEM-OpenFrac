@@ -59,12 +59,12 @@ public:
   }
 
   //! \brief Initializes the problem.
-  bool init(const TimeStep&, bool = false) override
+  bool init(const TimeStep& tp, bool = false) override
   {
     dSim.initPrm();
     dSim.initSol(dynamic_cast<NewmarkSIM*>(&dSim) ? 3 : 1);
 
-    bool ok = this->setMode(SIM::INIT);
+    bool ok = this->setMode(SIM::INIT) && this->getIntegrand()->init(tp.time);
     this->setQuadratureRule(Dim::opt.nGauss[0],true);
     this->registerField("solution",dSim.getSolution());
     return this->setInitialConditions() && ok;

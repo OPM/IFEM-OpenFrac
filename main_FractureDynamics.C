@@ -128,7 +128,7 @@ int runCombined (char* infile, double stopTime, const char* context)
     return 2;
 
   // Initialize the solution fields
-  if (!frac.init(TimeStep()))
+  if (!frac.init(solver.getTimePrm()))
     return 2;
 
   if (elastoSim.opt.dumpHDF5(infile))
