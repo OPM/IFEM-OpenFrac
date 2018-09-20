@@ -90,6 +90,8 @@ public:
   //! \param[in] prefix Name prefix for all components
   virtual std::string getField2Name(size_t i, const char* prefix) const;
 
+  FractureElasticity const * getFractureElasticity() const { return fracEl; }
+
 protected:
   //! \brief Computes the elasticity matrices at a quadrature point.
   //! \param elMat The element matrix object to receive the contributions

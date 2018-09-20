@@ -283,7 +283,14 @@ public:
   //! \brief Checks whether an internal crack pressure has been specified.
   RealFunc* haveCrackPressure() const
   {
-    FractureElasticity* fel = dynamic_cast<FractureElasticity*>(Dim::myProblem);
+    FractureElasticity const * fel = dynamic_cast<FractureElasticity*>(Dim::myProblem);
+
+    if (!fel) {
+      PoroFracture* pfel = dynamic_cast<PoroFracture*>(Dim::myProblem);
+      if (pfel)
+        fel = pfel->getFractureElasticity();
+    }
+
     return fel ? fel->getCrackPressure() : nullptr;
   }
 
