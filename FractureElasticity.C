@@ -127,7 +127,8 @@ void FractureElasticity::setMode (SIM::SolutionMode mode)
   if (eC <= 1) return; // no parent integrand
 
   eKg = 0; // No geometric stiffness (assuming linear behaviour)
-  eM = eS = 0; // Inertia and external forces are calculated by parent integrand
+  eM = 0; // Inertia is calculated by parent integrand
+  eS = 2; // TODO: HACK!
   if (eKm) eKm = 2; // Index for stiffness matrix in parent integrand
   if (iS) iS = 2; // Index for internal force vector in parent integrand
   eC = mode == SIM::DYNAMIC ? 5 : 3; // include velocity & acceleration vectors
