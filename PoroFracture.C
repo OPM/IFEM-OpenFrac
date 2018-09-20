@@ -181,8 +181,18 @@ bool PoroFracture::evalElasticityMatrices (ElmMats& elMat, const Matrix&,
                                            const FiniteElement& fe,
                                            const Vec3& X) const
 {
+  // Evaluate load vector due to internal crack pressure
+  if (eS && !fracEl->formCrackForce(elMat.b[eS-1],elMat.vec,fe,X))
+    return false;
+
   // Evaluate tangent stiffness matrix and internal forces
   return fracEl->evalInt(elMat,fe,X);
+}
+
+
+RealFunc* PoroFracture::getCrackPressure () const
+{
+  return fracEl->getCrackPressure();
 }
 
 

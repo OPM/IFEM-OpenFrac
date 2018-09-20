@@ -147,6 +147,7 @@ protected:
   //! \brief Evaluates Miehe's crack driving state function (eq. 56).
   double MieheCrit56(const Vec3& eps, double lambda, double mu) const;
 
+public:
   //! \brief Calculates integration point crack force vector contributions.
   //! \param ES Element vector to receive the force contributions
   //! \param[in] eV Element solution vectors
