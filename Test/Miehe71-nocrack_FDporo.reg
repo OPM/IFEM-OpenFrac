@@ -1,8 +1,9 @@
-Miehe71.xinp -qstatic -nocrack -poro
+Miehe71.xinp -qstatic -nocrack -poro -stopTime 50
 
 Input file: Miehe71.xinp
 Equation solver: 2
 Number of Gauss points: 4
+Simulation stop time: 50
 0. Parsing input file(s).
 1. Poroelasticity solver
 Parsing input file Miehe71.xinp
@@ -72,76 +73,122 @@ Resolving Dirichlet boundary conditions
 Number of elements    400
 Number of nodes       441
 Number of dofs        1323
+Number of D-dofs      882
+Number of P-dofs      441
 Number of constraints 21
 Number of unknowns    1239
+PoroElasticity: Computed scaling = 3.47495e+07
 100. Starting the simulation
   Solving the elasto-dynamics problem...
   step=1  time=1
-  Primary solution summary: L2-norm            : 0.101242
+  Primary solution summary: L2-norm            : 0.123996
+                   Pressure L2-norm            : 1.72664e-07
                             Max X-displacement : 0.3
-                            Max pressure       : 1.7266.e-07
+                            Max pressure       : 1.72664e-07
   Total reaction forces:          Sum(R) : 0 0
   displacement\*reactions:          (R,u) : -30.87
   Solving the elasto-dynamics problem...
   step=2  time=2
-  Primary solution summary: L2-norm            : 0.202485
+  Primary solution summary: L2-norm            : 0.247992
+                   Pressure L2-norm            : 3.45328e-07
                             Max X-displacement : 0.6
-                            Max pressure       : 3.4532.e-07
+                            Max pressure       : 3.45328e-07
   Total reaction forces:          Sum(R) : 0 0
   displacement\*reactions:          (R,u) : -123.48
   Solving the elasto-dynamics problem...
   step=3  time=3
-  Primary solution summary: L2-norm            : 0.303727
+  Primary solution summary: L2-norm            : 0.371988
+                   Pressure L2-norm            : 5.17992e-07
                             Max X-displacement : 0.9
-                            Max pressure       : 5.1799.e-07
+                            Max pressure       : 5.17992e-07
   Total reaction forces:          Sum(R) : 0 0
   displacement\*reactions:          (R,u) : -277.83
   Solving the elasto-dynamics problem...
   step=4  time=4
-  Primary solution summary: L2-norm            : 0.404969
+  Primary solution summary: L2-norm            : 0.495984
+                   Pressure L2-norm            : 6.90657e-07
                             Max X-displacement : 1.2
-                            Max pressure       : 6.9065.e-07
+                            Max pressure       : 6.90657e-07
   Total reaction forces:          Sum(R) : 0 0
   displacement\*reactions:          (R,u) : -493.92
   Solving the elasto-dynamics problem...
   step=5  time=5
-  Primary solution summary: L2-norm            : 0.506211
+  Primary solution summary: L2-norm            : 0.61998
+                   Pressure L2-norm            : 8.63321e-07
                             Max X-displacement : 1.5
-                            Max pressure       : 8.6332.e-07
+                            Max pressure       : 8.63321e-07
   Total reaction forces:          Sum(R) : 0 0
   displacement\*reactions:          (R,u) : -771.75
   Solving the elasto-dynamics problem...
   step=6  time=6
-  Primary solution summary: L2-norm            : 0.607454
+  Primary solution summary: L2-norm            : 0.743976
+                   Pressure L2-norm            : 1.03598e-06
                             Max X-displacement : 1.8
                             Max pressure       : 1.03598e-06
   Total reaction forces:          Sum(R) : 0 0
   displacement\*reactions:          (R,u) : -1111.32
   Solving the elasto-dynamics problem...
   step=7  time=7
-  Primary solution summary: L2-norm            : 0.708696
+  Primary solution summary: L2-norm            : 0.867972
+                   Pressure L2-norm            : 1.20865e-06
                             Max X-displacement : 2.1
                             Max pressure       : 1.20865e-06
   Total reaction forces:          Sum(R) : 0 0
   displacement\*reactions:          (R,u) : -1512.63
   Solving the elasto-dynamics problem...
   step=8  time=8
-  Primary solution summary: L2-norm            : 0.809938
+  Primary solution summary: L2-norm            : 0.991968
+                   Pressure L2-norm            : 1.38131e-06
                             Max X-displacement : 2.4
                             Max pressure       : 1.38131e-06
   Total reaction forces:          Sum(R) : 0 0
   displacement\*reactions:          (R,u) : -1975.68
   Solving the elasto-dynamics problem...
   step=9  time=9
-  Primary solution summary: L2-norm            : 0.911181
+  Primary solution summary: L2-norm            : 1.11596
+                   Pressure L2-norm            : 1.55398e-06
                             Max X-displacement : 2.7
                             Max pressure       : 1.55398e-06
   Total reaction forces:          Sum(R) : 0 0
   displacement\*reactions:          (R,u) : -2500.47
   Solving the elasto-dynamics problem...
   step=10  time=10
-  Primary solution summary: L2-norm            : 1.01242
+  Primary solution summary: L2-norm            : 1.23996
+                   Pressure L2-norm            : 1.72664e-06
                             Max X-displacement : 3
                             Max pressure       : 1.72664e-06
   Total reaction forces:          Sum(R) : 0 0
   displacement\*reactions:          (R,u) : -3087
+  Solving the elasto-dynamics problem...
+  step=11  time=20
+  Primary solution summary: L2-norm            : 1.23996
+                   Pressure L2-norm            : 1.72664e-06
+                            Max X-displacement : 3
+                            Max pressure       : 1.72664e-06
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -3087
+  Solving the elasto-dynamics problem...
+  step=12  time=30
+  Primary solution summary: L2-norm            : 1.23996
+                   Pressure L2-norm            : 1.72664e-06
+                            Max X-displacement : 3
+                            Max pressure       : 1.72664e-06
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -3087
+  Solving the elasto-dynamics problem...
+  step=13  time=40
+  Primary solution summary: L2-norm            : 1.23996
+                   Pressure L2-norm            : 1.72664e-06
+                            Max X-displacement : 3
+                            Max pressure       : 1.72664e-06
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -3087
+  Solving the elasto-dynamics problem...
+  step=14  time=50
+  Primary solution summary: L2-norm            : 1.23996
+                   Pressure L2-norm            : 1.72664e-06
+                            Max X-displacement : 3
+                            Max pressure       : 1.72664e-06
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -3087
+  Time integration completed.

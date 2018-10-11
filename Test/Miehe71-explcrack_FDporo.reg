@@ -86,12 +86,16 @@ Resolving Dirichlet boundary conditions
 Number of elements    400
 Number of nodes       441
 Number of dofs        1323
+Number of D-dofs      882
+Number of P-dofs      441
 Number of constraints 21
 Number of unknowns    1239
+PoroElasticity: Computed scaling = 3.47495e+07
 100. Starting the simulation
   Solving the elasto-dynamics problem...
   step=1  time=1
-  Primary solution summary: L2-norm            : 0.101242
+  Primary solution summary: L2-norm            : 0.123996
+                   Pressure L2-norm            : 1.72664e-07
                             Max X-displacement : 0.3
                             Max pressure       : 1.72664e-07
   Total reaction forces:          Sum(R) : 0 0
