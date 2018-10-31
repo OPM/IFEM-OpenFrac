@@ -91,6 +91,11 @@ else()
                          ${PROJECT_SOURCE_DIR}/Test/*_FD.reg)
   file(GLOB FP_TESTFILES RELATIVE ${PROJECT_SOURCE_DIR}/Test
                          ${PROJECT_SOURCE_DIR}/Test/*_FDporo.reg)
+
+  # TODO: Re-enable these tests when poroelastic quasistatic is sensible
+  list(REMOVE_ITEM FP_TESTFILES Miehe71_FDporo.reg)
+  list(REMOVE_ITEM FP_TESTFILES Miehe71-explcrack_FDporo.reg)
+
   foreach(TESTFILE ${CH_TESTFILES})
     ifem_add_test(${TESTFILE} CahnHilliard)
   endforeach()
