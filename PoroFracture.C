@@ -70,7 +70,7 @@ public:
 };
 
 
-PoroFracture::PoroFracture (unsigned short int n, bool m) : PoroElasticity(n,m)
+PoroFracture::PoroFracture (unsigned short int n, bool m) : PoroElasticity(n, m, false)
 {
   fracEl = new PoroFractureElasticity(this, n, m ? n : n+1);
 
