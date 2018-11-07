@@ -59,6 +59,8 @@ public:
   //! \brief Dummy method.
   bool serialize(std::map<std::string,std::string>&) { return false; }
   //! \brief Dummy method.
+  bool deSerialize(const std::map<std::string,std::string>&) { return false; }
+  //! \brief Dummy method.
   bool dumpGeometry(std::ostream& os) const { return false; }
   //! \brief Dummy method.
   bool saveResidual(const TimeStep&, const Vector&, int&) { return true; }

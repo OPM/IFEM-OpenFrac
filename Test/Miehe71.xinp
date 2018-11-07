@@ -63,4 +63,8 @@
     <step end="1220.0">121</step>
   </timestepping>
 
+  <postprocessing>
+    <restartstride>1</restartstride>
+  </postprocessing>
+
 </simulation>

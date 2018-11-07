@@ -14,6 +14,7 @@
 #ifndef _SIM_PHASE_FIELD_H
 #define _SIM_PHASE_FIELD_H
 
+#include "SIMsolution.h"
 #include "CahnHilliard.h"
 #ifdef HAS_LRSPLINE
 #include "ASMu2D.h"
@@ -38,7 +39,7 @@ namespace LR { class LRSpline; }
   \brief Driver class for a Cahn-Hilliard phase-field simulator.
 */
 
-template<class Dim> class SIMPhaseField : public Dim
+template<class Dim> class SIMPhaseField : public Dim, public SIMsolution
 {
   //! \brief Struct defining a user-specified plane for stopping the simulation.
   struct StopPlane
@@ -64,7 +65,7 @@ public:
     chp = nullptr;
     spln = nullptr;
 
-    phasefield.resize(n);
+    solution.resize(n);
   }
 
   //! \brief The destructor deletes the stop plane.
@@ -117,7 +118,7 @@ public:
       results |= DataExporter::SECONDARY;
 
     exporter.registerField("c","phase field",DataExporter::SIM, results);
-    exporter.setFieldValue("c",this,&phasefield.front());
+    exporter.setFieldValue("c",this,&solution.front());
   }
 
   //! \brief Initializes the problem.
@@ -125,9 +126,9 @@ public:
   {
     bool ok = this->setMode(SIM::INIT);
     this->setQuadratureRule(Dim::opt.nGauss[0],true);
-    this->registerField("phasefield",phasefield.front());
+    this->registerField("phasefield",solution.front());
     if (this->hasIC("phasefield"))
-      for (Vector& solvec : phasefield)
+      for (Vector& solvec : solution)
         solvec.resize(this->getNoDOFs(),1.0);
     return this->setInitialConditions() && ok && this->advanceStep(tp);
   }
@@ -151,15 +152,17 @@ public:
   {
     PROFILE1("SIMPhaseField::saveStep");
 
+    this->setMode(SIM::RECOVERY);
+
     double old = utl::zero_print_tol;
     utl::zero_print_tol = 1e-16;
-    bool ok = this->savePoints(phasefield.front(),tp.time.t,tp.step);
+    bool ok = this->savePoints(solution.front(),tp.time.t,tp.step);
     utl::zero_print_tol = old;
     if (!ok) return false;
 
     if (tp.step%Dim::opt.saveInc == 0 && Dim::opt.format >= 0)
     {
-      int iBlck = this->writeGlvS1(phasefield.front(),++vtfStep,nBlock,
+      int iBlck = this->writeGlvS1(solution.front(),++vtfStep,nBlock,
                                    tp.time.t,"phase",6);
       if (iBlck < 0) return false;
 
@@ -183,7 +186,7 @@ public:
     }
 
     if (transferOp == 'P') // Replace the phase field solution by its projection
-      phasefield.front() = projSol.getRow(1);
+      solution.front() = projSol.getRow(1);
 
     return true;
   }
@@ -200,11 +203,38 @@ public:
       return true;
   }
 
+  //! \brief Serializes current internal state for restarting purposes.
+  virtual bool serialize(SerializeMap& data) const
+  {
+    if (!this->saveSolution(data,this->getName()))
+      return false;
+
+    data["CH::history"] = SIMsolution::serialize(chp->historyField.data(),
+                                                 chp->historyField.size());
+    return true;
+  }
+
+  //! \brief Restores the internal state from serialized data.
+  virtual bool deSerialize(const SerializeMap& data)
+  {
+    if (!this->restoreSolution(data,this->getName()))
+      return false;
+
+    SerializeMap::const_iterator sit = data.find("CH::history");
+    if (sit == data.end()) return false;
+
+    SIMsolution::deSerialize(sit->second,chp->historyField.data(),
+                                         chp->historyField.size());
+
+    return true;
+  }
+
   //! \brief Advances the time step one step forward.
   bool advanceStep(const TimeStep&)
   {
-    if (phasefield.size() > 1)
-      phasefield.back() = phasefield.front();
+    if (solution.size() > 1)
+      solution.back() = solution.front();
+
     return true;
   }
 
@@ -225,10 +255,10 @@ public:
     if (!this->setMode(SIM::STATIC))
       return false;
 
-    if (!this->assembleSystem(tp.time,phasefield))
+    if (!this->assembleSystem(tp.time,solution))
       return false;
 
-    if (!this->solveSystem(phasefield.front(),
+    if (!this->solveSystem(solution.front(),
                            standalone ? 0 : 1, nullptr, nullptr))
       return false;
 
@@ -238,7 +268,7 @@ public:
     // If we solve for d as the primary phase-field variable,
     // transform it to c = 1-d here
     if (chp->useDformulation())
-      for (double& c : phasefield.front()) c = 1.0 - c;
+      for (double& c : solution.front()) c = 1.0 - c;
 
     return standalone ? this->postSolve(tp) : true;
   }
@@ -246,20 +276,20 @@ public:
   //! \brief Computes solution norms, etc. on the converged solution.
   bool postSolve(TimeStep& tp)
   {
-    this->printSolutionSummary(phasefield.front(), 1,
+    this->printSolutionSummary(solution.front(), 1,
                                Dim::msgLevel > 1 ? "phasefield  " : nullptr,
                                outPrec);
     this->setMode(SIM::RECOVERY);
 
     // Project the phase field onto the geometry basis
     if (!Dim::opt.project.empty())
-      if (!this->project(projSol,phasefield.front(),
+      if (!this->project(projSol,solution.front(),
                          Dim::opt.project.begin()->first))
         return false;
 
     Vectors gNorm;
     this->setQuadratureRule(Dim::opt.nGauss[1]);
-    if (!this->solutionNorms(tp.time,phasefield,gNorm,&eNorm))
+    if (!this->solutionNorms(tp.time,solution,gNorm,&eNorm))
       return false;
 
     if (!gNorm.empty())
@@ -315,19 +345,19 @@ public:
   }
 
   //! \brief Prints a summary of the calculated solution to console.
-  //! \param[in] solution The solution vector
+  //! \param[in] solvec The solution vector
   //! \param[in] printSol Print solution only if size is less than this value
   //! \param[in] compName Solution name to be used in norm output
   //! \param[in] prec Number of digits after the decimal point in norm print
-  virtual void printSolutionSummary (const Vector& solution, int printSol,
+  virtual void printSolutionSummary (const Vector& solvec, int printSol,
                                      const char* compName, std::streamsize prec)
   {
-    this->Dim::printSolutionSummary(solution,printSol,compName,prec);
+    this->Dim::printSolutionSummary(solvec,printSol,compName,prec);
 
     // Also print the smallest phase field value and the range
     int inod = 0, minNod = 0;
     double minVal = 1.0, maxVal = 1.0;
-    for (double v : phasefield.front())
+    for (double v : solution.front())
     {
       ++inod;
       if (v < minVal)
@@ -356,7 +386,7 @@ public:
     int imin = 0;
     double c = 0.0, cmin = 1.0;
     for (int inod : spln->nodes)
-      if ((c = phasefield.front()[inod-1]) < spln->cstop)
+      if ((c = solution.front()[inod-1]) < spln->cstop)
       {
         IFEM::cout <<"\n >>> Terminating simulation due to stop criterion c("
                    << this->getNodeCoord(inod) <<") = "<< c <<" < "
@@ -397,11 +427,6 @@ public:
 
   //! \brief Returns a const reference to the global norms.
   const Vector& getGlobalNorms() const { return norm; }
-
-  //! \brief Returns a const reference to the current solution.
-  const Vector& getSolution() const { return phasefield.front(); }
-  //! \brief Updates the solution vector.
-  void setSolution(const Vector& vec) { phasefield.front() = vec; }
 
   //! \brief Returns the maximum number of iterations (unlimited).
   int getMaxit() const { return 9999; }
@@ -509,6 +534,10 @@ public:
 #endif
   }
 
+  // Due to the multiple inheritance, the compiler needs to be told which
+  // version of this method to use (even though they have different signature)
+  using SIMsolution::getSolution;
+
 protected:
   using Dim::parse;
   //! \brief Parses a data section from an XML element.
@@ -606,7 +635,6 @@ private:
   CahnHilliard* chp;  //!< The Cahn-Hilliard integrand
   StopPlane*    spln; //!< Stop simulation when crack penetrates this plane
 
-  Vectors phasefield; //!< Current (and previous) phase field solution
   Matrix  projSol;    //!< Projected solution fields
   Matrix  eNorm;      //!< Element norm values
   Vector  norm;       //!< Global norm values

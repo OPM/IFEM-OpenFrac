@@ -1,0 +1,166 @@
+Miehe71.xinp -qstatic -stopTime 50
+
+Input file: Miehe71.xinp
+Equation solver: 2
+Number of Gauss points: 4
+Simulation stop time: 50
+0. Parsing input file(s).
+1. Elasticity solver
+Parsing input file Miehe71.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Generating linear geometry on unit parameter domain \[0,1]^2
+	Length in X = 5
+	Length in Y = 5
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Left (1,1,1D)
+	               Right (1,2,1D)
+	               TopBottom (1,3,1D) (1,4,1D)
+  Parsing <refine>
+	Refining P1 19 19
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+Parsing <phasefield>
+Parsing <poroelasticity>
+Parsing <elasticity>
+  Parsing <isotropic>
+	Material code 0: 254.8 0.3 700
+  Parsing <dirichlet>
+	Dirichlet code 2: (fixed)
+  Parsing <dirichlet>
+	Dirichlet code 1: (fixed)
+  Parsing <dirichlet>
+	Dirichlet code 1000001 (ramp): 3 \* Ramp(t,10)
+Parsing <newmarksolver>
+Parsing <timestepping>
+Parsing <postprocessing>
+  Parsing <restartstride>
+Parsing input file succeeded.
+Equation solver: 2
+Number of Gauss points: 2
+2. Cahn-Hilliard solver
+Parsing input file Miehe71.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Left (1,1,1D)
+	               Right (1,2,1D)
+	               TopBottom (1,3,1D) (1,4,1D)
+  Parsing <refine>
+	Refining P1 19 19
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+	Initial crack function: abs(x-2.5)
+Parsing <phasefield>
+Parsing <poroelasticity>
+Parsing <elasticity>
+Parsing <newmarksolver>
+Parsing <timestepping>
+Parsing <postprocessing>
+  Parsing <restartstride>
+Parsing input file succeeded.
+Equation solver: 2
+Number of Gauss points: 2
+3. Time integration driver
+Parsing input file Miehe71.xinp
+Parsing <geometry>
+Parsing <cahnhilliard>
+Parsing <phasefield>
+Parsing <poroelasticity>
+Parsing <elasticity>
+Parsing <discretization>
+Parsing <newmarksolver>
+Parsing <timestepping>
+Parsing <postprocessing>
+Parsing input file succeeded.
+10. Preprocessing the finite element model:
+11. Elasticity solver
+Problem definition:
+Elasticity: 2D, gravity = 0 0
+LinIsotropic: E = 254.8, nu = 0.3, rho = 700, alpha = 1.2e-07
+	Degrading of tensile strain energy density.
+Resolving Dirichlet boundary conditions
+	Constraining P1 E3 in direction(s) 2
+	Constraining P1 E4 in direction(s) 2
+	Constraining P1 E1 in direction(s) 1
+	Constraining P1 E2 in direction(s) 1 code = 1000001
+ >>> SAM model summary <<<
+Number of elements    400
+Number of nodes       441
+Number of dofs        882
+Number of constraints 21
+Number of unknowns    798
+12. Cahn-Hilliard solver
+Problem definition:
+Cahn-Hilliard: 2D
+	Critical fracture energy density: 1
+	Smearing factor: 0.1
+	Max value in crack: 0.001
+	Initial crack specified as a function.
+	Enforcing crack irreversibility using history buffer.
+Resolving Dirichlet boundary conditions
+ >>> SAM model summary <<<
+Number of elements    400
+Number of nodes       441
+Number of dofs        441
+Number of unknowns    441
+ === Restarting from a serialized state ===
+     step = 11
+100. Starting the simulation
+  Solving the elasto-dynamics problem...
+  step=12  time=30
+  Primary solution summary: L2-norm         : 1.48203
+                            Max X-component : 3
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -0.0219926
+  Elastic strain energy:           eps_e : 0.0109963
+  Bulk energy:                     eps_b : 0.0109963
+  Tensile & compressive energies         : 15434.5
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -7.38426
+  Solving crack phase field at step=12 time=30
+  Primary solution summary: L2-norm      : 0.709388
+                            Max value    : 0.79706
+                            Min value    : -0.000159
+                            Range        : 1.00016
+  Dissipated energy:               eps_d : 13.7125
+  L1-norm: |c^h| = (|c^h|)        : 16.1751
+  Normalized L1-norm: |c^h|/V     : 0.647003
+  Solving the elasto-dynamics problem...
+  step=13  time=40
+  Primary solution summary: L2-norm         : 1.48203
+                            Max X-component : 3
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -0.0219926
+  Elastic strain energy:           eps_e : 0.0109963
+  Bulk energy:                     eps_b : 0.0109963
+  Tensile & compressive energies         : 15434.5
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -7.38426
+  Solving crack phase field at step=13 time=40
+  Primary solution summary: L2-norm      : 0.709388
+                            Max value    : 0.79706
+                            Min value    : -0.000159
+                            Range        : 1.00016
+  Dissipated energy:               eps_d : 13.7125
+  L1-norm: |c^h| = (|c^h|)        : 16.1751
+  Normalized L1-norm: |c^h|/V     : 0.647003
+  Solving the elasto-dynamics problem...
+  step=14  time=50
+  Primary solution summary: L2-norm         : 1.48203
+                            Max X-component : 3
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -0.0219926
+  Elastic strain energy:           eps_e : 0.0109963
+  Bulk energy:                     eps_b : 0.0109963
+  Tensile & compressive energies         : 15434.5
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -7.38426
+  Solving crack phase field at step=14 time=50
+  Primary solution summary: L2-norm      : 0.709388
+                            Max value    : 0.79706
+                            Min value    : -0.000159
+                            Range        : 1.00016
+  Dissipated energy:               eps_d : 13.7125
+  L1-norm: |c^h| = (|c^h|)        : 16.1751
+  Normalized L1-norm: |c^h|/V     : 0.647003
+  Time integration completed.

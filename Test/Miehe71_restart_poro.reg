@@ -1,0 +1,181 @@
+Miehe71.xinp -poro -stopTime 50
+
+Input file: Miehe71.xinp
+Equation solver: 2
+Number of Gauss points: 4
+Simulation stop time: 50
+0. Parsing input file(s).
+1. Poroelasticity solver
+Parsing input file Miehe71.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Generating linear geometry on unit parameter domain \[0,1]^2
+	Length in X = 5
+	Length in Y = 5
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Left (1,1,1D)
+	               Right (1,2,1D)
+	               TopBottom (1,3,1D) (1,4,1D)
+  Parsing <refine>
+	Refining P1 19 19
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+Parsing <phasefield>
+Parsing <poroelasticity>
+  Parsing <isotropic>
+	Material code 0: Poroelastic material, see "Problem definition:" below.
+  Parsing <dirichlet>
+	Dirichlet code 2: (fixed)
+  Parsing <dirichlet>
+	Dirichlet code 1: (fixed)
+  Parsing <dirichlet>
+	Dirichlet code 1000001 (ramp): 3 \* Ramp(t,10)
+Parsing <elasticity>
+Parsing <newmarksolver>
+Parsing <timestepping>
+Parsing <postprocessing>
+  Parsing <restartstride>
+Parsing input file succeeded.
+Equation solver: 2
+Number of Gauss points: 2
+2. Cahn-Hilliard solver
+Parsing input file Miehe71.xinp
+Parsing <discretization>
+Parsing <geometry>
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Left (1,1,1D)
+	               Right (1,2,1D)
+	               TopBottom (1,3,1D) (1,4,1D)
+  Parsing <refine>
+	Refining P1 19 19
+  Parsing <topologysets>
+Parsing <cahnhilliard>
+	Initial crack function: abs(x-2.5)
+Parsing <phasefield>
+Parsing <poroelasticity>
+Parsing <elasticity>
+Parsing <newmarksolver>
+Parsing <timestepping>
+Parsing <postprocessing>
+  Parsing <restartstride>
+Parsing input file succeeded.
+Equation solver: 2
+Number of Gauss points: 2
+3. Time integration driver
+Parsing input file Miehe71.xinp
+Parsing <geometry>
+Parsing <cahnhilliard>
+Parsing <phasefield>
+Parsing <poroelasticity>
+Parsing <elasticity>
+Parsing <discretization>
+Parsing <newmarksolver>
+Parsing <timestepping>
+Parsing <postprocessing>
+Parsing input file succeeded.
+10. Preprocessing the finite element model:
+11. Poroelasticity solver
+Problem definition:
+PoroElasticity: useDynCoupling = false
+Elasticity: 2D, gravity = 0 9.81
+	Constitutive Properties:
+		Young's Modulus, E = 254.8
+		Poisson's Ratio, nu = 0.3
+	Densities:
+		Density of Fluid, rhof = 1000
+		Density of Solid, rhos = 666.67
+	Bulk Moduli:
+		Biot's coefficient, alpha = 1
+		Biot's inverse modulus, M^-1 = 0.01
+	Porosity, n = 0.1
+	Permeability, K = 2.07e-09 2.07e-09 0
+Newmark predictor/multicorrector: beta = 0.3025 gamma = 0.6
+ using constant displacement predictor
+ using displacement increments as primary unknowns
+Resolving Dirichlet boundary conditions
+	Constraining P1 E3 in direction(s) 2
+	Constraining P1 E4 in direction(s) 2
+	Constraining P1 E1 in direction(s) 1
+	Constraining P1 E2 in direction(s) 1 code = 1000001
+ >>> SAM model summary <<<
+Number of elements    400
+Number of nodes       441
+Number of dofs        1323
+Number of D-dofs      882
+Number of P-dofs      441
+Number of constraints 21
+Number of unknowns    1239
+12. Cahn-Hilliard solver
+Problem definition:
+Cahn-Hilliard: 2D
+	Critical fracture energy density: 1
+	Smearing factor: 0.1
+	Max value in crack: 0.001
+	Initial crack specified as a function.
+	Enforcing crack irreversibility using history buffer.
+Resolving Dirichlet boundary conditions
+ >>> SAM model summary <<<
+Number of elements    400
+Number of nodes       441
+Number of dofs        441
+Number of unknowns    441
+ === Restarting from a serialized state ===
+     step = 11
+100. Starting the simulation
+  Solving the elasto-dynamics problem...
+  step=12  time=30
+  Displacement L2-norm            : 1.15948
+               Max X-displacement : 3
+  Velocity L2-norm                : 0.123782
+               Max X-velocity     : 0.38785
+  Acceleration L2-norm            : 0.0988984
+               Max X-acceleration : 0.553676
+  Total reaction forces:          Sum(R) : -90.79 0
+  displacement\*reactions:          (R,u) : -1362.92
+  Solving crack phase field at step=12 time=30
+  Primary solution summary: L2-norm      : 0.0171947
+                            Max value    : 0.0274425
+                            Min value    : -0.00416573
+                            Range        : 1.00417
+  Dissipated energy:               eps_d : 60.5099
+  L1-norm: |c^h| = (|c^h|)        : 0.402407
+  Normalized L1-norm: |c^h|/V     : 0.0160963
+  Solving the elasto-dynamics problem...
+  step=13  time=40
+  Displacement L2-norm            : 1.04452
+               Max X-displacement : 3
+  Velocity L2-norm                : 0.0807218
+               Max X-velocity     : 0.427198
+  Acceleration L2-norm            : 0.0586041
+               Max X-acceleration : 0.233276
+  Total reaction forces:          Sum(R) : -328.756 0
+  displacement\*reactions:          (R,u) : -991.373
+  Solving crack phase field at step=13 time=40
+  Primary solution summary: L2-norm      : 0.0153291
+                            Max value    : 0.0251258
+                            Min value    : -0.00369284
+                            Range        : 1.00369
+  Dissipated energy:               eps_d : 60.7202
+  L1-norm: |c^h| = (|c^h|)        : 0.359453
+  Normalized L1-norm: |c^h|/V     : 0.0143781
+  Solving the elasto-dynamics problem...
+  step=14  time=50
+  Displacement L2-norm            : 1.34038
+               Max X-displacement : 3
+  Velocity L2-norm                : 0.10108
+               Max X-velocity     : 0.439416
+  Acceleration L2-norm            : 0.0325651
+               Max X-acceleration : 0.168395
+  Total reaction forces:          Sum(R) : 10.6443 0
+  displacement\*reactions:          (R,u) : -1170.33
+  Solving crack phase field at step=14 time=50
+  Primary solution summary: L2-norm      : 0.0153291
+                            Max value    : 0.0251258
+                            Min value    : -0.00369284
+                            Range        : 1.00369
+  Dissipated energy:               eps_d : 60.7202
+  L1-norm: |c^h| = (|c^h|)        : 0.359453
+  Normalized L1-norm: |c^h|/V     : 0.0143781
+  Time integration completed.
