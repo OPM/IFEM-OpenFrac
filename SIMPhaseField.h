@@ -31,8 +31,15 @@ namespace LR { class LRSpline; }
 #include "Vec3Oper.h"
 #include "AnaSol.h"
 #include "DataExporter.h"
+#include "HDF5Restart.h"
 #include "IFEM.h"
 #include "tinyxml.h"
+
+#ifdef HAS_CEREAL
+#include <cereal/cereal.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
+#endif
 
 
 /*!
@@ -501,6 +508,41 @@ public:
 #else
     return false;
 #endif
+  }
+
+  //! \brief Serialize internal state for restarting purposes.
+  //! \param data Container for serialized data
+  bool serialize(HDF5Restart::SerializeData& data)
+  {
+#ifdef HAS_CEREAL
+    std::ostringstream str;
+    {
+      cereal::BinaryOutputArchive archive(str);
+      archive(phasefield);
+      archive(chp->historyField);
+    }
+    data.insert(std::make_pair(this->getName(),str.str()));
+    return true;
+#else
+    return false;
+#endif
+  }
+
+  //! \brief Set internal state from a serialized state.
+  //! \param[in] data Container for serialized data
+  bool deSerialize(const HDF5Restart::SerializeData& data)
+  {
+#ifdef HAS_CEREAL
+    HDF5Restart::SerializeData::const_iterator sit = data.find(this->getName());
+    if (sit != data.end()) {
+      std::stringstream str(sit->second);
+      cereal::BinaryInputArchive archive(str);
+      archive(phasefield);
+      archive(chp->historyField);
+      return true;
+    }
+#endif
+    return false;
   }
 
 protected:

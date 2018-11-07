@@ -1,0 +1,73 @@
+Miehe71.xinp -poro -stopTime 50
+
+Input file: Miehe71.xinp
+Equation solver: 2
+Number of Gauss points: 4
+Simulation stop time: 50
+Number of elements    400
+Number of nodes       441
+Number of dofs        1323
+Number of D-dofs      882
+Number of P-dofs      441
+Number of constraints 21
+Number of unknowns    1239
+Number of elements    400
+Number of nodes       441
+Number of dofs        441
+Number of unknowns    441
+ === Restarting from a serialized state ===
+     step = 11
+  Solving the elasto-dynamics problem...
+  step=12  time=30
+  Displacement L2-norm            : 1.15948
+               Max X-displacement : 3
+  Velocity L2-norm                : 0.123782
+               Max X-velocity     : 0.38785
+  Acceleration L2-norm            : 0.0988984
+               Max X-acceleration : 0.553676
+  Total reaction forces:          Sum(R) : -90.79 0
+  displacement\*reactions:          (R,u) : -1362.92
+  Solving crack phase field at step=12 time=30
+  Primary solution summary: L2-norm      : 0.0171947
+                            Max value    : 0.0274425
+                            Min value    : -0.00416573
+                            Range        : 1.00417
+  Dissipated energy:               eps_d : 60.5099
+  L1-norm: |c^h| = (|c^h|)        : 0.402407
+  Normalized L1-norm: |c^h|/V     : 0.0160963
+  Solving the elasto-dynamics problem...
+  step=13  time=40
+  Displacement L2-norm            : 1.04452
+               Max X-displacement : 3
+  Velocity L2-norm                : 0.0807218
+               Max X-velocity     : 0.427198
+  Acceleration L2-norm            : 0.0586041
+               Max X-acceleration : 0.233276
+  Total reaction forces:          Sum(R) : -328.756 0
+  displacement\*reactions:          (R,u) : -991.373
+  Solving crack phase field at step=13 time=40
+  Primary solution summary: L2-norm      : 0.0153291
+                            Max value    : 0.0251258
+                            Min value    : -0.00369284
+                            Range        : 1.00369
+  Dissipated energy:               eps_d : 60.7202
+  L1-norm: |c^h| = (|c^h|)        : 0.359453
+  Normalized L1-norm: |c^h|/V     : 0.0143781
+  Solving the elasto-dynamics problem...
+  step=14  time=50
+  Displacement L2-norm            : 1.34038
+               Max X-displacement : 3
+  Velocity L2-norm                : 0.10108
+               Max X-velocity     : 0.439416
+  Acceleration L2-norm            : 0.0325651
+               Max X-acceleration : 0.168395
+  Total reaction forces:          Sum(R) : 10.6443 0
+  displacement\*reactions:          (R,u) : -1170.33
+  Solving crack phase field at step=14 time=50
+  Primary solution summary: L2-norm      : 0.0153291
+                            Max value    : 0.0251258
+                            Min value    : -0.00369284
+                            Range        : 1.00369
+  Dissipated energy:               eps_d : 60.7202
+  L1-norm: |c^h| = (|c^h|)        : 0.359453
+  Normalized L1-norm: |c^h|/V     : 0.0143781

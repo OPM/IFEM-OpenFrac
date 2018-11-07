@@ -252,6 +252,8 @@ public:
   const Vector& getSolution(int i) const override { return dSim.getSolution(i);}
   //! \brief Returns a const reference to the solution vectors.
   const Vectors& getSolutions() const override { return dSim.getSolutions(); }
+  //! \brief Returns a reference to the solution vectors (for assignment).
+  Vectors& theSolutions() override { return dSim.theSolutions(); }
 
   //! \brief Updates the solution vectors.
   void setSolutions(const Vectors& dvec)

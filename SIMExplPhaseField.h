@@ -18,8 +18,8 @@
 #include "SIMdummy.h"
 #include "SIMenums.h"
 
-class SIMoutput;
 class DataExporter;
+class SIMoutput;
 class TimeStep;
 class VTF;
 namespace LR { class LRSpline; class RefineData; }
@@ -55,6 +55,8 @@ public:
   bool advanceStep(TimeStep&) { return true; }
   //! \brief Dummy method.
   bool serialize(std::map<std::string,std::string>&) { return false; }
+  //! \brief Dummy method.
+  bool deSerialize(const std::map<std::string,std::string>&) { return false; }
   //! \brief Dummy method.
   bool dumpGeometry(std::ostream& os) const { return false; }
   //! \brief Dummy method.

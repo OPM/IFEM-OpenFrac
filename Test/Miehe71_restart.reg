@@ -1,0 +1,71 @@
+Miehe71.xinp -qstatic -stopTime 50
+
+Input file: Miehe71.xinp
+Equation solver: 2
+Number of Gauss points: 4
+Simulation stop time: 50
+Number of elements    400
+Number of nodes       441
+Number of dofs        882
+Number of constraints 21
+Number of unknowns    798
+Number of elements    400
+Number of nodes       441
+Number of dofs        441
+Number of unknowns    441
+ === Restarting from a serialized state ===
+     step = 11
+  Solving the elasto-dynamics problem...
+  step=12  time=30
+  Primary solution summary: L2-norm         : 1.48203
+                            Max X-component : 3
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -0.0219926
+  Elastic strain energy:           eps_e : 0.0109963
+  Bulk energy:                     eps_b : 0.0109963
+  Tensile & compressive energies         : 15434.5
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.104863
+  Solving crack phase field at step=12 time=30
+  Primary solution summary: L2-norm      : 0.709388
+                            Max value    : 0.79706
+                            Min value    : -0.000159003
+                            Range        : 1.00016
+  Dissipated energy:               eps_d : 13.7125
+  L1-norm: |c^h| = (|c^h|)        : 16.1751
+  Normalized L1-norm: |c^h|/V     : 0.647003
+  Solving the elasto-dynamics problem...
+  step=13  time=40
+  Primary solution summary: L2-norm         : 1.48203
+                            Max X-component : 3
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -0.0219926
+  Elastic strain energy:           eps_e : 0.0109963
+  Bulk energy:                     eps_b : 0.0109963
+  Tensile & compressive energies         : 15434.5
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.104863
+  Solving crack phase field at step=13 time=40
+  Primary solution summary: L2-norm      : 0.709388
+                            Max value    : 0.79706
+                            Min value    : -0.000159003
+                            Range        : 1.00016
+  Dissipated energy:               eps_d : 13.7125
+  L1-norm: |c^h| = (|c^h|)        : 16.1751
+  Normalized L1-norm: |c^h|/V     : 0.647003
+  Solving the elasto-dynamics problem...
+  step=14  time=50
+  Primary solution summary: L2-norm         : 1.48203
+                            Max X-component : 3
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -0.0219926
+  Elastic strain energy:           eps_e : 0.0109963
+  Bulk energy:                     eps_b : 0.0109963
+  Tensile & compressive energies         : 15434.5
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.104863
+  Solving crack phase field at step=14 time=50
+  Primary solution summary: L2-norm      : 0.709388
+                            Max value    : 0.79706
+                            Min value    : -0.000159003
+                            Range        : 1.00016
+  Dissipated energy:               eps_d : 13.7125
+  L1-norm: |c^h| = (|c^h|)        : 16.1751
+  Normalized L1-norm: |c^h|/V     : 0.647003

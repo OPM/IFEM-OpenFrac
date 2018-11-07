@@ -119,6 +119,11 @@ if(NOT MPI_FOUND OR IFEM_SERIAL_TESTS_IN_PARALLEL)
     endforeach()
   endif()
 
+  if(HDF5_FOUND)
+    ifem_add_restart_test(Miehe71_restart.reg FractureDynamics 11)
+    ifem_add_restart_test(Miehe71_restart_poro.reg FractureDynamics 11)
+  endif()
+
   ifem_add_hdf5_test(Rectangle-p2_CH.hreg CahnHilliard)
   ifem_add_hdf5_test(Sneddon-200_FD.hreg FractureDynamics)
 endif()
