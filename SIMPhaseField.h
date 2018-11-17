@@ -21,6 +21,8 @@
 #include "LRSpline/LRSplineSurface.h"
 #include "LRSpline/LRSplineVolume.h"
 #else
+#include "ASMbase.h"
+#include "ASMunstruct.h"
 namespace LR { class LRSpline; }
 #endif
 #include "TimeStep.h"
@@ -457,7 +459,7 @@ public:
     size_t idx = 0;
     for (LR::LRSpline* basis : oldBasis)
     {
-      ASMunstruct* pch = dynamic_cast<ASMunstruct*>(this->getPatch(++idx));
+      ASMLRSpline* pch = dynamic_cast<ASMLRSpline*>(this->getPatch(++idx));
       if (pch && idx <= oldBasis.size())
       {
         switch (transferOp) {
@@ -568,7 +570,6 @@ protected:
         }
       }
 
-#ifdef HAS_LRSPLINE
     if (Dim::isRefined || !result)
       return result;
 
@@ -579,7 +580,6 @@ protected:
       for (int i = 0; i < irefine; i++, refTol *= 0.5)
         if (!patch1->refine(*refC,refTol))
           return false;
-#endif
 
     return result;
   }
