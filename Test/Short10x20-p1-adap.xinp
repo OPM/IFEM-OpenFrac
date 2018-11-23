@@ -44,4 +44,14 @@
     <max_prediction>1</max_prediction>
   </adaptive>
 
+  <postprocessing>
+    <restartstride>1</restartstride>
+  </postprocessing>
+
+  <linearsolver>
+    <type>preonly</type>
+    <pc>lu</pc>
+    <package>mumps</package>
+  </linearsolver>
+
 </simulation>

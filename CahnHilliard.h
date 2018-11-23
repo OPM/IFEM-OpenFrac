@@ -34,8 +34,9 @@ public:
   //! \brief Empty destructor.
   virtual ~CahnHilliard() {}
 
+  using IntegrandBase::parse;
   //! \brief Parses a data section from an XML element.
-  virtual bool parse(const TiXmlElement* elem);
+  bool parse(const TiXmlElement* elem, bool isRefined);
 
   //! \brief Prints out the problem definition to the log stream.
   virtual void printLog() const;

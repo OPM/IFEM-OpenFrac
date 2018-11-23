@@ -95,6 +95,10 @@ int runCombined (char* infile, double stopTime, const char* context)
              <<"\n========================="<< std::endl;
 
   ElSolver elastoSim;
+  int rest = elastoSim.restartBasis(IFEM::getOptions().restartFile,
+                                    IFEM::getOptions().restartStep);
+  if (rest < 0) return -rest;
+
   ASMstruct::resetNumbering();
   if (!readModel(elastoSim,infile))
     return 1;

@@ -57,8 +57,10 @@ public:
   {
     Dim::myHeading = "Cahn-Hilliard solver";
     if (gridOwner && gridOwner->createFEMmodel())
+    {
       this->clonePatches(gridOwner->getFEModel(),gridOwner->getGlob2LocMap());
-
+      this->setRefined(gridOwner->getRefined());
+    }
     eps_d0 = 0.0;
     vtfStep = outPrec = 0;
     transferOp = 'L';
@@ -225,7 +227,7 @@ public:
 
     SIMsolution::deSerialize(sit->second,chp->historyField.data(),
                                          chp->historyField.size());
-
+    chp->clearInitialCrack();
     return true;
   }
 
@@ -611,9 +613,8 @@ protected:
         if (!strcasecmp(child->Value(),"postprocessing"))
           utl::getAttribute(child,"precision",outPrec);
         result &= this->Dim::parse(child);
-        // Read problem parameters (including initial crack defintition)
-        if (!Dim::isRefined) // but only for the initial grid when adaptive
-          Dim::myProblem->parse(child);
+        // Read problem parameters (including initial crack definition)
+        chp->parse(child,Dim::isRefined);
       }
 
     return result;

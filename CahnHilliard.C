@@ -26,23 +26,31 @@
 CahnHilliard::CahnHilliard (unsigned short int n) : IntegrandBase(n),
   initial_crack(nullptr), flux(nullptr), tensileEnergy(nullptr), Lnorm(0)
 {
-  Gc = smearing = l0 = 1.0;
+  Gc = 1.0;
+  smearing = l0 = 9999.0; // Initialize to large to disable crack if not set
   maxCrack = 1.0e-3;
   scale2nd = 4.0;
   stabk = gammaInv = pthresh = 0.0;
 }
 
 
-bool CahnHilliard::parse (const TiXmlElement* elem)
+bool CahnHilliard::parse (const TiXmlElement* elem, bool isRefined)
 {
   const char* value = utl::getValue(elem,"Gc");
   if (value)
     Gc = atof(value);
   else if ((value = utl::getValue(elem,"smearing")))
   {
-    smearing = atof(value);
+    double old = smearing;
+    if (smearing > 1.0)
+      smearing = atof(value);
     utl::getAttribute(elem,"l0",l0);
-    if (l0 > smearing) l0 = smearing;
+    if (l0 > smearing)
+      l0 = smearing;
+    else if (isRefined && old > 1.0)
+      // Restart on refined basis, scale down the smearing factor if l0 is given
+      while (smearing > l0)
+        smearing *= 0.5;
   }
   else if ((value = utl::getValue(elem,"maxcrack")))
     maxCrack = atof(value);
@@ -53,7 +61,7 @@ bool CahnHilliard::parse (const TiXmlElement* elem)
     gammaInv = 1.0/atof(value);
     utl::getAttribute(elem,"threshold",pthresh);
   }
-  else if ((value = utl::getValue(elem,"initial_crack")))
+  else if (!isRefined && (value = utl::getValue(elem,"initial_crack")))
   {
     std::string type;
     utl::getAttribute(elem,"type",type);
