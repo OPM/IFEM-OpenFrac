@@ -361,6 +361,15 @@ public:
     return this->S2.dumpGeometry(os);
   }
 
+  //! \brief Read bases from restart file.
+  //! \param[in] data Container for serialized data
+  bool deSerializeBasis(HDF5Restart::SerializeData& data)
+  {
+    bool result = this->S1.deSerializeBasis(data);
+    this->S2.setRefined(this->S1.isRef());
+    return result;
+  }
+
 protected:
   //! \brief Calculates and prints the solution and residual norms.
   double calcResidual(const TimeStep& tp, bool cycles = false)

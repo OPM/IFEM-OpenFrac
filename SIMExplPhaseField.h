@@ -95,6 +95,13 @@ public:
   bool transferHistory(const RealArray&,
                        std::vector<LR::LRSpline*>&) { return true; }
 
+  //! \brief Dummy method.
+  void setRefined(bool refined) {}
+
+  //! \brief Dummy method.
+  void clonePatches(const PatchVec& patches,
+                    const std::map<int,int>& g2ln) {}
+
 protected:
   using SIMbase::parse;
   //! \brief Parses a data section from an XML element.

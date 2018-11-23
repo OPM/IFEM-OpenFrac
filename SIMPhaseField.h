@@ -520,6 +520,7 @@ public:
       cereal::BinaryOutputArchive archive(str);
       archive(phasefield);
       archive(chp->historyField);
+      archive(chp->getSmearingFactor());
     }
     data.insert(std::make_pair(this->getName(),str.str()));
     return true;
@@ -539,11 +540,18 @@ public:
       cereal::BinaryInputArchive archive(str);
       archive(phasefield);
       archive(chp->historyField);
+      double smear;
+      archive(smear);
+      chp->setSmearingFactor(smear);
       return true;
     }
 #endif
     return false;
   }
+
+  //! \brief Set the refined status of the simulator.
+  //! \param[in] refined Refined status
+  void setRefined(bool refined) { this->isRefined = refined; }
 
 protected:
   using Dim::parse;
@@ -621,8 +629,8 @@ protected:
             irefine = atoi(value);
           else if ((value = utl::getValue(child,"refine_limit")))
             refTol = atof(value);
-          Dim::myProblem->parse(child);
         }
+        chp->parse(child,Dim::isRefined);
       }
 
     if (Dim::isRefined || !result)

@@ -84,6 +84,11 @@ include(IFEMTesting)
 # Regression tests
 if(MPI_FOUND)
   # Add parallel tests here
+  if(HDF5_FOUND)
+    if(LRSpline_FOUND)
+      ifem_add_restart_test(MPI/Short10x20-p1-adap-restart.reg FractureDynamics 75 4)
+    endif()
+  endif()
 endif()
 if(NOT MPI_FOUND OR IFEM_SERIAL_TESTS_IN_PARALLEL)
   file(GLOB CH_TESTFILES RELATIVE ${PROJECT_SOURCE_DIR}/Test
@@ -122,6 +127,9 @@ if(NOT MPI_FOUND OR IFEM_SERIAL_TESTS_IN_PARALLEL)
   if(HDF5_FOUND)
     ifem_add_restart_test(Miehe71_restart.reg FractureDynamics 11)
     ifem_add_restart_test(Miehe71_restart_poro.reg FractureDynamics 11)
+    if(LRSpline_FOUND)
+      ifem_add_restart_test(Short10x20-p1-adap-restart.reg FractureDynamics 75)
+    endif()
   endif()
 
   ifem_add_hdf5_test(Rectangle-p2_CH.hreg CahnHilliard)

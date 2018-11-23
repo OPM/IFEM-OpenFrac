@@ -33,12 +33,12 @@ CahnHilliard::CahnHilliard (unsigned short int n) : IntegrandBase(n),
 }
 
 
-bool CahnHilliard::parse (const TiXmlElement* elem)
+bool CahnHilliard::parse (const TiXmlElement* elem, bool isRefined)
 {
   const char* value = utl::getValue(elem,"Gc");
   if (value)
     Gc = atof(value);
-  else if ((value = utl::getValue(elem,"smearing")))
+  else if ((value = utl::getValue(elem,"smearing")) && !isRefined)
   {
     smearing = atof(value);
     utl::getAttribute(elem,"l0",l0);
@@ -53,7 +53,7 @@ bool CahnHilliard::parse (const TiXmlElement* elem)
     gammaInv = 1.0/atof(value);
     utl::getAttribute(elem,"threshold",pthresh);
   }
-  else if ((value = utl::getValue(elem,"initial_crack")))
+  else if ((value = utl::getValue(elem,"initial_crack")) && !isRefined)
   {
     std::string type;
     utl::getAttribute(elem,"type",type);

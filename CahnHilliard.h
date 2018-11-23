@@ -35,7 +35,7 @@ public:
   virtual ~CahnHilliard() {}
 
   //! \brief Parses a data section from an XML element.
-  virtual bool parse(const TiXmlElement* elem);
+  bool parse(const TiXmlElement* elem, bool isRefined);
 
   //! \brief Prints out the problem definition to the log stream.
   virtual void printLog() const;
@@ -110,6 +110,8 @@ public:
   double getCriticalFracEnergy() const { return Gc; }
   //! \brief Returns the smearing factor.
   double getSmearingFactor() const { return smearing; }
+  //! \brief Returns the smearing factor.
+  void setSmearingFactor(double smear) { smearing = smear; }
   //! \brief Scale the smearing factor, for use during initial refinement cycle.
   double scaleSmearing(double s) { return smearing *= smearing > l0 ? s : 1.0; }
   //! \brief Returns \e true if d=1-c is to be the primary unknown (and not c).

@@ -17,6 +17,7 @@
 #include "NewmarkSIM.h"
 #include "SIMElasticityWrap.h"
 #include "FractureElasticityVoigt.h"
+#include "HDF5Restart.h"
 #ifdef IFEM_HAS_POROELASTIC
 #include "PoroFracture.h"
 #endif
@@ -308,6 +309,42 @@ public:
     FractureElasticity* fel = dynamic_cast<FractureElasticity*>(Dim::myProblem);
     return fel ? fel->getCrackPressure() : nullptr;
   }
+
+  //! \brief Serialize internal state for restarting purposes.
+  //! \param data Container for serialized data
+  bool serialize(HDF5Restart::SerializeData& data) const override
+  {
+#ifdef HAS_CEREAL
+    // serialize the mesh
+    if (this->isRefined) {
+      std::stringstream str;
+      for (const ASMbase* pch : this->getFEModel())
+        pch->write(str);
+      data.insert({this->getName()+"-basis", str.str()});
+    }
+#endif
+
+    return this->SIMElasticityWrap<Dim>::serialize(data);
+  }
+
+  //! \brief Set internal state from a serialized state.
+  //! \param[in] data Container for serialized data
+  bool deSerializeBasis(HDF5Restart::SerializeData& data)
+  {
+#ifdef HAS_CEREAL
+    auto it = data.find(this->getName()+"-basis");
+    if (it != data.end()) {
+      std::stringstream str;
+      str.str(it->second);
+      this->readPatches(str, "");
+      this->isRefined = true;
+    }
+#endif
+    return true;
+  }
+
+  //! \brief Returns whether or not the mesh is refined.
+  bool isRef() const { return this->isRefined; }
 
 protected:
   //! \brief Returns the actual integrand.

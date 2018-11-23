@@ -95,20 +95,31 @@ int runCombined (char* infile, double stopTime, const char* context)
              <<"\n========================="<< std::endl;
 
   ElSolver elastoSim;
+  PhaseSolver phaseSim(&elastoSim);
+  SIMFractureDynamics frac(elastoSim,phaseSim,infile);
+
+  SIMDriver<SIMFractureDynamics,Solver> solver(frac,context);
+
+  ProcessAdm dummy;
+  if (solver.restartBasis(IFEM::getOptions().restartFile,
+                          dummy,
+                          IFEM::getOptions().restartStep) < 0)
+    return 1;
+
   ASMstruct::resetNumbering();
   if (!readModel(elastoSim,infile))
     return 1;
 
   elastoSim.opt.print(IFEM::cout) << std::endl;
 
-  PhaseSolver phaseSim(&elastoSim);
+  if (elastoSim.isRef())
+    phaseSim.clonePatches(elastoSim.getFEModel(),elastoSim.getGlob2LocMap());
+
   if (!readModel(phaseSim,infile))
     return 1;
 
   phaseSim.opt.print(IFEM::cout) << std::endl;
 
-  SIMFractureDynamics frac(elastoSim,phaseSim,infile);
-  SIMDriver<SIMFractureDynamics,Solver> solver(frac,context);
   if (!readModel(solver,infile))
     return 1;
 
@@ -131,7 +142,9 @@ int runCombined (char* infile, double stopTime, const char* context)
   if (!frac.init(solver.getTimePrm()))
     return 2;
 
-  if (solver.restart(elastoSim.opt.restartFile,elastoSim.opt.restartStep) < 0)
+  if (solver.restart(elastoSim.opt.restartFile,
+                     elastoSim.getProcessAdm(),
+                     elastoSim.opt.restartStep) < 0)
     return 2;
 
   if (elastoSim.opt.dumpHDF5(infile))
@@ -237,7 +250,9 @@ int runStandAlone (char* infile, double stopTime, const char* context)
   if (!elastoSim.init(TimeStep()))
     return 2;
 
-  if (solver.restart(elastoSim.opt.restartFile,elastoSim.opt.restartStep) < 0)
+  if (solver.restart(elastoSim.opt.restartFile,
+                     elastoSim.getProcessAdm(),
+                     elastoSim.opt.restartStep) < 0)
     return 2;
 
   if (elastoSim.opt.dumpHDF5(infile))

@@ -24,7 +24,6 @@ Number of unknowns    441
   Elastic strain energy:           eps_e : 0.0109963
   Bulk energy:                     eps_b : 0.0109963
   Tensile & compressive energies         : 15434.5
-  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.104863
   Solving crack phase field at step=12 time=30
   Primary solution summary: L2-norm      : 0.709388
                             Max value    : 0.79706
@@ -42,7 +41,6 @@ Number of unknowns    441
   Elastic strain energy:           eps_e : 0.0109963
   Bulk energy:                     eps_b : 0.0109963
   Tensile & compressive energies         : 15434.5
-  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.104863
   Solving crack phase field at step=13 time=40
   Primary solution summary: L2-norm      : 0.709388
                             Max value    : 0.79706
@@ -60,7 +58,6 @@ Number of unknowns    441
   Elastic strain energy:           eps_e : 0.0109963
   Bulk energy:                     eps_b : 0.0109963
   Tensile & compressive energies         : 15434.5
-  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.104863
   Solving crack phase field at step=14 time=50
   Primary solution summary: L2-norm      : 0.709388
                             Max value    : 0.79706
