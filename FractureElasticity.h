@@ -47,8 +47,8 @@ public:
   //! \param[in] mode The solution mode to use
   virtual void setMode(SIM::SolutionMode mode);
 
-  //! \brief Returns whether this norm has explicit boundary contributions.
-  virtual bool hasBoundaryTerms() const { return m_mode != SIM::RECOVERY; }
+  //! \brief Returns whether this integrand has explicit boundary contributions.
+  virtual bool hasBoundaryTerms() const { return m_mode < SIM::RECOVERY; }
 
   //! \brief Initializes the integrand with the number of integration points.
   //! \param[in] nGp Total number of interior integration points
