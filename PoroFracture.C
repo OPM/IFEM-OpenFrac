@@ -49,8 +49,10 @@ public:
   virtual bool getElementSolution(Vectors& eV,
                                   const std::vector<int>& MNPC) const
   {
-    if (!this->FractureElasticityVoigt::getElementSolution(eV,MNPC))
-      return false;
+    eV.resize(1 + eC);
+    int ierr = 0;
+    if (!mySol.empty() && !mySol.front().empty())
+      ierr = utl::gather(MNPC, nsd+1, mySol.front(), eV.front());
 
     // Filter out the pressure components
     // FIXME: Mixed
@@ -65,7 +67,16 @@ public:
           actual[nsd*n+i] = temp[(nsd+1)*n+i];
     }
 
-    return true;
+    // Extract crack phase field vector for this element
+    if (!myCVec.empty() && ierr == 0)
+      ierr = utl::gather(MNPC,1,myCVec,eV[eC]);
+
+    if (ierr == 0)
+      return true;
+
+    std::cerr <<" *** PoroFractureElasticity::getElementSolution: Detected "<< ierr
+              <<" node numbers out of range."<< std::endl;
+    return false;
   }
 };
 
