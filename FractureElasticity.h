@@ -157,17 +157,17 @@ public:
                       const FiniteElement& fe, const Vec3& X) const;
 
 private:
-  unsigned short int eC; //!< Zero-based index to element phase field vector
-
   RealFunc* crackP; //!< Applied pressure in the crack
   double    crpCut; //!< Phase-field cut-off for the applied crack pressure
 
   double alpha;  //!< Relaxation factor for the crack phase field
   double alpha0; //!< Initial relaxation factor
   double alpha1; //!< Relaxation factor for all steps except the first one
-  Vector myCVec; //!< Crack phase field values at control (nodal) points
 
 protected:
+  unsigned short int eC; //!< Zero-based index to element phase field vector
+  Vector myCVec; //!< Crack phase field values at control (nodal) points
+
   double sigmaC; //!< Critical fracture tensile stress
   double zeta;   //!< Slope parameter for the driving crack force
   double tSplit; //!< No strain energy split before this time (< 0.0: always)
