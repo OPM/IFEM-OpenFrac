@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<simulation>
+
+  <!-- General - geometry definitions !-->
+  <geometry dim="2" Lx="4.0" Ly="4.0">
+    <raiseorder patch="1" u="1" v="1" />
+    <refine type="uniform" patch="1" u="19" v="19" />
+    <topologysets>
+      <set name="all" type="edge">
+        <item patch="1">1 2 3 4</item>
+      </set>
+    </topologysets>
+  </geometry>
+
+  <cahnhilliard>
+    <Gc>1</Gc>
+    <smearing>0.4</smearing>
+    <initial_crack type="expression">
+      xmin=1.8; xmax=2.2; yline=2.0;
+      x0=x-xmin; x1=x-xmax; y0=y-yline;
+      if(below(x,xmin),sqrt(x0*x0+y0*y0),
+        if(below(x,xmax),abs(y0),sqrt(x1*x1+y0*y0)))
+    </initial_crack>
+  </cahnhilliard>
+
+  <poroelasticity>
+    <isotropic E="1" nu="0.0" alpha="1.0" Minv="1e-3" rhof="1000.0" rhos="2700.0" perm="1.15741e-8 1.15741e-8 0.0"/>
+    <volumeflux type="expression">
+      xmin=1.8; xmax=2.2; ymin=1.95; ymax=2.05; flow=5e-4;
+      if(below(x,xmax),if(above(x,xmin),if(below(y,ymax),if(above(y,ymin),flow,0.0),0.0),0.0),0.0)
+    </volumeflux>
+    <boundaryconditions>
+      <dirichlet set="all" basis="1" comp="12" />
+    </boundaryconditions>
+  </poroelasticity>
+
+  <timestepping start="0" end="750" dt="250"/>
+
+  <newmarksolver alpha1="0.05" alpha2="0.05">
+    <atol>1e-7</atol>
+    <rtol>1e-7</rtol>
+    <dtol>1e5</dtol>
+    <maxIncr>30</maxIncr>
+    <predictor>constant displacement</predictor>
+    <solve_displacements/>
+  </newmarksolver>
+
+  <postprocessing>
+    <vtfformat nviz="9">ascii</vtfformat>
+    <resultpoints>
+      <point patch="1" u="0.49" v="0.51" />
+    </resultpoints>
+  </postprocessing>
+
+</simulation>

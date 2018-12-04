@@ -1,0 +1,117 @@
+Sneddon-unit.xinp -2D -poro
+
+Problem definition:
+PoroElasticity: useDynCoupling = false
+Elasticity: 2D, gravity = 0 9.81
+	Constitutive Properties:
+		Young's Modulus, E = 1
+		Poisson's Ratio, nu = 0
+	Densities:
+		Density of Fluid, rhof = 1000
+		Density of Solid, rhos = 2700
+	Bulk Moduli:
+		Biot's coefficient, alpha = 1
+		Biot's inverse modulus, M^-1 = 0.001
+	Porosity, n = 0
+	Permeability, K = 1.15741e-08 1.15741e-08 0
+Newmark predictor/multicorrector: beta = 0.25 gamma = 0.5
+Mass-proportional damping (alpha1): 0.05
+Stiffness-proportional damping (alpha2): 0.05
+Resolving Dirichlet boundary conditions
+	Constraining P1 E1 in direction(s) 12
+	Constraining P1 E2 in direction(s) 12
+	Constraining P1 E3 in direction(s) 12
+	Constraining P1 E4 in direction(s) 12
+Result point #1: patch #1 (u,v)=(0.49,0.51), X = 1.96 2.04 0
+ >>> SAM model summary <<<
+Number of elements    400
+Number of nodes       484
+Number of dofs        1452
+Number of D-dofs      968
+Number of P-dofs      484
+Number of unknowns    1284
+
+12. Cahn-Hilliard solver
+========================
+
+Problem definition:
+Cahn-Hilliard: 2D
+	Critical fracture energy density: 1
+	Smearing factor: 0.4
+	Max value in crack: 0.001
+	Initial crack specified as a function.
+	Enforcing crack irreversibility using history buffer.
+Resolving Dirichlet boundary conditions
+Result point #1: patch #1 (u,v)=(0.49,0.51), X = 1.96 2.04 0
+ >>> SAM model summary <<<
+Number of elements    400
+Number of nodes       484
+Number of dofs        484
+Number of unknowns    484
+
+100. Starting the simulation
+============================
+
+  Solving the elasto-dynamics problem...
+  step=1  time=250
+  Displacement L2-norm            : 0.000203027
+               Max X-displacement : 0.00123407
+               Max Y-displacement : 0.00173406
+  Velocity L2-norm                : 1.62421e-06
+               Max X-velocity     : 9.87258e-06
+               Max Y-velocity     : 1.38725e-05
+  Acceleration L2-norm            : 1.29937e-08
+               Max X-acceleration : 7.89806e-08
+               Max Y-acceleration : 1.1098e-07
+  Total reaction forces:          Sum(R) : 0 0
+  Point #1:	sol1 = -4.32836e-04  5.98343e-04  1.30090e-01
+		sol2 =  9.55385e-03  1.28525e-02  9.28952e-04  9.55385e-03  1.28525e-02  4.64476e-04  0.00000e+00  0.00000e+00  0.00000e+00
+
+  Solving crack phase field at step=1 time=250
+  Primary solution summary: L2-norm      : 0.787995
+                            Max value    : 0.912324
+                            Min value    : -0.0130768
+                            Range        : 1.01308
+  Dissipated energy:               eps_d : 2.51044
+  Solving the elasto-dynamics problem...
+  step=2  time=500
+  Displacement L2-norm            : 0.000617063
+               Max X-displacement : 0.00376341
+               Max Y-displacement : 0.00586897
+  Velocity L2-norm                : 1.86811e-06
+               Max X-velocity     : 1.03622e-05
+               Max Y-velocity     : 1.92067e-05
+  Acceleration L2-norm            : 1.54198e-08
+               Max X-acceleration : 1.26879e-07
+               Max Y-acceleration : 6.83064e-08
+  Total reaction forces:          Sum(R) : 0 0
+  Point #1:	sol1 = -1.30116e-03  2.01617e-03  3.41463e-01
+		sol2 =  2.82200e-02  4.30930e-02  3.06150e-03  2.82200e-02  4.30930e-02  1.53075e-03  4.30949e-04  0.00000e+00  0.00000e+00
+
+  Solving crack phase field at step=2 time=500
+  Primary solution summary: L2-norm      : 0.787995
+                            Max value    : 0.912324
+                            Min value    : -0.0130767
+                            Range        : 1.01308
+  Dissipated energy:               eps_d : 2.51044
+  Solving the elasto-dynamics problem...
+  step=3  time=750
+  Displacement L2-norm            : 0.00103324
+               Max X-displacement : 0.00615458
+               Max Y-displacement : 0.00991792
+  Velocity L2-norm                : 1.65858e-06
+               Max X-velocity     : 9.63598e-06
+               Max Y-velocity     : 1.31849e-05
+  Acceleration L2-norm            : 2.18072e-08
+               Max X-acceleration : 1.88654e-07
+               Max Y-acceleration : 7.64596e-08
+  Total reaction forces:          Sum(R) : 0 0
+  Point #1:	sol1 = -2.12574e-03  3.40881e-03  5.68929e-01
+		sol2 =  4.60374e-02  7.29163e-02  5.10230e-03  4.60374e-02  7.29163e-02  2.55115e-03  7.28295e-04  0.00000e+00  0.00000e+00
+
+  Solving crack phase field at step=3 time=750
+  Primary solution summary: L2-norm      : 0.787995
+                            Max value    : 0.912324
+                            Min value    : -0.0130767
+                            Range        : 1.01308
+  Dissipated energy:               eps_d : 2.51044
