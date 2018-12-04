@@ -287,11 +287,19 @@ double PoroFracture::formCrackedPermeabilityTensor (SymmTensor& Kcrack,
     return 0.0;
   }
 
-  // Compute the permeability tensor, scale by d^eps*Kc*w^2*J (see eq. (108))
-  // See also F&K eq. (45)
   double w = lambda*L_per - L_per; // Crack opening (see M&M eq. (107))
   if (w < 0.0) w = 0.0;            // See F&K eq. (37)
-  Kcrack *= pow(d,eps) * (w*w/12.0 - perm);
+  double scale = w*w/12.0 - perm;
+
+  if (scale < 0.0)
+  {
+    Kcrack = perm;
+    return w;
+  }
+
+  // Compute the permeability tensor, scale by d^eps*Kc*w^2*J (see eq. (108))
+  // See also F&K eq. (45)
+  Kcrack *= pow(d,eps) * scale;
   Kcrack += kCinv;
   Kcrack *= F.det();
 
