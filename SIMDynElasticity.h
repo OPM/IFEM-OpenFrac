@@ -200,6 +200,9 @@ public:
                    << std::endl;
     }
 
+    if (this->hasResultPoints())
+      this->dumpResults(dSim.getSolution(), tp.time.t, IFEM::cout, true, 5);
+
     return true;
   }
 
