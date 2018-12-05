@@ -47,7 +47,6 @@
   </newmarksolver>
 
   <postprocessing>
-    <vtfformat nviz="9">ascii</vtfformat>
     <resultpoints>
       <point patch="1" u="0.49" v="0.51" />
     </resultpoints>
