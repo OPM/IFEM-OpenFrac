@@ -25,7 +25,7 @@
   </cahnhilliard>
 
   <poroelasticity>
-    <isotropic E="1" nu="0.0" alpha="1.0" Minv="1e-3" rhof="1000.0" rhos="2700.0" perm="1.15741e-8 1.15741e-8 0.0"/>
+    <isotropic E="1" nu="0.0" alpha="1.0" Minv="1e-3" rhof="1000.0" rhos="2700.0" mu="9810" perm="1.15741e-8 1.15741e-8 0.0"/>
     <volumeflux type="expression">
       xmin=1.8; xmax=2.2; ymin=1.95; ymax=2.05; flow=5e-4;
       if(below(x,xmax),if(above(x,xmin),if(below(y,ymax),if(above(y,ymin),flow,0.0),0.0),0.0),0.0)

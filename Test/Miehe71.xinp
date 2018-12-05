@@ -31,8 +31,8 @@
   </phasefield>
 
   <poroelasticity>
-    <isotropic mu="98.0" nu="0.3" poro="0.1" alpha="1.0" Minv="0.01"
-               rhof="1000.0" rhos="666.67" perm="2.07e-9 2.07e-9"/>
+    <isotropic E="254.8" nu="0.3" poro="0.1" alpha="1.0" Minv="0.01"
+               rhof="1000.0" rhos="666.67" mu="9810" perm="2.07e-9 2.07e-9"/>
     <boundaryconditions>
       <dirichlet set="TopBottom" comp="2"/>
       <dirichlet set="Left" comp="1"/>
