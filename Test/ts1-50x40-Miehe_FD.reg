@@ -167,7 +167,7 @@ from expression function: dX=x-0.5; dY=y-0.5; ell=0.015; d=if(below(dX,0.0),abs(
   Elastic strain energy:           eps_e : 0.000277713
   Bulk energy:                     eps_b : 0.000277141
   Tensile & compressive energies         : 0.237321 3.54944e-05
-  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0166647
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0166933
   Primary solution summary: L2-norm      : 0.922647
                             Max value    : 0.999984
                             Min value    : -0.00088328 node 1045
@@ -205,7 +205,7 @@ from expression function: dX=x-0.5; dY=y-0.5; ell=0.015; d=if(below(dX,0.0),abs(
   Elastic strain energy:           eps_e : 0.000422111
   Bulk energy:                     eps_b : 0.000420925
   Tensile & compressive energies         : 0.426224 5.5369e-05
-  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0205453
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0207971
   Primary solution summary: L2-norm      : 0.921074
                             Max value    : 0.999972
                             Min value    : -0.00250282 node 1045
@@ -243,7 +243,7 @@ from expression function: dX=x-0.5; dY=y-0.5; ell=0.015; d=if(below(dX,0.0),abs(
   Elastic strain energy:           eps_e : 0.000597341
   Bulk energy:                     eps_b : 0.000595119
   Tensile & compressive energies         : 0.65132 7.92594e-05
-  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0244406
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0248294
   Primary solution summary: L2-norm      : 0.919036
                             Max value    : 0.999962
                             Min value    : -0.00269664 node 1045
@@ -281,7 +281,7 @@ from expression function: dX=x-0.5; dY=y-0.5; ell=0.015; d=if(below(dX,0.0),abs(
   Elastic strain energy:           eps_e : 0.000801598
   Bulk energy:                     eps_b : 0.000797785
   Tensile & compressive energies         : 0.915837 0.000106859
-  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0283125
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0288196
   Primary solution summary: L2-norm      : 0.916577
                             Max value    : 0.999952
                             Min value    : -0.00185092 node 1045
@@ -301,7 +301,7 @@ from expression function: dX=x-0.5; dY=y-0.5; ell=0.015; d=if(below(dX,0.0),abs(
   Elastic strain energy:           eps_e : 0.00103564
   Bulk energy:                     eps_b : 0.00102965
   Tensile & compressive energies         : 1.213 0.000138003
-  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0321814
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0327801
   Primary solution summary: L2-norm      : 0.913937
                             Max value    : 0.999946
                             Min value    : -0.00199172 node 1045
@@ -321,7 +321,7 @@ from expression function: dX=x-0.5; dY=y-0.5; ell=0.015; d=if(below(dX,0.0),abs(
   Elastic strain energy:           eps_e : 0.00129449
   Bulk energy:                     eps_b : 0.0012855
   Tensile & compressive energies         : 1.55291 0.000172179
-  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.035979
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0367127
   Primary solution summary: L2-norm      : 0.910837
                             Max value    : 0.999937
                             Min value    : -0.00253538 node 1045
@@ -341,7 +341,7 @@ from expression function: dX=x-0.5; dY=y-0.5; ell=0.015; d=if(below(dX,0.0),abs(
   Elastic strain energy:           eps_e : 0.0015758
   Bulk energy:                     eps_b : 0.00156287
   Tensile & compressive energies         : 1.93673 0.000208987
-  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0396964
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0406108
   Primary solution summary: L2-norm      : 0.907358
                             Max value    : 0.999928
                             Min value    : -0.00268675 node 1045
@@ -424,7 +424,7 @@ from expression function: dX=x-0.5; dY=y-0.5; ell=0.015; d=if(below(dX,0.0),abs(
   Elastic strain energy:           eps_e : 0.00182861
   Bulk energy:                     eps_b : 0.00181035
   Tensile & compressive energies         : 2.45433 0.000241694
-  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0427622
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.0444191
   Primary solution summary: L2-norm      : 0.900934
                             Max value    : 0.999923
                             Min value    : -0.00125108 node 1045

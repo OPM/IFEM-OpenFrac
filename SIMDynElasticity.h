@@ -62,7 +62,7 @@ public:
   bool init(const TimeStep& tp, bool = false) override
   {
     dSim.initPrm();
-    dSim.initSol(dynamic_cast<NewmarkSIM*>(&dSim) ? 3 : 1);
+    dSim.initSol(dynamic_cast<NewmarkSIM*>(&dSim) ? 3 : 2);
 
     bool ok = this->setMode(SIM::INIT) && this->getIntegrand()->init(tp.time);
     this->setQuadratureRule(Dim::opt.nGauss[0],true);
