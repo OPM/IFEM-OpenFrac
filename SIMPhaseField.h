@@ -432,13 +432,21 @@ public:
   void getBasis(std::vector<LR::LRSpline*>& basis)
   {
 #ifdef HAS_LRSPLINE
-    ASMu2D* pch2;
-    ASMu3D* pch3;
     for (ASMbase* patch : Dim::myModel)
-      if ((pch2 = dynamic_cast<ASMu2D*>(patch)))
+    {
+      ASMu2D* pch2 = dynamic_cast<ASMu2D*>(patch);
+      if (pch2)
         basis.push_back(pch2->getBasis()->copy());
-      else if ((pch3 = dynamic_cast<ASMu3D*>(patch)))
-        basis.push_back(pch3->getBasis()->copy());
+      else
+      {
+        ASMu3D* pch3 = dynamic_cast<ASMu3D*>(patch);
+        if (pch3)
+          basis.push_back(pch3->getBasis()->copy());
+        else
+          continue;
+      }
+      basis.back()->generateIDs();
+    }
 #endif
   }
 
