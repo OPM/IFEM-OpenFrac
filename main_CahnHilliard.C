@@ -12,7 +12,6 @@
 //==============================================================================
 
 #include "IFEM.h"
-#include "SIM1D.h"
 #include "SIM2D.h"
 #include "SIM3D.h"
 #include "SIMPhaseField.h"
@@ -82,8 +81,6 @@ int main (int argc, char** argv)
       ; // ignore the obsolete option
     else if (!strcmp(argv[i],"-2D"))
       ndim = 2;
-    else if (!strcmp(argv[i],"-1D"))
-      ndim = 1;
     else if (!infile)
       infile = argv[i];
     else
@@ -93,7 +90,7 @@ int main (int argc, char** argv)
   {
     std::cout <<"usage: "<< argv[0]
               <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n"
-              <<"       [-lag|-spec|-LR] [-1D|-2D] [-nGauss <n>]\n"
+              <<"       [-lag|-spec|-LR] [-2D] [-nGauss <n>]\n"
               <<"       [-vtf <format> [-nviz <nviz>]"
               <<" [-nu <nu>] [-nv <nv>] [-nw <nw>]] [-hdf5]"<< std::endl;
     return 0;
@@ -107,5 +104,5 @@ int main (int argc, char** argv)
   else if (ndim == 2)
     return runSimulator<SIM2D>(infile);
   else
-    return runSimulator<SIM1D>(infile);
+    return 1; // 1D no longer supported
 }

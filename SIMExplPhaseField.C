@@ -85,8 +85,7 @@ bool SIMExplPhaseField::solveStep (TimeStep& tp, bool)
 bool SIMExplPhaseField::saveStep (const TimeStep& tp, int& nBlock)
 {
   if (tp.step%opt.saveInc == 0 && opt.format >= 0)
-    if (myOwner->writeGlvS1(phaseField,++myStep,nBlock,tp.time.t,
-                            "phase",6,1,true) < 0) return false;
+    return myOwner->writeGlvS(phaseField,"phase",++myStep,nBlock);
 
   return true;
 }

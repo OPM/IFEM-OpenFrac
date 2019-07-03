@@ -64,6 +64,14 @@ public:
   virtual bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
                        const Vec3& X) const;
 
+  using IntegrandBase::evalIntMx;
+  //! \brief Evaluates the integrand at an interior point.
+  //! \param elmInt The local integral object to receive the contributions
+  //! \param[in] fe Mixed finite element data of current integration point
+  //! \param[in] X Cartesian coordinates of current integration point
+  virtual bool evalIntMx(LocalIntegral& elmInt, const MxFiniteElement& fe,
+                         const Vec3& X) const;
+
   using IntegrandBase::evalSol;
   //! \brief Evaluates the secondary solution at a result point.
   //! \param[out] s Array of solution field values at current point
@@ -156,7 +164,7 @@ class CahnHilliard4 : public CahnHilliard
 {
 public:
   //! \brief The constructor forwards to the parent class constructor.
-  explicit CahnHilliard4(unsigned short int n) : CahnHilliard(n) { scale2nd = 2.0; }
+  explicit CahnHilliard4(unsigned short int n);
   //! \brief Empty destructor.
   virtual ~CahnHilliard4() {}
 
@@ -192,6 +200,14 @@ public:
   //! \param[in] X Cartesian coordinates of current integration point
   virtual bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
                        const Vec3& X) const;
+
+  using NormBase::evalIntMx;
+  //! \brief Evaluates the integrand at an interior point.
+  //! \param elmInt The local integral object to receive the contributions
+  //! \param[in] fe Mixed finite element data of current integration point
+  //! \param[in] X Cartesian coordinates of current integration point
+  virtual bool evalIntMx(LocalIntegral& elmInt, const MxFiniteElement& fe,
+                         const Vec3& X) const;
 
   using NormBase::finalizeElement;
   //! \brief Finalizes the element norms after the numerical integration.

@@ -385,8 +385,10 @@ int main (int argc, char** argv)
       ; // ignore the input file on the second pass
     else if (SIMoptions::ignoreOldOptions(argc,argv,i))
       ; // ignore the obsolete option
-    else if (!strcmp(argv[i],"-mixed"))
+    else if (!strcmp(argv[i],"-mixed-full"))
       ASMmxBase::Type = ASMmxBase::FULL_CONT_RAISE_BASIS1;
+    else if (!strncmp(argv[i],"-mixed",6))
+      ASMmxBase::Type = ASMmxBase::REDUCED_CONT_RAISE_BASIS1;
     else if (!strcmp(argv[i],"-principal"))
       Elasticity::wantPrincipalStress = true;
     else if (!strncmp(argv[i],"-dbgEl",6) && i < argc-1)
@@ -402,7 +404,7 @@ int main (int argc, char** argv)
   {
     std::cout <<"usage: "<< argv[0]
               <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n"
-              <<"       [-lag|-spec|-LR] [-2D] [-mixed] [-nGauss <n>]\n"
+              <<"       [-lag|-spec|-LR] [-2D] [-mixed[-full]] [-nGauss <n>]\n"
               <<"       [-nocrack|-explcrack|-semiimplicit]"
               <<" [-[l|q]static|-GA|-HHT] [-poro] [-adaptive]\n"
               <<"       [-vtf <format> [-nviz <nviz>] [-nu <nu>] [-nv <nv]"
