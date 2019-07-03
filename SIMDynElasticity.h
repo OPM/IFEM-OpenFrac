@@ -16,7 +16,7 @@
 
 #include "NewmarkSIM.h"
 #include "SIMElasticityWrap.h"
-#include "FractureElasticityVoigt.h"
+#include "FractureElasticityMonol.h"
 #ifdef IFEM_HAS_POROELASTIC
 #include "PoroFracture.h"
 #endif
@@ -32,9 +32,16 @@ class SIMDynElasticity : public Sim
 {
 public:
   //! \brief Default constructor.
-  SIMDynElasticity() : dSim(*this)
+  explicit SIMDynElasticity(bool monolithic = false) : dSim(*this)
   {
     vtfStep = 0;
+    if (monolithic)
+    {
+      ++Dim::nf[0]; // Account for the phase field as an unknown field variable
+      phOrder = 2;  // Default 2nd order phase field when monolithic coupling
+    }
+    else
+      phOrder = 0;
   }
 
   //! \brief Constructor for mixed problems.
@@ -42,6 +49,7 @@ public:
     : Sim(nf), dSim(*this)
   {
     vtfStep = 0;
+    phOrder = 0;
   }
 
   //! \brief Empty destructor.
@@ -63,10 +71,27 @@ public:
   {
     dSim.initPrm();
     dSim.initSol(dynamic_cast<NewmarkSIM*>(&dSim) ? 3 : 1);
+    if (phOrder > 1)
+    {
+      if (strcmp(DynSIM::inputContext,"nonlinearsolver"))
+      {
+        std::cerr <<" *** SIMDynElasticity::init: Monolithic dynamic simulation"
+                  <<" is not available."<< std::endl;
+        return false;
+      }
+
+      // Insert initial phase field solution 1.0 (undamaged material)
+      size_t nndof = Dim::nf[0];
+      Vector sol(this->getNoDOFs());
+      for (size_t d = nndof-1; d < sol.size(); d += nndof)
+        sol[d] = 1.0;
+      dSim.setSolution(sol,0);
+    }
 
     bool ok = this->setMode(SIM::INIT) && this->getIntegrand()->init(tp.time);
     this->setQuadratureRule(Dim::opt.nGauss[0],true);
-    this->registerField("solution",dSim.getSolution());
+    this->registerField(phOrder > 1 ? "solution" : "displacement",
+                        dSim.getSolution());
     return this->setInitialConditions() && ok;
   }
 
@@ -145,7 +170,7 @@ public:
   //! \brief Computes the solution for the current time step.
   bool solveStep(TimeStep& tp) override
   {
-    if (Dim::msgLevel >= 1)
+    if (Dim::msgLevel >= 1 && phOrder < 2)
       IFEM::cout <<"\n  Solving the elasto-dynamics problem...";
 
     if (dSim.solveStep(tp) != SIM::CONVERGED)
@@ -194,6 +219,9 @@ public:
                    << gNorm(5)
                    <<"\n  Tensile & compressive energies         : "
                    << gNorm(3) <<" "<< gNorm(4) << std::endl;
+      if (gNorm.size() > 5 && utl::trunc(gNorm(6)) != 0.0)
+        IFEM::cout <<"  Dissipated energy:               eps_d : "
+                   << gNorm(6) << std::endl;
       if (gNorm.size() > 1 && utl::trunc(gNorm(2)) != 0.0)
         IFEM::cout <<"  External energy: ((f,u^h)+(t,u^h))^0.5 : "
                    << (gNorm(2) < 0.0 ? -sqrt(-gNorm(2)) : sqrt(gNorm(2)))
@@ -298,8 +326,13 @@ protected:
   //! \brief Returns the actual integrand.
   Elasticity* getIntegrand() override
   {
-    if (!Dim::myProblem) // Using the Voigt formulation by default
-      Dim::myProblem = new FractureElasticityVoigt(Dim::dimension);
+    if (!Dim::myProblem)
+    {
+      if (phOrder > 1) // Monolithic phase-field coupling
+        Dim::myProblem = new FractureElasticityMonol(Dim::dimension,phOrder);
+      else // Using the Voigt elasticity formulation by default
+        Dim::myProblem = new FractureElasticityVoigt(Dim::dimension);
+    }
     return static_cast<Elasticity*>(Dim::myProblem);
   }
 
@@ -311,6 +344,13 @@ protected:
     static short int ncall = 0;
     if (++ncall == 1) // Avoiding infinite recursive calls
       result = dSim.parse(elem);
+    else if (!strcasecmp(elem->Value(),"cahnhilliard") && phOrder > 1)
+    {
+      utl::getAttribute(elem,"order",phOrder);
+      const TiXmlElement* child = elem->FirstChildElement();
+      for (; child; child = child->NextSiblingElement())
+        this->getIntegrand()->parse(child);
+    }
     else if (!strcasecmp(elem->Value(),SIMElasticity<Dim>::myContext.c_str()))
     {
       if (!Dim::myProblem)
@@ -322,7 +362,7 @@ protected:
 #else
           return false;
 #endif
-        else
+        else if (phOrder < 2)
         {
           std::string formulation("voigt");
           utl::getAttribute(elem,"formulation",formulation,true);
@@ -343,14 +383,27 @@ protected:
     return result;
   }
 
+  //! \brief Computes (possibly problem-dependent) external energy contribution.
+  double externalEnergy(const Vectors& sol, const TimeDomain& tp) const override
+  {
+    if (FractureElasticNorm::extEnr)
+      return this->Dim::externalEnergy(sol,tp);
+
+    return 0.0; // No external energy integration
+  }
+
 private:
   std::string energFile; //!< File name for global energy output
 
+protected:
   DynSIM dSim;    //!< Dynamic solution driver
+
+private:
   Matrix projSol; //!< Projected secondary solution fields
   Matrix eNorm;   //!< Element norm values
   Vector gNorm;   //!< Global norm values
   int    vtfStep; //!< VTF file step counter
+  int    phOrder; //!< Phase-field order for monolithic coupling
 };
 
 #endif

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<simulation>
+
+  <geometry>
+    <patchfile>unit_slit_4x4_p1.lr</patchfile>
+    <topologysets>
+      <set name="Bottom" type="edge">
+        <item patch="1">3</item>
+      </set>
+      <set name="Top" type="edge">
+        <item patch="1">4</item>
+      </set>
+    </topologysets>
+  </geometry>
+
+  <cahnhilliard>
+    <Gc>2.7e3</Gc>
+    <smearing>1.5e-5</smearing>
+    <penalty_factor threshold="0.05">1.0e-16</penalty_factor>
+  </cahnhilliard>
+
+  <elasticity>
+    <isotropic E="2.1e11" nu="0.3" rho="2450"/>
+    <boundaryconditions>
+      <dirichlet set="Top" comp="1"/>
+      <dirichlet set="Top" comp="2" type="linear">5e-6</dirichlet>
+      <dirichlet set="Bottom" comp="12"/>
+    </boundaryconditions>
+    <boundaryforce set="Top"/>
+  </elasticity>
+
+  <discretization>
+    <nGauss>2</nGauss>
+  </discretization>
+
+  <nonlinearsolver>
+    <timestepping>
+      <step start="0.0" end="1.0">50</step>
+      <step start="1.0" end="1.4">200</step>
+    </timestepping>
+  </nonlinearsolver>
+
+  <postprocessing>
+    <energyfile>Miehe51-p1.dat</energyfile>
+    <primarySolOnly/>
+  </postprocessing>
+
+</simulation>

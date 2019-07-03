@@ -27,7 +27,7 @@
 #include "HHTSIM.h"
 #include "GenAlphaSIM.h"
 #include "NewmarkNLSIM.h"
-#include "NonLinSIM.h"
+#include "QuasiStaticSIM.h"
 #include "ASMstruct.h"
 #include "ASMmxBase.h"
 
@@ -195,17 +195,19 @@ int runSimulator5 (const FractureArgs& args, const char* context)
   \param[in] infile The input file to parse
   \param[in] stopTime Stop time of the simulation (if non-negative)
   \param[in] context Input-file context for the time integrator
+  \param[in] monolithic If \e true, use monolithic coupling to phase-field
 */
 
 template<class Dim, class Integrator, class ElSolver>
-int runStandAlone (char* infile, double stopTime, const char* context)
+int runStandAlone (char* infile, double stopTime, const char* context,
+                   bool monolithic = false)
 {
   typedef SIMDynElasticity<Dim,Integrator,ElSolver> SIMElastoDynamics;
 
   IFEM::cout <<"\n\n0. Parsing input file(s)."
              <<"\n========================="<< std::endl;
 
-  SIMElastoDynamics elastoSim;
+  SIMElastoDynamics elastoSim(monolithic);
   if (!readModel(elastoSim,infile))
     return 1;
 
@@ -308,14 +310,20 @@ int runSimulator2 (const FractureArgs& args)
 template<class Dim, class Integrator>
 int runSimulator1 (const FractureArgs& args)
 {
+  const char* context = Integrator::inputContext;
+
   switch (args.coupling) {
   case 1:
   case 3:
     return runSimulator2<Dim,Integrator,SIMCoupled>(args);
   case 2:
     return runSimulator2<Dim,Integrator,SIMCoupledSI>(args);
+  case 4: // Monolithic coupling, single integrand
+    return runStandAlone<Dim,Integrator,SIMElasticityWrap<Dim>>(args.inpfile,
+                                                                args.stopT,
+                                                                context,true);
   default: // No phase field coupling
-    return runSimulator4<Dim,Integrator>(args,Integrator::inputContext);
+    return runSimulator4<Dim,Integrator>(args,context);
   }
 }
 
@@ -355,7 +363,10 @@ int runSimulator (const FractureArgs& args)
   case 2:
     return runSimulator1<Dim,GenAlphaSIM>(args);
   case 3:
-    return runSimulator1<Dim,NonLinSIM>(args);
+    if (args.coupling == 4)
+      return runSimulator1<Dim,QuasiStaticSIM>(args);
+    else
+      return runSimulator1<Dim,NonLinSIM>(args);
   case 4:
     return runSimulator1<Dim,HHTSIM>(args);
   case 5:
@@ -403,7 +414,7 @@ int main (int argc, char** argv)
     std::cout <<"usage: "<< argv[0]
               <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n"
               <<"       [-lag|-spec|-LR] [-2D] [-mixed] [-nGauss <n>]\n"
-              <<"       [-nocrack|-explcrack|-semiimplicit]"
+              <<"       [-nocrack|-explcrack|-semiimplicit|-monolithic]"
               <<" [-[l|q]static|-GA|-HHT] [-poro] [-adaptive]\n"
               <<"       [-vtf <format> [-nviz <nviz>] [-nu <nu>] [-nv <nv]"
               <<" [-nw <nw>]]\n       [-hdf5] [-principal] [-stopTime <t>]\n";

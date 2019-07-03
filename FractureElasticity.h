@@ -142,7 +142,8 @@ protected:
                   SymmTensor& sigma, Tensor4* dSdE) const;
 
   //! \brief Evaluates the stress degradation function \a g(c) at current point.
-  double getStressDegradation(const Vector& N, const Vectors& eV) const;
+  double getStressDegradation(const Vector& N, const Vectors& eV,
+                              char derivative = 0) const;
 
   //! \brief Evaluates Miehe's crack driving state function (eq. 56).
   double MieheCrit56(const Vec3& eps, double lambda, double mu) const;
@@ -171,6 +172,8 @@ protected:
   double sigmaC; //!< Critical fracture tensile stress
   double zeta;   //!< Slope parameter for the driving crack force
   double tSplit; //!< No strain energy split before this time (< 0.0: always)
+
+  unsigned short int eC; //!< Zero-based index to element phase field vector
 
   mutable RealArray myPhi; //!< Tensile energy density at integration points
   Vectors&          mySol; //!< Primary solution vectors for current patch

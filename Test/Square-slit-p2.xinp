@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<simulation>
+
+  <geometry>
+    <patchfile>unit_slit_20x20_p2.lr</patchfile>
+    <topologysets>
+      <set name="Bottom" type="edge">
+        <item patch="1">3</item>
+      </set>
+      <set name="Top" type="edge">
+        <item patch="1">4</item>
+      </set>
+    </topologysets>
+  </geometry>
+
+  <cahnhilliard>
+    <Gc>2.7e3</Gc>
+    <smearing>0.05</smearing>
+    <penalty_factor threshold="0.05">1.0e-16</penalty_factor>
+  </cahnhilliard>
+
+  <elasticity>
+    <isotropic E="2.1e11" nu="0.3" rho="7.85e-6"/>
+    <boundaryconditions>
+      <dirichlet set="Top" comp="1" type="linear">1e-4</dirichlet>
+      <dirichlet set="Top" comp="2"/>
+      <dirichlet set="Bottom" comp="12"/>
+    </boundaryconditions>
+  </elasticity>
+
+  <discretization>
+    <nGauss>3</nGauss>
+  </discretization>
+
+  <nonlinearsolver>
+    <timestepping>
+      <step start="0.0" end="1.0">1</step>
+      <step start="1.0" end="1.1">1</step>
+    </timestepping>
+  </nonlinearsolver>
+
+</simulation>

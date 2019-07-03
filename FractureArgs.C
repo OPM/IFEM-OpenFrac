@@ -31,6 +31,8 @@ bool FractureArgs::parseArg (const char* argv)
     coupling = 0;
   else if (!strcmp(argv,"-semiimplicit"))
     coupling = 2;
+  else if (!strcmp(argv,"-monolithic"))
+    coupling = 4;
   else if (!strcmp(argv,"-lstatic"))
     integrator = 0;
   else if (!strcmp(argv,"-GA"))

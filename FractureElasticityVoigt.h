@@ -29,12 +29,13 @@ class FractureElasticityVoigt : public FractureElasticity
 public:
   //! \brief The constructor invokes the parent class constructor only.
   //! \param[in] n Number of spatial dimensions
-  explicit FractureElasticityVoigt(unsigned short int n) : FractureElasticity(n) {}
+  explicit FractureElasticityVoigt(unsigned short int n)
+    : FractureElasticity(n), eKc(0) {}
   //! \brief Constructor for integrands with a parent integrand.
   //! \param parent The parent integrand of this one
   //! \param[in] n Number of spatial dimensions
   FractureElasticityVoigt(IntegrandBase* parent, unsigned short int n)
-    : FractureElasticity(parent,n) {}
+    : FractureElasticity(parent,n), eKc(0) {}
   //! \brief Empty destructor.
   virtual ~FractureElasticityVoigt() {}
 
@@ -61,7 +62,10 @@ protected:
   //! \brief Evaluates the stress tensor and its derivative w.r.t. the strains.
   bool evalStress(double lambda, double mu, double Gc,
                   const SymmTensor& epsil, double* Phi,
-                  SymmTensor* sigma, Matrix* dSdE, bool printElm = false) const;
+                  SymmTensor* sigma, SymmTensor* sigP, Matrix* dSdE,
+                  bool printElm = false) const;
+
+  unsigned short int eKc; //!< Zero-based index to element coupling matrix
 
   friend class FractureElasticNorm;
 };
@@ -93,7 +97,9 @@ public:
   //! \brief Returns the name of a norm quantity.
   virtual std::string getName(size_t, size_t j, const char*) const;
 
-  static int dbgElm; //!< Element index for debug output
+  static bool extEnr; //!< Flag for integration of external energy
+  static bool dirDer; //!< Flag for calculation of directional derivatives
+  static int  dbgElm; //!< Element index for debug output
 };
 
 #endif
