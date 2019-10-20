@@ -321,24 +321,19 @@ bool CahnHilliard::evalBou (LocalIntegral& elmInt, const FiniteElement& fe,
 }
 
 
-bool CahnHilliard::evalSol (Vector& s, const FiniteElement& fe,
-                            const Vec3& X, const std::vector<int>& MNPC) const
+bool CahnHilliard::evalSol2 (Vector& s, const Vectors& eV,
+                             const FiniteElement& fe, const Vec3&) const
 {
-  s.resize(2);
-
-  Vector tmp;
-  if (utl::gather(MNPC,1,primsol.front(),tmp))
+  if (eV.empty())
     return false;
 
-  double c = fe.N.dot(tmp);
+  double c = fe.N.dot(eV.front());
   if (c < maxCrack)
-    s(1) = 0.0;
+    c = 0.0;
   else if (c > 1.0)
-    s(1) = 1.0;
-  else
-    s(1) = c;
+    c = 1.0;
 
-  s(2) = historyField[fe.iGP];
+  s = { c, historyField[fe.iGP] };
   return true;
 }
 

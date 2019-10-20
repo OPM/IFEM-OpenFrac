@@ -64,15 +64,6 @@ public:
   virtual bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
                        const Vec3& X) const;
 
-  using IntegrandBase::evalSol;
-  //! \brief Evaluates the secondary solution at a result point.
-  //! \param[out] s Array of solution field values at current point
-  //! \param[in] fe Finite element data at current point
-  //! \param[in] X Cartesian coordinates of current point
-  //! \param[in] MNPC Nodal point correspondance for the basis function values
-  virtual bool evalSol(Vector& s, const FiniteElement& fe,
-                       const Vec3& X, const std::vector<int>& MNPC) const;
-
   using IntegrandBase::evalBou;
   //! \brief Evaluates the integrand at a boundary point.
   //! \param elmInt The local integral object to receive the contributions
@@ -81,6 +72,13 @@ public:
   //! \param[in] normal Boundary normal vector at current integration point
   virtual bool evalBou(LocalIntegral& elmInt, const FiniteElement& fe,
                        const Vec3& X, const Vec3& normal) const;
+
+  //! \brief Evaluates the secondary solution at a result point.
+  //! \param[out] s Array of solution field values at current point
+  //! \param[in] eV Element-level primary solution vectors
+  //! \param[in] fe Finite element data at current point
+  virtual bool evalSol2(Vector& s, const Vectors& eV,
+                        const FiniteElement& fe, const Vec3&) const;
 
   //! \brief Returns the number of primary/secondary solution field components.
   virtual size_t getNoFields(int fld) const { return fld > 1 ? 2 : 1; }
