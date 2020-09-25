@@ -58,7 +58,8 @@ template<class Dim> int runSimulator (char* infile)
   phaseSim.init(TimeStep());
 
   if (phaseSim.opt.dumpHDF5(infile))
-    solver.handleDataOutput(phaseSim.opt.hdf5,phaseSim.opt.saveInc);
+    solver.handleDataOutput(phaseSim.opt.hdf5,phaseSim.getProcessAdm(),
+                            phaseSim.opt.saveInc);
 
   return solver.solveProblem(infile,"100. Starting the simulation");
 }
