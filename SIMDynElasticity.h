@@ -169,10 +169,23 @@ public:
       IFEM::cout << std::endl;
     }
 
+#ifdef HAVE_MPI
+    if (this->adm.dd.isPartitioned()) {
+      RealArray& hist = const_cast<RealArray&>(*this->getTensileEnergy());
+      std::fill(hist.begin(), hist.end(), 0.0);
+    }
+#endif
+
     // Update strain energy density for the converged solution
     if (!this->updateStrainEnergyDensity(tp))
       return false;
 
+#ifdef HAVE_MPI
+    if (this->adm.dd.isPartitioned()) {
+      RealArray& hist = const_cast<RealArray&>(*this->getTensileEnergy());
+      this->adm.allReduceAsSum(hist);
+    }
+#endif
     // Project the secondary solution field onto the geometry basis
     if (!Dim::opt.project.empty())
       if (!this->project(projSol,dSim.getSolution(),
