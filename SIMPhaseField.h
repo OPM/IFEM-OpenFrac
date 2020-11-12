@@ -306,6 +306,11 @@ public:
       IFEM::cout << std::endl;
     }
 
+#ifdef HAVE_MPI
+    if (this->adm.dd.isPartitioned())
+      this->adm.allReduce(chp->historyField, MPI_MAX);
+#endif
+
     return true;
   }
 
