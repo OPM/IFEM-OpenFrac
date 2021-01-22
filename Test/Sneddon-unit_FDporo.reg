@@ -65,7 +65,7 @@ Number of unknowns    484
                Max Y-acceleration : 1.1098e-07
   Total reaction forces:          Sum(R) : 0 0
   Point #1:	sol1 = -4.32836e-04  5.98343e-04  1.30090e-01
-		sol2 =  9.55385e-03  1.28525e-02  9.28952e-04  9.55385e-03  1.28525e-02  4.64476e-04  0.00000e+00  0.00000e+00  0.00000e+00
+		sol2 =  9.55385e-03  1.28525e-02  9.28952e-04  9.55385e-03  1.28525e-02  4.64476e-04  2.25365e-02  0.00000e+00  0.00000e+00  0.00000e+00
 
   Solving crack phase field at step=1 time=250
   Primary solution summary: L2-norm      : 0.787995
@@ -86,7 +86,7 @@ Number of unknowns    484
                Max Y-acceleration : 6.83064e-08
   Total reaction forces:          Sum(R) : 0 0
   Point #1:	sol1 = -1.30116e-03  2.01617e-03  3.41463e-01
-		sol2 =  2.82200e-02  4.30930e-02  3.06150e-03  2.82200e-02  4.30930e-02  1.53075e-03  4.30949e-04  0.00000e+00  0.00000e+00
+		sol2 =  2.82200e-02  4.30930e-02  3.06150e-03  2.82200e-02  4.30930e-02  1.53075e-03  7.16545e-02  4.30949e-04  0.00000e+00  0.00000e+00
 
   Solving crack phase field at step=2 time=500
   Primary solution summary: L2-norm      : 0.787995
@@ -107,7 +107,7 @@ Number of unknowns    484
                Max Y-acceleration : 7.64596e-08
   Total reaction forces:          Sum(R) : 0 0
   Point #1:	sol1 = -2.12574e-03  3.40881e-03  5.68929e-01
-		sol2 =  4.60374e-02  7.29163e-02  5.10230e-03  4.60374e-02  7.29163e-02  2.55115e-03  7.28295e-04  0.00000e+00  0.00000e+00
+		sol2 =  4.60374e-02  7.29163e-02  5.10230e-03  4.60374e-02  7.29163e-02  2.55115e-03  1.19523e-01  7.28295e-04  0.00000e+00  0.00000e+00
 
   Solving crack phase field at step=3 time=750
   Primary solution summary: L2-norm      : 0.787995
