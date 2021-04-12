@@ -105,6 +105,8 @@ int runCombined (char* infile, double stopTime, const char* context)
   if (!readModel(phaseSim,infile))
     return 1;
 
+  elastoSim.getPatch(1)->clear(true);
+
   phaseSim.opt.print(IFEM::cout) << std::endl;
 
   SIMFractureDynamics frac(elastoSim,phaseSim,infile);

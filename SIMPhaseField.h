@@ -589,10 +589,12 @@ protected:
     // Perform initial refinement around the crack (single-patch only)
     RealFunc* refC = chp->initCrack();
     ASMunstruct* patch1 = dynamic_cast<ASMunstruct*>(this->getPatch(1));
-    if (refC && patch1 && this->getNoPatches() == 1)
+    if (refC && patch1 && this->getNoPatches() == 1) {
       for (int i = 0; i < irefine; i++, refTol *= 0.5)
         if (!patch1->refine(*refC,refTol))
           return false;
+      this->getPatch(1)->setGlobalNodeNums(IntVec());
+    }
 
     return result;
   }
