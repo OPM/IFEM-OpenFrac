@@ -229,7 +229,7 @@ public:
   }
 
   //! \brief Returns the tensile energy in gauss points.
-  virtual const RealArray* getTensileEnergy() const
+  const RealArray* getTensileEnergy() const
   {
     return static_cast<Elasticity*>(Dim::myProblem)->getTensileEnergy();
   }
@@ -309,6 +309,30 @@ public:
 #endif
     FractureElasticity* fel = dynamic_cast<FractureElasticity*>(Dim::myProblem);
     return fel ? fel->getCrackPressure() : nullptr;
+  }
+
+  //! \brief Serializes current internal state for restarting purposes.
+  bool serialize(SIMsolution::SerializeMap& data) const override
+  {
+    if (!this->SIMElasticityWrap<Dim>::serialize(data))
+      return false;
+
+    data["DynSIM::refNorm"] = SIMsolution::serialize(dSim.getRefNorm(),1);
+
+    return true;
+  }
+
+  //! \brief Restores the internal state from serialized data.
+  bool deSerialize(const SIMsolution::SerializeMap& data) override
+  {
+    if (!this->SIMElasticityWrap<Dim>::deSerialize(data))
+      return false;
+
+    SIMsolution::SerializeMap::const_iterator it;
+    if ((it = data.find("DynSIM::refNorm")) != data.end())
+      SIMsolution::deSerialize(it->second,dSim.theRefNorm(),1);
+
+    return true;
   }
 
 protected:
