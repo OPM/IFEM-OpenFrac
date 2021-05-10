@@ -6,7 +6,7 @@ Number of Gauss points: 4
 LR-spline basis functions are used
 0. Parsing input file(s).
  === Reading serialized basis ===
-     step = 75
+     step = 38
 1. Elasticity solver
 Parsing input file Short10x20-p1-adap.xinp
 Parsing <discretization>
@@ -95,7 +95,7 @@ Number of nodes       330
 Number of dofs        330
 Number of unknowns    330
  === Restarting from a serialized state ===
-     step = 75
+     step = 38
 100. Starting the simulation
   Solving the elasto-dynamics problem...
   step=76  time=3.8e-05
