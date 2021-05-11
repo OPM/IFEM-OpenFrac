@@ -129,10 +129,12 @@ public:
     bool ok = this->setMode(SIM::INIT);
     this->setQuadratureRule(Dim::opt.nGauss[0],true);
     this->registerField("phasefield",solution.front());
+    solution.front().resize(this->getNoDOFs());
     if (this->hasIC("phasefield"))
-      for (Vector& solvec : solution)
-        solvec.resize(this->getNoDOFs(),1.0);
-    return this->setInitialConditions() && ok && this->advanceStep(tp);
+      ok &= this->setInitialConditions();
+    else
+      solution.front().fill(1.0);
+    return ok && this->advanceStep(tp);
   }
 
   //! \brief Opens a new VTF-file and writes the model geometry to it.
