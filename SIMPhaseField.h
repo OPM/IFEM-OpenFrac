@@ -59,7 +59,7 @@ public:
       this->clonePatches(gridOwner->getFEModel(),gridOwner->getGlob2LocMap());
 
     eps_d0 = 0.0;
-    vtfStep = 0;
+    vtfStep = outPrec = 0;
     transferOp = 'L';
     chp = nullptr;
     spln = nullptr;
@@ -246,8 +246,9 @@ public:
   //! \brief Computes solution norms, etc. on the converged solution.
   bool postSolve(TimeStep& tp)
   {
-    this->printSolutionSummary(phasefield.front(),1,
-                               Dim::msgLevel > 1 ? "phasefield  " : nullptr);
+    this->printSolutionSummary(phasefield.front(), 1,
+                               Dim::msgLevel > 1 ? "phasefield  " : nullptr,
+                               outPrec);
     this->setMode(SIM::RECOVERY);
 
     // Project the phase field onto the geometry basis
@@ -317,10 +318,11 @@ public:
   //! \param[in] solution The solution vector
   //! \param[in] printSol Print solution only if size is less than this value
   //! \param[in] compName Solution name to be used in norm output
+  //! \param[in] prec Number of digits after the decimal point in norm print
   virtual void printSolutionSummary (const Vector& solution, int printSol,
-                                     const char* compName, std::streamsize = 0)
+                                     const char* compName, std::streamsize prec)
   {
-    this->Dim::printSolutionSummary(solution,printSol,compName);
+    this->Dim::printSolutionSummary(solution,printSol,compName,prec);
 
     // Also print the smallest phase field value and the range
     int inod = 0, minNod = 0;
@@ -337,11 +339,12 @@ public:
         maxVal = v;
     }
 
-    if (minNod > 0)
-      IFEM::cout <<"                            Min value    : "
-                 << minVal <<" node "<< minNod
-                 <<"\n                            Range        : "
-                 << maxVal-minVal << std::endl;
+    std::streamsize oldPrec = prec > 0 ? IFEM::cout.precision(prec) : 0;
+    IFEM::cout <<"                            Min value    : "
+               << minVal <<" node "<< minNod
+               <<"\n                            Range        : "
+               << maxVal-minVal << std::endl;
+    if (oldPrec > 0) IFEM::cout.precision(oldPrec);
   }
 
   //! \brief Returns \e true if terminating due to user-defined criteria.
@@ -402,6 +405,9 @@ public:
 
   //! \brief Returns the maximum number of iterations (unlimited).
   int getMaxit() const { return 9999; }
+
+  //! \brief Returns the norm output precision.
+  int getOutPrec() const { return outPrec; }
 
   //! \brief Solves the linearized system of current iteration.
   //! \param[in] tp Time stepping parameters
@@ -508,6 +514,9 @@ protected:
   //! \brief Parses a data section from an XML element.
   virtual bool parse(const TiXmlElement* elem)
   {
+    if (!strcasecmp(elem->Value(),"postprocessing"))
+      utl::getAttribute(elem,"precision",outPrec);
+
     if (strcasecmp(elem->Value(),"cahnhilliard"))
       return this->Dim::parse(elem);
 
@@ -570,6 +579,8 @@ protected:
       }
       else
       {
+        if (!strcasecmp(child->Value(),"postprocessing"))
+          utl::getAttribute(child,"precision",outPrec);
         result &= this->Dim::parse(child);
         // Read problem parameters (including initial crack defintition)
         if (!Dim::isRefined) // but only for the initial grid when adaptive
@@ -601,6 +612,7 @@ private:
   Vector  norm;       //!< Global norm values
   double  eps_d0;     //!< Initial eps_d value, subtracted from following values
   int     vtfStep;    //!< VTF file step counter
+  int     outPrec;    //!< Precision on solution norm outputs
   char    transferOp; //!< Solution transfer option
 };
 

@@ -299,17 +299,20 @@ public:
     std::sort(idx.begin(),idx.end(),
               [&eNorm](size_t i1, size_t i2) { return eNorm[i1] < eNorm[i2]; });
 
+    std::streamsize outPrec = this->S2.getOutPrec();
+    std::streamsize oldPrec = outPrec > 0 ? IFEM::cout.precision(outPrec) : 0;
     double eMin = min_frac < 0.0 ? -min_frac*gNorm/sqrt(idx.size()) : min_frac;
     size_t eMax = beta < 0.0 ? idx.size() : idx.size()*beta/100.0;
-    IFEM::cout <<"\n  Lowest element: "<< std::setw(8) << idx.front()
+    IFEM::cout <<"\n  Lowest element: "<< std::setw(8) << 1+idx.front()
                <<"    |c| = "<< eNorm[idx.front()]
-               <<"\n  Highest element:"<< std::setw(8) << idx.back()
+               <<"\n  Highest element:"<< std::setw(8) << 1+idx.back()
                <<"    |c| = "<< eNorm[idx.back()]
                <<"\n  Minimum |c|-value for refinement: "<< eMin
                <<"\n  Minimum element "
                << (SolidSolver::dimension == 3 ? "volume" : "area") <<":";
     for (double aMin : sMin) IFEM::cout <<" "<< aMin;
     IFEM::cout << std::endl;
+    if (oldPrec > 0) IFEM::cout.precision(oldPrec);
 
     IntVec elements; // Find the elements to refine
     elements.reserve(eMax);

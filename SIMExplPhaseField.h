@@ -79,6 +79,8 @@ public:
   //! \brief Returns the maximum number of iterations (unlimited).
   int getMaxit() const { return 9999; }
   //! \brief Dummy method.
+  int getOutPrec() const { return 0; }
+  //! \brief Dummy method.
   SIM::ConvStatus solveIteration(TimeStep&) { return SIM::CONVERGED; }
   //! \brief Dummy method.
   Vector getHistoryField() const { return Vector(); }

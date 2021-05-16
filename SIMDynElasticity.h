@@ -34,14 +34,14 @@ public:
   //! \brief Default constructor.
   SIMDynElasticity() : dSim(*this)
   {
-    vtfStep = 0;
+    vtfStep = outPrec = 0;
   }
 
   //! \brief Constructor for mixed problems.
   explicit SIMDynElasticity(const std::vector<unsigned char>& nf)
     : Sim(nf), dSim(*this)
   {
-    vtfStep = 0;
+    vtfStep = outPrec = 0;
   }
 
   //! \brief Empty destructor.
@@ -148,7 +148,7 @@ public:
     if (Dim::msgLevel >= 1)
       IFEM::cout <<"\n  Solving the elasto-dynamics problem...";
 
-    if (dSim.solveStep(tp) != SIM::CONVERGED)
+    if (dSim.solveStep(tp,SIM::STATIC,1.0e-8,outPrec) != SIM::CONVERGED)
       return false;
 
     return this->postSolve(tp);
@@ -198,6 +198,7 @@ public:
       return false;
     else if (!gNorms.empty())
     {
+      std::streamsize oldPrec = outPrec > 0 ? IFEM::cout.precision(outPrec) : 0;
       gNorm = gNorms.front();
       if (gNorm.size() > 0 && utl::trunc(gNorm(1)) != 0.0)
         IFEM::cout <<"  Elastic strain energy:           eps_e : "
@@ -211,6 +212,7 @@ public:
         IFEM::cout <<"  External energy: ((f,u^h)+(t,u^h))^0.5 : "
                    << (gNorm(2) < 0.0 ? -sqrt(-gNorm(2)) : sqrt(gNorm(2)))
                    << std::endl;
+      if (oldPrec > 0) IFEM::cout.precision(oldPrec);
     }
 
     if (this->hasResultPoints())
@@ -349,9 +351,15 @@ protected:
       for (; child; child = child->NextSiblingElement())
         if (!strcasecmp(child->Value(),"noGeometricStiffness"))
           this->setIntegrationPrm(3,1); // Disable geometric stiffness
+        else if (!strcasecmp(child->Value(),"postprocessing"))
+          utl::getAttribute(child,"precision",outPrec);
     }
     else
+    {
+      if (!strcasecmp(elem->Value(),"postprocessing"))
+        utl::getAttribute(elem,"precision",outPrec);
       result = this->Dim::parse(elem);
+    }
     --ncall;
     return result;
   }
@@ -364,6 +372,7 @@ private:
   Matrix eNorm;   //!< Element norm values
   Vector gNorm;   //!< Global norm values
   int    vtfStep; //!< VTF file step counter
+  int    outPrec; //!< Precision on solution norm outputs
 };
 
 #endif
