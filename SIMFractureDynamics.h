@@ -196,15 +196,20 @@ public:
     this->S2.setHistoryField(hsol);
   }
 
-  //! \brief Refines the mesh based on a mesh density function.
+  //! \brief Refines the mesh based on an explicit mesh density function.
   bool preRefine(int nrefinements, int irefine, double refTol)
   {
-    // Define the initial element size on the patches
-    for (const ASMbase* patch : this->S1.getFEModel())
-      patch->getMinimumSize(nrefinements);
+    if (irefine < 1) return true; // No pre-refinement requested
 
     RealFunc* refC = refFunc ? refFunc : this->S2.getInitCrack();
     if (!refC) return true; // No mesh density function defined
+
+    // Define the initial element size on the patches
+    IFEM::cout <<"\nMinimum element "
+               << (SolidSolver::dimension == 3 ? "volume" : "area") <<":";
+    for (const ASMbase* patch : this->S1.getFEModel())
+      IFEM::cout <<" "<< patch->getMinimumSize(nrefinements);
+    IFEM::cout << std::endl;
 
     int istat = 0, nRefine = 0;
     for (int i = 0; i < irefine && i < nrefinements; i++, refTol *= 0.5)
@@ -212,7 +217,7 @@ public:
         return false;
       else if (istat == 0)
         break;
-      else if (this->S2.refine(LR::RefineData()) < 0)
+      else if (!this->S2.refine(LR::RefineData()))
         return false;
       else
         ++nRefine;
@@ -221,10 +226,11 @@ public:
     refFunc = nullptr;
     if (nRefine == 0) return true; // No refinement
 
+    IFEM::cout <<"\n\nPre-refinement finished. "
+               <<"Reinitialize the solvers on refined mesh.\n"
+               << std::string(66,'=') << std::endl;
     this->S1.clearProperties();
     this->S2.clearProperties();
-
-    // Reinitialize the solvers on the refined mesh
     return this->S1.read(infile.c_str()) && this->S2.read(infile.c_str());
   }
 
@@ -278,11 +284,6 @@ public:
   int adaptMesh(double beta, double min_frac, int nrefinements,
                 bool remeshOnly = false)
   {
-    // Define maximum refinements per element
-    RealArray sMin;
-    for (const ASMbase* patch : this->S1.getFEModel())
-      sMin.push_back(patch->getMinimumSize(nrefinements));
-
     // Fetch element norms to use as refinement criteria
     Vector eNorm;
     double gNorm = this->S2.getNorm(eNorm,3);
@@ -310,7 +311,9 @@ public:
                <<"\n  Minimum |c|-value for refinement: "<< eMin
                <<"\n  Minimum element "
                << (SolidSolver::dimension == 3 ? "volume" : "area") <<":";
-    for (double aMin : sMin) IFEM::cout <<" "<< aMin;
+    // Define maximum refinement level for each patch
+    for (const ASMbase* patch : this->S1.getFEModel())
+      IFEM::cout <<" "<< patch->getMinimumSize(nrefinements);
     IFEM::cout << std::endl;
     if (oldPrec > 0) IFEM::cout.precision(oldPrec);
 
