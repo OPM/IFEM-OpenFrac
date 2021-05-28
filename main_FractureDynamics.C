@@ -133,7 +133,8 @@ int runCombined (char* infile, double stopTime, const char* context)
 
   if (elastoSim.opt.dumpHDF5(infile))
     solver.handleDataOutput(elastoSim.opt.hdf5,elastoSim.getProcessAdm(),
-                            elastoSim.opt.saveInc);
+                            elastoSim.opt.saveInc, elastoSim.opt.restartInc,
+                            elastoSim.opt.saveSSV);
 
   frac.setupDependencies();
 
@@ -235,7 +236,8 @@ int runStandAlone (char* infile, double stopTime, const char* context)
 
   if (elastoSim.opt.dumpHDF5(infile))
     solver.handleDataOutput(elastoSim.opt.hdf5,elastoSim.getProcessAdm(),
-                            elastoSim.opt.saveInc);
+                            elastoSim.opt.saveInc, elastoSim.opt.restartInc,
+                            elastoSim.opt.saveSSV);
 
   return solver.solveProblem(infile,"100. Starting the simulation");
 }
