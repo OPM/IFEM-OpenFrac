@@ -115,8 +115,6 @@ LinIsotropic: E = 3.2e+10, nu = 0.2, rho = 2450, alpha = 1.2e-07
 Newmark predictor/multicorrector: beta = 0.444444 gamma = 0.833333
  using zero acceleration predictor
 Resolving Dirichlet boundary conditions
-Multiple threads are utilized during element assembly.
- Elements are divided in 8 colors (min = 2, max = 65, avg = 34, med = 62).
  >>> SAM model summary <<<
 Number of elements    272
 Number of nodes       297
@@ -132,8 +130,6 @@ Cahn-Hilliard: 2D
 	Initial crack specified as a function.
 	Enforcing crack irreversibility using history buffer.
 Resolving Dirichlet boundary conditions
-Multiple threads are utilized during element assembly.
- Elements are divided in 8 colors (min = 2, max = 65, avg = 34, med = 62).
  >>> SAM model summary <<<
 Number of elements    272
 Number of nodes       297
@@ -1672,8 +1668,6 @@ LinIsotropic: E = 3.2e+10, nu = 0.2, rho = 2450, alpha = 1.2e-07
 Newmark predictor/multicorrector: beta = 0.444444 gamma = 0.833333
  using zero acceleration predictor
 Resolving Dirichlet boundary conditions
-Multiple threads are utilized during element assembly.
- Elements are divided in 8 colors (min = 2, max = 70, avg = 37, med = 67).
  >>> SAM model summary <<<
 Number of elements    296
 Number of nodes       319
@@ -1688,8 +1682,6 @@ Cahn-Hilliard: 2D
 	Stabilization parameter: 1e-06
 	Enforcing crack irreversibility using history buffer.
 Resolving Dirichlet boundary conditions
-Multiple threads are utilized during element assembly.
- Elements are divided in 8 colors (min = 2, max = 70, avg = 37, med = 67).
  >>> SAM model summary <<<
 Number of elements    296
 Number of nodes       319
