@@ -1,0 +1,278 @@
+ts1-25x25-5P-adap2-relax-aitken.xinp -semiimplicit -qstatic
+
+Input file: ts1-25x25-5P-adap4.xinp
+Number of elements    1925
+Number of nodes       2028
+Number of dofs        4056
+Number of constraints 3
+Number of unknowns    4001
+Boundary section 1: X0 = 125 0 0
+Number of elements    1925
+Number of nodes       2028
+Number of dofs        2028
+Number of constraints 3
+Number of unknowns    2025
+  Primary solution summary: L2-norm         : 0.00429432
+                            Max X-component : 0.00837081
+                            Max Y-component : 0.010632
+  Primary solution summary: L2-norm      : 0.999994
+                            Max value    : 1
+                            Min value    : 0.999664
+                            Range        : 0.000335897
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -0.0646948
+  Elastic strain energy:           eps_e : 0.0323474
+  Bulk energy:                     eps_b : 0.0323473
+  Tensile & compressive energies         : 0.0195707 0.0127782
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.179854
+  Primary solution summary: L2-norm      : 0.999994
+                            Max value    : 1
+                            Min value    : 0.999664
+                            Range        : 0.000335897
+  step=2  time=0.02
+  Primary solution summary: L2-norm         : 0.00858863
+                            Max X-component : 0.0167416
+                            Max Y-component : 0.021264
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -0.258743
+  Elastic strain energy:           eps_e : 0.129372
+  Bulk energy:                     eps_b : 0.129371
+  Tensile & compressive energies         : 0.0782914 0.0511042
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.359695
+  Primary solution summary: L2-norm      : 0.999976
+                            Max value    : 1
+                            Min value    : 0.998658
+                            Range        : 0.00134308
+  Dissipated energy:               eps_d : 1.19187e-05
+  step=3  time=0.03
+  step=3  time=0.03
+  Primary solution summary: L2-norm      : 0.999946
+                            Max value    : 1
+                            Min value    : 0.99698
+                            Range        : 0.0030216
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -0.582038
+  Elastic strain energy:           eps_e : 0.291019
+  Bulk energy:                     eps_b : 0.291014
+  Tensile & compressive energies         : 0.176188 0.114952
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.539512
+  Primary solution summary: L2-norm      : 0.999946
+                            Max value    : 1
+                            Min value    : 0.99698
+                            Range        : 0.0030216
+  Dissipated energy:               eps_d : 6.03297e-05
+  step=4  time=0.04
+  Primary solution summary: L2-norm         : 0.017177
+                            Max X-component : 0.0334802
+                            Max Y-component : 0.0425284
+  step=4  time=0.04
+  Primary solution summary: L2-norm      : 0.999905
+                            Max value    : 1
+                            Min value    : 0.994631
+                            Range        : 0.00537256
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -1.0344
+  Elastic strain energy:           eps_e : 0.517201
+  Bulk energy:                     eps_b : 0.517185
+  Tensile & compressive energies         : 0.313303 0.20428
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.719291
+  Primary solution summary: L2-norm      : 0.999905
+                            Max value    : 1
+                            Min value    : 0.994631
+                            Range        : 0.00537256
+  Dissipated energy:               eps_d : 0.000190672
+  step=5  time=0.05
+  Primary solution summary: L2-norm         : 0.0214711
+                            Max X-component : 0.041848
+                            Max Y-component : 0.0531608
+
+  step=5  time=0.05
+  Primary solution summary: L2-norm      : 0.999851
+                            Max value    : 1.00001
+                            Min value    : 0.991608
+                            Range        : 0.00839813
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -1.61558
+  Elastic strain energy:           eps_e : 0.80779
+  Bulk energy:                     eps_b : 0.807752
+  Tensile & compressive energies         : 0.489697 0.319027
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -0.89902
+  Primary solution summary: L2-norm      : 0.999851
+                            Max value    : 1.00001
+                            Min value    : 0.991608
+                            Range        : 0.00839813
+  Dissipated energy:               eps_d : 0.00046558
+  step=6  time=0.06
+  Primary solution summary: L2-norm      : 0.999786
+                            Max value    : 1.00001
+                            Min value    : 0.987907
+                            Range        : 0.0121016
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -2.32525
+  Elastic strain energy:           eps_e : 1.16263
+  Bulk energy:                     eps_b : 1.16255
+  Tensile & compressive energies         : 0.705449 0.459116
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -1.07869
+  Primary solution summary: L2-norm      : 0.999786
+                            Max value    : 1.00001
+                            Min value    : 0.987907
+                            Range        : 0.0121016
+  Dissipated energy:               eps_d : 0.000965719
+  step=7  time=0.07
+  Primary solution summary: L2-norm         : 0.0300588
+                            Max X-component : 0.0585786
+                            Max Y-component : 0.0744262
+  step=7  time=0.07
+  Primary solution summary: L2-norm      : 0.999708
+                            Max value    : 1.00001
+                            Min value    : 0.983524
+                            Range        : 0.0164872
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -3.16303
+  Elastic strain energy:           eps_e : 1.58151
+  Bulk energy:                     eps_b : 1.58137
+  Tensile & compressive energies         : 0.960655 0.624452
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -1.25828
+  Primary solution summary: L2-norm      : 0.999708
+                            Max value    : 1.00001
+                            Min value    : 0.983524
+                            Range        : 0.0164872
+  Dissipated energy:               eps_d : 0.00178993
+  step=8  time=0.08
+  Primary solution summary: L2-norm         : 0.0343524
+                            Max X-component : 0.0669409
+                            Max Y-component : 0.0850593
+  step=8  time=0.08
+  Primary solution summary: L2-norm      : 0.999619
+                            Max value    : 1.00001
+                            Min value    : 0.978454
+                            Range        : 0.0215604
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -4.12843
+  Elastic strain energy:           eps_e : 2.06421
+  Bulk energy:                     eps_b : 2.06396
+  Tensile & compressive energies         : 1.25543 0.814925
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -1.43778
+  Primary solution summary: L2-norm      : 0.999619
+                            Max value    : 1.00001
+                            Min value    : 0.978454
+                            Range        : 0.0215604
+  Dissipated energy:               eps_d : 0.0030554
+  step=9  time=0.09
+  Primary solution summary: L2-norm         : 0.0386458
+                            Max X-component : 0.0753006
+                            Max Y-component : 0.0956927
+  step=9  time=0.09
+  Primary solution summary: L2-norm      : 0.999518
+                            Max value    : 1.00002
+                            Min value    : 0.972691
+                            Range        : 0.0273278
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -5.22091
+  Elastic strain energy:           eps_e : 2.61046
+  Bulk energy:                     eps_b : 2.61006
+  Tensile & compressive energies         : 1.58991 1.0304
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -1.61719
+  Primary solution summary: L2-norm      : 0.999518
+                            Max value    : 1.00002
+                            Min value    : 0.972691
+                            Range        : 0.0273278
+  Dissipated energy:               eps_d : 0.00489791
+  step=10  time=0.1
+  cycle 1: Res = 0.0124029 + .*-14 = 0.0124029  E = 3.2199 + 0.00751144 = 3.22741  beta=45, omega=0.0524087
+  cycle 2: Res = 0.011753 + .*-14 = 0.011753  E = 3.2199 + 0.00751144 = 3.22741  beta=0.015964.*, omega=1.00015
+  Primary solution summary: L2-norm         : 0.0429387
+                            Max X-component : 0.083657
+                            Max Y-component : 0.106326
+  step=10  time=0.1
+  Primary solution summary: L2-norm      : 0.999405
+                            Max value    : 1.00002
+                            Min value    : 0.965973
+                            Range        : 0.03405
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -6.43979
+  Elastic strain energy:           eps_e : 3.2199
+  Bulk energy:                     eps_b : 3.21929
+  Tensile & compressive energies         : 1.96426 1.27073
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -1.79648
+  Primary solution summary: L2-norm      : 0.999405
+                            Max value    : 1.00002
+                            Min value    : 0.965973
+                            Range        : 0.03405
+  Dissipated energy:               eps_d : 0.00751152
+  step=11  time=0.11
+  cycle 1: Res = 0.0176989 + .*-14 = 0.0176989  E = 3.89224 + 0.011016 = 3.90325  beta=45, omega=0.0529378
+  cycle 2: Res = 0.0167621 + .*-14 = 0.0167621  E = 3.89224 + 0.011016 = 3.90325  beta=0.023204.*, omega=1.00019
+  Primary solution summary: L2-norm         : 0.0472314
+                            Max X-component : 0.0920104
+                            Max Y-component : 0.116961
+  step=11  time=0.11
+  Primary solution summary: L2-norm      : 0.99928
+                            Max value    : 1.00003
+                            Min value    : 0.958709
+                            Range        : 0.0413188
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -7.78447
+  Elastic strain energy:           eps_e : 3.89224
+  Bulk energy:                     eps_b : 3.89135
+  Tensile & compressive energies         : 2.37865 1.53575
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -1.97564
+  Primary solution summary: L2-norm      : 0.99928
+                            Max value    : 1.00003
+                            Min value    : 0.958709
+                            Range        : 0.0413188
+  Dissipated energy:               eps_d : 0.0110161
+  step=12  time=0.12
+  cycle 1: Res = 0.0252263 + .*-14 = 0.0252263  E = 4.62707 + 0.0156312 = 4.6427  beta=45, omega=0.0535389
+  cycle 2: Res = 0.023876 + .*e-14 = 0.023876  E = 4.62707 + 0.0156312 = 4.6427  beta=0.0331636, omega=1.00025
+  Primary solution summary: L2-norm         : 0.0515237
+                            Max X-component : 0.10036
+                            Max Y-component : 0.127595
+  Primary solution summary: L2-norm      : 0.999144
+                            Max value    : 1.00003
+                            Min value    : 0.950706
+                            Range        : 0.049328
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -9.25413
+  Elastic strain energy:           eps_e : 4.62707
+  Bulk energy:                     eps_b : 4.62582
+  Tensile & compressive energies         : 2.83327 1.82528
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -2.15467
+  Primary solution summary: L2-norm      : 0.999144
+                            Max value    : 1.00003
+                            Min value    : 0.950706
+                            Range        : 0.049328
+  Dissipated energy:               eps_d : 0.0156315
+  step=13  time=0.13
+  cycle 1: Res = 0.0349688 + .*e-14 = 0.0349688  E = 5.42396 + 0.0215745 = 5.44553  beta=45, omega=0.0542096
+  Primary solution summary: L2-norm         : 0.0558159
+                            Max X-component : 0.108707
+                            Max Y-component : 0.13823
+  Primary solution summary: L2-norm      : 0.998996
+                            Max value    : 1.00004
+                            Min value    : 0.94195
+                            Range        : 0.0580901
+  cycle 2: Res = 0.0330738 + .*e-14 = 0.0330738  E = 5.42396 + 0.0215745 = 5.44553  beta=0.046153.*, omega=1.00032
+  cycle 3: Res = 0.000140227 + .*e-14 = 0.000140227  E = 5.42396 + 0.0215751 = 5.44553  beta=0.590278, omega=1.00455
+  cycle 4: Res = 0.00262968 + .*e-14 = 0.00262968  E = 5.42395 + 0.0215843 = 5.44553  beta=0.056693.*, omega=-0.0565833
+  cycle 5: Res = 0.00278935 + .*e-14 = 0.00278935  E = 5.42395 + 0.0215843 = 5.44553  beta=-0.00064.*, omega=0.931932
+  cycle 6: Res = 0.00018987 + .*e-14 = 0.00018987  E = 5.42395 + 0.0215843 = 5.44553  beta=0.00738.*, omega=1
+  cycle 7: Res = 0.000189764 + .*e-14 = 0.000189764  E = 5.42395 + 0.0215849 = 5.44553  beta=0.000453.*, omega=0.8116.*
+  Primary solution summary: L2-norm         : 0.0558155
+                            Max X-component : 0.108706
+                            Max Y-component : 0.13823
+  Primary solution summary: L2-norm      : 0.998996
+                            Max value    : 1.00004
+                            Min value    : 0.941906
+                            Range        : 0.058134
+  Total reaction forces:          Sum(R) : 0 0
+  displacement\*reactions:          (R,u) : -10.8479
+  Elastic strain energy:           eps_e : 5.42395
+  Bulk energy:                     eps_b : 5.42224
+  Tensile & compressive energies         : 3.32835 2.13912
+  External energy: ((f,u^h)+(t,u^h))^0.5 : -2.33354
+  Primary solution summary: L2-norm      : 0.998996
+                            Max value    : 1.00004
+                            Min value    : 0.941906
+                            Range        : 0.0581341
+  Dissipated energy:               eps_d : 0.021585
