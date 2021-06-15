@@ -421,10 +421,10 @@ protected:
     if (!this->S1.assembleSystem(tp.time,this->S1.getSolutions(),false))
       return -1.0;
 
-    if (!this->S1.extractLoadVec(residual))
+    if (!this->S1.extractLoadVec(disResidual))
       return -1.0;
 
-    double rNorm1 = residual.norm2();
+    double rNorm1 = disResidual.norm2();
     double eNorm1 = this->S1.extractScalar();
 
     // Compute residual of the phase-field equation
@@ -465,7 +465,6 @@ protected:
       if (eConv > 0)
         IFEM::cout <<"\n    E = "<< eNorm1 <<" + "<< eNorm2 <<" = "<< eConv;
     }
-    IFEM::cout << std::endl;
     return rConv;
   }
 
@@ -488,6 +487,7 @@ private:
   Vector residual; //!< Residual force vector (of the phase field equation)
 
 protected:
+  Vector disResidual; //!< Residual of displacement equation
   bool doStop; //!< If \e true, terminate due to user-defined stop criterion
 };
 

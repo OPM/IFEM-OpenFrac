@@ -48,6 +48,8 @@ public:
     utl::getAttribute(elem,"tol",cycleTol);
     utl::getAttribute(elem,"max",maxCycle);
     utl::getAttribute(elem,"maxInc",maxInc);
+    utl::getAttribute(elem,"omega",this->omega0);
+    utl::getAttribute(elem,"aitken",this->aitken);
     maxIt = maxCycle;
   }
 
@@ -101,7 +103,6 @@ public:
     else if (status1 == SIM::DIVERGED || status2 == SIM::DIVERGED)
       return SIM::DIVERGED;
 
-    //! \brief Calculate and print solution and residual norms
     double conv = this->calcResidual(tp,true);
     if (conv < 0.0)
       return SIM::FAILURE;
@@ -130,6 +131,18 @@ public:
               << maxCycle <<" staggering cycles, bailing.."<< std::endl;
     return SIM::DIVERGED;
   }
+
+  //! \brief Returns the residual of the elastic equation.
+  virtual const Vector& getAitkenResidual() const
+  { return this->disResidual; }
+
+  //! \brief Returns solution to use for relaxation.
+  virtual const Vector& getRelaxationVector() const
+  { return this->S2.getSolution(); }
+
+  //! \brief Set the relaxed solution.
+  virtual void setRelaxedSolution(const Vector& sol)
+  { this->S2.setSolution(sol); }
 
 private:
   int&   maxCycle; //!< Maximum number of staggering cycles
