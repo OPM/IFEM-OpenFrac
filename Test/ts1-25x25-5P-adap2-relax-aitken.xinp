@@ -62,7 +62,7 @@
     <maxIncr>7</maxIncr>
     <rtol>1e-6</rtol>
     <dtol>5000.0</dtol>
-    <staggering tol="1.0e-4" max="200" maxInc="20" omega="0.05" aitken="true"/>
+    <staggering tol="1.0e-4" max="min(t,10)" maxInc="20" omega="0.05" aitken="true"/>
     <timestepping>
       <step start="0.0" end="0.13">13</step>
     </timestepping>
