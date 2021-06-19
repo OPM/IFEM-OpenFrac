@@ -31,9 +31,8 @@ class SIMFractureQstatic : public SIMFracture<SolidSlv,PhaseSlv,SIMCoupledSI>
 public:
   //! \brief The constructor forwards to the parent class contructor.
   SIMFractureQstatic(SolidSlv& s1, PhaseSlv& s2, const std::string& input)
-    : CoupledSIM(s1,s2,input), maxCycle(this->maxIter)
+    : CoupledSIM(s1,s2,input)
   {
-    maxCycle = maxIt = 50;
     maxInc   = 0;
     cycleTol = 1.0e-4;
   }
@@ -45,16 +44,10 @@ public:
   virtual void parseStaggering(const TiXmlElement* elem)
   {
     this->CoupledSIM::parseStaggering(elem);
-    utl::getAttribute(elem,"tol",cycleTol);
-    utl::getAttribute(elem,"max",maxCycle);
+    this->CoupledSIM::parseIterations(elem);
     utl::getAttribute(elem,"maxInc",maxInc);
-    utl::getAttribute(elem,"omega",this->omega0);
-    utl::getAttribute(elem,"aitken",this->aitken);
-    maxIt = maxCycle;
+    utl::getAttribute(elem,"tol",cycleTol);
   }
-
-  //! \brief Enable/disable the staggering iteration cycles.
-  virtual void enableStaggering(bool enable) { maxCycle = enable ? maxIt : 0; }
 
   //! \brief Computes the solution for the current time step.
   virtual bool solveStep(TimeStep& tp, bool firstS1 = true)
@@ -118,11 +111,13 @@ public:
     lastConv = conv;
     if (numIncr > maxInc && maxInc > 0)
     {
-      std::cout <<"  ** The residual increases in more than "<< maxInc
-                <<" cycles, giving up and continuing..."<< std::endl;
+      IFEM::cout <<"  ** The residual increases in more than "<< maxInc
+                 <<" cycles, giving up and continuing..."<< std::endl;
       return SIM::CONVERGED; // Abort cycles and continue with next step
     }
-    else if (tp.iter < maxCycle)
+
+    int maxCycle = this->getMaxit(tp.step);
+    if (tp.iter < maxCycle)
       return SIM::OK; // Continue with next cycle
     else if (cycleTol < 0.0 || maxCycle == 0 || maxInc > 0)
       return SIM::CONVERGED; // Continue after maximum number of cycles
@@ -145,8 +140,6 @@ public:
   { this->S2.setSolution(sol); }
 
 private:
-  int&   maxCycle; //!< Maximum number of staggering cycles
-  int    maxIt;    //!< Copy of \a maxCycle
   int    maxInc;   //!< Max number of cycles with increasing convergence norm
   double lastConv; //!< Previous convergence norm value
   double cycleTol; //!< Residual norm tolerance for the staggering cycles
