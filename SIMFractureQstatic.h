@@ -127,18 +127,6 @@ public:
     return SIM::DIVERGED;
   }
 
-  //! \brief Returns the residual of the elastic equation.
-  virtual const Vector& getAitkenResidual() const
-  { return this->disResidual; }
-
-  //! \brief Returns solution to use for relaxation.
-  virtual const Vector& getRelaxationVector() const
-  { return this->S2.getSolution(); }
-
-  //! \brief Set the relaxed solution.
-  virtual void setRelaxedSolution(const Vector& sol)
-  { this->S2.setSolution(sol); }
-
 private:
   int    maxInc;   //!< Max number of cycles with increasing convergence norm
   double lastConv; //!< Previous convergence norm value

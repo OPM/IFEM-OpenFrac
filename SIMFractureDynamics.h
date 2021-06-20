@@ -258,6 +258,9 @@ public:
         if (!this->S2.initSystem(this->S2.opt.solver))
           return false;
       }
+
+      IFEM::cout <<"\n\n>>> Initial refinement cycle "
+                 << step0.iter+1 <<" :"<< std::endl;
       if (!this->S2.solveStep(step0))
         return false;
       if ((newElements = this->adaptMesh(beta,min_frac,nrefinements,true)) < 0)
@@ -421,10 +424,10 @@ protected:
     if (!this->S1.assembleSystem(tp.time,this->S1.getSolutions(),false))
       return -1.0;
 
-    if (!this->S1.extractLoadVec(disResidual))
+    if (!this->S1.extractLoadVec(elastRes))
       return -1.0;
 
-    double rNorm1 = disResidual.norm2();
+    double rNorm1 = elastRes.norm2();
     double eNorm1 = this->S1.extractScalar();
 
     // Compute residual of the phase-field equation
@@ -468,6 +471,17 @@ protected:
     return rConv;
   }
 
+public:
+  //! \brief Returns solution vector to use for relaxation.
+  virtual const Vector& getRelaxationVector() const
+  { return this->S2.getSolution(); }
+  //! \brief Updates the relaxed solution vector.
+  virtual void setRelaxedSolution(const Vector& sol)
+  { this->S2.setSolution(sol); }
+
+  //! \brief Returns the residual of the elasticity equation.
+  virtual const Vector& getAitkenResidual() const { return elastRes; }
+
 private:
   std::string energFile; //!< File name for global energy output
   std::string infile;    //!< Input file parsed
@@ -484,10 +498,10 @@ private:
   double Ec; //!< Energy norm of current staggering cycle
   double Ep; //!< Energy norm of previous staggering cycle
 
-  Vector residual; //!< Residual force vector (of the phase field equation)
+  Vector elastRes; //!< Residual force vector of the elasticity equation
+  Vector residual; //!< Residual force vector of the phase field equation
 
 protected:
-  Vector disResidual; //!< Residual of displacement equation
   bool doStop; //!< If \e true, terminate due to user-defined stop criterion
 };
 
