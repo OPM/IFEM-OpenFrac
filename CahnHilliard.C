@@ -34,7 +34,8 @@ CahnHilliard::CahnHilliard (unsigned short int n) : IntegrandBase(n),
 }
 
 
-bool CahnHilliard::parse (const TiXmlElement* elem, bool isRefined)
+bool CahnHilliard::parse (const TiXmlElement* elem,
+                          bool isRefined, bool restartRef)
 {
   const char* value = utl::getValue(elem,"Gc");
   if (value)
@@ -47,10 +48,12 @@ bool CahnHilliard::parse (const TiXmlElement* elem, bool isRefined)
     utl::getAttribute(elem,"l0",l0);
     if (l0 > smearing)
       l0 = smearing;
-    else if (isRefined && old > 1.0)
+    else if (restartRef)
       // Restart on refined basis, scale down the smearing factor if l0 is given
       while (smearing > l0)
         smearing *= 0.5;
+    else if (isRefined)
+      smearing = old; // keep previous value during initial refinement
   }
   else if ((value = utl::getValue(elem,"maxcrack")))
     maxCrack = atof(value);

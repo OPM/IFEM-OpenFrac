@@ -60,7 +60,11 @@ public:
     {
       this->clonePatches(gridOwner->getFEModel(),gridOwner->getGlob2LocMap());
       this->setRefined(gridOwner->getRefined());
+      restartRef = this->getRefined() > 0;
     }
+    else
+      restartRef = false;
+
     eps_d0 = 0.0;
     vtfStep = outPrec = 0;
     transferOp = 'L';
@@ -616,7 +620,7 @@ protected:
           utl::getAttribute(child,"precision",outPrec);
         result &= this->Dim::parse(child);
         // Read problem parameters (including initial crack definition)
-        chp->parse(child,Dim::isRefined);
+        chp->parse(child,this->getRefined(),restartRef);
       }
 
     return result;
@@ -645,6 +649,7 @@ private:
   int     vtfStep;    //!< VTF file step counter
   int     outPrec;    //!< Precision on solution norm outputs
   char    transferOp; //!< Solution transfer option
+  bool    restartRef; //!< If \e true, we are restarting on a refined mesh
 };
 
 #endif
