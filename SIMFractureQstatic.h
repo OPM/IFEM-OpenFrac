@@ -110,7 +110,7 @@ public:
       return SIM::CONVERGED;
 
     static int numIncr = 0;
-    if (conv <= lastConv || tp.iter == 0)
+    if (tp.iter == 0 || conv <= lastConv)
       numIncr = 0;
     else
       numIncr++;
