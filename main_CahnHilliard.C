@@ -12,6 +12,7 @@
 //==============================================================================
 
 #include "IFEM.h"
+#include "Profiler.h"
 #include "SIM1D.h"
 #include "SIM2D.h"
 #include "SIM3D.h"
