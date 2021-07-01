@@ -14,25 +14,17 @@
 #ifndef _SIM_PHASE_FIELD_H
 #define _SIM_PHASE_FIELD_H
 
+#include "SIMenums.h"
 #include "SIMsolution.h"
-#include "CahnHilliard.h"
-#ifdef HAS_LRSPLINE
-#include "ASMu2D.h"
-#include "ASMu3D.h"
-#include "LRSpline/LRSplineSurface.h"
-#include "LRSpline/LRSplineVolume.h"
-#else
-#include "ASMbase.h"
+#include "Vec3.h"
+
+
+class CahnHilliard;
+class DataExporter;
 namespace LR { class LRSpline; }
-#endif
-#include "TimeStep.h"
-#include "Profiler.h"
-#include "Utilities.h"
-#include "Vec3Oper.h"
-#include "AnaSol.h"
-#include "DataExporter.h"
-#include "IFEM.h"
-#include "tinyxml.h"
+class RealFunc;
+class TimeStep;
+class TiXmlElement;
 
 
 /*!

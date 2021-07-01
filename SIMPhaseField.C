@@ -13,9 +13,29 @@
 
 #include "SIMPhaseField.h"
 
+#include "CahnHilliard.h"
+
+#include "AnaSol.h"
+#include "DataExporter.h"
+#include "IFEM.h"
+#include "Profiler.h"
 #include "SIM1D.h"
 #include "SIM2D.h"
 #include "SIM3D.h"
+#include "TimeStep.h"
+#include "Utilities.h"
+#include "Vec3Oper.h"
+
+#include "tinyxml.h"
+
+#ifdef HAS_LRSPLINE
+#include "ASMu2D.h"
+#include "ASMu3D.h"
+#include "LRSpline/LRSplineSurface.h"
+#include "LRSpline/LRSplineVolume.h"
+#else
+#include "ASMbase.h"
+#endif
 
 
 template<class Dim>
