@@ -333,20 +333,6 @@ int runSimulator1 (const FractureArgs& args)
 
 
 /*!
-  \brief Linear quasi-static solution driver.
-*/
-
-class LinSIM : public NonLinSIM
-{
-public:
-  //! \brief The constructor forwards to the parent class constructor.
-  explicit LinSIM(SIMbase& sim) : NonLinSIM(sim,NonLinSIM::NONE_UPTAN) {}
-  //! \brief Empty destructor.
-  virtual ~LinSIM() {}
-};
-
-
-/*!
   \brief Selects the time integration driver to be used.
 */
 
