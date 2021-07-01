@@ -16,11 +16,15 @@
 
 #include "ASMbase.h"
 #include "ASMunstruct.h"
+#include "NonLinSIM.h"
 #include "ProcessAdm.h"
 #include "Functions.h"
 #include "Profiler.h"
+#include "TimeStep.h"
+#include "Utilities.h"
 #include <fstream>
 #include <numeric>
+#include "tinyxml.h"
 
 
 /*!

@@ -25,6 +25,7 @@
 #include "SIMSolverTS.h"
 #include "ElasticityUtils.h"
 #include "FractureArgs.h"
+#include "FractureElasticityVoigt.h"
 #include "HHTSIM.h"
 #include "GenAlphaSIM.h"
 #include "NewmarkNLSIM.h"
