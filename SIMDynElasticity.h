@@ -19,6 +19,7 @@
 #include "FractureElasticityVoigt.h"
 #include "IFEM.h"
 #include "Function.h"
+#include "TimeStep.h"
 #include "Utilities.h"
 #ifdef IFEM_HAS_POROELASTIC
 #include "PoroFracture.h"
