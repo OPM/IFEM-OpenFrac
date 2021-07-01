@@ -59,13 +59,13 @@ public:
   virtual ~SIMPhaseField();
 
   //! \brief Returns the name of this simulator (for use in the HDF5 export).
-  virtual std::string getName() const { return "CahnHilliard"; }
+  std::string getName() const override { return "CahnHilliard"; }
 
   //! \brief Preprocessing performed before the FEM model generation.
-  virtual void preprocessA();
+  void preprocessA() override;
 
   //! \brief Preprocessing performed after the FEM model generation.
-  virtual bool preprocessB();
+  bool preprocessB() override;
 
   //! \brief Registers fields for data output.
   void registerFields(DataExporter& exporter);
@@ -91,10 +91,10 @@ public:
   bool saveResidual(const TimeStep& tp, const Vector& residual, int& nBlock);
 
   //! \brief Serializes current internal state for restarting purposes.
-  virtual bool serialize(SerializeMap& data) const;
+  bool serialize(SerializeMap& data) const override;
 
   //! \brief Restores the internal state from serialized data.
-  virtual bool deSerialize(const SerializeMap& data);
+  bool deSerialize(const SerializeMap& data) override;
 
   //! \brief Advances the time step one step forward.
   bool advanceStep(const TimeStep&);
@@ -110,8 +110,8 @@ public:
   //! \param[in] printSol Print solution only if size is less than this value
   //! \param[in] compName Solution name to be used in norm output
   //! \param[in] prec Number of digits after the decimal point in norm print
-  virtual void printSolutionSummary(const Vector& solvec, int printSol,
-                                    const char* compName, std::streamsize prec);
+  void printSolutionSummary(const Vector& solvec, int printSol,
+                            const char* compName, std::streamsize prec) override;
 
   //! \brief Returns \e true if terminating due to user-defined criteria.
   bool checkStopCriterion() const;
@@ -164,11 +164,11 @@ public:
 protected:
   using Dim::parse;
   //! \brief Parses a data section from an XML element.
-  virtual bool parse(const TiXmlElement* elem);
+  bool parse(const TiXmlElement* elem) override;
 
   //! \brief Initializes for integration of Neumann terms for a given property.
   //! \param[in] propInd Physical property index
-  virtual bool initNeumann(size_t propInd);
+  bool initNeumann(size_t propInd) override;
 
 private:
   CahnHilliard* chp;  //!< The Cahn-Hilliard integrand
