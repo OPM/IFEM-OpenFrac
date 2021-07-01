@@ -23,6 +23,7 @@
 #endif
 #include "SIMCoupledSI.h"
 #include "SIMSolverTS.h"
+#include "ElasticityUtils.h"
 #include "FractureArgs.h"
 #include "HHTSIM.h"
 #include "GenAlphaSIM.h"

@@ -14,6 +14,7 @@
 #ifndef _SIM_FRACTURE_DYNAMICS_H_
 #define _SIM_FRACTURE_DYNAMICS_H_
 
+#include "ASMbase.h"
 #include "ASMunstruct.h"
 #include "ProcessAdm.h"
 #include "Functions.h"
