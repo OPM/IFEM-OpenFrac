@@ -24,6 +24,7 @@
 #include "SIMCoupledSI.h"
 #include "SIMSolverTS.h"
 #include "FractureArgs.h"
+#include "FractureElasticityVoigt.h"
 #include "HHTSIM.h"
 #include "GenAlphaSIM.h"
 #include "NewmarkNLSIM.h"
@@ -329,20 +330,6 @@ int runSimulator1 (const FractureArgs& args)
     return runSimulator4<Dim,Integrator>(args,Integrator::inputContext);
   }
 }
-
-
-/*!
-  \brief Linear quasi-static solution driver.
-*/
-
-class LinSIM : public NonLinSIM
-{
-public:
-  //! \brief The constructor forwards to the parent class constructor.
-  explicit LinSIM(SIMbase& sim) : NonLinSIM(sim,NonLinSIM::NONE) {}
-  //! \brief Empty destructor.
-  virtual ~LinSIM() {}
-};
 
 
 /*!
