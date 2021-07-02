@@ -51,6 +51,7 @@ endif()
 
 set(FracEl_SRCS FractureArgs.C CahnHilliard.C SIMExplPhaseField.C
                 SIMDynElasticity.C 
+                SIMFractureDynamics.C
                 SIMFractureQstatic.C
                 SIMPhaseField.C
                 FractureElasticity.C FractureElasticityVoigt.C)
