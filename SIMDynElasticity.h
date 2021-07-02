@@ -17,10 +17,14 @@
 #include "NewmarkSIM.h"
 #include "SIMElasticityWrap.h"
 #include "FractureElasticityVoigt.h"
+#include "IFEM.h"
+#include "Utilities.h"
 #ifdef IFEM_HAS_POROELASTIC
 #include "PoroFracture.h"
 #endif
 #include <fstream>
+
+#include "tinyxml.h"
 
 
 /*!
