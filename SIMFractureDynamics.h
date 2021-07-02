@@ -14,12 +14,23 @@
 #ifndef _SIM_FRACTURE_DYNAMICS_H_
 #define _SIM_FRACTURE_DYNAMICS_H_
 
+#include "ASMbase.h"
 #include "ASMunstruct.h"
 #include "ProcessAdm.h"
 #include "Functions.h"
+#include "IFEM.h"
 #include "Profiler.h"
+#include "SIMadmin.h"
+#include "SIMenums.h"
+#include "TimeStep.h"
+#include "Utilities.h"
+
 #include <fstream>
 #include <numeric>
+#include "tinyxml.h"
+
+
+namespace LR { class LRSpline; }
 
 
 /*!
