@@ -50,7 +50,9 @@ if(EXISTS ${POROELASTIC_DIR})
 endif()
 
 set(FracEl_SRCS FractureArgs.C CahnHilliard.C SIMExplPhaseField.C
-                SIMDynElasticity.C SIMPhaseField.C
+                SIMDynElasticity.C 
+                SIMFractureQstatic.C
+                SIMPhaseField.C
                 FractureElasticity.C FractureElasticityVoigt.C)
 if(EXISTS ${POROELASTIC_DIR})
   set(FracEl_SRCS ${FracEl_SRCS} PoroFracture.C)
