@@ -19,12 +19,19 @@
 #include "NonLinSIM.h"
 #include "ProcessAdm.h"
 #include "Functions.h"
+#include "IFEM.h"
 #include "Profiler.h"
+#include "SIMadmin.h"
+#include "SIMenums.h"
 #include "TimeStep.h"
 #include "Utilities.h"
+
 #include <fstream>
 #include <numeric>
 #include "tinyxml.h"
+
+
+namespace LR { class LRSpline; }
 
 
 /*!
