@@ -22,7 +22,7 @@ class SIMoutput;
 class DataExporter;
 class TimeStep;
 class VTF;
-namespace LR { class LRSpline; class RefineData; }
+namespace LR { class LRSpline; struct RefineData; }
 
 
 /*!
