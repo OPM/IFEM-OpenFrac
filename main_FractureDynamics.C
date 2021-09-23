@@ -339,7 +339,7 @@ class LinSIM : public NonLinSIM
 {
 public:
   //! \brief The constructor forwards to the parent class constructor.
-  explicit LinSIM(SIMbase& sim) : NonLinSIM(sim,NonLinSIM::NONE) {}
+  explicit LinSIM(SIMbase& sim) : NonLinSIM(sim,NonLinSIM::NONE_UPTAN) {}
   //! \brief Empty destructor.
   virtual ~LinSIM() {}
 };
