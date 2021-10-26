@@ -251,6 +251,8 @@ public:
           return false;
         if (!this->S1.createFEMmodel()) // Because S2 shares the mesh with S1
           return false;
+        if (!this->S1.readTopologyOnly(infile))
+          return false;
         if (!this->S2.preprocess())
           return false;
         if (!this->S2.init(step0))
