@@ -90,7 +90,7 @@ private:
   \param[in] context Input-file context for the time integrator
 */
 
-template<class ElSolver, class PhaseSolver, class SIMFractureDynamics,
+template<class ElSolver, class PhaseSolver, class FractureSim,
          template<class T1> class Solver=SIMSolver>
 int runCombined (char* infile, double stopTime, const char* context)
 {
@@ -114,8 +114,8 @@ int runCombined (char* infile, double stopTime, const char* context)
 
   phaseSim.opt.print(IFEM::cout) << std::endl;
 
-  SIMFractureDynamics frac(elastoSim,phaseSim,infile);
-  SIMDriver<SIMFractureDynamics,Solver> solver(frac,context);
+  FractureSim frac(elastoSim,phaseSim,infile);
+  SIMDriver<FractureSim,Solver> solver(frac,context);
   if (!readModel(solver,infile))
     return 1;
 
@@ -152,55 +152,6 @@ int runCombined (char* infile, double stopTime, const char* context)
 
 
 /*!
-  \brief Determines whether the quasi-static semi-implicit driver is to be used.
-*/
-
-template<class ElSolver, class PhaseSolver,
-         template<class T1, class T2> class Cpl,
-         template<class T1> class Solver=SIMSolver>
-int runSimulator6 (const FractureArgs& args, const char* context)
-{
-  if (args.integrator == 3 && args.coupling == 2)
-  {
-    typedef SIMFractureQstatic<ElSolver,PhaseSolver> Coupler;
-    return runCombined<ElSolver,PhaseSolver,Coupler,Solver>(args.inpfile,
-                                                            args.stopT,
-                                                            context);
-  }
-  else if (args.integrator == 3 && args.coupling == 3)
-  {
-    typedef SIMFractureMiehe<ElSolver,PhaseSolver> Coupler;
-    return runCombined<ElSolver,PhaseSolver,Coupler,Solver>(args.inpfile,
-                                                            args.stopT,
-                                                            context);
-  }
-  else
-  {
-    typedef SIMFracture<ElSolver,PhaseSolver,Cpl> Coupler;
-    return runCombined<ElSolver,PhaseSolver,Coupler,Solver>(args.inpfile,
-                                                            args.stopT,
-                                                            context);
-  }
-}
-
-
-/*!
-  \brief Determines whether the explicit phase-field driver is to be used.
-*/
-
-template<class Dim, class ElSolver,
-         template<class T1, class T2> class Cpl,
-         template<class T1> class Solver=SIMSolver>
-int runSimulator5 (const FractureArgs& args, const char* context)
-{
-  if (args.expPhase)
-    return runSimulator6<ElSolver,SIMExplPhaseField,Cpl,Solver>(args,context);
-  else
-    return runSimulator6<ElSolver,SIMPhaseField<Dim>,Cpl,Solver>(args,context);
-}
-
-
-/*!
   \brief Creates and launches a stand-alone elasticity simulator (no coupling).
   \param[in] infile The input file to parse
   \param[in] stopTime Stop time of the simulation (if non-negative)
@@ -210,7 +161,7 @@ int runSimulator5 (const FractureArgs& args, const char* context)
 template<class Dim, class Integrator, class ElSolver>
 int runStandAlone (char* infile, double stopTime, const char* context)
 {
-  typedef SIMDynElasticity<Dim,Integrator,ElSolver> SIMElastoDynamics;
+  using SIMElastoDynamics = SIMDynElasticity<Dim,Integrator,ElSolver>;
 
   IFEM::cout <<"\n\n0. Parsing input file(s)."
              <<"\n========================="<< std::endl;
@@ -255,6 +206,32 @@ int runStandAlone (char* infile, double stopTime, const char* context)
 
 
 /*!
+  \brief Determines whether the explicit phase-field driver is to be used.
+*/
+
+template<class Dim, class ElSolver,
+         template<class T1, class T2> class Cpl,
+         template<class T1, class T2,
+                  template<class T3, class T4> class Coupling> class FractureSim,
+         template<class T1> class Solver=SIMSolver>
+int runSimulator5 (const FractureArgs& args, const char* context)
+{
+  if (args.expPhase) {
+    using FracSim = FractureSim<ElSolver,SIMExplPhaseField,Cpl>;
+    return runCombined<ElSolver,SIMExplPhaseField,FracSim,Solver>(args.inpfile,
+                                                                  args.stopT,
+                                                                  context);
+
+  } else {
+    using FracSim = FractureSim<ElSolver,SIMPhaseField<Dim>,Cpl>;
+    return runCombined<ElSolver,SIMPhaseField<Dim>,FracSim,Solver>(args.inpfile,
+                                                                   args.stopT,
+                                                                   context);
+  }
+}
+
+
+/*!
   \brief Determines whether the poroelastic simulation driver is to be used.
 */
 
@@ -282,17 +259,19 @@ int runSimulator4 (const FractureArgs& args,
 */
 
 template<class Dim, class Integrator, class ElSolver,
-         template<class T1, class T2> class Cpl>
+         template<class T1, class T2> class Cpl,
+         template<class T1, class T2,
+                  template<class T3, class T4> class Coupling> class FractureSim>
 int runSimulator3 (const FractureArgs& args)
 {
-  typedef SIMDynElasticity<Dim,Integrator,ElSolver> DynElSolver;
+  using DynElSolver = SIMDynElasticity<Dim,Integrator,ElSolver>;
 
   const char* context = Integrator::inputContext;
 
   if (args.adap)
-    return runSimulator5<Dim,DynElSolver,Cpl,SIMSolverTS>(args,context);
+    return runSimulator5<Dim,DynElSolver,Cpl,FractureSim,SIMSolverTS>(args,context);
 
-  return runSimulator5<Dim,DynElSolver,Cpl>(args,context);
+  return runSimulator5<Dim,DynElSolver,Cpl,FractureSim>(args,context);
 }
 
 
@@ -301,17 +280,19 @@ int runSimulator3 (const FractureArgs& args)
 */
 
 template<class Dim, class Integrator,
-         template<class T1, class T2> class Cpl>
+         template<class T1, class T2> class Cpl,
+         template<class T1, class T2,
+                  template<class T3, class T4> class Coupling> class FractureSim>
 int runSimulator2 (const FractureArgs& args)
 {
   if (args.poroEl)
 #ifdef IFEM_HAS_POROELASTIC
-    return runSimulator3<Dim,Integrator,SIMPoroElasticity<Dim>,Cpl>(args);
+    return runSimulator3<Dim,Integrator,SIMPoroElasticity<Dim>,Cpl,FractureSim>(args);
 #else
     return 99; // Built without the poroelastic coupling
 #endif
 
-  return runSimulator3<Dim,Integrator,SIMElasticityWrap<Dim>,Cpl>(args);
+  return runSimulator3<Dim,Integrator,SIMElasticityWrap<Dim>,Cpl,FractureSim>(args);
 }
 
 
@@ -319,19 +300,30 @@ int runSimulator2 (const FractureArgs& args)
   \brief Selects the coupling driver to be used.
 */
 
-template<class Dim, class Integrator>
+template<class Dim, class Integrator,
+         template<class T1, class T2,
+                  template<class T3, class T4> class Coupling> class FractureSim=SIMFracture>
 int runSimulator1 (const FractureArgs& args)
 {
   switch (args.coupling) {
   case 1:
   case 3:
-    return runSimulator2<Dim,Integrator,SIMCoupled>(args);
+    return runSimulator2<Dim,Integrator,SIMCoupled,FractureSim>(args);
   case 2:
-    return runSimulator2<Dim,Integrator,SIMCoupledSI>(args);
+    return runSimulator2<Dim,Integrator,SIMCoupledSI,FractureSim>(args);
   default: // No phase field coupling
     return runSimulator4<Dim,Integrator>(args,Integrator::inputContext);
   }
 }
+
+
+//! \brief Helper 3-param Qstatic template.
+template<class T1, class T2, template<class T3, class T4> class Dummy>
+using QstaticFracture = SIMFractureQstatic<T1,T2>;
+
+//! \brief Helper 3-param Miehe template.
+template<class T1, class T2, template<class T3, class T4> class Dummy>
+using MieheFracture = SIMFractureMiehe<T1,T2>;
 
 
 /*!
@@ -355,7 +347,14 @@ int runSimulator (const FractureArgs& args)
   case 2:
     return runSimulator1<Dim,GenAlphaSIM>(args);
   case 3:
-    return runSimulator1<Dim,NonLinSIM>(args);
+    switch (args.coupling) {
+    case 2:
+      return runSimulator1<Dim,NonLinSIM,QstaticFracture>(args);
+    case 3:
+      return runSimulator1<Dim,NonLinSIM,MieheFracture>(args);
+    default:
+      return runSimulator1<Dim,NonLinSIM>(args);
+    }
   case 4:
     return runSimulator1<Dim,HHTSIM>(args);
   case 5:
