@@ -18,9 +18,6 @@
 #include "SIMExplPhaseField.h"
 #include "SIMPoroElasticity.h"
 
-#include "GenAlphaSIM.h"
-#include "HHTSIM.h"
-#include "NewmarkNLSIM.h"
 #include "NonLinSIM.h"
 #include "SIM2D.h"
 #include "SIM3D.h"
@@ -237,18 +234,10 @@ solveStep (TimeStep& tp, bool)
   INSTANCE_FULL(TYPE,SIM2D,SIM,ELSIM) \
   INSTANCE_FULL(TYPE,SIM3D,SIM,ELSIM)
 
-//! \brief Helper macro adding nonlinear solver type.
-#define INSTANCE_TYPE(TYPE,ELSIM) \
-  INSTANCE_DIM(TYPE,GenAlphaSIM,ELSIM) \
-  INSTANCE_DIM(TYPE,HHTSIM,ELSIM) \
-  INSTANCE_DIM(TYPE,NewmarkSIM,ELSIM) \
-  INSTANCE_DIM(TYPE,NewmarkNLSIM,ELSIM) \
-  INSTANCE_DIM(TYPE,NonLinSIM,ELSIM)
-
 //! \brief Helper macro to instance for a given elasticity type.
 #define INSTANCE(ELSIM) \
-  INSTANCE_TYPE(SIMFractureQstatic,ELSIM) \
-  INSTANCE_TYPE(SIMFractureMiehe,ELSIM)
+  INSTANCE_DIM(SIMFractureQstatic,NonLinSIM,ELSIM) \
+  INSTANCE_DIM(SIMFractureMiehe,NonLinSIM,ELSIM)
 
 INSTANCE(SIMElasticityWrap)
 INSTANCE(SIMPoroElasticity)
