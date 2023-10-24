@@ -101,7 +101,8 @@ PoroFracture::~PoroFracture()
 bool PoroFracture::parse (const TiXmlElement* elem)
 {
   if (strcasecmp(elem->Value(),"crack"))
-    return this->PoroElasticity::parse(elem) & fracEl->parse(elem);
+    return static_cast<int>(this->PoroElasticity::parse(elem)) &
+           fracEl->parse(elem);
 
   IFEM::cout <<"\tCrack parameters:";
   if (utl::getAttribute(elem,"Kc",Kc))
