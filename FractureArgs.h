@@ -44,7 +44,7 @@ public:
 
 protected:
   //! \brief Parses an element from the input file.
-  virtual bool parse(const TiXmlElement* elem);
+  virtual bool parse(const tinyxml2::XMLElement* elem);
 };
 
 #endif

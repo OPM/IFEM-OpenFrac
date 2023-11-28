@@ -38,7 +38,7 @@ public:
   virtual ~FractureElasticity() {}
 
   //! \brief Parses a data section from an XML element.
-  virtual bool parse(const TiXmlElement* elem);
+  virtual bool parse(const tinyxml2::XMLElement* elem);
 
   //! \brief Prints out the problem definition to the log stream.
   virtual void printLog() const;

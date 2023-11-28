@@ -22,7 +22,7 @@
 class RealFunc;
 class SIMadmin;
 class TimeStep;
-class TiXmlElement;
+namespace tinyxml2 { class XMLElement; }
 
 
 /*!
@@ -69,10 +69,10 @@ public:
   virtual bool saveStep(const TimeStep& tp, int& nBlock);
 
   //! \brief Parses pre-refinement parameters from an XML element.
-  void parsePreref(const TiXmlElement* elem);
+  void parsePreref(const tinyxml2::XMLElement* elem);
 
   //! \brief Parses staggering parameters from an XML element.
-  virtual void parseStaggering(const TiXmlElement* elem);
+  virtual void parseStaggering(const tinyxml2::XMLElement* elem);
 
   //! \brief Assigns the file name for global energy output.
   void setEnergyFile(const char* fName);

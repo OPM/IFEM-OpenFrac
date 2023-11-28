@@ -35,7 +35,7 @@ SIMFractureQstatic (SolidSlv& s1, PhaseSlv& s2, const std::string& input)
 
 template<class SolidSlv, class PhaseSlv>
 void SIMFractureQstatic<SolidSlv,PhaseSlv>::
-parseStaggering (const TiXmlElement* elem)
+parseStaggering (const tinyxml2::XMLElement* elem)
 {
   this->CoupledSIM::parseStaggering(elem);
   this->CoupledSIM::parseIterations(elem);
@@ -139,7 +139,7 @@ SIMFractureMiehe (SolidSlv& s1, PhaseSlv& s2, const std::string& input)
 
 template<class SolidSlv, class PhaseSlv>
 void SIMFractureMiehe<SolidSlv,PhaseSlv>::
-parseStaggering (const TiXmlElement* elem)
+parseStaggering (const tinyxml2::XMLElement* elem)
 {
   this->CoupledSIM::parseStaggering(elem);
   utl::getAttribute(elem,"tol",cycleTol);

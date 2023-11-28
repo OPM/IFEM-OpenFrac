@@ -36,7 +36,7 @@ public:
 
   using IntegrandBase::parse;
   //! \brief Parses a data section from an XML element.
-  bool parse(const TiXmlElement* elem, bool isRefined, bool restartRef);
+  bool parse(const tinyxml2::XMLElement* elem, bool isRefined, bool restartRef);
 
   //! \brief Prints out the problem definition to the log stream.
   virtual void printLog() const;

@@ -18,7 +18,7 @@
 #include "Functions.h"
 #include "Utilities.h"
 #include "IFEM.h"
-#include "tinyxml.h"
+#include "tinyxml2.h"
 
 
 SIMExplPhaseField::SIMExplPhaseField (SIMoutput* gridOwner)
@@ -51,7 +51,7 @@ bool SIMExplPhaseField::init (const TimeStep&)
 }
 
 
-bool SIMExplPhaseField::parse (const TiXmlElement* elem)
+bool SIMExplPhaseField::parse (const tinyxml2::XMLElement* elem)
 {
   const char* value = utl::getValue(elem,"phasefield");
   if (!value)

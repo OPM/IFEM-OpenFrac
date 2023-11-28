@@ -24,7 +24,7 @@ class DataExporter;
 namespace LR { class LRSpline; }
 class RealFunc;
 class TimeStep;
-class TiXmlElement;
+namespace tinyxml2 { class XMLElement; }
 
 
 /*!
@@ -156,7 +156,7 @@ public:
 protected:
   using Dim::parse;
   //! \brief Parses a data section from an XML element.
-  bool parse(const TiXmlElement* elem) override;
+  bool parse(const tinyxml2::XMLElement* elem) override;
 
   //! \brief Initializes for integration of Neumann terms for a given property.
   //! \param[in] propInd Physical property index

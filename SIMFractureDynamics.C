@@ -155,7 +155,7 @@ saveStep (const TimeStep& tp, int& nBlock)
 template<class SolidSolver, class PhaseSolver,
          template<class S1, class S2> class Coupling>
 void SIMFracture<SolidSolver,PhaseSolver,Coupling>::
-parsePreref (const TiXmlElement* elem)
+parsePreref (const tinyxml2::XMLElement* elem)
 {
   std::string type;
   const char* value = utl::getValue(elem,elem->Value());
@@ -171,9 +171,9 @@ parsePreref (const TiXmlElement* elem)
 template<class SolidSolver, class PhaseSolver,
          template<class S1, class S2> class Coupling>
 void SIMFracture<SolidSolver,PhaseSolver,Coupling>::
-parseStaggering (const TiXmlElement* elem)
+parseStaggering (const tinyxml2::XMLElement* elem)
 {
-  const TiXmlElement* child = elem->FirstChildElement("stop");
+  const tinyxml2::XMLElement* child = elem->FirstChildElement("stop");
   if (child)
   {
     utl::getAttribute(child,"rcomp",irfStop);

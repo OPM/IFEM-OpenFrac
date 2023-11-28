@@ -19,7 +19,7 @@
 
 class Elasticity;
 class RealFunc;
-class TiXmlElement;
+namespace tinyxml2 { class XMLElement; }
 
 
 
@@ -90,7 +90,7 @@ public:
   const Vector& getGlobalNorms() const { return gNorm; }
 
   //! \brief Dummy method.
-  void parseStaggering(const TiXmlElement*) {}
+  void parseStaggering(const tinyxml2::XMLElement*) {}
 
   //! \brief Assigns the file name for global energy output.
   void setEnergyFile(const char* fName);
@@ -129,7 +129,7 @@ protected:
 
   using Sim::parse;
   //! \brief Parses a data section from an XML element.
-  bool parse(const TiXmlElement* elem) override;
+  bool parse(const tinyxml2::XMLElement* elem) override;
 
 private:
   std::string energFile; //!< File name for global energy output

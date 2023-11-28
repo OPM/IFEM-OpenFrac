@@ -26,7 +26,7 @@
 #include "Utilities.h"
 #include "Vec3Oper.h"
 
-#include "tinyxml.h"
+#include "tinyxml2.h"
 
 #ifdef HAS_LRSPLINE
 #include "ASMu2D.h"
@@ -534,7 +534,7 @@ bool SIMPhaseField<Dim>::transferHistory (const RealArray& oldH,
 
 
 template<class Dim>
-bool SIMPhaseField<Dim>::parse (const TiXmlElement* elem)
+bool SIMPhaseField<Dim>::parse (const tinyxml2::XMLElement* elem)
 {
   if (!strcasecmp(elem->Value(),"postprocessing"))
     utl::getAttribute(elem,"precision",outPrec);
@@ -553,7 +553,7 @@ bool SIMPhaseField<Dim>::parse (const TiXmlElement* elem)
   }
 
   bool result = true;
-  const TiXmlElement* child = elem->FirstChildElement();
+  const tinyxml2::XMLElement* child = elem->FirstChildElement();
   for (; child; child = child->NextSiblingElement())
     if (!strcasecmp(child->Value(),"projection"))
     {

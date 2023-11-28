@@ -20,7 +20,7 @@
 #include "Utilities.h"
 #include "Vec3Oper.h"
 #include "IFEM.h"
-#include "tinyxml.h"
+#include "tinyxml2.h"
 
 
 CahnHilliard::CahnHilliard (unsigned short int n) : IntegrandBase(n),
@@ -34,7 +34,7 @@ CahnHilliard::CahnHilliard (unsigned short int n) : IntegrandBase(n),
 }
 
 
-bool CahnHilliard::parse (const TiXmlElement* elem,
+bool CahnHilliard::parse (const tinyxml2::XMLElement* elem,
                           bool isRefined, bool restartRef)
 {
   const char* value = utl::getValue(elem,"Gc");

@@ -19,7 +19,7 @@
 #include "Vec3Oper.h"
 #include "Utilities.h"
 #include "IFEM.h"
-#include "tinyxml.h"
+#include "tinyxml2.h"
 
 
 /*!
@@ -98,10 +98,10 @@ PoroFracture::~PoroFracture()
 }
 
 
-bool PoroFracture::parse (const TiXmlElement* elem)
+bool PoroFracture::parse (const tinyxml2::XMLElement* elem)
 {
   if (strcasecmp(elem->Value(),"crack"))
-    return this->PoroElasticity::parse(elem) & fracEl->parse(elem);
+    return this->PoroElasticity::parse(elem) & static_cast<int>(fracEl->parse(elem));
 
   IFEM::cout <<"\tCrack parameters:";
   if (utl::getAttribute(elem,"Kc",Kc))
@@ -118,7 +118,7 @@ bool PoroFracture::parse (const TiXmlElement* elem)
 }
 
 
-Material* PoroFracture::parseMatProp (const TiXmlElement* elem, bool)
+Material* PoroFracture::parseMatProp (const tinyxml2::XMLElement* elem, bool)
 {
   this->PoroElasticity::parseMatProp(elem,true);
   fracEl->setMaterial(material);
