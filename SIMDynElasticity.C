@@ -33,7 +33,7 @@
 #endif
 
 #include <fstream>
-#include <tinyxml.h>
+#include <tinyxml2.h>
 
 
 template< class Dim, class DynSIM, class Sim>
@@ -346,7 +346,7 @@ Elasticity* SIMDynElasticity<Dim,DynSIM,Sim>::getIntegrand ()
 
 
 template< class Dim, class DynSIM, class Sim>
-bool SIMDynElasticity<Dim,DynSIM,Sim>::parse (const TiXmlElement* elem)
+bool SIMDynElasticity<Dim,DynSIM,Sim>::parse (const tinyxml2::XMLElement* elem)
 {
   bool result = true;
   static short int ncall = 0;
@@ -373,7 +373,7 @@ bool SIMDynElasticity<Dim,DynSIM,Sim>::parse (const TiXmlElement* elem)
     }
     result = this->Sim::parse(elem);
 
-    const TiXmlElement* child = elem->FirstChildElement();
+    const tinyxml2::XMLElement* child = elem->FirstChildElement();
     for (; child; child = child->NextSiblingElement())
       if (!strcasecmp(child->Value(),"noGeometricStiffness"))
         this->setIntegrationPrm(3,1); // Disable geometric stiffness

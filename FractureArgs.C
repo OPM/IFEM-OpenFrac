@@ -13,7 +13,7 @@
 
 #include "FractureArgs.h"
 #include "Utilities.h"
-#include "tinyxml.h"
+#include "tinyxml2.h"
 
 
 FractureArgs::FractureArgs () : SIMargsBase("fracturedynamics")
@@ -65,12 +65,12 @@ void FractureArgs::parseFile (const char* argv, int& iarg)
 }
 
 
-bool FractureArgs::parse (const TiXmlElement* elem)
+bool FractureArgs::parse (const tinyxml2::XMLElement* elem)
 {
   if (!strcasecmp(elem->Value(),"fracturedynamics")) {
     utl::getAttribute(elem,"timeintegrator",integrator);
     utl::getAttribute(elem,"coupling",coupling);
-    const TiXmlElement* child = elem->FirstChildElement();
+    const tinyxml2::XMLElement* child = elem->FirstChildElement();
     for (; child; child = child->NextSiblingElement())
       if (!strcasecmp(child->Value(),"semiimplicit"))
         coupling = 2;

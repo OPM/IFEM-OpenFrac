@@ -23,7 +23,7 @@
 #include "Tensor.h"
 #include "Profiler.h"
 #include "IFEM.h"
-#include "tinyxml.h"
+#include "tinyxml2.h"
 
 #ifndef epsZ
 //! \brief Zero tolerance for strains.
@@ -55,7 +55,7 @@ FractureElasticity::FractureElasticity (IntegrandBase* parent,
 }
 
 
-bool FractureElasticity::parse (const TiXmlElement* elem)
+bool FractureElasticity::parse (const tinyxml2::XMLElement* elem)
 {
   const char* value = utl::getValue(elem,"stabilization");
   if (value)

@@ -36,7 +36,7 @@ public:
   virtual ~SIMFractureQstatic() {}
 
   //! \brief Parses staggering parameters from an XML element.
-  virtual void parseStaggering(const TiXmlElement* elem);
+  virtual void parseStaggering(const tinyxml2::XMLElement* elem);
 
   //! \brief Computes the solution for the current time step.
   virtual bool solveStep(TimeStep& tp, bool firstS1 = true);
@@ -74,7 +74,7 @@ public:
   virtual ~SIMFractureMiehe() {}
 
   //! \brief Parses staggering parameters from an XML element.
-  virtual void parseStaggering(const TiXmlElement* elem);
+  virtual void parseStaggering(const tinyxml2::XMLElement* elem);
 
   //! \brief Enable/disable the staggering iteration cycles.
   virtual void enableStaggering(bool enable = true) { doStg = enable; }

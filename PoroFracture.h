@@ -36,11 +36,11 @@ public:
   virtual ~PoroFracture();
 
   //! \brief Parses a data section from an XML-element.
-  virtual bool parse(const TiXmlElement* elem);
+  virtual bool parse(const tinyxml2::XMLElement* elem);
 
   using PoroElasticity::parseMatProp;
   //! \brief Parses material properties from an XML-element.
-  virtual Material* parseMatProp(const TiXmlElement* elem, bool);
+  virtual Material* parseMatProp(const tinyxml2::XMLElement* elem, bool);
 
   //! Defines the material properties.
   virtual void setMaterial(Material* mat);

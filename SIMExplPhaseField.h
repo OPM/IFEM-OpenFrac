@@ -99,7 +99,7 @@ public:
 protected:
   using SIMbase::parse;
   //! \brief Parses a data section from an XML element.
-  virtual bool parse(const TiXmlElement* elem);
+  virtual bool parse(const tinyxml2::XMLElement* elem);
 
 private:
   SIMoutput* myOwner;    //!< The FE mesh holder

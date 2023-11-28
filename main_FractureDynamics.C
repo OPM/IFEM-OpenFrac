@@ -57,11 +57,11 @@ public:
 protected:
   using Solver<T>::parse;
   //! \brief Parses a data section from an XML element.
-  virtual bool parse(const TiXmlElement* elem)
+  virtual bool parse(const tinyxml2::XMLElement* elem)
   {
     if (!strcasecmp(elem->Value(),context))
     {
-      const TiXmlElement* child = elem->FirstChildElement();
+      const tinyxml2::XMLElement* child = elem->FirstChildElement();
       for (; child; child = child->NextSiblingElement())
         if (!strncasecmp(child->Value(),"stag",4))
           this->S1.parseStaggering(child);
@@ -70,7 +70,7 @@ protected:
     }
     else if (!strcasecmp(elem->Value(),"postprocessing"))
     {
-      const TiXmlElement* child = elem->FirstChildElement("energyfile");
+      const tinyxml2::XMLElement* child = elem->FirstChildElement("energyfile");
       if (child && child->FirstChild())
         this->S1.setEnergyFile(child->FirstChild()->Value());
     }
