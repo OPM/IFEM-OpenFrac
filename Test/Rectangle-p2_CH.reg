@@ -8,8 +8,8 @@ Rectangle-p2_CH.xinp -2D
 	Dirichlet code 1: (fixed)
 	Neumann code 1000000 direction -1 (expression): exp(-x/0.2)/0.2 \| 0
 	Analytical solution: Expression
-	Primary=1.0-exp(-x/0.2)
-	Secondary=exp(-x/0.2)/0.2
+	Primary: 1.0-exp(-x/0.2)
+	Secondary: exp(-x/0.2)/0.2
 	Critical fracture energy density: 3
 	Smearing factor: 0.1
 	Max value in crack: 0.001
