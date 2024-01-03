@@ -37,7 +37,6 @@
 
 #include <fstream>
 #include <numeric>
-#include "tinyxml.h"
 
 
 bool readModel (SIMadmin& model, const std::string& infile)
