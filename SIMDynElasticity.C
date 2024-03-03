@@ -337,11 +337,12 @@ deSerialize(const SIMsolution::SerializeMap& data)
 
 
 template< class Dim, class DynSIM, class Sim>
-Elasticity* SIMDynElasticity<Dim,DynSIM,Sim>::getIntegrand ()
+ElasticBase* SIMDynElasticity<Dim,DynSIM,Sim>::getIntegrand ()
 {
   if (!Dim::myProblem) // Using the Voigt formulation by default
     Dim::myProblem = new FractureElasticityVoigt(Dim::dimension);
-  return static_cast<Elasticity*>(Dim::myProblem);
+
+  return static_cast<ElasticBase*>(Dim::myProblem);
 }
 
 
