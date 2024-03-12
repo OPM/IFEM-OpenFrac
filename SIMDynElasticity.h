@@ -16,8 +16,7 @@
 
 #include "NonLinSIM.h"
 
-
-class Elasticity;
+class ElasticBase;
 class RealFunc;
 namespace tinyxml2 { class XMLElement; }
 
@@ -125,7 +124,7 @@ public:
 
 protected:
   //! \brief Returns the actual integrand.
-  Elasticity* getIntegrand() override;
+  ElasticBase* getIntegrand() override;
 
   using Sim::parse;
   //! \brief Parses a data section from an XML element.
