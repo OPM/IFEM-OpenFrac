@@ -295,15 +295,19 @@ bool SIMPhaseField<Dim>::postSolve (TimeStep& tp)
   if (!gNorm.empty())
   {
     norm = gNorm.front();
+    double eps_d = norm(norm.size());
     if (chp->getRefinementNorm() == 2)
-      norm.back() = norm.back()*norm.back();
-    norm.push_back(norm.back());
+    {
+      eps_d = eps_d*eps_d;
+      norm(norm.size()) = eps_d;
+    }
+    norm.push_back(eps_d);
     if (tp.step == 1)
-      eps_d0 = norm.back();
+      eps_d0 = eps_d;
     norm(norm.size()-1) -= eps_d0;
-    if (norm.size() > 1 && utl::trunc(norm.back()) != 0.0)
+    if (norm.size() > 1 && utl::trunc(eps_d) != 0.0)
       IFEM::cout <<"  Dissipated energy:               eps_d : "
-                 << norm.back() << std::endl;
+                 << eps_d << std::endl;
     if (norm.size() > 2 && utl::trunc(norm(2)) != 0.0)
       switch (chp->getRefinementNorm())
         {

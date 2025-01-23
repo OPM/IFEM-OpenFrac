@@ -133,7 +133,7 @@ saveStep (const TimeStep& tp, int& nBlock)
     const Vector& n2 = this->S2.getGlobalNorms();
     os <<" "<< (n2.size() > 2 ? n2[1] : 0.0);
     os <<" "<< (n2.size() > 1 ? n2[n2.size()-2] : 0.0);
-    os <<" "<< (n2.size() > 0 ? n2.back() : 0.0);
+    os <<" "<< (n2.size() > 0 ? n2[n2.size()-1] : 0.0);
     for (double f : BF) os <<" "<< utl::trunc(f);
     for (double f : RF) os <<" "<< utl::trunc(f);
     os << std::endl;
