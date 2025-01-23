@@ -616,7 +616,9 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
   {
     // Insert the sigma_zz component for 2D plane strain
     double nu = 0.5*lambda/(lambda+mu);
-    s.insert(s.begin()+2,nu*(sigma(1,1)+sigma(2,2)));
+    s.resize(4,utl::RETAIN);
+    s(4) = s(3);
+    s(3) = nu * (sigma(1,1)+sigma(2,2));
   }
 
   if (toLocal)
@@ -632,7 +634,7 @@ bool FractureElasticity::evalSol (Vector& s, const Vectors& eV,
 
   if (toLocal)
   {
-    s.insert(s.end(),Phi,Phi+3);
+    s.append(Phi,Phi+3);
     s.push_back(Gc);
   }
 
@@ -667,11 +669,12 @@ double FractureElasticity::evalPhaseField (Vec3& gradD,
 
   // Invert the nodal phase field values, D = 1 - C,
   // since that is the convention used in the Miehe papers
-  Vector eD(eV[eC].size()), tmp(nsd);
+  Vector eD(eV[eC].size());
   for (size_t i = 0; i < eD.size(); i++)
     eD[i] = 1.0 - eV[eC][i];
 
   // Compute the phase field gradient, dD/dX
+  RealArray tmp(nsd);
   if (dNdX.multiply(eD,tmp,true))
     gradD = tmp;
   else
