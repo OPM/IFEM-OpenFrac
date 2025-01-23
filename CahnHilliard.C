@@ -414,9 +414,11 @@ bool CahnHilliardNorm::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
   {
     const Vector& pvec = i == 0 ? elmInt.vec.front() : pnorm.psol[i-1];
     double C = pvec.dot(fe.N);
-    Vector gradC;
-    if (!fe.dNdX.multiply(pvec,gradC,true))
+
+    RealArray grad;
+    if (!fe.dNdX.multiply(pvec,grad,true))
       return false;
+    Vec3 gradC(grad);
 
     if (Lnorm)
     {
@@ -439,7 +441,7 @@ bool CahnHilliardNorm::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
       pnorm[k] += 0.25*(Gc/l0)*fe.detJxW;
     else if (C < 1.0)
       pnorm[k] += 0.25*(Gc/l0)*(1.0-C)*(1.0-C)*fe.detJxW;
-    pnorm[k++] += Gc*l0*gradC.dot(gradC)*fe.detJxW;
+    pnorm[k++] += Gc*l0*gradC*gradC*fe.detJxW;
 
     if (aSol && i == 0)
     {
