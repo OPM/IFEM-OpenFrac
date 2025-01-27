@@ -378,8 +378,10 @@ adaptMesh (double beta, double min_frac, int nrefinements,
 
   // Do the mesh refinement
   LR::RefineData prm;
-  prm.options = { 10, 1, 2, 0, this->S1.getNoPatches() > 1 ? -1 : 1 };
   prm.elements = this->S1.getFunctionsForElements(elements);
+  // Workaround for gcc13 bug(?): operator= gives warning for initializer list
+  prm.options.insert(prm.options.end(),
+                     { 10, 1, 2, 0, this->S1.getNoPatches() > 1 ? -1 : 1 });
   if (!this->S1.refine(prm,sols) || !this->S2.refine(prm))
     return -2;
 
