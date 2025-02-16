@@ -38,7 +38,7 @@ FractureElasticity::FractureElasticity (unsigned short int n)
   sigmaC = alpha = alpha1 = alpha0 = tSplit = 0.0;
   crpCut = zeta = 1.0;
   this->registerVector("phasefield",&myCVec);
-  eC = 1; // Assuming second vector is phase field
+  eC = 0;
 }
 
 
@@ -50,8 +50,7 @@ FractureElasticity::FractureElasticity (IntegrandBase* parent,
   sigmaC = alpha = alpha1 = alpha0 = tSplit = 0.0;
   crpCut = zeta = 1.0;
   parent->registerVector("phasefield",&myCVec);
-  // Assuming second vector is pressure, third vector is pressure velocity
-  eC = 3; // and fourth vector is the phase field
+  eC = 0;
 }
 
 
@@ -124,13 +123,18 @@ void FractureElasticity::printLog () const
 void FractureElasticity::setMode (SIM::SolutionMode mode)
 {
   this->Elasticity::setMode(mode);
-  if (eC <= 1) return; // no parent integrand
 
+  // Assuming the second vector is the phase field for quasi-static problems.
+  // For dynamic problems it will be the fourth vector, since the velocity
+  // and acceleration vectors then will be the second and third, respectively.
+  eC = mode == SIM::DYNAMIC ? 3 : 1;
+  if (&mySol == &primsol) return; // no parent integrand
+
+  eC += 2; // Include the pressure and pressure velocity fields
   eKg = 0; // No geometric stiffness (assuming linear behaviour)
   eM = eS = 0; // Inertia and external forces are calculated by parent integrand
   if (eKm) eKm = 2; // Index for stiffness matrix in parent integrand
   if (iS) iS = 2; // Index for internal force vector in parent integrand
-  eC = mode == SIM::DYNAMIC ? 5 : 3; // include velocity & acceleration vectors
 }
 
 
@@ -163,16 +167,12 @@ bool FractureElasticity::initElement (const std::vector<int>& MNPC,
   // displacement, velocity and acceleration vectors at this point
   if (elmInt.vec.empty())
   {
-    elmInt.vec.resize(mySol.size()+eC);
+    elmInt.vec.resize(std::max(mySol.size(),1+static_cast<size_t>(eC)));
 
-    // Extract displacement vector for this element
-    if (!mySol.front().empty())
-      ierr = utl::gather(MNPC,npv,mySol.front(),elmInt.vec.front());
-
-    // Extract velocity and acceleration vectors for this element
-    for (size_t i = 1; i < mySol.size(); i++)
-      if (ierr == 0 && !mySol[i].empty())
-        ierr = utl::gather(MNPC,npv,mySol[i],elmInt.vec[eC+i]);
+    // Extract displacement, velocity and acceleration vectors for this element
+    for (size_t i = 0; i < mySol.size() && ierr == 0; i++)
+      if (!mySol[i].empty())
+        ierr = utl::gather(MNPC,npv,mySol[i],elmInt.vec[i]);
   }
 
   // Extract crack phase field vector for this element
