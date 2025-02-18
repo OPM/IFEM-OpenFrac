@@ -45,6 +45,11 @@ public:
   //! Defines the material properties.
   virtual void setMaterial(Material* mat);
 
+  //! \brief Initializes a time integration parameter for the integrand.
+  //! \param[in] i Index of the integration parameter to define
+  //! \param[in] prm The parameter value to assign
+  virtual void setIntegrationPrm(unsigned short int i, double prm);
+
   //! \brief Defines the solution mode before the element assembly is started.
   //! \param[in] mode The solution mode to use
   virtual void setMode(SIM::SolutionMode mode);

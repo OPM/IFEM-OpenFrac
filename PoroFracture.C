@@ -25,7 +25,7 @@
 /*!
   \brief Class representing the integrand of elasticity problems with fracture.
 
-  \details This sub-class overrides the getElementSolution method, to account
+  \details This sub-class overrides the getElementSolution() method, to account
   for that the primary solution vector, as extracted from the patch level,
   also contains the pressure variables in addition to the displacements.
 */
@@ -37,8 +37,8 @@ public:
   //! \param parent The parent integrand of this one
   //! \param[in] nd Number of spatial dimensions
   //! \param[in] nv Number of primary solution variables per node
-  PoroFractureElasticity(IntegrandBase* parent,
-                         unsigned short int nd, unsigned short int nv)
+  PoroFractureElasticity (IntegrandBase* parent,
+                          unsigned short int nd, unsigned short int nv)
     : FractureElasticityVoigt(parent,nd) { npv = nv; }
   //! \brief Empty destructor.
   virtual ~PoroFractureElasticity() {}
@@ -46,25 +46,25 @@ public:
   //! \brief Retrieves the element solution vectors.
   //! \param[out] eV Element solution vectors
   //! \param[in] MNPC Nodal point correspondance for the basis function values
-  virtual bool getElementSolution(Vectors& eV,
-                                  const std::vector<int>& MNPC) const
+  virtual bool getElementSolution (Vectors& eV,
+                                   const std::vector<int>& MNPC) const
   {
-    eV.resize(1 + eC);
+    eV.resize(1+eC);
+    Vector& u = eV.front();
+
     int ierr = 0;
     if (!mySol.empty() && !mySol.front().empty())
-      ierr = utl::gather(MNPC, nsd+1, mySol.front(), eV.front());
+      ierr = utl::gather(MNPC, nsd+1, mySol.front(), u);
 
     // Filter out the pressure components
     // FIXME: Mixed
     size_t nen = MNPC.size();
-    if (eV.front().size() == nen*(nsd+1))
+    if (u.size() == (nsd+1)*nen && ierr == 0)
     {
-      Vector temp(eV.front());
-      Vector& actual = eV.front();
-      actual.resize(nen*nsd);
-      for (size_t n = 0; n < nen; n++)
+      for (size_t n = 1; n < nen; n++)
         for (unsigned short int i = 0; i < nsd; i++)
-          actual[nsd*n+i] = temp[(nsd+1)*n+i];
+          u[nsd*n+i] = u[(nsd+1)*n+i];
+      u.resize(nsd*nen,utl::RETAIN);
     }
 
     // Extract crack phase field vector for this element
@@ -74,14 +74,15 @@ public:
     if (ierr == 0)
       return true;
 
-    std::cerr <<" *** PoroFractureElasticity::getElementSolution: Detected "<< ierr
-              <<" node numbers out of range."<< std::endl;
+    std::cerr <<" *** PoroFractureElasticity::getElementSolution: Detected "
+              << ierr <<" node numbers out of range."<< std::endl;
     return false;
   }
 };
 
 
-PoroFracture::PoroFracture (unsigned short int n, bool m) : PoroElasticity(n, m, false)
+PoroFracture::PoroFracture (unsigned short int n, bool m)
+  : PoroElasticity(n, m, false)
 {
   fracEl = new PoroFractureElasticity(this, n, m ? n : n+1);
 
@@ -92,7 +93,7 @@ PoroFracture::PoroFracture (unsigned short int n, bool m) : PoroElasticity(n, m,
 }
 
 
-PoroFracture::~PoroFracture()
+PoroFracture::~PoroFracture ()
 {
   delete fracEl;
 }
@@ -101,7 +102,11 @@ PoroFracture::~PoroFracture()
 bool PoroFracture::parse (const tinyxml2::XMLElement* elem)
 {
   if (strcasecmp(elem->Value(),"crack"))
-    return this->PoroElasticity::parse(elem) & static_cast<int>(fracEl->parse(elem));
+  {
+    bool parsed1 = this->PoroElasticity::parse(elem);
+    bool parsed2 = fracEl->parse(elem);
+    return parsed1 && parsed2;
+  }
 
   IFEM::cout <<"\tCrack parameters:";
   if (utl::getAttribute(elem,"Kc",Kc))
@@ -130,6 +135,13 @@ void PoroFracture::setMaterial (Material* mat)
 {
   this->PoroElasticity::setMaterial(mat);
   fracEl->setMaterial(mat);
+}
+
+
+void PoroFracture::setIntegrationPrm (unsigned short int i, double prm)
+{
+  this->PoroElasticity::setIntegrationPrm(i,prm);
+  fracEl->setIntegrationPrm(i,prm);
 }
 
 
