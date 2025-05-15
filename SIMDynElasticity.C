@@ -54,21 +54,22 @@ SIMDynElasticity (const std::vector<unsigned char>& nf)
 
 
 template< class Dim, class DynSIM, class Sim>
-void SIMDynElasticity<Dim,DynSIM,Sim>::printProblem () const
+bool SIMDynElasticity<Dim,DynSIM,Sim>::printProblem () const
 {
   static short int ncall = 0;
+  bool prn = true;
   if (++ncall == 1) // Avoiding infinite recursive calls
     dSim.printProblem();
   else
-    this->Sim::printProblem();
+    prn = this->Sim::printProblem();
   --ncall;
+  return prn;
 }
 
 
 template< class Dim, class DynSIM, class Sim>
 bool SIMDynElasticity<Dim,DynSIM,Sim>::init (const TimeStep& tp, bool)
 {
-  dSim.initPrm();
   dSim.initSol(dynamic_cast<NewmarkSIM*>(&dSim) ? 3 : 2);
 
   bool ok = this->setMode(SIM::INIT) && this->getIntegrand()->init(tp.time);

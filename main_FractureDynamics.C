@@ -126,6 +126,7 @@ int runCombined (char* infile, double stopTime, const char* context)
              <<"\n==========================================="<< std::endl;
 
   // Preprocess the model and establish data structures for the algebraic system
+  elastoSim.initPrm();
   if (!frac.preprocess())
     return 2;
 

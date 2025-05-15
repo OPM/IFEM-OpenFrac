@@ -55,7 +55,10 @@ public:
   virtual ~SIMDynElasticity() {}
 
   //! \brief Prints out problem-specific data to the log stream.
-  void printProblem() const override;
+  bool printProblem() const override;
+
+  //! \brief Initializes time integration parameters for the integrand.
+  void initPrm() { dSim.initPrm(); }
 
   //! \brief Initializes the problem.
   bool init(const TimeStep& tp, bool = false) override;
