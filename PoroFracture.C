@@ -123,9 +123,9 @@ bool PoroFracture::parse (const tinyxml2::XMLElement* elem)
 }
 
 
-Material* PoroFracture::parseMatProp (const tinyxml2::XMLElement* elem, bool)
+Material* PoroFracture::parseMatProp (const tinyxml2::XMLElement* elem)
 {
-  this->PoroElasticity::parseMatProp(elem,true);
+  this->PoroElasticity::parseMatProp(elem);
   fracEl->setMaterial(material);
   return material;
 }

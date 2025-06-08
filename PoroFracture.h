@@ -40,7 +40,7 @@ public:
 
   using PoroElasticity::parseMatProp;
   //! \brief Parses material properties from an XML-element.
-  virtual Material* parseMatProp(const tinyxml2::XMLElement* elem, bool);
+  virtual Material* parseMatProp(const tinyxml2::XMLElement* elem);
 
   //! Defines the material properties.
   virtual void setMaterial(Material* mat);
