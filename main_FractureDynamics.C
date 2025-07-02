@@ -375,10 +375,11 @@ int main (int argc, char** argv)
 {
   Profiler prof(argv[0]);
 
-  FractureArgs args;
-  Elastic::planeStrain = true;
-  ASMmxBase::Type = ASMmxBase::NONE;
   IFEM::Init(argc,argv,"Fracture dynamics solver");
+
+  ASMmxBase::Type = ASMmxBase::NONE;
+  Elastic::planeStrain = true;
+  FractureArgs args;
 
   // Lambda function for parsing the options not stored in FractureArgs.
   auto external_args = [argc,argv,&args](int& i) -> bool

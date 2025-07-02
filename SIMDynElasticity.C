@@ -33,26 +33,13 @@
 
 #include <fstream>
 
-
-template<class Dim, class DynSIM, class Sim>
-SIMDynElasticity<Dim,DynSIM,Sim>::SIMDynElasticity () :
-  dSim(*this)
-{
-  vtfStep = outPrec = 0;
-}
+//! \brief Convenience macro for template method definitions.
+#define TEMPLATE_METHOD(retType,name) \
+  template<class Dim, class DynSIM, class Sim> \
+  retType SIMDynElasticity<Dim,DynSIM,Sim>::name
 
 
-template<class Dim, class DynSIM, class Sim>
-SIMDynElasticity<Dim,DynSIM,Sim>::
-SIMDynElasticity (const std::vector<unsigned char>& nf)
-  : Sim(nf), dSim(*this)
-{
-  vtfStep = outPrec = 0;
-}
-
-
-template<class Dim, class DynSIM, class Sim>
-bool SIMDynElasticity<Dim,DynSIM,Sim>::printProblem () const
+TEMPLATE_METHOD(bool,printProblem) () const
 {
   static short int ncall = 0;
   bool prn = true;
@@ -65,8 +52,7 @@ bool SIMDynElasticity<Dim,DynSIM,Sim>::printProblem () const
 }
 
 
-template<class Dim, class DynSIM, class Sim>
-bool SIMDynElasticity<Dim,DynSIM,Sim>::init (const TimeStep& tp, bool)
+TEMPLATE_METHOD(bool,init) (const TimeStep& tp, bool)
 {
   dSim.initSol(dSim.isDynamic() ? 3 : 2);
 
@@ -77,9 +63,7 @@ bool SIMDynElasticity<Dim,DynSIM,Sim>::init (const TimeStep& tp, bool)
 }
 
 
-template<class Dim, class DynSIM, class Sim>
-bool SIMDynElasticity<Dim,DynSIM,Sim>::saveStep (const TimeStep& tp,
-                                                 int& nBlock)
+TEMPLATE_METHOD(bool,saveStep) (const TimeStep& tp, int& nBlock)
 {
   double old = utl::zero_print_tol;
   utl::zero_print_tol = 1e-16;
@@ -133,9 +117,7 @@ bool SIMDynElasticity<Dim,DynSIM,Sim>::saveStep (const TimeStep& tp,
 }
 
 
-template<class Dim, class DynSIM, class Sim>
-void SIMDynElasticity<Dim,DynSIM,Sim>::printStep (int istep,
-                                                  const TimeDomain& time) const
+TEMPLATE_METHOD(void,printStep) (int istep, const TimeDomain& time) const
 {
   Dim::adm.cout <<"\n  step="<< istep <<"  time="<< time.t;
   RealFunc* p = this->haveCrackPressure();
@@ -146,21 +128,19 @@ void SIMDynElasticity<Dim,DynSIM,Sim>::printStep (int istep,
 }
 
 
-template<class Dim, class DynSIM, class Sim>
-bool SIMDynElasticity<Dim,DynSIM,Sim>::solveStep (TimeStep& tp)
+TEMPLATE_METHOD(bool,solveStep) (TimeStep& tp)
 {
   if (Dim::msgLevel >= 1)
     IFEM::cout <<"\n  Solving the elasto-dynamics problem...";
 
-  if (dSim.solveStep(tp,SIM::STATIC,1.0e-8,outPrec) != SIM::CONVERGED)
+  if (dSim.solveStep(tp,1.0e-8,outPrec) != SIM::CONVERGED)
     return false;
 
   return this->postSolve(tp);
 }
 
 
-template<class Dim, class DynSIM, class Sim>
-bool SIMDynElasticity<Dim,DynSIM,Sim>::postSolve (TimeStep& tp)
+TEMPLATE_METHOD(bool,postSolve) (TimeStep& tp)
 {
   RealArray RF;
   if (this->getCurrentReactions(RF,dSim.getSolution()))
@@ -227,24 +207,20 @@ bool SIMDynElasticity<Dim,DynSIM,Sim>::postSolve (TimeStep& tp)
 }
 
 
-template<class Dim, class DynSIM, class Sim>
-bool SIMDynElasticity<Dim,DynSIM,Sim>::
-updateStrainEnergyDensity (const TimeStep& tp)
+TEMPLATE_METHOD(bool,updateStrainEnergyDensity) (const TimeStep& tp)
 {
   this->setMode(SIM::RECOVERY);
   return this->assembleSystem(tp.time,dSim.getSolutions());
 }
 
 
-template<class Dim, class DynSIM, class Sim>
-const RealArray* SIMDynElasticity<Dim,DynSIM,Sim>::getTensileEnergy () const
+TEMPLATE_METHOD(const RealArray*,getTensileEnergy) () const
 {
   return static_cast<Elasticity*>(Dim::myProblem)->getTensileEnergy();
 }
 
 
-template<class Dim, class DynSIM, class Sim>
-void SIMDynElasticity<Dim,DynSIM,Sim>::setEnergyFile (const char* fName)
+TEMPLATE_METHOD(void,setEnergyFile) (const char* fName)
 {
   if (fName)
   {
@@ -254,8 +230,7 @@ void SIMDynElasticity<Dim,DynSIM,Sim>::setEnergyFile (const char* fName)
 }
 
 
-template<class Dim, class DynSIM, class Sim>
-void SIMDynElasticity<Dim,DynSIM,Sim>::setSolutions (const Vectors& dvec)
+TEMPLATE_METHOD(void,setSolutions) (const Vectors& dvec)
 {
   size_t nSol = dSim.getSolutions().size();
   for (size_t i = 0; i < nSol && i < dvec.size(); i++)
@@ -263,9 +238,7 @@ void SIMDynElasticity<Dim,DynSIM,Sim>::setSolutions (const Vectors& dvec)
 }
 
 
-template<class Dim, class DynSIM, class Sim>
-SIM::ConvStatus SIMDynElasticity<Dim,DynSIM,Sim>::
-solveIteration(TimeStep& tp, char stage)
+TEMPLATE_METHOD(SIM::ConvStatus,solveIteration) (TimeStep& tp, char stage)
 {
   if (Dim::msgLevel == 1 && tp.iter == 0 && stage == 1)
     this->printStep(tp.step,tp.time);
@@ -294,9 +267,7 @@ solveIteration(TimeStep& tp, char stage)
 }
 
 
-
-template<class Dim, class DynSIM, class Sim>
-RealFunc* SIMDynElasticity<Dim,DynSIM,Sim>::haveCrackPressure () const
+TEMPLATE_METHOD(RealFunc*,haveCrackPressure) () const
 {
 #ifdef IFEM_HAS_POROELASTIC
   PoroFracture* pfel = dynamic_cast<PoroFracture*>(Dim::myProblem);
@@ -307,9 +278,7 @@ RealFunc* SIMDynElasticity<Dim,DynSIM,Sim>::haveCrackPressure () const
 }
 
 
-template<class Dim, class DynSIM, class Sim>
-bool SIMDynElasticity<Dim,DynSIM,Sim>::
-serialize (SIMsolution::SerializeMap& data) const
+TEMPLATE_METHOD(bool,serialize) (SIMsolution::SerializeMap& data) const
 {
   if (!this->SIMElasticityWrap<Dim>::serialize(data))
     return false;
@@ -320,23 +289,20 @@ serialize (SIMsolution::SerializeMap& data) const
 }
 
 
-template<class Dim, class DynSIM, class Sim>
-bool SIMDynElasticity<Dim,DynSIM,Sim>::
-deSerialize(const SIMsolution::SerializeMap& data)
+TEMPLATE_METHOD(bool,deSerialize) (const SIMsolution::SerializeMap& data)
 {
   if (!this->SIMElasticityWrap<Dim>::deSerialize(data))
     return false;
 
-  SIMsolution::SerializeMap::const_iterator it;
-  if ((it = data.find("DynSIM::refNorm")) != data.end())
+  SIMsolution::SerializeMap::const_iterator it = data.find("DynSIM::refNorm");
+  if (it != data.end())
     SIMsolution::deSerialize(it->second,dSim.theRefNorm(),1);
 
   return true;
 }
 
 
-template<class Dim, class DynSIM, class Sim>
-ElasticBase* SIMDynElasticity<Dim,DynSIM,Sim>::getIntegrand ()
+TEMPLATE_METHOD(ElasticBase*,getIntegrand) ()
 {
   if (!Dim::myProblem) // Using the Voigt formulation by default
     Dim::myProblem = new FractureElasticityVoigt(Dim::dimension);
@@ -345,8 +311,7 @@ ElasticBase* SIMDynElasticity<Dim,DynSIM,Sim>::getIntegrand ()
 }
 
 
-template<class Dim, class DynSIM, class Sim>
-bool SIMDynElasticity<Dim,DynSIM,Sim>::parse (const tinyxml2::XMLElement* elem)
+TEMPLATE_METHOD(bool,parse) (const tinyxml2::XMLElement* elem)
 {
   bool result = true;
   static short int ncall = 0;

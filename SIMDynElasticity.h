@@ -18,7 +18,6 @@
 
 class ElasticBase;
 class RealFunc;
-namespace tinyxml2 { class XMLElement; }
 
 
 /*!
@@ -37,15 +36,15 @@ public:
   \brief Driver class for dynamic elasticity problems with fracture.
 */
 
-template<class Dim, class DynSIM, class Sim>
-class SIMDynElasticity : public Sim
+template<class Dim, class DynSIM, class Sim> class SIMDynElasticity : public Sim
 {
 public:
   //! \brief Default constructor.
-  SIMDynElasticity();
+  SIMDynElasticity() : dSim(*this) { vtfStep = outPrec = 0; }
 
   //! \brief Constructor for mixed problems.
-  explicit SIMDynElasticity(const std::vector<unsigned char>& nf);
+  explicit SIMDynElasticity(const std::vector<unsigned char>& nf)
+    : Sim(nf), dSim(*this) { vtfStep = outPrec = 0; }
 
   //! \brief Prints out problem-specific data to the log stream.
   bool printProblem() const override;
