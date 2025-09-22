@@ -15,7 +15,11 @@
 #include "Tensor.h"
 #include <iostream>
 
-#include "gtest/gtest.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
+
+using Catch::Matchers::WithinRel;
 
 
 /*!
@@ -44,15 +48,15 @@ static void compare (const Matrix& Cmat, const Tensor4& dSdE, size_t nsd)
   size_t i, j;
   for (i = 1; i <= nsd; i++)
     for (j = 1; j <= nsd; j++)
-      EXPECT_NEAR(Cmat(i,j),dSdE(i,i,j,j),1.0e-8);
+      REQUIRE_THAT(Cmat(i,j), WithinRel(dSdE(i,i,j,j)));
 
   for (i = 1; i <= nsd; i++)
     for (j = 1; nsd+j < Cmat.cols(); j++)
-      EXPECT_NEAR(Cmat(i,nsd+j),dSdE(i,i,j,j%nsd+1),1.0e-8);
+      REQUIRE_THAT(Cmat(i,nsd+j), WithinRel(dSdE(i,i,j,j%nsd+1)));
 
   for (i = 1; nsd+i <= Cmat.rows(); i++)
     for (j = 1; nsd+j <= Cmat.cols(); j++)
-      EXPECT_NEAR(Cmat(nsd+i,nsd+j),dSdE(i,i%nsd+1,j,j%nsd+1),1.0e-8);
+      REQUIRE_THAT(Cmat(nsd+i,nsd+j), WithinRel(dSdE(i,i%nsd+1,j,j%nsd+1)));
 }
 
 
@@ -68,24 +72,24 @@ static void checkStress (size_t nsd)
 
   // Check that the Tensor- and matrix formulations give
   // equivalent constitutive matrix in the unloaded case
-  EXPECT_TRUE(frel.calcStress(lambda,mu,Gc,eps,Phi,sigma,Cmat));
-  EXPECT_TRUE(frel.calcStress(lambda,mu,Gc,eps,Phi,sigma,dSdE));
+  REQUIRE(frel.calcStress(lambda,mu,Gc,eps,Phi,sigma,Cmat));
+  REQUIRE(frel.calcStress(lambda,mu,Gc,eps,Phi,sigma,dSdE));
   compare(Cmat,dSdE,nsd);
 
   // Check that the Tensor- and matrix formulations give
   // equivalent constitutive matrix in case of hydrostatic strain
   eps = 1.0;
   Cmat.fill(0.0);
-  EXPECT_TRUE(frel.calcStress(lambda,mu,Gc,eps,Phi,sigma,Cmat));
-  EXPECT_TRUE(frel.calcStress(lambda,mu,Gc,eps,Phi,sigma,dSdE));
+  REQUIRE(frel.calcStress(lambda,mu,Gc,eps,Phi,sigma,Cmat));
+  REQUIRE(frel.calcStress(lambda,mu,Gc,eps,Phi,sigma,dSdE));
   compare(Cmat,dSdE,nsd);
 
   // Check that the Tensor- and matrix formulations give
   // equivalent constitutive matrix in case of uniaxial strain
   eps(2,2) = 0.0;
   Cmat.fill(0.0);
-  EXPECT_TRUE(frel.calcStress(lambda,mu,Gc,eps,Phi,sigma,Cmat));
-  EXPECT_TRUE(frel.calcStress(lambda,mu,Gc,eps,Phi,sigma,dSdE));
+  REQUIRE(frel.calcStress(lambda,mu,Gc,eps,Phi,sigma,Cmat));
+  REQUIRE(frel.calcStress(lambda,mu,Gc,eps,Phi,sigma,dSdE));
   compare(Cmat,dSdE,nsd);
 
   // Check that the Tensor- and matrix formulations give
@@ -93,14 +97,16 @@ static void checkStress (size_t nsd)
   eps(2,2) = -0.5;
   eps(1,2) = 0.3;
   Cmat.fill(0.0);
-  EXPECT_TRUE(frel.calcStress(lambda,mu,Gc,eps,Phi,sigma,Cmat));
-  EXPECT_TRUE(frel.calcStress(lambda,mu,Gc,eps,Phi,sigma,dSdE));
+  REQUIRE(frel.calcStress(lambda,mu,Gc,eps,Phi,sigma,Cmat));
+  REQUIRE(frel.calcStress(lambda,mu,Gc,eps,Phi,sigma,dSdE));
   compare(Cmat,dSdE,nsd);
 }
 
 
-TEST(TestFractureElasticity, evalStress)
+TEST_CASE("TestFractureElasticity.EvalStress")
 {
-  checkStress(2);
-  checkStress(3);
+  const int param = GENERATE(2,3);
+  SECTION("NSD = " + std::to_string(param)) {
+    checkStress(param);
+  }
 }

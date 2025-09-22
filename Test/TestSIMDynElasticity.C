@@ -16,11 +16,12 @@
 #include "NewmarkSIM.h"
 #include "SIM2D.h"
 
-#include "gtest/gtest.h"
+#include <catch2/catch_test_macros.hpp>
 
-TEST(TestSIMDynElasticity, Parse)
+
+TEST_CASE("TestSIMDynElasticity.Parse")
 {
   SIMDynElasticity<SIM2D,NewmarkSIM,SIMElasticityWrap<SIM2D>> sim;
-  EXPECT_TRUE(sim.read("Rectangle-p2.xinp"));
-  EXPECT_TRUE(sim.preprocess());
+  REQUIRE(sim.read("Rectangle-p2.xinp"));
+  REQUIRE(sim.preprocess());
 }
