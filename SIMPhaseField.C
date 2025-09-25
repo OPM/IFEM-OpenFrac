@@ -29,8 +29,8 @@
 #include "tinyxml2.h"
 
 #ifdef HAS_LRSPLINE
-#include "ASMu2D.h"
-#include "ASMu3D.h"
+#include "LR/ASMu2D.h"
+#include "LR/ASMu3D.h"
 #include "LRSpline/LRSplineSurface.h"
 #include "LRSpline/LRSplineVolume.h"
 #else
