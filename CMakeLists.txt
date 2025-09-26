@@ -1,157 +1,233 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.22)
 
-project(FractureDynamics)
+project(FractureDynamics LANGUAGES C CXX)
 
-# Add local modules
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
-                      ${PROJECT_SOURCE_DIR}/../../cmake/Modules
-                      $ENV{HOME}/cmake/Modules)
-
-# Required packages
-if(NOT IFEM_CONFIGURED)
-  find_package(IFEM REQUIRED)
-  include_directories(${IFEM_INCLUDE_DIRS})
-  add_definitions(${IFEM_DEFINITIONS})
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IFEM_CXX_FLAGS}")
-endif()
-
-include_directories(${IFEM_INCLUDES} ../Common ${PROJECT_SOURCE_DIR})
-
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
-set(EXTRA_DOXY_PATHS "${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR}")
-
-if(EXISTS ${PROJECT_SOURCE_DIR}/../IFEM-Elasticity)
-  set(ELASTICITY_DIR ../IFEM-Elasticity)
-elseif(EXISTS ${PROJECT_SOURCE_DIR}/../Elasticity)
-  set(ELASTICITY_DIR ../Elasticity)
-else()
-  message(FATAL_ERROR "Need IFEM-Elasticity in a sibling directory.")
-endif()
-
-set(EXTRA_DOXY_PATHS "${EXTRA_DOXY_PATHS} \\
-                      ${PROJECT_SOURCE_DIR}/${ELASTICITY_DIR}")
-if(NOT TARGET Elasticity)
-  add_subdirectory(${ELASTICITY_DIR} Elasticity)
-endif()
-include_directories(${ELASTICITY_DIR})
-
-set(POROELASTIC_DIR ${PROJECT_SOURCE_DIR}/../IFEM-PoroElasticity/PoroElastic)
-if(NOT EXISTS ${POROELASTIC_DIR})
-  set(POROELASTIC_DIR ${PROJECT_SOURCE_DIR}/../PoroElasticity/PoroElastic)
-endif()
-
-if(EXISTS ${POROELASTIC_DIR})
-  set(EXTRA_DOXY_PATHS "${EXTRA_DOXY_PATHS} ${POROELASTIC_DIR}")
-  if(NOT TARGET PoroElastic)
-    add_subdirectory(${POROELASTIC_DIR} PoroElasticity)
+if(NOT TARGET IFEM)
+  if(IFEM_AS_SUBMODULE)
+    add_subdirectory(../.. IFEM)
+    set(IFEM_PATH ${PROJECT_SOURCE_DIR}/../..)
+  else()
+    get_filename_component(BUILD_DIR ${PROJECT_BINARY_DIR} NAME)
+    set(IFEM_DIR ${PROJECT_SOURCE_DIR}/../../${BUILD_DIR})
+    find_package(IFEM REQUIRED)
   endif()
-  include_directories(${POROELASTIC_DIR})
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DIFEM_HAS_POROELASTIC")
 endif()
 
-set(FracEl_SRCS FractureArgs.C CahnHilliard.C SIMExplPhaseField.C
-                SIMDynElasticity.C 
-                SIMFractureDynamics.C
-                SIMFractureQstatic.C
-                SIMPhaseField.C
-                FractureElasticity.C FractureElasticityVoigt.C)
-if(EXISTS ${POROELASTIC_DIR})
-  set(FracEl_SRCS ${FracEl_SRCS} PoroFracture.C)
+ifem_add_dependency_dir(APP Elasticity TARGET Elasticity)
+ifem_add_dependency_dir(APP PoroElasticity DIR PoroElastic TARGET PoroElastic OPTIONAL)
+
+ifem_add_library(
+  NAME
+    CommonFrac
+  SOURCES
+    CahnHilliard.C
+    FractureElasticity.C
+    FractureElasticityVoigt.C
+    SIMExplPhaseField.C
+    SIMDynElasticity.C
+    SIMFractureDynamics.C
+    SIMFractureQstatic.C
+    SIMPhaseField.C
+  HEADERS
+    CahnHilliard.h
+    FractureElasticity.h
+    FractureElasticityVoigt.h
+    SIMDynElasticity.h
+    SIMExplPhaseField.h
+    SIMFractureDynamics.h
+    SIMFractureQstatic.h
+    SIMPhaseField.h
+  LIBRARIES
+    IFEMAppCommon
+    Elasticity
+)
+
+if(PoroElastic_DIRECTORY)
+  target_compile_definitions(CommonFrac PUBLIC IFEM_HAS_POROELASTIC=1)
+  target_sources(CommonFrac PRIVATE PoroFracture.C PoroFracture.h)
+  target_link_libraries(CommonFrac PUBLIC PoroElastic)
 endif()
 
-add_library(CommonFrac STATIC ${FracEl_SRCS})
-set(Common_LIBRARIES CommonFrac Elasticity ${IFEM_LIBRARIES})
-if(EXISTS ${POROELASTIC_DIR})
-  set(Fracture_LIBRARIES CommonFrac PoroElastic Elasticity ${IFEM_LIBRARIES})
-else()
-  set(Fracture_LIBRARIES ${Common_LIBRARIES})
-endif()
+ifem_add_application(
+  NAME
+    CahnHilliard
+  SOURCES
+    main_CahnHilliard.C
+  LIBRARIES
+    CommonFrac
+)
 
-add_executable(CahnHilliard main_CahnHilliard.C)
-add_executable(FractureDynamics main_FractureDynamics.C)
-
-target_link_libraries(CahnHilliard ${Common_LIBRARIES})
-target_link_libraries(FractureDynamics ${Fracture_LIBRARIES})
-
-list(APPEND CHECK_SOURCES main_CahnHilliard.C main_FractureDynamics.C ${FracEl_SRCS})
-
-# Installation
-install(TARGETS CahnHilliard FractureDynamics DESTINATION bin)
-
-# For generating the doxy
-add_doc_target(OpenFrac FractureDynamics)
+ifem_add_application(
+  NAME
+    FractureDynamics
+  SOURCES
+    FractureArgs.C
+    main_FractureDynamics.C
+  HEADERS
+    FractureArgs.h
+  LIBRARIES
+    CommonFrac
+)
 
 # Testing
 enable_testing()
-include(IFEMTesting)
 
 # Regression tests
-if(MPI_FOUND)
-  # Add parallel tests here
-  if(HDF5_FOUND)
-    if(LRSpline_FOUND)
-      ifem_add_restart_test(MPI/Short10x20-p1-adap-restart.reg FractureDynamics 38 4)
-    endif()
-  endif()
-endif()
-if(NOT MPI_FOUND OR IFEM_SERIAL_TESTS_IN_PARALLEL)
-  file(GLOB CH_TESTFILES RELATIVE ${PROJECT_SOURCE_DIR}/Test
-                         ${PROJECT_SOURCE_DIR}/Test/*_CH.reg)
-  file(GLOB FD_TESTFILES RELATIVE ${PROJECT_SOURCE_DIR}/Test
-                         ${PROJECT_SOURCE_DIR}/Test/*_FD.reg)
-  file(GLOB FP_TESTFILES RELATIVE ${PROJECT_SOURCE_DIR}/Test
-                         ${PROJECT_SOURCE_DIR}/Test/*_FDporo.reg)
+ifem_add_hdf5_test(
+  TARGET
+    FractureDynamics
+  TEST_FILES
+    Sneddon-200_FD.hreg
+)
 
-  # TODO: Re-enable these tests when poroelastic quasistatic is sensible
-  list(REMOVE_ITEM FP_TESTFILES Miehe71_FDporo.reg)
-  list(REMOVE_ITEM FP_TESTFILES Miehe71-explcrack_FDporo.reg)
+ifem_add_hdf5_test(
+  TARGET
+    FractureDynamics
+  CONDITIONS
+    LRSpline_FOUND
+  TEST_FILES
+    Short10x20-p1-adap.hreg
+)
 
-  foreach(TESTFILE ${CH_TESTFILES})
-    ifem_add_test(${TESTFILE} CahnHilliard)
-  endforeach()
-  # Clang 3.8 optimizer bug trigger with this test
-  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 3.8)
-    list(REMOVE_ITEM FD_TESTFILES Short10x20-adap_FD.reg)
-  endif()
-  if(LRSpline_FOUND)
-    ifem_add_vtf_test(Short10x20-p1-adap.vreg FractureDynamics)
-    ifem_add_hdf5_test(Short10x20-p1-adap.hreg FractureDynamics)
-  else()
-    list(REMOVE_ITEM FD_TESTFILES Short10x20-adap_FD.reg)
-    list(REMOVE_ITEM FD_TESTFILES Short10x20-preref_FD.reg)
-  endif()
-  foreach(TESTFILE ${FD_TESTFILES})
-    ifem_add_test(${TESTFILE} FractureDynamics)
-  endforeach()
-  if(EXISTS ${POROELASTIC_DIR})
-    foreach(TESTFILE ${FP_TESTFILES})
-      ifem_add_test(${TESTFILE} FractureDynamics)
-    endforeach()
-  endif()
+ifem_add_vtf_test(
+  TARGET
+    FractureDynamics
+  CONDITIONS
+    LRSpline_FOUND
+  TEST_FILES
+    Short10x20-p1-adap.vreg
+)
 
-  if(HDF5_FOUND)
-    ifem_add_restart_test(Miehe71_restart.reg FractureDynamics 11)
-    if(EXISTS ${POROELASTIC_DIR})
-      ifem_add_restart_test(Miehe71_restart_poro.reg FractureDynamics 11)
-    endif()
-    if(LRSpline_FOUND)
-      ifem_add_restart_test(Short10x20-p1-adap-restart.reg FractureDynamics 38)
-    endif()
-  endif()
+ifem_add_restart_test(
+  TARGET
+    FractureDynamics
+  CONDITIONS
+    LRSpline_FOUND
+    Zoltan_FOUND
+  TEST_FILES
+    MPI/Short10x20-p1-adap-restart.reg
+  RESTART_LEVEL
+    38
+  PARALLEL
+    4
+)
 
-  ifem_add_hdf5_test(Rectangle-p2_CH.hreg CahnHilliard)
-  ifem_add_hdf5_test(Sneddon-200_FD.hreg FractureDynamics)
-endif()
-list(APPEND TEST_APPS CahnHilliard FractureDynamics)
+ifem_add_restart_test(
+  TARGET
+    FractureDynamics
+  CONDITIONS
+    LRSpline_FOUND
+  TEST_FILES
+    Short10x20-p1-adap-restart.reg
+  RESTART_LEVEL
+    38
+)
+
+ifem_add_restart_test(
+  TARGET
+    FractureDynamics
+  TEST_FILES
+    Miehe71_restart.reg
+  RESTART_LEVEL
+    11
+)
+
+ifem_add_restart_test(
+  TARGET
+    FractureDynamics
+  CONDITIONS
+    PoroElastic_DIRECTORY
+  TEST_FILES
+    Miehe71_restart_poro.reg
+  RESTART_LEVEL
+    11
+)
+
+ifem_add_regression_test(
+  TARGET
+    FractureDynamics
+  TEST_FILES
+    Miehe71-explcrack_FD.reg
+    Miehe71_FD.reg
+    Miehe71-lstatic_FD.reg
+    Miehe71-nocrack_FD.reg
+    Short10x20_FD.reg
+    Sneddon-200_FD.reg
+    ts1-25x25-5P-adap2-relax-aitken_FD.reg
+    ts1-25x25-5P-adap2-relax_FD.reg
+    ts1-50x40-Miehe_FD.reg
+)
+
+ifem_add_regression_test(
+  TARGET
+    FractureDynamics
+  CONDITIONS
+      LRSpline_FOUND
+  TEST_FILES
+    Short10x20-adap_FD.reg
+    Short10x20-preref_FD.reg
+)
+
+ifem_add_regression_test(
+  TARGET
+    FractureDynamics
+  CONDITIONS
+    PoroElastic_DIRECTORY
+  TEST_FILES
+    # TODO: Re-enable these tests when poroelastic quasistatic is sensible
+    #Miehe71-explcrack_FDporo.reg
+    #Miehe71_FDporo.reg
+    Miehe71-lstatic_FDporo.reg
+    Miehe71-nocrack_FDporo.reg
+    Sneddon-unit_FDporo.reg
+)
+
+# Cahn-Hilliard
+ifem_add_hdf5_test(
+  TARGET
+    CahnHilliard
+  TEST_FILES
+    Rectangle-p2_CH.hreg
+)
+
+ifem_add_regression_test(
+  TARGET
+    CahnHilliard
+  TEST_FILES
+    Rectangle-p2_CH.reg
+    Rectangle-p2_penalty_CH.reg
+)
 
 # Unit tests
-IFEM_add_test_app(SOURCES ${PROJECT_SOURCE_DIR}/Test/*.C
-                  WORKDIR ${PROJECT_SOURCE_DIR}/Test
-                  NAME FractureDynamics
-                  LIBRARIES ${Fracture_LIBRARIES})
+ifem_add_test_app(
+  NAME
+    FractureDynamics
+  SOURCES
+    Test/TestFractureElasticity.C
+    Test/TestSIMDynElasticity.C
+  WORKDIR
+    ${PROJECT_SOURCE_DIR}/Test
+  LIBRARIES
+    CommonFrac
+)
 
 if(IFEM_COMMON_APP_BUILD)
   set(TEST_APPS ${TEST_APPS} PARENT_SCOPE)
 else()
-  add_check_target()
+  ifem_add_check_target()
 endif()
+
+# For generating the doxy
+ifem_add_doc_target(
+  TARGET
+    OpenFrac
+  DOX
+    FractureDynamics
+  EXTRA_DIRS
+    ${Elasticity_DIRECTORY}
+    ${PoroElastic_DIRECTORY}
+)
+
+# Installation
+include(GNUInstallDirs)
+install(TARGETS CahnHilliard FractureDynamics DESTINATION ${CMAKE_INSTALL_BINDIR})
