@@ -21,7 +21,6 @@ class RealFunc;
 namespace tinyxml2 { class XMLElement; }
 
 
-
 /*!
   \brief Linear quasi-static solution driver.
 */
@@ -31,17 +30,14 @@ class LinSIM : public NonLinSIM
 public:
   //! \brief The constructor forwards to the parent class constructor.
   explicit LinSIM(SIMbase& sim) : NonLinSIM(sim,NonLinSIM::NONE_UPTAN) {}
-  //! \brief Empty destructor.
-  virtual ~LinSIM() {}
 };
-
 
 
 /*!
   \brief Driver class for dynamic elasticity problems with fracture.
 */
 
-template< class Dim, class DynSIM, class Sim>
+template<class Dim, class DynSIM, class Sim>
 class SIMDynElasticity : public Sim
 {
 public:
@@ -50,9 +46,6 @@ public:
 
   //! \brief Constructor for mixed problems.
   explicit SIMDynElasticity(const std::vector<unsigned char>& nf);
-
-  //! \brief Empty destructor.
-  virtual ~SIMDynElasticity() {}
 
   //! \brief Prints out problem-specific data to the log stream.
   bool printProblem() const override;
