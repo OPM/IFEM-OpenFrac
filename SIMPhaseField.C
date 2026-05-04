@@ -373,8 +373,9 @@ void SIMPhaseField<Dim>::printSolutionSummary (const Vector& solvec,
   }
 
   std::streamsize oldPrec = prec > 0 ? IFEM::cout.precision(prec) : 0;
-  IFEM::cout <<"  Min value          : "<< minVal <<" node "<< minNod
-             <<"\n  Range              : "<< maxVal-minVal << std::endl;
+  if (utl::trunc(minVal) != 0.0)
+    IFEM::cout <<"  Min value          : "<< minVal <<" node "<< minNod <<"\n";
+  IFEM::cout <<"  Range              : "<< maxVal-minVal << std::endl;
   if (oldPrec > 0) IFEM::cout.precision(oldPrec);
 }
 
