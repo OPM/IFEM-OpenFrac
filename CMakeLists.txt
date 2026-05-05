@@ -13,8 +13,23 @@ if(NOT TARGET IFEM)
   endif()
 endif()
 
-ifem_add_dependency_dir(APP Elasticity TARGET Elasticity)
-ifem_add_dependency_dir(APP PoroElasticity DIR PoroElastic TARGET PoroElastic OPTIONAL)
+ifem_add_dependency_dir(
+  APP
+    Elasticity
+  TARGET
+    Elasticity
+  DIR
+    Elasticity
+)
+ifem_add_dependency_dir(
+  APP
+    PoroElasticity
+  DIR
+    PoroElastic
+  TARGET
+    PoroElastic
+  OPTIONAL
+)
 
 ifem_add_library(
   NAME
