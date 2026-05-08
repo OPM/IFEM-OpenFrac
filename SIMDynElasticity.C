@@ -12,10 +12,12 @@
 //==============================================================================
 
 #include "SIMDynElasticity.h"
-#include "SIMPoroElasticity.h"
 #include "FractureElasticityVoigt.h"
 #ifdef IFEM_HAS_POROELASTIC
+#include "SIMPoroElasticity.h"
 #include "PoroFracture.h"
+#else
+#include "SIMElasticityWrap.h"
 #endif
 
 #include "GenAlphaSIM.h"
@@ -396,9 +398,14 @@ bool SIMDynElasticity<Dim,DynSIM,Sim>::parse (const tinyxml2::XMLElement* elem)
 
 
 //! \brief Helper macro instanting for elasticity variants.
+#ifdef IFEM_HAS_POROELASTIC
 #define INSTANCE(SIM) \
   INSTANCE_DIM(SIM,SIMPoroElasticity) \
   INSTANCE_DIM(SIM,SIMElasticityWrap)
+#else
+#define INSTANCE(SIM) \
+  INSTANCE_DIM(SIM,SIMElasticityWrap)
+#endif
 
 INSTANCE(GenAlphaSIM)
 INSTANCE(HHTSIM)

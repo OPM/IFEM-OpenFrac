@@ -21,6 +21,8 @@
 #include "SIMFractureQstatic.h"
 #ifdef IFEM_HAS_POROELASTIC
 #include "SIMPoroElasticity.h"
+#else
+#include "SIMElasticityWrap.h"
 #endif
 #include "SIMCoupledSI.h"
 #include "SIMSolverTS.h"

@@ -16,7 +16,11 @@
 #include "SIMDynElasticity.h"
 #include "SIMExplPhaseField.h"
 #include "SIMPhaseField.h"
+#ifdef IFEM_HAS_POROELASTIC
 #include "SIMPoroElasticity.h"
+#else
+#include "SIMElasticityWrap.h"
+#endif
 
 #include "ASMbase.h"
 #include "ASMunstruct.h"
@@ -533,4 +537,7 @@ calcResidual (const TimeStep& tp, bool cycles)
   INSTANCE_CPL(ELSIM,SIMCoupledSI)
 
 INSTANCE(SIMElasticityWrap)
+
+#ifdef IFEM_HAS_POROELASTIC
 INSTANCE(SIMPoroElasticity)
+#endif
