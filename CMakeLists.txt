@@ -53,8 +53,8 @@ ifem_add_library(
     SIMFractureQstatic.h
     SIMPhaseField.h
   LIBRARIES
-    IFEMAppCommon
     Elasticity
+    IFEM::AppUtils
 )
 
 if(PoroElastic_DIRECTORY)
