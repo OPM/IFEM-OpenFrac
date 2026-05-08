@@ -16,7 +16,11 @@
 #include "SIMDynElasticity.h"
 #include "SIMPhaseField.h"
 #include "SIMExplPhaseField.h"
+#ifdef IFEM_HAS_POROELASTIC
 #include "SIMPoroElasticity.h"
+#else
+#include "SIMElasticityWrap.h"
+#endif
 
 #include "NonLinSIM.h"
 #include "SIM2D.h"
@@ -240,4 +244,7 @@ solveStep (TimeStep& tp, bool)
   INSTANCE_DIM(SIMFractureMiehe,NonLinSIM,ELSIM)
 
 INSTANCE(SIMElasticityWrap)
+
+#ifdef IFEM_HAS_POROELASTIC
 INSTANCE(SIMPoroElasticity)
+#endif
