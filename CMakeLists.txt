@@ -25,9 +25,9 @@ ifem_add_dependency_dir(
   APP
     PoroElasticity
   DIR
-    PoroElastic
+    PoroElasticity
   TARGET
-    PoroElastic
+    IFEM::PoroElasticity
   OPTIONAL
 )
 
@@ -57,10 +57,10 @@ ifem_add_library(
     IFEM::AppUtils
 )
 
-if(PoroElastic_DIRECTORY)
+if(TARGET IFEM::PoroElasticity)
   target_compile_definitions(CommonFrac PUBLIC IFEM_HAS_POROELASTIC=1)
   target_sources(CommonFrac PRIVATE PoroFracture.C PoroFracture.h)
-  target_link_libraries(CommonFrac PUBLIC PoroElastic)
+  target_link_libraries(CommonFrac PUBLIC IFEM::PoroElasticity)
 endif()
 
 ifem_add_application(
@@ -151,7 +151,7 @@ ifem_add_restart_test(
   TARGET
     FractureDynamics
   CONDITIONS
-    PoroElastic_DIRECTORY
+    IFEM::PoroElasticity_DIRECTORY
   TEST_FILES
     Miehe71_restart_poro.reg
   RESTART_LEVEL
@@ -187,7 +187,7 @@ ifem_add_regression_test(
   TARGET
     FractureDynamics
   CONDITIONS
-    PoroElastic_DIRECTORY
+    IFEM::PoroElasticity_DIRECTORY
   TEST_FILES
     # TODO: Re-enable these tests when poroelastic quasistatic is sensible
     #Miehe71-explcrack_FDporo.reg
@@ -238,9 +238,6 @@ ifem_add_doc_target(
     OpenFrac
   DOX
     FractureDynamics
-  EXTRA_DIRS
-    ${Elasticity_DIRECTORY}
-    ${PoroElastic_DIRECTORY}
   DEPENDENCIES
     Elasticity
     PoroElasticity
