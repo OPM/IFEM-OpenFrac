@@ -36,6 +36,8 @@ ifem_add_library(
     Frac
   ALIAS
     IFEM::FractureDynamics
+  ARCHIVE_NAME
+    FractureDynamics
   SOURCES
     CahnHilliard.C
     FractureElasticity.C
@@ -57,11 +59,6 @@ ifem_add_library(
   LIBRARIES
     IFEM::AppUtils
     IFEM::Elasticity
-)
-set_target_properties(Frac
-  PROPERTIES
-  ARCHIVE_OUTPUT_NAME
-    FractureDynamics
 )
 
 if(TARGET IFEM::PoroElasticity)
