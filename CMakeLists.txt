@@ -65,6 +65,7 @@ if(TARGET IFEM::PoroElasticity)
   target_compile_definitions(Frac PUBLIC IFEM_HAS_POROELASTIC=1)
   target_sources(Frac PRIVATE PoroFracture.C PoroFracture.h)
   target_link_libraries(Frac PUBLIC IFEM::PoroElasticity)
+  get_target_property(PoroElasticity_DIRECTORY IFEM::PoroElasticity SOURCE_DIR)
 endif()
 
 ifem_add_application(
@@ -155,7 +156,7 @@ ifem_add_restart_test(
   TARGET
     FractureDynamics
   CONDITIONS
-    IFEM::PoroElasticity_DIRECTORY
+    PoroElasticity_DIRECTORY
   TEST_FILES
     Miehe71_restart_poro.reg
   RESTART_LEVEL
@@ -191,7 +192,7 @@ ifem_add_regression_test(
   TARGET
     FractureDynamics
   CONDITIONS
-    IFEM::PoroElasticity_DIRECTORY
+    PoroElasticity_DIRECTORY
   TEST_FILES
     # TODO: Re-enable these tests when poroelastic quasistatic is sensible
     #Miehe71-explcrack_FDporo.reg
