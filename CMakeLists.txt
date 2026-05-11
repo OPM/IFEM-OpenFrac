@@ -16,10 +16,10 @@ endif()
 ifem_add_dependency_dir(
   APP
     Elasticity
-  TARGET
-    Elasticity
   DIR
     Elasticity
+  TARGET
+    IFEM::Elasticity
 )
 ifem_add_dependency_dir(
   APP
@@ -33,7 +33,9 @@ ifem_add_dependency_dir(
 
 ifem_add_library(
   NAME
-    CommonFrac
+    Frac
+  ALIAS
+    IFEM::FractureDynamics
   SOURCES
     CahnHilliard.C
     FractureElasticity.C
@@ -53,14 +55,19 @@ ifem_add_library(
     SIMFractureQstatic.h
     SIMPhaseField.h
   LIBRARIES
-    Elasticity
     IFEM::AppUtils
+    IFEM::Elasticity
+)
+set_target_properties(Frac
+  PROPERTIES
+  ARCHIVE_OUTPUT_NAME
+    FractureDynamics
 )
 
 if(TARGET IFEM::PoroElasticity)
-  target_compile_definitions(CommonFrac PUBLIC IFEM_HAS_POROELASTIC=1)
-  target_sources(CommonFrac PRIVATE PoroFracture.C PoroFracture.h)
-  target_link_libraries(CommonFrac PUBLIC IFEM::PoroElasticity)
+  target_compile_definitions(Frac PUBLIC IFEM_HAS_POROELASTIC=1)
+  target_sources(Frac PRIVATE PoroFracture.C PoroFracture.h)
+  target_link_libraries(Frac PUBLIC IFEM::PoroElasticity)
 endif()
 
 ifem_add_application(
@@ -69,7 +76,7 @@ ifem_add_application(
   SOURCES
     main_CahnHilliard.C
   LIBRARIES
-    CommonFrac
+    IFEM::FractureDynamics
 )
 
 ifem_add_application(
@@ -81,7 +88,7 @@ ifem_add_application(
   HEADERS
     FractureArgs.h
   LIBRARIES
-    CommonFrac
+    IFEM::FractureDynamics
 )
 
 # Testing
@@ -223,7 +230,7 @@ ifem_add_test_app(
   WORKDIR
     ${PROJECT_SOURCE_DIR}/Test
   LIBRARIES
-    CommonFrac
+    IFEM::FractureDynamics
 )
 
 if(IFEM_COMMON_APP_BUILD)
