@@ -54,7 +54,7 @@ public:
   std::string getName() const override { return "CahnHilliard"; }
 
   //! \brief Preprocessing performed before the FEM model generation.
-  void preprocessA() override;
+  bool preprocessA() override;
 
   //! \brief Preprocessing performed after the FEM model generation.
   bool preprocessB() override;
