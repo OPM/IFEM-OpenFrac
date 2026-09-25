@@ -69,7 +69,7 @@ SIMPhaseField<Dim>::~SIMPhaseField ()
 
 
 template<class Dim>
-void SIMPhaseField<Dim>::preprocessA ()
+bool SIMPhaseField<Dim>::preprocessA ()
 {
   if (!Dim::myProblem)
     Dim::myProblem = chp = new CahnHilliard(Dim::dimension);
@@ -77,6 +77,8 @@ void SIMPhaseField<Dim>::preprocessA ()
   this->printProblem();
   if (this->hasIC("phasefield"))
     IFEM::cout <<"Initial phase field specified."<< std::endl;
+
+  return true;
 }
 
 
