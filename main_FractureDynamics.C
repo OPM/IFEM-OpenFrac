@@ -50,8 +50,6 @@ class SIMDriver : public Solver<T>
 public:
   //! \brief The constructor initializes the reference to the actual solver.
   SIMDriver(T& s, const char* c = nullptr) : Solver<T>(s), context(c) {}
-  //! \brief Empty destructor.
-  virtual ~SIMDriver() {}
 
   //! \brief Overrides the stop time that was read from the input file.
   void setStopTime(double t) { Solver<T>::tp.stopTime = t; }
@@ -100,9 +98,9 @@ int runCombined (char* infile, double stopTime, const char* context)
              <<"\n========================="<< std::endl;
 
   ElSolver elastoSim;
-  int rest = elastoSim.restartBasis(IFEM::getOptions().restartFile,
-                                    IFEM::getOptions().restartStep);
-  if (rest < 0) return -rest;
+  if (int rest = elastoSim.restartBasis(IFEM::getOptions().restartFile,
+                                        IFEM::getOptions().restartStep);
+      rest < 0) return -rest;
 
   ASMstruct::resetNumbering();
   if (!readModel(elastoSim,infile))
@@ -382,12 +380,10 @@ int main (int argc, char** argv)
   ASMmxBase::Type = ASMmxBase::NONE;
   IFEM::Init(argc,argv,"Fracture dynamics solver");
 
-  for (int i = 1; i < argc; i++)
-    if (argv[i] == args.inpfile || args.parseArg(argv[i]))
-      ; // ignore the input file on the second pass
-    else if (SIMoptions::ignoreOldOptions(argc,argv,i))
-      ; // ignore the obsolete option
-    else if (!strcmp(argv[i],"-mixed"))
+  // Lambda function for parsing the options not stored in FractureArgs.
+  auto external_args = [argc,argv,&args](int& i) -> bool
+  {
+    if (!strcmp(argv[i],"-mixed"))
       ASMmxBase::Type = ASMmxBase::FULL_CONT_RAISE_BASIS1;
     else if (!strcmp(argv[i],"-principal"))
       Elasticity::wantPrincipalStress = true;
@@ -395,11 +391,12 @@ int main (int argc, char** argv)
       FractureElasticNorm::dbgElm = atoi(argv[++i]);
     else if (!strncmp(argv[i],"-stopT",6) && i < argc-1)
       args.stopT = atof(argv[++i]);
-    else if (!args.inpfile)
-      args.parseFile(argv[i],i);
     else
-      std::cerr <<"  ** Unknown option ignored: "<< argv[i] << std::endl;
+      return false;
+    return true;
+  };
 
+  args.inpfile = args.preParse(argc,argv,external_args);
   if (!args.inpfile)
   {
     std::cout <<"usage: "<< argv[0]

@@ -56,22 +56,13 @@ bool FractureArgs::parseArg (const char* argv)
 }
 
 
-void FractureArgs::parseFile (const char* argv, int& iarg)
-{
-  inpfile = const_cast<char*>(argv);
-  if (strcasestr(inpfile,".xinp"))
-    if (this->readXML(inpfile,false))
-      iarg = 0; // start over and let command-line options override input file
-}
-
-
 bool FractureArgs::parse (const tinyxml2::XMLElement* elem)
 {
   if (!strcasecmp(elem->Value(),"fracturedynamics")) {
     utl::getAttribute(elem,"timeintegrator",integrator);
     utl::getAttribute(elem,"coupling",coupling);
-    const tinyxml2::XMLElement* child = elem->FirstChildElement();
-    for (; child; child = child->NextSiblingElement())
+    for (const tinyxml2::XMLElement* child = elem->FirstChildElement();
+         child; child = child->NextSiblingElement())
       if (!strcasecmp(child->Value(),"semiimplicit"))
         coupling = 2;
       else if (!strcasecmp(child->Value(),"generalizedalpha"))

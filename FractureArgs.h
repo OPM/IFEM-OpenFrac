@@ -39,8 +39,6 @@ public:
 
   //! \brief Parses a command-line argument.
   virtual bool parseArg(const char* argv);
-  //! \brief Pre-parses an input file for command-line argument values.
-  void parseFile(const char* argv, int& iarg);
 
 protected:
   //! \brief Parses an element from the input file.
