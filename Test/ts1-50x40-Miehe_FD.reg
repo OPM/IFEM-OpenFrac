@@ -60,7 +60,12 @@ Parsing <geometry>
 	0.613537 0.643789 0.678045 0.716143 0.757798 0.802598 0.849995 0.89929 0.949631
   Parsing <topologysets>
 Parsing <cahnhilliard>
-	Initial condition expression function: dX=x-0.5; dY=y-0.5; ell=0.015; d=if(below(dX,0.0),abs(dY),sqrt(dX\*dX+dY\*dY)); 1.0-exp(-d/ell)
+	Initial condition expression function:
+		dX=x-0.5;
+		dY=y-0.5;
+		ell=0.015;
+		d=if(below(dX,0.0),abs(dY),sqrt(dX\*dX+dY\*dY));
+		1.0-exp(-d/ell);
 	Field name: "phasefield" on basis 1 (component 1)
 Parsing <elasticity>
 Parsing <nonlinearsolver>
@@ -109,7 +114,12 @@ Number of nodes       2091
 Number of dofs        2091
 Number of unknowns    2091
 Loading initial condition for "phasefield" component 1
-from expression function: dX=x-0.5; dY=y-0.5; ell=0.015; d=if(below(dX,0.0),abs(dY),sqrt(dX\*dX+dY\*dY)); 1.0-exp(-d/ell)
+from expression function:
+		dX=x-0.5;
+		dY=y-0.5;
+		ell=0.015;
+		d=if(below(dX,0.0),abs(dY),sqrt(dX\*dX+dY\*dY));
+		1.0-exp(-d/ell);
 100. Starting the simulation
   Initial phase field...
   L2-norm            : 0.92325

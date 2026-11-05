@@ -41,7 +41,12 @@ Parsing input file Miehe71.xinp
 Parsing <geometry>
 Parsing <cahnhilliard>
 Parsing <phasefield>
-	Phase-field function: C=1.0-exp(-0.08)/1.08; l=0.25; xx=abs(x-2.5); xi=2.0\*(xx-l)/l; if(above(xx,l),1.0-exp(-xi)/(1.0+xi),C\*xx/l)
+	Phase-field function:
+		C=1.0-exp(-0.08)/1.08;
+		l=0.25;
+		xx=abs(x-2.5);
+		xi=2.0\*(xx-l)/l;
+		if(above(xx,l),1.0-exp(-xi)/(1.0+xi),C\*xx/l);
 Parsing <poroelasticity>
 Parsing <elasticity>
 Parsing <discretization>
