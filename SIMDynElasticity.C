@@ -38,6 +38,7 @@
   template<class Dim, class DynSIM, class Sim> \
   retType SIMDynElasticity<Dim,DynSIM,Sim>::name
 
+//! \cond DO_NOT_DOCUMENT
 
 TEMPLATE_METHOD(bool,printProblem) () const
 {
@@ -354,6 +355,7 @@ TEMPLATE_METHOD(bool,parse) (const tinyxml2::XMLElement* elem)
   --ncall;
   return result;
 }
+//! \endcond
 
 
 //! \brief Helper macro to perform actual instantation.
@@ -362,7 +364,7 @@ TEMPLATE_METHOD(bool,parse) (const tinyxml2::XMLElement* elem)
   template class SIMDynElasticity<SIM3D,SIM,ELSIM<SIM3D>>;
 
 
-//! \brief Helper macro instanting for elasticity variants.
+//! \brief Helper macro instantiating for elasticity variants.
 #ifdef IFEM_HAS_POROELASTIC
 #define INSTANCE(SIM) \
   INSTANCE_DIM(SIM,SIMPoroElasticity) \
