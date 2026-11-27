@@ -36,6 +36,8 @@
 #include "ASMstruct.h"
 #include "ASMmxBase.h"
 
+#include <type_traits>
+
 
 /*!
   \brief Dynamic simulation driver.
@@ -297,8 +299,21 @@ int runSimulator2 (const FractureArgs& args)
 }
 
 
+//! \brief Tells whether a fracture simulator is the generic one.
+template<template<class T1, class T2,
+                  template<class T3, class T4> class Coupling> class FractureSim>
+struct IsSIMFracture : std::false_type {};
+
+//! \brief Specialization for the generic fracture simulator.
+template<>
+struct IsSIMFracture<SIMFracture> : std::true_type {};
+
+
 /*!
   \brief Selects the coupling driver to be used.
+  \details The nonlinear quasi-static simulation has fracture simulators of
+  its own for the couplings 2 and 3, see runSimulator, so the generic
+  simulator is not instantiated for the semi-implicit coupling there.
 */
 
 template<class Dim, class Integrator,
@@ -311,7 +326,11 @@ int runSimulator1 (const FractureArgs& args)
   case 3:
     return runSimulator2<Dim,Integrator,SIMCoupled,FractureSim>(args);
   case 2:
-    return runSimulator2<Dim,Integrator,SIMCoupledSI,FractureSim>(args);
+    if constexpr (std::is_same_v<Integrator,NonLinSIM> &&
+                  IsSIMFracture<FractureSim>::value)
+      return 99; // Never reached, coupling 2 is run by SIMFractureQstatic
+    else
+      return runSimulator2<Dim,Integrator,SIMCoupledSI,FractureSim>(args);
   default: // No phase field coupling
     return runSimulator4<Dim,Integrator>(args,Integrator::inputContext);
   }
