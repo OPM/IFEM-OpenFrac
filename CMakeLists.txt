@@ -87,6 +87,16 @@ ifem_add_application(
     FractureDynamics
   SOURCES
     FractureArgs.C
+    FractureLaunchGenAlphaSIM2D.C
+    FractureLaunchGenAlphaSIM3D.C
+    FractureLaunchHHTSIM2D.C
+    FractureLaunchHHTSIM3D.C
+    FractureLaunchNewmarkNLSIM2D.C
+    FractureLaunchNewmarkNLSIM3D.C
+    FractureLaunchNewmarkSIM2D.C
+    FractureLaunchNewmarkSIM3D.C
+    FractureLaunchNonLinSIM2D.C
+    FractureLaunchNonLinSIM3D.C
     main_FractureDynamics.C
   HEADERS
     FractureArgs.h
