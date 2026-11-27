@@ -45,6 +45,11 @@ ifem_add_library(
     SIMExplPhaseField.C
     SIMDynElasticity.C
     SIMFractureDynamics.C
+    SIMFractureDynamicsGenAlphaSIM.C
+    SIMFractureDynamicsHHTSIM.C
+    SIMFractureDynamicsNewmarkNLSIM.C
+    SIMFractureDynamicsNewmarkSIM.C
+    SIMFractureDynamicsNonLinSIM.C
     SIMFractureQstatic.C
     SIMPhaseField.C
   HEADERS
